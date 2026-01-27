@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFRAS CORE | Biometric Intelligence System</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #0062ff;
+            --primary-glow: rgba(0, 98, 255, 0.4);
+            --bg: #030712;
+            --surface: #111827;
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f9fafb;
+            --text-dim: #9ca3af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.15;
+        }
+
+        /* UI COMPONENTS */
+        nav {
+            padding: 1.5rem 2rem;
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .viz-container {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 20px var(--primary-glow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .input-group input,
+        .input-group select {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            font-family: 'JetBrains Mono';
+            outline: none;
+        }
+
+        /* DASHBOARD TEMPLATE */
+        #routine-interface {
+            display: none;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .path-display {
+            font-family: 'JetBrains Mono';
+            font-size: 0.7rem;
+            color: var(--primary);
+            background: rgba(0, 98, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid-overlay"></div>
+
+    <div id="modal-auth"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3,7,18,0.95); display: none; justify-content: center; align-items: center; z-index: 1000;">
+        <div class="viz-container" style="width: 400px;">
+            <h3>System Authorization</h3>
+            <form id="login-form" style="margin-top: 20px;">
+                <div class="input-group">
+                    <label>Personnel ID</label>
+                    <input type="text" placeholder="FWU-ADMIN-2026" required>
+                </div>
+                <div class="input-group">
+                    <label>Access Key</label>
+                    <input type="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Enter
+                    Control Core</button>
+            </form>
+        </div>
+    </div>
+
+    <nav>
+        <div style="font-weight: 800; font-size: 1.5rem;"><i class="fas fa-shield-cat"
+                style="color: var(--primary);"></i> AFRAS CORE</div>
+        <button onclick="document.getElementById('modal-auth').style.display='flex'" class="btn btn-outline">Admin
+            Access</button>
+    </nav>
+
+    <main id="landing-hero" class="hero">
+        <div>
+            <h1 style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 1.5rem;">Secure <span>Routine</span>
+                Management.</h1>
+            <p style="color: var(--text-dim); margin-bottom: 2rem;">Synchronize institutional attendance with automated
+                ResNet-101 identity verification.</p>
+            <button onclick="document.getElementById('modal-auth').style.display='flex'"
+                class="btn btn-primary">Initialize System</button>
+        </div>
+        <div class="viz-container" style="text-align: center;">
+            <i class="fas fa-microchip" style="font-size: 4rem; color: var(--primary); margin-bottom: 1rem;"></i>
+            <p style="font-family: 'JetBrains Mono'; font-size: 0.75rem;">BACKEND_STATUS: ONLINE</p>
+        </div>
+    </main>
+
+    <div id="routine-interface">
+        <div
+            style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 20px;">
+            <div>
+                <h2>Management Dashboard</h2>
+                <p style="color: var(--text-dim); font-size: 0.8rem;">Internal Template Location: <span
+                        class="path-display">templates/dashboard/home.html</span></p>
+            </div>
+            <button onclick="window.location.reload()" class="btn btn-outline"
+                style="color: var(--danger); border-color: var(--danger);">Close Core</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+
+            <div class="viz-container">
+                <h4 style="margin-bottom: 1.5rem; color: var(--success);"><i class="fas fa-hand-pointer"></i> Manual
+                    Session Initialization</h4>
+                <div class="input-group">
+                    <label>Subject/Module Name</label>
+                    <input type="text" id="manual-name" placeholder="e.g., Computer Graphics">
+                </div>
+                <div class="input-group">
+                    <label>Assigned Department</label>
+                    <select id="manual-dept">
+                        <option value="ENG">School of Engineering</option>
+                        <option value="CSIT">Department of CSIT</option>
+                    </select>
+                </div>
+                <button onclick="triggerSession('manual')" class="btn btn-primary"
+                    style="width: 100%; justify-content: center;">Start Manual Routine</button>
+            </div>
+
+            <div class="viz-container">
+                <h4 style="margin-bottom: 1.5rem; color: var(--primary);"><i class="fas fa-file-invoice"></i> AI
+                    Document Extraction</h4>
+                <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem;">Upload institutional routine
+                    files (PDF/XLSX) to extract schedule vectors.</p>
+
+                <div style="border: 2px dashed var(--border); padding: 30px; border-radius: 12px; text-align: center;"
+                    id="upload-zone">
+                    <input type="file" id="routine-file" hidden onchange="showFileStatus(this)">
+                    <button onclick="document.getElementById('routine-file').click()" class="btn btn-outline"
+                        style="width: 100%; justify-content: center;">Select Routine File</button>
+                    <p id="file-name"
+                        style="font-size: 0.7rem; font-family: 'JetBrains Mono'; margin-top: 10px; color: var(--primary);">
+                    </p>
+                </div>
+
+                <div id="extraction-actions" style="display: none; margin-top: 20px;">
+                    <button onclick="triggerSession('document')" class="btn btn-primary"
+                        style="width: 100%; justify-content: center; background: var(--gradient);">Run Extraction &
+                        Start</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Authentication Simulation
+        document.getElementById('login-form').onsubmit = function (e) {
+            e.preventDefault();
+            document.getElementById('modal-auth').style.display = 'none';
+            document.getElementById('landing-hero').style.display = 'none';
+            document.getElementById('routine-interface').style.display = 'block';
+        };
+
+        function showFileStatus(input) {
+            if (input.files[0]) {
+                document.getElementById('file-name').innerText = `READY: ${input.files[0].name}`;
+                document.getElementById('extraction-actions').style.display = 'block';
+            }
+        }
+
+        // Session Trigger with Path Mapping based on your Folder Structure
+        function triggerSession(mode) {
+            const timestamp = new Date().getTime();
+            let logPath = "";
+
+            if (mode === 'manual') {
+                const subject = document.getElementById('manual-name').value || "Unnamed_Session";
+                // Mapping to your media or static folders for logs
+                logPath = `afras_backend/media/logs/manual/${subject}_${timestamp}.csv`;
+            } else {
+                logPath = `afras_backend/media/routines/extracted/session_${timestamp}.json`;
+            }
+
+            alert(`SYSTEM LOG: SESSION_INITIALIZED\n\nMode: ${mode.toUpperCase()}\nTarget Path: ${logPath}\nBackend App: /dashboard/`);
+        }
+    </script>
+</body>
+
+</html>

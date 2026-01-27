@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mark Attendance</title>
+</head>
+<body>
+    <h1>Attendance Marked</h1>
+    <p>The following students were recognized and attendance marked:</p>
+    <ul>
+        {% for student in students %}
+            <li>{{ student.name }}</li>
+        {% endfor %}
+    </ul>
+    <p><a href="/dashboard/">Go to Dashboard</a></p>
+</body>
+</html>

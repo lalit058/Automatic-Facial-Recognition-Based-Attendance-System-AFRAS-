@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Face Recognition Scan</title>
+</head>
+<body>
+    <h1>Face Recognition Scan</h1>
+    <p>Attendance marked for the following students:</p>
+    <ul>
+        {% for student in students %}
+            <li>{{ student.name }}</li>
+        {% endfor %}
+    </ul>
+    <p><a href="/dashboard/">Go Back to Dashboard</a></p>
+</body>
+</html>
