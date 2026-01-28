@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFRAS | {% if request.user.is_superuser %}Admin{% else %}Staff{% endif %} Dashboard</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0062ff;
+            --bg: #030712;
+            --surface: #111827;
+            --surface-light: #1f2937;
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f9fafb;
+            --text-dim: #9ca3af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Sidebar */
+        aside {
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-weight: 800;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+
+        /* Enhanced Professional Sidebar Profile */
+        .user-profile {
+            display: flex;
+            flex-direction: column;
+            /* Stacked layout looks more premium in sidebars */
+            align-items: center;
+            padding: 1.5rem 1rem;
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.7) 0%, rgba(17, 24, 39, 0.9) 100%);
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle glow effect behind the profile */
+        .user-profile::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(0, 98, 255, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .profile-photo-container {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .profile-photo {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            /* Squircle look is more modern than circle */
+            object-fit: cover;
+            border: 2px solid var(--surface-light);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
+            background: var(--success);
+            border: 3px solid var(--surface);
+            border-radius: 50%;
+        }
+
+        .profile-info {
+            text-align: center;
+            width: 100%;
+        }
+
+        .profile-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            letter-spacing: -0.2px;
+            margin-bottom: 2px;
+        }
+
+        .profile-role-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            color: var(--primary);
+            background: rgba(0, 98, 255, 0.1);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border: 1px solid rgba(0, 98, 255, 0.2);
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-dim);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: 0.3s;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Main Content */
+        main {
+            margin-left: 260px;
+            flex-grow: 1;
+            padding: 2rem;
+            width: calc(100% - 260px);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .stat-card h4 {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-card .val {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        /* Layout Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.8fr 1fr;
+            gap: 1.5fr;
+            gap: 1.5rem;
+        }
+
+        .panel {
+            background: var(--surface);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+        }
+
+        /* Indicators */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .admin-badge {
+            background: rgba(0, 98, 255, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .staff-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
+        /* Quick Actions */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .btn-action {
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 12px;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-action:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        /* System Health (Admin) */
+        .health-bar {
+            height: 6px;
+            background: var(--border);
+            border-radius: 10px;
+            margin: 8px 0 15px;
+            overflow: hidden;
+        }
+
+        .health-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 1s ease-in-out;
+        }
+    </style>
+</head>
+
+<body>
+    <aside>
+        <div class="nav-brand">
+            <i class="fas fa-microchip"></i>
+            <span>AFRAS CORE</span>
+        </div>
+
+        <div class="user-profile">
+            <div class="profile-photo-container">
+                <img src="{% if request.user.staff_profile.photo %}{{ request.user.staff_profile.photo.url }}{% else %}https://ui-avatars.com/api/?name={{ request.user.username }}&background=0062ff&color=fff&size=128{% endif %}"
+                    class="profile-photo" alt="Profile">
+                <div class="status-indicator"></div>
+            </div>
+
+            <div class="profile-info">
+                <div class="profile-name">
+                    {% if request.user.is_superuser %}
+                    {{ request.user.username|title }}
+                    {% else %}
+                    {{ request.user.staff_profile.full_name|default:request.user.username }}
+                    {% endif %}
+                </div>
+
+                <div class="profile-role-badge">
+                    {% if request.user.is_superuser %}
+                    SYSTEM ROOT
+                    {% else %}
+                    {{ request.user.staff_profile.designation|upper|default:"ACADEMIC STAFF" }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav-menu">
+            <li><a href="{% url 'dashboard_home' %}" class="nav-link active"><i class="fas fa-th-large"></i>
+                    Dashboard</a></li>
+            {% if request.user.is_superuser %}
+            <li><a href="{% url 'staff-directory' %}" class="nav-link"><i class="fas fa-user-shield"></i> Staff
+                    Accounts</a></li>
+            {% else %}
+            <li><a href="{% url 'student-directory' %}" class="nav-link"><i class="fas fa-user-graduate"></i> My
+                    Students</a></li>
+            <li><a href="#" class="nav-link"><i class="fas fa-camera"></i> Scan Session</a>
+            </li>
+            {% endif %}
+        </ul>
+
+        <form action="{% url 'logout' %}" method="post" style="margin-top: auto;">
+            {% csrf_token %}
+            <button type="submit" class="nav-link"
+                style="background:none; border:none; width:100%; color: var(--warning); border-top: 1px solid var(--border); cursor:pointer;">
+                <i class="fas fa-power-off"></i> Logout
+            </button>
+        </form>
+    </aside>
+
+    <main>
+        <header>
+            <div>
+                <h2 style="font-weight: 800;">
+                    {% if request.user.is_superuser %}Central Management{% else %}Faculty Operation Center{% endif %}
+                </h2>
+                <div class="badge {% if request.user.is_superuser %}admin-badge{% else %}staff-badge{% endif %}"
+                    style="margin-top: 10px;">
+                    <i
+                        class="fas {% if request.user.is_superuser %}fa-crown{% else %}fa-chalkboard-teacher{% endif %}"></i>
+                    {% if request.user.is_superuser %}ROOT ADMINISTRATOR{% else %}VERIFIED STAFF{% endif %}
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <p id="clock"
+                    style="font-family: 'JetBrains Mono'; font-size: 1.4rem; color: var(--primary); font-weight: 600;">
+                </p>
+                <p style="font-size: 0.75rem; color: var(--text-dim); letter-spacing: 1px;">SYSTEM ONLINE</p>
+            </div>
+        </header>
+
+        <div class="stats-row">
+            {% if request.user.is_superuser %}
+            <a href="{% url 'staff-directory' %}" style="text-decoration: none; color: inherit;">
+                <div class="stat-card" style="cursor: pointer;">
+                    <h4><i class="fas fa-users-gear"></i> Total Staff</h4>
+                    <div class="val">{{ total_staff }}</div>
+                </div>
+            </a>
+            {% else %}
+            <a href="{% url 'student-directory' %}" style="text-decoration: none; color: inherit;">
+                <div class="stat-card" style="cursor: pointer;">
+                    <h4><i class="fas fa-users-gear"></i> Total Student</h4>
+                    <div class="val" style="color: var(--primary);">{{ total_students|default:"0" }}</div>
+                </div>
+            </a>
+            <div class="stat-card">
+                <h4><i class="fas fa-chart-line"></i> Monthly Attendance</h4>
+                <div class="val" style="color: var(--success);">{{ attendance_rate }}%</div>
+            </div>
+            {% endif %}
+
+            <div class="stat-card">
+                <h4><i class="fas fa-fingerprint"></i> Today's Scans</h4>
+                <div class="val">{{ daily_scans }}</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="panel">
+                <h3 style="font-size: 1rem; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-list-ul"></i>
+                    {% if request.user.is_superuser %}System-wide Recent Logs{% else %}Recent Class Activity{% endif %}
+                </h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>IDENTIFIED</th>
+                            <th>TIME</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in recent_logs %}
+                        <tr>
+                            <td>
+                                <strong>{{ log.student.full_name|default:log.student.name }}</strong>
+                            </td>
+                            <td>{{ log.timestamp|time:"H:i A" }}</td>
+                            <td>
+                                <span class="badge staff-badge">
+                                    <i class="fas fa-check"></i> {{ log.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" style="text-align: center; color: var(--text-dim); padding: 40px;">
+                                <i class="fas fa-clock-rotate-left"
+                                    style="display:block; font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                                No attendance recorded for today.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                <h3 style="font-size: 1rem;"><i class="fas fa-bolt"></i> Quick Actions</h3>
+                <div class="action-grid">
+                    {% if request.user.is_superuser %}
+                    <a href="{% url 'register-staff' %}" class="btn-action"><i class="fas fa-user-plus"></i><span>Add
+                            Staff</span></a>
+                    <a href="{% url 'register-student' %}" class="btn-action"><i class="fas fa-user-plus"></i><span>Add
+                            Student</span></a>
+                    <a href="#" class="btn-action"><i class="fas fa-file-export"></i><span>Full Backup</span></a>
+                    {% else %}
+                    <a href="#" class="btn-action"><i class="fas fa-qrcode"></i><span>Start
+                            Scan</span></a>
+                    <a href="{% url 'student-directory' %}" class="btn-action"><i
+                            class="fas fa-address-book"></i><span>Student List</span></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+<script>
+    function updateClock() {
+        const now = new Date();
+        const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', options);
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>
+
+</html>

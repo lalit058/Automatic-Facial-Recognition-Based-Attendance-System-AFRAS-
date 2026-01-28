@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFRAS CORE | Routine Management</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #0062ff;
+            --primary-glow: rgba(0, 98, 255, 0.4);
+            --bg: #030712;
+            --surface: #111827;
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f9fafb;
+            --text-dim: #9ca3af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            line-height: 1.6;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.15;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .viz-container {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+
+        .viz-container:hover {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 20px var(--primary-glow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .input-group input,
+        .input-group select {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            font-family: 'JetBrains Mono';
+            outline: none;
+        }
+
+        .status-badge {
+            font-family: 'JetBrains Mono';
+            font-size: 0.7rem;
+            background: rgba(0, 98, 255, 0.1);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        /* Spinner for processing */
+        .spinner {
+            animation: rotate 2s linear infinite;
+            display: none;
+            margin-right: 8px;
+        }
+
+        @keyframes rotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid-overlay"></div>
+
+    <div class="container">
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 20px;">
+            <div>
+                <h2><i class="fas fa-calendar-check" style="color: var(--primary);"></i> Routine Management</h2>
+                <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 5px;">Synchronize institutional
+                    schedules with ResNet-101 Identity Core.</p>
+            </div>
+            <span class="status-badge" id="system-status">SYSTEM_IDLE</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+
+            <div class="viz-container">
+                <h4 style="margin-bottom: 1.5rem; color: var(--success);"><i class="fas fa-hand-pointer"></i> Manual
+                    Session Entry</h4>
+                <form id="manual-routine-form">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <label>Subject / Module</label>
+                        <input type="text" name="subject" id="manual-name" placeholder="e.g., Computer Graphics"
+                            required>
+                    </div>
+                    <div class="input-group">
+                        <label>Department</label>
+                        <select name="department" id="manual-dept">
+                            <option value="Engineering">School of Engineering</option>
+                            <option value="CSIT">Department of CSIT</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Target Semester</label>
+                        <input type="number" name="semester" min="1" max="8" value="1">
+                    </div>
+                    <button type="button" onclick="handleManualSubmit()" class="btn btn-primary"
+                        style="width: 100%; justify-content: center;">
+                        <i class="fas fa-play"></i> Start Session Now
+                    </button>
+                </form>
+            </div>
+
+            <div class="viz-container">
+                <h4 style="margin-bottom: 1.5rem; color: var(--primary);"><i class="fas fa-file-invoice"></i> AI
+                    Document Extraction</h4>
+                <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1.5rem;">Upload a PDF routine to
+                    automatically extract schedule vectors and automate attendance sessions.</p>
+
+                <form id="extraction-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div style="border: 2px dashed var(--border); padding: 40px; border-radius: 12px; text-align: center; position: relative;"
+                        id="upload-zone">
+                        <input type="file" name="routine_file" id="routine-file" hidden
+                            onchange="updateFileLabel(this)">
+                        <div id="file-label-container">
+                            <i class="fas fa-cloud-upload-alt"
+                                style="font-size: 2rem; color: var(--text-dim); margin-bottom: 10px;"></i>
+                            <p style="font-size: 0.8rem; color: var(--text-dim);">Drag & Drop or</p>
+                            <button type="button" onclick="document.getElementById('routine-file').click()"
+                                class="btn btn-outline" style="margin-top: 10px;">Select PDF/XLSX</button>
+                        </div>
+                        <p id="file-name"
+                            style="font-size: 0.75rem; font-family: 'JetBrains Mono'; margin-top: 15px; color: var(--primary);">
+                        </p>
+                    </div>
+
+                    <div id="extraction-actions" style="display: none; margin-top: 20px;">
+                        <button type="button" onclick="handleExtractionSubmit()" class="btn btn-primary"
+                            style="width: 100%; justify-content: center; background: var(--gradient);">
+                            <i class="fas fa-brain"></i> Extract & Automate
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function updateFileLabel(input) {
+            if (input.files[0]) {
+                document.getElementById('file-name').innerText = `ATTACHED: ${input.files[0].name}`;
+                document.getElementById('extraction-actions').style.display = 'block';
+                document.getElementById('file-label-container').style.opacity = '0.3';
+            }
+        }
+
+        async function handleManualSubmit() {
+            const statusBadge = document.getElementById('system-status');
+            const form = document.getElementById('manual-routine-form');
+
+            // Create FormData from the form element
+            const formData = new FormData(form);
+
+            statusBadge.innerText = 'INITIALIZING_SESSION...';
+            statusBadge.style.color = 'var(--warning)';
+
+            try {
+                // Ensure the URL matches your urls.py exactly
+                const response = await fetch('/dashboard/routine-start-manual/', {
+                    method: 'POST', // This must be POST
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert("SUCCESS: Biometric Session Initialized.");
+                    statusBadge.innerText = 'SESSION_ACTIVE';
+                    statusBadge.style.color = 'var(--success)';
+                } else {
+                    alert("SYSTEM ERROR: " + data.message);
+                    statusBadge.innerText = 'ERROR';
+                }
+            } catch (err) {
+                console.error(err);
+                alert("CRITICAL ERROR: Could not connect to Backend Core.");
+            }
+        }
+
+        async function handleExtractionSubmit() {
+            const statusBadge = document.getElementById('system-status');
+            const form = document.getElementById('extraction-form');
+            const formData = new FormData(form);
+
+            statusBadge.innerText = 'AI_EXTRACTING_DATA...';
+
+            try {
+                const response = await fetch('{% url "extract_routine_ai" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert(`Extraction Complete! Found ${data.classes_count} scheduled sessions.`);
+                    statusBadge.innerText = 'AUTOMATION_SYNCED';
+                } else {
+                    alert("Extraction Failed: " + data.message);
+                }
+            } catch (err) {
+                alert("AI Processing Error");
+            }
+        }
+    </script>
+</body>
+
+</html>
