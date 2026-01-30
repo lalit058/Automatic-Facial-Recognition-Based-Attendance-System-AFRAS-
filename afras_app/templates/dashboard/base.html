@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFRAS | {% block title %}{% endblock %}</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_head %}{% endblock %}
+    <style>
+        :root {
+            --primary: #0062ff;
+            --bg: #030712;
+            --surface: #111827;
+            --surface-light: #1f2937;
+            --border: rgba(255, 255, 255, 0.1);
+            --text-main: #f9fafb;
+            --text-dim: #9ca3af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar --- */
+        aside {
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            font-weight: 800;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+
+        /* Enhanced Professional Sidebar Profile */
+        .user-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem 1rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-photo-container {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .profile-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 18px;
+            object-fit: cover;
+            border: 2px solid var(--surface-light);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
+            background: var(--success);
+            border: 3px solid var(--surface);
+            border-radius: 50%;
+        }
+
+        .profile-info {
+            text-align: center;
+            width: 100%;
+        }
+
+        .profile-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            letter-spacing: -0.2px;
+            margin-bottom: 5px;
+        }
+
+        .profile-role-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            color: var(--primary);
+            background: rgba(0, 98, 255, 0.1);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border: 1px solid rgba(0, 98, 255, 0.2);
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-dim);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: 0.3s;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+            border-left: 5px solid var(--warning);
+            border-radius: 12px;
+        }
+
+        /* --- Main Content --- */
+        main {
+            margin-left: 260px;
+            flex-grow: 1;
+            padding: 2rem;
+            width: calc(100% - 260px);
+        }
+
+
+        .msg-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+        }
+
+        .msg {
+            padding: 16px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            min-width: 300px;
+            max-width: 400px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            animation: slideIn 0.4s ease-out forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .msg i {
+            font-size: 1.1rem;
+        }
+
+        .msg.success {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border-color: var(--success);
+        }
+
+        .msg.error {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .msg.warning {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border-color: var(--warning);
+        }
+
+        .msg.info {
+            background-color: rgba(0, 98, 255, 0.15);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Logout Form */
+        .logout-form {
+            margin-top: auto;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            width: 100%;
+            color: var(--warning);
+            border-top: 1px solid var(--border);
+            cursor: pointer;
+            text-align: left;
+            padding: 12px 16px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 0;
+        }
+
+        .logout-btn:hover {
+            color: var(--danger);
+        }
+    </style>
+</head>
+
+<body>
+    <aside>
+        <div class="nav-brand">
+            <i class="fas fa-microchip"></i>
+            <span>AFRAS CORE</span>
+        </div>
+
+        <div class="user-profile">
+            <div class="profile-photo-container">
+                <img src="{% if request.user.staff_profile.photo %}{{ request.user.staff_profile.photo.url }}{% else %}https://ui-avatars.com/api/?name={{ request.user.username }}&background=0062ff&color=fff&size=128{% endif %}"
+                    class="profile-photo" alt="Profile">
+                <div class="status-indicator"></div>
+            </div>
+
+            <div class="profile-info">
+                <div class="profile-name">
+                    {% if request.user.is_superuser %}
+                    {{ request.user.username|title }}
+                    {% else %}
+                    {{ request.user.staff_profile.full_name|default:request.user.username }}
+                    {% endif %}
+                </div>
+
+                <div class="profile-role-badge">
+                    {% if request.user.is_superuser %}
+                    SYSTEM ROOT
+                    {% else %}
+                    {{ request.user.staff_profile.designation|upper|default:"ACADEMIC STAFF" }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav-menu">
+            <li><a href="{% url 'dashboard_home' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}"><i
+                        class="fas fa-th-large"></i> Dashboard</a></li>
+
+            {% if request.user.is_superuser %}
+            <li><a href="{% url 'staff-directory' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'staff-directory' %}active{% endif %}"><i
+                        class="fas fa-user-shield"></i> Staff Accounts</a></li>
+            <li><a href="{% url 'student-directory' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'student-directory' %}active{% endif %}"><i
+                        class="fas fa-user-shield"></i> Student Accounts</a></li>
+            {% else %}
+            <li><a href="{% url 'student-directory' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'student-directory' %}active{% endif %}"><i
+                        class="fas fa-user-graduate"></i> My Students</a></li>
+            <li><a href="#" class="nav-link"><i class="fas fa-camera"></i> Scan Session</a></li>
+            {% endif %}
+        </ul>
+
+        <form action="{% url 'logout' %}" method="post" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </form>
+    </aside>
+
+    <main>
+        <div class="msg-container" id="django-messages">
+            {% if messages %}
+            {% for msg in messages %}
+            <div class="msg {{ msg.tags }}" data-auto-dismiss="true">
+                <i class="fas 
+                    {% if msg.tags == 'success' %}fa-check-circle
+                    {% elif msg.tags == 'error' or msg.tags == 'warning' %}fa-exclamation-circle
+                    {% else %}fa-info-circle{% endif %}">
+                </i>
+                <span>{{ msg }}</span>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block extra_scripts %}
+    <script>
+        // Clock function for dashboard
+        function updateClock() {
+            const now = new Date();
+            const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            const clockElement = document.getElementById('clock');
+            if (clockElement) {
+                clockElement.textContent = now.toLocaleTimeString('en-US', options);
+            }
+        }
+
+        if (document.getElementById('clock')) {
+            setInterval(updateClock, 1000);
+            updateClock();
+        }
+        
+    </script>
+    {% endblock %}
+
+</body>
+
+</html>

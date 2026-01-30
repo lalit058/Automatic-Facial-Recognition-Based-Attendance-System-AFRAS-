@@ -1,337 +1,642 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'dashboard/base.html' %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Directory | AFRAS CORE</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #0062ff;
-            --bg: #030712;
-            --surface: #111827;
-            --surface-light: #1f2937;
-            --border: rgba(255, 255, 255, 0.1);
-            --text-main: #f9fafb;
-            --text-dim: #9ca3af;
-            --success: #10b981;
-            --warning: #f59e0b;
-        }
+{% block title %}Staff Directory{% endblock %}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% block extra_head %}
+<style>
+    .top-intro {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            display: flex;
-            min-height: 100vh;
-        }
+    .top-intro p {
+        color: var(--text-dim);
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
 
-        /* Sidebar Styling */
-        aside {
-            width: 260px;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            padding: 2rem 1.5rem;
-            position: fixed;
-            height: 100vh;
-            z-index: 100;
-        }
+    .staff-enroll {
+        display: flex;
+        align-items: center;
+    }
 
-        .nav-brand {
-            font-weight: 800;
-            font-size: 1.25rem;
-            margin-bottom: 3rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .filter-container {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+        border-radius: 16px;
+    }
 
-        .nav-menu {
-            list-style: none;
-            flex-grow: 1;
-        }
+    .search-box {
+        position: relative;
+        width: 300px;
+    }
 
-        .nav-item {
-            margin-bottom: 0.5rem;
-        }
+    .search-box input {
+        width: 100%;
+        background: var(--surface-light);
+        border: 1px solid var(--border);
+        color: white;
+        padding: 12px 15px 12px 45px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+    }
 
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            color: var(--text-dim);
-            text-decoration: none;
-            border-radius: 12px;
-            transition: 0.3s;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(0, 98, 255, 0.2);
+    }
 
-        .nav-link:hover,
-        .nav-link.active {
-            background: var(--primary);
-            color: white;
-        }
+    .search-box i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-dim);
+        font-size: 1rem;
+    }
 
-        /* Main Content Area */
-        main {
-            margin-left: 260px;
-            flex-grow: 1;
-            padding: 2rem;
-            width: calc(100% - 260px);
-        }
+    .filter-dropdown {
+        position: relative;
+        min-width: 180px;
+    }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2.5rem;
-        }
+    .filter-select {
+        width: 100%;
+        background: var(--surface-light);
+        border: 1px solid var(--border);
+        color: white;
+        padding: 12px 40px 12px 15px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        transition: all 0.3s;
+    }
 
-        .search-container {
-            position: relative;
-            width: 300px;
-        }
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
 
-        .search-container input {
-            width: 100%;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: white;
-            padding: 10px 15px 10px 40px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-        }
+    .filter-dropdown i {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-dim);
+        pointer-events: none;
+    }
 
-        .search-container i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-dim);
-        }
+    .filter-tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+        margin-bottom: 1rem;
+    }
 
-        /* Directory Table */
-        .directory-panel {
-            background: var(--surface);
-            border-radius: 24px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
+    .filter-tag {
+        background: var(--surface-light);
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
+    .filter-tag:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
 
-        thead {
-            background: rgba(255, 255, 255, 0.02);
-        }
+    .filter-tag.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
 
-        th {
-            padding: 18px 20px;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-dim);
-            border-bottom: 1px solid var(--border);
-        }
+    .clear-filters {
+        background: transparent;
+        border: 1px solid var(--warning);
+        color: var(--warning);
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
 
-        td {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.9rem;
-            vertical-align: middle;
-        }
+    .clear-filters:hover {
+        background: rgba(245, 158, 11, 0.1);
+    }
 
-        tr:last-child td {
-            border-bottom: none;
-        }
+    .results-count {
+        color: var(--text-dim);
+        font-size: 0.9rem;
+        margin-left: auto;
+        white-space: nowrap;
+    }
 
-        .staff-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+    .results-count strong {
+        color: var(--primary);
+        font-weight: 800;
+    }
 
-        .staff-avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            object-fit: cover;
-            background: var(--surface-light);
-            border: 2px solid var(--border);
-        }
+    .directory-panel {
+        background: var(--surface);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-top: 1rem;
+    }
 
-        .staff-info span {
-            display: block;
-            font-size: 0.75rem;
-            color: var(--text-dim);
-        }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
 
-        .dept-tag {
-            padding: 4px 10px;
-            background: rgba(0, 98, 255, 0.1);
-            color: var(--primary);
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
+    thead {
+        background: rgba(255, 255, 255, 0.02);
+    }
 
-        .id-badge {
-            font-family: 'JetBrains Mono', monospace;
-            background: var(--surface-light);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
+    th {
+        padding: 18px 20px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-dim);
+        border-bottom: 1px solid var(--border);
+    }
 
-        .btn-add {
-            background: var(--primary);
-            color: white;
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            transition: 0.3s;
-        }
+    td {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.9rem;
+        vertical-align: middle;
+    }
 
-        .btn-add:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 98, 255, 0.4);
-        }
-    </style>
-</head>
+    tr:last-child td {
+        border-bottom: none;
+    }
 
-<body>
+    .staff-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
-    <aside>
-        <div class="nav-brand">
-            <i class="fas fa-microchip" style="color: var(--primary);"></i>
-            <span>AFRAS CORE</span>
-        </div>
+    .staff-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        object-fit: cover;
+        background: var(--surface-light);
+        border: 2px solid var(--border);
+    }
 
-        <ul class="nav-menu">
-            <li class="nav-item"><a href="{% url 'dashboard_home' %}" class="nav-link"><i class="fas fa-th-large"></i>
-                    <span>Dashboard</span></a></li>
-            <li class="nav-item"><a href="{% url 'staff-directory' %}" class="nav-link active"><i
-                        class="fas fa-user-tie"></i> <span>Staff Directory</span></a></li>
-            <li class="nav-item"><a href="{% url 'student_directory' %}" class="nav-link"><i class="fas fa-users"></i>
-                    <span>Student Directory</span></a></li>
-            <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-file-invoice"></i> <span>Attendance
-                        Reports</span></a></li>
-        </ul>
+    .staff-info span {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--text-dim);
+    }
 
-        <div style="border-top: 1px solid var(--border); padding-top: 1rem;">
-            <a href="{% url 'logout' %}" class="nav-link" style="color: var(--warning);"><i
-                    class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
-        </div>
-    </aside>
+    .dept-tag {
+        padding: 4px 10px;
+        background: rgba(0, 98, 255, 0.1);
+        color: var(--primary);
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
 
-    <main>
-        <header>
-            <div>
-                <h2>Staff Directory</h2>
-                <p style="color: var(--text-dim); font-size: 0.9rem;">Authenticated personnel currently in the AFRAS
-                    ecosystem.</p>
-            </div>
 
-            <div style="display: flex; gap: 15px; align-items: center;">
-                <div class="search-container">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="staffSearch" placeholder="Search by name or ID...">
-                </div>
-                <a href="{% url 'register-staff' %}" class="btn-add">
-                    <i class="fas fa-plus"></i> Enroll Staff
-                </a>
-            </div>
-        </header>
+    .id-badge {
+        font-family: 'JetBrains Mono', monospace;
+        background: var(--surface-light);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
 
-        <div class="directory-panel">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Personnel</th>
-                        <th>Staff ID</th>
-                        <th>Department</th>
-                        <th>Degree & Designation</th>
-                        <th>Contact Info</th>
-                    </tr>
-                </thead>
-                <tbody id="staffTableBody">
-                    {% for staff in all_staff %}
-                    <tr>
-                        <td>
-                            <div class="staff-profile">
-                                {% if staff.photo %}
-                                <img src="{{ staff.photo.url }}" class="staff-avatar" alt="Profile">
+    .btn-add {
+        background: var(--primary);
+        color: white;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        transition: 0.3s;
+        white-space: nowrap;
+    }
+
+    .btn-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 98, 255, 0.4);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        opacity: 1;
+    }
+
+    .btn-edit,
+    .btn-delete {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .btn-edit {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+    }
+
+    .btn-edit:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .btn-delete:hover {
+        background: var(--danger);
+        color: white;
+    }
+
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .confirmation-modal {
+        background: var(--surface);
+        width: 90%;
+        max-width: 500px;
+        border-radius: 24px;
+        padding: 2.5rem;
+        position: relative;
+        border: 1px solid var(--border);
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 1.5rem;
+    }
+
+    .warning-icon {
+        color: var(--warning);
+        font-size: 2rem;
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 2rem;
+        justify-content: flex-end;
+    }
+
+    .btn-cancel {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        padding: 10px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .btn-confirm-delete {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .csrf-token {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="top-intro">
+    <div>
+        <h2>Staff Directory</h2>
+        <p>Authenticated personnel currently in the AFRAS ecosystem.</p>
+    </div>
+
+    <div class="staff-enroll">
+        <a href="{% url 'register-staff' %}" class="btn-add">
+            <i class="fas fa-plus"></i> Enroll Staff
+        </a>
+    </div>
+</header>
+
+<div class="filter-container">
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="staffSearch" placeholder="Search by name, ID, department, or designation...">
+    </div>
+
+    <div class="filter-dropdown">
+        <i class="fas fa-user-tag"></i>
+        <select id="roleFilter" class="filter-select">
+            <option value="all">All Roles</option>
+            <option value="admin">Administrators Only</option>
+            <option value="staff">Staff Only</option>
+        </select>
+    </div>
+
+    <button id="clearFilters" class="clear-filters">
+        <i class="fas fa-times-circle"></i> Clear Filters
+    </button>
+
+    <div class="results-count" id="resultsCount">
+        Showing <strong id="visibleCount">{{ all_staff|length }}</strong> of <strong>{{ all_staff|length}}</strong>
+        staff members
+    </div>
+</div>
+
+<div class="filter-tags" id="filterTags"></div>
+
+<div class="directory-panel">
+    <table>
+        <thead>
+            <tr>
+                <th>Personnel</th>
+                <th>Staff ID</th>
+                <th>Department</th>
+                <th>Degree & Designation</th>
+                <th>Contact Info</th>
+                {% if request.user.is_superuser %}
+                <th>Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody id="staffTableBody">
+            {% for staff in all_staff %}
+            <tr data-staff-id="{{ staff.id }}" data-staff-name="{{ staff.full_name }}">
+                <td>
+                    <div class="staff-profile">
+                        {% if staff.photo %}
+                        <img src="{{ staff.photo.url }}" class="staff-avatar" alt="Profile">
+                        {% else %}
+                        <div class="staff-avatar" style="display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user-tie" style="opacity: 0.3;"></i>
+                        </div>
+                        {% endif %}
+                        <div class="staff-info">
+                            {{ staff.full_name }}
+                            <strong>
+                                {% if staff.user.is_superuser %}
+                                <span class="admin-badge" style="color: var(--primary); font-size: 0.7rem;">
+                                    <i class="fas fa-shield-alt"></i> Admin
+                                </span>
                                 {% else %}
-                                <div class="staff-avatar"
-                                    style="display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-user-tie" style="opacity: 0.3;"></i>
-                                </div>
+                                <span class="member-badge" style="color: var(--success); font-size: 0.7rem;">
+                                    <i class="fas fa-user-tie"></i> Staff
+                                </span>
                                 {% endif %}
-                                <div class="staff-info">
-                                    <strong>{{ staff.full_name }}</strong>
-                                    <span><strong>Joined:</strong> {{ staff.user.date_joined|date:"d M Y" }}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="id-badge">{{ staff.user.username }}</span></td>
-                        <td><span class="dept-tag">{{ staff.department }}</span></td>
-                        <td>
-                            <strong>{{ staff.designation }}</strong>
-                            <span style="display: block; font-size: 0.75rem; color: var(--text-dim);">{{ staff.degree }}</span>
-                        </td>
-                        <td>
-                            <div style="font-size: 0.8rem;">
-                                <i class="fas fa-phone" style="width: 15px; color: var(--primary);"></i> {{ staff.phone_number }}<br>
-                                <i class="fas fa-envelope" style="width: 15px; color: var(--primary);"></i> {{ staff.user.email }}
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" style="text-align: center; padding: 4rem; color: var(--text-dim);">
-                            <i class="fas fa-folder-open"
-                                style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.2;"></i>
-                            <p>No staff records found in the database.</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            </strong>
+                            <span><strong>Joined:</strong> {{ staff.user.date_joined|date:"d M Y" }}</span>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="id-badge">{{ staff.user.username }}</span></td>
+                <td><span class="dept-tag">{{ staff.department }}</span></td>
+                <td>
+                    <strong>{{ staff.designation }}</strong>
+                    <span style="display: block; font-size: 0.75rem; color: var(--text-dim); margin-top: 5px;">
+                        {{ staff.degree }}
+                    </span>
+                </td>
+                <td>
+                    <div style="font-size: 0.8rem;">
+                        <i class="fas fa-phone" style="width: 15px; color: var(--primary);"></i>
+                        {{ staff.phone_number }}<br>
+                        <i class="fas fa-envelope" style="width: 15px; color: var(--primary);"></i>
+                        {{ staff.user.email }}
+                    </div>
+                </td>
+                {% if request.user.is_superuser %}
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-edit" title="Edit Staff"
+                            onclick="window.location.href='{% url 'edit-staff' staff.id %}'">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-delete" title="Delete Staff"
+                            onclick="showDeleteConfirmation('{{ staff.id }}', '{{ staff.full_name }}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="{% if request.user.is_superuser %}6{% else %}5{% endif %}"
+                    style="text-align: center; padding: 4rem; color: var(--text-dim);">
+                    <i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.2;"></i>
+                    <p>No staff records found in the database.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="deleteModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="confirmation-modal" onclick="event.stopPropagation()">
+        <i class="fas fa-times close-modal" onclick="closeModal()"></i>
+        <div class="modal-header">
+            <i class="fas fa-exclamation-triangle warning-icon"></i>
+            <div>
+                <h3>Confirm Deletion</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Are you sure you want to delete this staff member?
+                </p>
+            </div>
         </div>
-    </main>
+        <div id="staffDetails"></div>
+        <div class="modal-buttons">
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-confirm-delete" onclick="deleteStaff()">
+                <i class="fas fa-trash-alt"></i> Delete Staff
+            </button>
+        </div>
+    </div>
+</div>
 
-    <script>
-        // Real-time Search Logic
-        document.getElementById('staffSearch').addEventListener('keyup', function () {
-            let filter = this.value.toLowerCase();
-            let rows = document.querySelectorAll('#staffTableBody tr');
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}" class="csrf-token">
+{% endblock %}
 
-            rows.forEach(row => {
-                let text = row.innerText.toLowerCase();
-                row.style.display = text.includes(filter) ? '' : 'none';
-            });
+{% block extra_scripts %}
+<script>
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+        document.getElementById('csrf_token')?.value;
+
+    let staffToDeleteId = null;
+    const filterState = { search: '', role: 'all' };
+
+    const searchInput = document.getElementById('staffSearch');
+    const roleFilter = document.getElementById('roleFilter');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+    const filterTags = document.getElementById('filterTags');
+    const visibleCount = document.getElementById('visibleCount');
+    const allRows = document.querySelectorAll('#staffTableBody tr');
+
+    searchInput.addEventListener('input', function () {
+        filterState.search = this.value.toLowerCase().trim();
+        applyFilters();
+    });
+
+    roleFilter.addEventListener('change', function () {
+        filterState.role = this.value;
+        applyFilters();
+    });
+
+    clearFiltersBtn.addEventListener('click', function () {
+        searchInput.value = '';
+        roleFilter.value = 'all';
+        filterState.search = '';
+        filterState.role = 'all';
+        applyFilters();
+    });
+
+    function applyFilters() {
+        let visibleRows = 0;
+        allRows.forEach(row => {
+            if (row.cells.length < 5) return;
+            const rowText = row.textContent.toLowerCase();
+            const isAdmin = rowText.includes('admin') || row.innerHTML.includes('admin-badge');
+            let matchesSearch = !filterState.search || rowText.includes(filterState.search);
+            let matchesRole = filterState.role === 'all' || (filterState.role === 'admin' ? isAdmin : !isAdmin);
+
+            if (matchesSearch && matchesRole) {
+                row.style.display = '';
+                visibleRows++;
+            } else {
+                row.style.display = 'none';
+            }
         });
-    </script>
+        visibleCount.textContent = visibleRows;
+        updateFilterTags();
+    }
 
-</body>
+    function updateFilterTags() {
+        filterTags.innerHTML = '';
+        if (filterState.search) filterTags.appendChild(createFilterTag('search', `Search: "${filterState.search}"`));
+        if (filterState.role !== 'all') filterTags.appendChild(createFilterTag('role', `Role: ${filterState.role === 'admin' ? 'Administrators' : 'Staff Only'}`));
+        filterTags.style.display = filterTags.children.length > 0 ? 'flex' : 'none';
+    }
 
-</html>
+    function createFilterTag(type, text) {
+        const tag = document.createElement('div');
+        tag.className = 'filter-tag active';
+        tag.innerHTML = `${text} <i class="fas fa-times" onclick="removeFilter('${type}')"></i>`;
+        return tag;
+    }
+
+    function removeFilter(type) {
+        if (type === 'search') { searchInput.value = ''; filterState.search = ''; }
+        else { roleFilter.value = 'all'; filterState.role = 'all'; }
+        applyFilters();
+    }
+
+    function showDeleteConfirmation(staffId, staffName) {
+        staffToDeleteId = staffId;
+        const staffRow = document.querySelector(`tr[data-staff-id="${staffId}"]`);
+        const staffEmail = staffRow?.querySelector('.fa-envelope')?.parentNode?.textContent.trim() || 'N/A';
+        const staffDept = staffRow?.querySelector('.dept-tag')?.textContent || 'N/A';
+
+        document.getElementById('staffDetails').innerHTML = `
+            <div style="background: rgba(239, 68, 68, 0.05); padding: 15px; border-radius: 10px; margin: 15px 0;">
+                <p><strong>Name:</strong> ${staffName}</p>
+                <p><strong>Email:</strong> ${staffEmail}</p>
+                <p><strong>Department:</strong> ${staffDept}</p>
+            </div>`;
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    async function deleteStaff() {
+        if (!staffToDeleteId) return;
+        const deleteBtn = document.querySelector('.btn-confirm-delete');
+        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+        deleteBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/dashboard/staff/${staffToDeleteId}/delete/`, {
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' }
+            });
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                throw new Error('Deletion failed');
+            }
+        } catch (error) {
+            console.error(error);
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML = 'Delete Staff';
+            closeModal();
+        }
+    }
+
+    function closeModal(event = null) {
+        if (event && event.target.id !== 'deleteModal' && !event.target.classList.contains('close-modal')) return;
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    applyFilters();
+</script>
+{% endblock %}

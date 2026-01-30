@@ -1,10 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from accounts.models import Student, StaffProfile
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from attendance.models import Attendance
 from django.utils import timezone
+from django.contrib import messages
+from .forms import StaffProfileEditForm
 
 
 # Helper function to check if user is staff
@@ -85,6 +88,60 @@ def staff_directory(request):
         "total_staff": all_staff.count(),
     }
     return render(request, "dashboard/staff_directory.html", context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def edit_staff(request, staff_id):
+    staff_profile = get_object_or_404(StaffProfile, id=staff_id)
+
+    if request.method == "POST":
+        form = StaffProfileEditForm(request.POST, request.FILES, instance=staff_profile)
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request, f"Staff member {staff_profile.full_name} updated successfully!"
+            )
+            return redirect("staff-directory")
+    else:
+        # Pass the instance so __init__ can pre-fill data
+        form = StaffProfileEditForm(instance=staff_profile)
+
+    context = {
+        "form": form,
+        "staff_profile": staff_profile,
+        "user": staff_profile.user,
+        "page_title": f"Edit Staff: {staff_profile.full_name}",
+    }
+    return render(request, "dashboard/edit_staff.html", context)
+
+
+@require_http_methods(["DELETE"])
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def delete_staff(request, staff_id):
+    try:
+        staff = StaffProfile.objects.get(id=staff_id)
+        staff_name = staff.full_name
+
+        # Delete the user account too
+        if staff.user:
+            staff.user.delete()
+        else:
+            staff.delete()
+
+        return JsonResponse(
+            {
+                "success": True,
+                "message": f"Staff member {staff_name} deleted successfully",
+            }
+        )
+    except StaffProfile.DoesNotExist:
+        return JsonResponse(
+            {"success": False, "error": "Staff member not found"}, status=404
+        )
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required

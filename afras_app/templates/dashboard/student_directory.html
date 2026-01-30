@@ -1,536 +1,355 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'dashboard/base.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AFRAS | Student Directory</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+{% block title %}Student Directory{% endblock %}
 
-    <style>
-        :root {
-            --primary: #0062ff;
-            --bg: #030712;
-            --surface: #111827;
-            --surface-light: #1f2937;
-            --border: rgba(255, 255, 255, 0.1);
-            --text-main: #f9fafb;
-            --text-dim: #9ca3af;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-        }
+{% block extra_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+{% endblock %}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* --- Sidebar --- */
-        aside {
-            width: 260px;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            padding: 2rem 1.5rem;
-            position: fixed;
-            height: 100vh;
-            z-index: 100;
-        }
-
-        .nav-brand {
-            font-weight: 800;
-            font-size: 1.25rem;
-            margin-bottom: 3rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            color: var(--text-dim);
-            text-decoration: none;
-            border-radius: 12px;
-            transition: 0.3s;
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* --- Main Content --- */
-        main {
-            margin-left: 260px;
-            flex-grow: 1;
-            padding: 2rem;
-            width: calc(100% - 260px);
-        }
-
-        /* --- Django Messages Styling (Fixed Overlap) --- */
-        .msg-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            pointer-events: none;
-        }
-
-        .msg {
-            pointer-events: auto;
-            min-width: 300px;
-            padding: 16px 20px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid transparent;
-            font-weight: 600;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-            animation: slideIn 0.4s ease forwards;
-            background: var(--surface-light);
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .msg.success {
-            border-left: 4px solid var(--success);
-            color: var(--success);
-            background: rgba(16, 185, 129, 0.1);
-            backdrop-filter: blur(10px);
-        }
-
-        .msg.error {
-            border-left: 4px solid var(--danger);
-            color: var(--danger);
-            background: rgba(239, 68, 68, 0.1);
-            backdrop-filter: blur(10px);
-        }
-
-        /* --- Table Styles --- */
-        .header-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .search-bar {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 10px 15px;
-            border-radius: 10px;
-            color: white;
-            width: 300px;
-            outline: none;
-        }
-
-        .panel {
-            background: var(--surface);
-            border-radius: 24px;
-            border: 1px solid var(--border);
-            padding: 1.5rem;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px;
-        }
-
-        th {
-            text-align: left;
-            padding: 15px;
-            color: var(--text-dim);
-            border-bottom: 1px solid var(--border);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.9rem;
-        }
-
-        .avatar-img,
-        .avatar-placeholder {
-            width: 45px;
-            height: 45px;
-            border-radius: 12px;
-            object-fit: cover;
-            border: 1px solid var(--border);
-        }
-
-        .avatar-placeholder {
-            background: var(--surface-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            color: var(--primary);
-        }
-
-        .status-pill {
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-
-        .action-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            text-decoration: none;
-        }
-
-        .action-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        /* --- Modal --- */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .profile-card {
-            background: var(--surface);
-            width: 90%;
-            max-width: 450px;
-            border-radius: 24px;
-            padding: 2.5rem;
-            position: relative;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            color: var(--text-dim);
-            cursor: pointer;
-        }
-
-        .modal-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 30px;
-            object-fit: cover;
-            margin-bottom: 1.5rem;
-            border: 4px solid var(--surface-light);
-        }
-
-        .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-top: 2rem;
-            text-align: left;
-        }
-
-        .detail-item label {
-            color: var(--text-dim);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .detail-item span {
-            color: var(--text-main);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="msg-container" id="django-messages">
-        {% if messages %}
-        {% for msg in messages %}
-        <div class="msg {{ msg.tags }}">
-            <i class="fas {% if msg.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
-            <span>{{ msg }}</span>
-        </div>
-        {% endfor %}
-        {% endif %}
+{% block content %}
+<div class="header-actions">
+    <div>
+        <h2 style="display: flex; align-items: center;">
+            Student Directory
+            <span
+                style="background: var(--primary); color: white; padding: 2px 12px; border-radius: 20px; font-size: 0.8rem; margin-left: 15px;">
+                Total: {{ students.count }}
+            </span>
+        </h2>
+        <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 12px;">Verified identities for <span style="    color: var(--primary); font-weight: 600; font-size: 15px; background: rgba(16, 185, 129, 0.1);
+                    border: 2px solid var(--primary); padding: 4px 9px; 
+                    border-radius: 15px;">{{ request.user.staffprofile.department|default:"Engineering" }}</span></p>
     </div>
+    <div style="display: flex; gap: 10px;">
+        <button id="exportBtn" onclick="exportProfessionalPDF()" class="action-btn"
+            style="background: var(--surface-light);">
+            <i class="fas fa-file-pdf"></i> Generate Official Report
+        </button>
+        <input type="text" id="studentSearch" class="search-bar" placeholder="Search by name or roll...">
+    </div>
+</div>
 
-    <aside>
-        <div class="nav-brand">
-            <i class="fas fa-microchip" style="color: var(--primary);"></i>
-            <span>AFRAS CORE</span>
-        </div>
-        <nav style="flex-grow: 1;">
-            <a href="{% url 'dashboard_home' %}" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
-            <a href="{% url 'student-directory' %}" class="nav-link active"><i class="fas fa-user-graduate"></i>
-                Students</a>
-            <a href="{% url 'routine_management' %}" class="nav-link"><i class="fas fa-calendar-alt"></i> Routine</a>
-        </nav>
-        <div style="border-top: 1px solid var(--border); padding-top: 1rem;">
-            <a href="{% url 'logout' %}" class="nav-link" style="color: var(--danger);"><i class="fas fa-power-off"></i>
-                Logout</a>
-        </div>
-    </aside>
-
-    <main>
-        <div class="header-actions">
-            <div>
-                <h2 style="display: flex; align-items: center;">
-                    Enrollment Registry
-                    <span
-                        style="background: var(--primary); color: white; padding: 2px 12px; border-radius: 20px; font-size: 0.8rem; margin-left: 15px;">
-                        {{ students.count }} Total
-                    </span>
-                </h2>
-                <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 4px;">Verified identities for {{
-                    request.user.staffprofile.department|default:"Engineering" }}</p>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button id="exportBtn" onclick="exportProfessionalPDF()" class="action-btn"
-                    style="background: var(--surface-light);">
-                    <i class="fas fa-file-pdf"></i> Generate Official Report
-                </button>
-                <input type="text" id="studentSearch" class="search-bar" placeholder="Search by name or roll...">
-            </div>
-        </div>
-
-        <div class="panel">
-            <table id="studentTable">
-                <thead>
-                    <tr>
-                        <th>Student Identity</th>
-                        <th>Roll Number</th>
-                        <th>Academic Info</th>
-                        <th>Biometric</th>
-                        <th>Last Seen</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for student in students %}
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                {% if student.photo %}
-                                <img src="{{ student.photo.url }}" class="avatar-img">
-                                {% else %}
-                                <div class="avatar-placeholder">{{ student.full_name|slice:":1" }}</div>
-                                {% endif %}
-                                <div>
-                                    <p style="font-weight: 600;">{{ student.full_name }}</p>
-                                    <p style="font-size: 0.75rem; color: var(--text-dim);">Reg: {{
-                                        student.registration_date|date:"d M Y" }}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td style="font-family: 'JetBrains Mono'; color: var(--primary);">{{ student.roll_number }}</td>
-                        <td>
-                            <p>Sem {{ student.semester }}</p>
-                            <p style="font-size: 0.75rem; color: var(--text-dim);">Sec: {{ student.section|default:"A"
-                                }}</p>
-                        </td>
-                        <td><span class="status-pill">Encrypted</span></td>
-                        <td style="color: var(--text-dim); font-size: 0.8rem;">Recently Active</td>
-                        <td>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="action-btn"
-                                    onclick="openProfileModal('{{ student.full_name }}', '{{ student.roll_number }}', '{{ student.department }}', '{{ student.semester }}', '{{ student.section|default:'A' }}', '{{ student.photo.url|default:'' }}', '{{ student.registration_date|date:'d M Y' }}')">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                {% if student.id_proof %}
-                                <a href="{{ student.id_proof.url }}" target="_blank" class="action-btn"><i
-                                        class="fas fa-file-pdf"></i></a>
-                                {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 4rem; color: var(--text-dim);">No students
-                            found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <div id="profileModal" class="modal-overlay" onclick="closeModal(event)">
-            <div class="profile-card" onclick="event.stopPropagation()">
-                <i class="fas fa-times close-modal"
-                    onclick="document.getElementById('profileModal').style.display='none'"></i>
-                <img id="modalImg" src="" class="modal-avatar">
-                <h2 id="modalName"></h2>
-                <p id="modalRoll" style="color: var(--primary); font-family: 'JetBrains Mono'; margin-top: 5px;"></p>
-                <div class="detail-grid">
-                    <div class="detail-item"><label>Department</label><span id="modalDept"></span></div>
-                    <div class="detail-item"><label>Academic</label><span id="modalAcad"></span></div>
-                    <div class="detail-item"><label>Joined Date</label><span id="modalJoined"></span></div>
-                    <div class="detail-item"><label>Status</label><span style="color: var(--success)">● Verified</span>
+<div class="panel">
+    <table id="studentTable">
+        <thead>
+            <tr>
+                <th>Student Identity</th>
+                <th>Roll Number</th>
+                <th>Academic Info</th>
+                <th>Biometric</th>
+                <th>Last Seen</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        {% if student.photo %}
+                        <img src="{{ student.photo.url }}" class="avatar-img">
+                        {% else %}
+                        <div class="avatar-placeholder">{{ student.full_name|slice:":1" }}</div>
+                        {% endif %}
+                        <div>
+                            <p style="font-weight: 600;">{{ student.full_name }}</p>
+                            <p style="font-size: 0.75rem; color: var(--text-dim);">Reg:
+                                {{student.registration_date|date:"d M Y" }}</p>
+                        </div>
                     </div>
+                </td>
+                <td style="font-family: 'JetBrains Mono'; color: var(--primary);">{{ student.roll_number }}</td>
+                <td>
+                    <p>Sem {{ student.semester }}</p>
+                    <p style="font-size: 0.75rem; color: var(--text-dim);">Sec: {{ student.section|default:"A"}}</p>
+                </td>
+                <td><span class="status-pill">Encrypted</span></td>
+                <td style="color: var(--text-dim); font-size: 0.8rem;">Recently Active</td>
+                <td>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="action-btn"
+                            onclick="openProfileModal('{{ student.full_name }}', '{{ student.roll_number }}', '{{ student.department }}', '{{ student.semester }}', '{{ student.section|default:'A' }}', '{{ student.photo.url|default:'' }}', '{{ student.registration_date|date:'d M Y' }}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        {% if student.id_proof %}
+                        <a href="{{ student.id_proof.url }}" target="_blank" class="action-btn"><i
+                                class="fas fa-file-pdf"></i></a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 4rem; color: var(--text-dim);">No students
+                    found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="profileModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="profile-card" onclick="event.stopPropagation()">
+        <i class="fas fa-times close-modal" onclick="document.getElementById('profileModal').style.display='none'"></i>
+        <img id="modalImg" src="" class="modal-avatar">
+        <h2 id="modalName"></h2>
+        <p id="modalRoll" style="color: var(--primary); font-family: 'JetBrains Mono'; margin-top: 5px;"></p>
+        <div class="detail-grid">
+            <div class="detail-item"><label>Department</label><span id="modalDept"></span></div>
+            <div class="detail-item"><label>Academic</label><span id="modalAcad"></span></div>
+            <div class="detail-item"><label>Joined Date</label><span id="modalJoined"></span></div>
+            <div class="detail-item"><label>Status</label><span style="color: var(--success)">● Verified</span>
+            </div>
+        </div>
+        <button onclick="exportSingleProfile()" class="action-btn"
+            style="margin-top: 2rem; width: 100%; justify-content: center; background: var(--primary); color: white; border: none;">
+            <i class="fas fa-download"></i> Download Profile PDF
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{{ block.super }}
+<script>
+    // Profile Modal Logic
+    function openProfileModal(name, roll, dept, sem, sec, photo, joined) {
+        document.getElementById('modalName').innerText = name;
+        document.getElementById('modalRoll').innerText = roll;
+        document.getElementById('modalDept').innerText = dept;
+        document.getElementById('modalAcad').innerText = `Semester ${sem} (${sec})`;
+        document.getElementById('modalJoined').innerText = joined;
+        document.getElementById('modalImg').src = photo || `https://ui-avatars.com/api/?name=${name}&background=0062ff&color=fff`;
+        document.getElementById('profileModal').style.display = 'flex';
+    }
+
+    function closeModal(e) { if (e.target.id === 'profileModal') e.target.style.display = 'none'; }
+
+    // Table Search
+    document.getElementById('studentSearch').addEventListener('keyup', function () {
+        let filter = this.value.toLowerCase();
+        document.querySelectorAll('#studentTable tbody tr').forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
+        });
+    });
+
+    // PDF Exports
+    async function exportProfessionalPDF() {
+        const btn = document.getElementById('exportBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+        let tableRows = "";
+        document.querySelectorAll('#studentTable tbody tr').forEach(row => {
+            if (row.style.display !== 'none') {
+                tableRows += `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px;">${row.querySelector('p').innerText}</td>
+                        <td style="padding: 10px; font-family: monospace;">${row.cells[1].innerText}</td>
+                        <td style="padding: 10px;">${row.cells[2].querySelector('p').innerText}</td>
+                        <td style="padding: 10px;">${row.cells[2].querySelectorAll('p')[1].innerText}</td>
+                        <td style="padding: 10px; color: #10b981;">Verified</td>
+                    </tr>`;
+            }
+        });
+
+        const template = `
+            <div style="padding: 40px; font-family: sans-serif; color: #111;">
+                <div style="text-align: center; border-bottom: 3px solid #0062ff; padding-bottom: 20px; margin-bottom: 30px;">
+                    <h1 style="color: #0062ff; margin: 0;">AFRAS ENROLLMENT REGISTRY</h1>
+                    <p style="color: #666; font-size: 12px;">OFFICIAL ACADEMIC RECORD | ${new Date().toLocaleDateString()}</p>
                 </div>
-                <button onclick="exportSingleProfile()" class="action-btn"
-                    style="margin-top: 2rem; width: 100%; justify-content: center; background: var(--primary); color: white; border: none;">
-                    <i class="fas fa-download"></i> Download Profile PDF
-                </button>
-            </div>
-        </div>
-    </main>
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                    <thead>
+                        <tr style="background: #f8f9fa; text-align: left;">
+                            <th style="padding: 10px; border: 1px solid #ddd;">Name</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">Roll No</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">Semester</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">Section</th>
+                            <th style="padding: 10px; border: 1px solid #ddd;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+            </div>`;
 
-    <script>
-        // 1. IMPROVED: Message Handler (No Overlap, Auto-Remove)
-        document.addEventListener('DOMContentLoaded', () => {
-            const msgs = document.querySelectorAll('.msg');
-            msgs.forEach((msg, index) => {
-                // Stagger removal so they disappear one by one
-                setTimeout(() => {
-                    msg.style.transition = "all 0.5s ease";
-                    msg.style.opacity = "0";
-                    msg.style.transform = "translateX(50px)";
-                    setTimeout(() => msg.remove(), 500);
-                }, 4000 + (index * 500)); // Visible for 4s + index delay
-            });
-        });
+        await html2pdf().set({ margin: 0.5, filename: 'Enrollment_Report.pdf' }).from(template).save();
+        btn.innerHTML = originalText;
+    }
 
-        // 2. Profile Modal Logic
-        function openProfileModal(name, roll, dept, sem, sec, photo, joined) {
-            document.getElementById('modalName').innerText = name;
-            document.getElementById('modalRoll').innerText = roll;
-            document.getElementById('modalDept').innerText = dept;
-            document.getElementById('modalAcad').innerText = `Semester ${sem} (${sec})`;
-            document.getElementById('modalJoined').innerText = joined;
-            document.getElementById('modalImg').src = photo || `https://ui-avatars.com/api/?name=${name}&background=0062ff&color=fff`;
-            document.getElementById('profileModal').style.display = 'flex';
-        }
+    function exportSingleProfile() {
+        const template = `
+            <div style="padding: 30px; border: 2px solid #0062ff; font-family: sans-serif; width: 400px;">
+                <img src="${document.getElementById('modalImg').src}" style="width: 80px; height: 80px; border-radius: 10px;">
+                <h2 style="margin: 10px 0 0;">${document.getElementById('modalName').innerText}</h2>
+                <p style="color: #0062ff; font-weight: bold;">${document.getElementById('modalRoll').innerText}</p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+                <p><b>Dept:</b> ${document.getElementById('modalDept').innerText}</p>
+                <p><b>Academic:</b> ${document.getElementById('modalAcad').innerText}</p>
+                <p><b>Joined:</b> ${document.getElementById('modalJoined').innerText}</p>
+            </div>`;
+        html2pdf().from(template).set({ filename: `Profile_${document.getElementById('modalRoll').innerText}.pdf` }).save();
+    }
+</script>
 
-        function closeModal(e) { if (e.target.id === 'profileModal') e.target.style.display = 'none'; }
+<style>
+    /* Student Directory specific styles */
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
 
-        // 3. Table Search
-        document.getElementById('studentSearch').addEventListener('keyup', function () {
-            let filter = this.value.toLowerCase();
-            document.querySelectorAll('#studentTable tbody tr').forEach(row => {
-                row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
-            });
-        });
+    .search-bar {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 10px 15px;
+        border-radius: 10px;
+        color: white;
+        width: 300px;
+        outline: none;
+    }
 
-        // 4. PDF Exports (Maintained as Professional Templates)
-        async function exportProfessionalPDF() {
-            const btn = document.getElementById('exportBtn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    .panel {
+        background: var(--surface);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        padding: 1.5rem;
+        overflow-x: auto;
+    }
 
-            let tableRows = "";
-            document.querySelectorAll('#studentTable tbody tr').forEach(row => {
-                if (row.style.display !== 'none') {
-                    tableRows += `
-                        <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 10px;">${row.querySelector('p').innerText}</td>
-                            <td style="padding: 10px; font-family: monospace;">${row.cells[1].innerText}</td>
-                            <td style="padding: 10px;">${row.cells[2].querySelector('p').innerText}</td>
-                            <td style="padding: 10px;">${row.cells[2].querySelectorAll('p')[1].innerText}</td>
-                            <td style="padding: 10px; color: #10b981;">Verified</td>
-                        </tr>`;
-                }
-            });
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+    }
 
-            const template = `
-                <div style="padding: 40px; font-family: sans-serif; color: #111;">
-                    <div style="text-align: center; border-bottom: 3px solid #0062ff; padding-bottom: 20px; margin-bottom: 30px;">
-                        <h1 style="color: #0062ff; margin: 0;">AFRAS ENROLLMENT REGISTRY</h1>
-                        <p style="color: #666; font-size: 12px;">OFFICIAL ACADEMIC RECORD | ${new Date().toLocaleDateString()}</p>
-                    </div>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                        <thead>
-                            <tr style="background: #f8f9fa; text-align: left;">
-                                <th style="padding: 10px; border: 1px solid #ddd;">Name</th>
-                                <th style="padding: 10px; border: 1px solid #ddd;">Roll No</th>
-                                <th style="padding: 10px; border: 1px solid #ddd;">Semester</th>
-                                <th style="padding: 10px; border: 1px solid #ddd;">Section</th>
-                                <th style="padding: 10px; border: 1px solid #ddd;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>${tableRows}</tbody>
-                    </table>
-                </div>`;
+    th {
+        text-align: left;
+        padding: 15px;
+        color: var(--text-dim);
+        border-bottom: 1px solid var(--border);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
 
-            await html2pdf().set({ margin: 0.5, filename: 'Enrollment_Report.pdf' }).from(template).save();
-            btn.innerHTML = originalText;
-        }
+    td {
+        padding: 15px;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.9rem;
+    }
 
-        function exportSingleProfile() {
-            const template = `
-                <div style="padding: 30px; border: 2px solid #0062ff; font-family: sans-serif; width: 400px;">
-                    <img src="${document.getElementById('modalImg').src}" style="width: 80px; height: 80px; border-radius: 10px;">
-                    <h2 style="margin: 10px 0 0;">${document.getElementById('modalName').innerText}</h2>
-                    <p style="color: #0062ff; font-weight: bold;">${document.getElementById('modalRoll').innerText}</p>
-                    <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
-                    <p><b>Dept:</b> ${document.getElementById('modalDept').innerText}</p>
-                    <p><b>Academic:</b> ${document.getElementById('modalAcad').innerText}</p>
-                    <p><b>Joined:</b> ${document.getElementById('modalJoined').innerText}</p>
-                </div>`;
-            html2pdf().from(template).set({ filename: `Profile_${document.getElementById('modalRoll').innerText}.pdf` }).save();
-        }
-    </script>
-</body>
+    .avatar-img,
+    .avatar-placeholder {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 1px solid var(--border);
+    }
 
-</html>
+    .avatar-placeholder {
+        background: var(--surface-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .status-pill {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+    }
+
+    .action-btn {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-dim);
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        text-decoration: none;
+    }
+
+    .action-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    /* Modal */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .profile-card {
+        background: var(--surface);
+        width: 90%;
+        max-width: 450px;
+        border-radius: 24px;
+        padding: 2.5rem;
+        position: relative;
+        text-align: center;
+        border: 1px solid var(--border);
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        color: var(--text-dim);
+        cursor: pointer;
+    }
+
+    .modal-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 30px;
+        object-fit: cover;
+        margin-bottom: 1.5rem;
+        border: 4px solid var(--surface-light);
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-top: 2rem;
+        text-align: left;
+    }
+
+    .detail-item label {
+        color: var(--text-dim);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .detail-item span {
+        color: var(--text-main);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
