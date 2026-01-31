@@ -4,19 +4,29 @@
 
 {% block content %}
 <header>
-    <div>
-        <h2 style="font-weight: 800;">
-            {% if request.user.is_superuser %}Central Management{% else %}Faculty Operation Center{% endif %}
+    <div style="display: flex; flex-direction: column;">
+        <h2 style="color: var(--text-dim); font-size: 14px; margin-bottom: 5px;">
+            Welcome Back
+            <strong style="color: var(--primary);">
+                {% if request.user.staff_profile and request.user.staff_profile.full_name %}
+                {{ request.user.staff_profile.full_name }}
+                {% elif request.user.get_full_name %}
+                {{ request.user.get_full_name }}
+                {% else %}
+                {{ request.user.username|title }}
+                {% endif %}
+            </strong>!
         </h2>
         <div class="badge {% if request.user.is_superuser %}admin-badge{% else %}staff-badge{% endif %}"
-            style="margin-top: 10px;">
+            style="align-self: flex-start;">
             <i class="fas {% if request.user.is_superuser %}fa-crown{% else %}fa-chalkboard-teacher{% endif %}"></i>
-            {% if request.user.is_superuser %}ROOT ADMINISTRATOR{% else %}VERIFIED STAFF{% endif %}
+            {% if request.user.is_superuser %}ADMINISTRATOR{% else %}VERIFIED STAFF{% endif %}
         </div>
     </div>
-    <div style="text-align: right;">
+    <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">
         <p id="clock"
-            style="font-family: 'JetBrains Mono'; font-size: 1.4rem; color: var(--primary); font-weight: 600;"></p>
+            style="font-family: 'JetBrains Mono'; font-size: 1.4rem; color: var(--primary); font-weight: 600; margin-bottom: 5px;">
+        </p>
         <p style="font-size: 0.75rem; color: var(--text-dim); letter-spacing: 1px;">SYSTEM ONLINE</p>
     </div>
 </header>
@@ -112,6 +122,13 @@
 <script> </script>
 
 <style>
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
     /* Home-specific styles */
     .stats-row {
         display: grid;
