@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 from attendance.models import Attendance
 from django.utils import timezone
 from django.contrib import messages
-from .forms import StaffProfileEditForm
+from .forms import StaffProfileEditForm, StudentEditForm, StudentDeleteForm
 
 
 # Helper function to check if user is staff
@@ -115,6 +115,119 @@ def edit_staff(request, staff_id):
     }
     return render(request, "dashboard/edit_staff.html", context)
 
+@login_required
+def edit_student(request, student_id):
+    """Edit student profile"""
+    # Get student object
+    student = get_object_or_404(Student, id=student_id)
+    
+    # Permission check: only superusers or staff from same department can edit
+    if not request.user.is_superuser:
+        if not hasattr(request.user, 'staffprofile'):
+            messages.error(request, "You don't have permission to edit students.")
+            return redirect('student-directory')
+        
+        if request.user.staffprofile.department != student.department:
+            messages.error(request, "You can only edit students from your department.")
+            return redirect('student-directory')
+    
+    if request.method == 'POST':
+        form = StudentEditForm(request.POST, request.FILES, instance=student)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, f"Student {student.full_name} updated successfully!")
+                return redirect('student-directory')
+            except Exception as e:
+                messages.error(request, f"Error updating student: {str(e)}")
+        else:
+            # Debug form errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = StudentEditForm(instance=student)
+    
+    context = {
+        'form': form,
+        'student': student,
+        'page_title': 'Edit Student',
+    }
+    return render(request, 'dashboard/edit_student.html', context)
+
+
+@login_required
+@require_http_methods(["DELETE", "POST"])
+def delete_student(request, student_id):
+    """Delete student (AJAX or regular)"""
+    # Get student object
+    student = get_object_or_404(Student, id=student_id)
+    
+    # Permission check: only superusers or staff from same department can delete
+    if not request.user.is_superuser:
+        if not hasattr(request.user, 'staffprofile'):
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'error': 'Permission denied'}, status=403)
+            messages.error(request, "You don't have permission to delete students.")
+            return redirect('student-directory')
+        
+        if request.user.staffprofile.department != student.department:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'error': 'You can only delete students from your department'}, status=403)
+            messages.error(request, "You can only delete students from your department.")
+            return redirect('student-directory')
+    
+    if request.method == 'DELETE' or (request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest'):
+        # AJAX request
+        try:
+            # Store student info for response
+            student_name = student.full_name
+            student_roll = student.roll_number
+            
+            # Delete the user account (cascades to student due to CASCADE)
+            user = student.user
+            user.delete()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Student {student_name} deleted successfully!',
+                'student_id': student_id
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': f'Error deleting student: {str(e)}'
+            }, status=500)
+    
+    elif request.method == 'POST':
+        # Regular form submission
+        form = StudentDeleteForm(request.POST)
+        if form.is_valid() and form.cleaned_data['confirm']:
+            try:
+                student_name = student.full_name
+                student_roll = student.roll_number
+                
+                # Delete the user account
+                user = student.user
+                user.delete()
+                
+                messages.success(request, f"Student {student_name} ({student_roll}) deleted successfully!")
+                return redirect('student-directory')
+            except Exception as e:
+                messages.error(request, f"Error deleting student: {str(e)}")
+                return redirect('student-directory')
+        else:
+            messages.error(request, "Please confirm deletion.")
+            return redirect('student-directory')
+    
+    # GET request - show confirmation page
+    form = StudentDeleteForm()
+    context = {
+        'form': form,
+        'student': student,
+        'page_title': 'Delete Student',
+    }
+    return render(request, 'dashboard/delete_student.html', context)
 
 @require_http_methods(["DELETE"])
 @login_required

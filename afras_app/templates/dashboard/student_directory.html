@@ -4,6 +4,109 @@
 
 {% block extra_head %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+    /* Additional styles for action buttons */
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .btn-view,
+    .btn-edit,
+    .btn-delete,
+    .btn-document {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .btn-view {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .btn-view:hover {
+        background: var(--success);
+        color: white;
+    }
+
+    .btn-edit {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+    }
+
+    .btn-edit:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .btn-delete:hover {
+        background: var(--danger);
+        color: white;
+    }
+
+    .btn-document {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border: 1px solid var(--warning);
+    }
+
+    .btn-document:hover {
+        background: var(--warning);
+        color: white;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn-view,
+        .btn-edit,
+        .btn-delete,
+        .btn-document {
+            width: 32px;
+            height: 32px;
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        .btn-view,
+        .btn-edit,
+        .btn-delete,
+        .btn-document {
+            width: 28px;
+            height: 28px;
+            font-size: 0.7rem;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -16,9 +119,10 @@
                 Total: {{ students.count }}
             </span>
         </h2>
-        <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 12px;">Verified identities for <span style="    color: var(--primary); font-weight: 600; font-size: 15px; background: rgba(16, 185, 129, 0.1);
-                    border: 2px solid var(--primary); padding: 4px 9px; 
-                    border-radius: 15px;">{{ request.user.staffprofile.department|default:"Engineering" }}</span></p>
+        <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 12px;">Verified identities for 
+            <span style="color: var(--primary); font-weight: 600; font-size: 15px; background: rgba(16, 185, 129, 0.1); border: 2px solid var(--primary); 
+            padding: 4px 9px; border-radius: 15px;">{{request.user.staffprofile.department|default:"Engineering" }}</span>
+            </p>
     </div>
     <div style="display: flex; gap: 10px;">
         <button id="exportBtn" onclick="exportProfessionalPDF()" class="action-btn"
@@ -37,7 +141,7 @@
                 <th>Roll Number</th>
                 <th>Academic Info</th>
                 <th>Biometric</th>
-                <th>Last Seen</th>
+                <th>Contact Info</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -64,16 +168,39 @@
                     <p style="font-size: 0.75rem; color: var(--text-dim);">Sec: {{ student.section|default:"A"}}</p>
                 </td>
                 <td><span class="status-pill">Encrypted</span></td>
-                <td style="color: var(--text-dim); font-size: 0.8rem;">Recently Active</td>
                 <td>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="action-btn"
+                    <div style="font-size: 0.8rem;">
+                        <i class="fas fa-phone" style="width: 15px; color: var(--primary);"></i>
+                        {{ student.phone_number }}<br>
+                        <i class="fas fa-envelope" style="width: 15px; color: var(--primary);"></i>
+                        {{ student.user.email }}
+                    </div>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-view" title="View Profile"
                             onclick="openProfileModal('{{ student.full_name }}', '{{ student.roll_number }}', '{{ student.department }}', '{{ student.semester }}', '{{ student.section|default:'A' }}', '{{ student.photo.url|default:'' }}', '{{ student.registration_date|date:'d M Y' }}')">
                             <i class="fas fa-eye"></i>
+                            
+                            <button class="btn-edit" title="Edit Student"
+                            onclick="window.location.href='{% url 'edit-student' student.id %}'">
+                            <i class="fas fa-edit"></i>
                         </button>
-                        {% if student.id_proof %}
-                        <a href="{{ student.id_proof.url }}" target="_blank" class="action-btn"><i
-                                class="fas fa-file-pdf"></i></a>
+                    </button>
+                    {% if student.id_proof %}
+                    <a href="{{ student.id_proof.url }}" target="_blank" class="btn-document" title="View Document">
+                        <i class="fas fa-file-pdf"></i>
+                    </a>
+                    {% else %}
+                    <button class="btn-document" title="No Document" disabled>
+                        <i class="fas fa-file-pdf"></i>
+                    </button>
+                    {% endif %}
+                    {% if request.user.is_superuser or request.user.staffprofile.department == student.department %}
+                        <button class="btn-delete" title="Delete Student"
+                            onclick="showDeleteConfirmation('{{ student.id }}', '{{ student.full_name }}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
                         {% endif %}
                     </div>
                 </td>
@@ -88,6 +215,29 @@
     </table>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="confirmation-modal" onclick="event.stopPropagation()">
+        <i class="fas fa-times close-modal" onclick="closeModal()"></i>
+        <div class="modal-header">
+            <i class="fas fa-exclamation-triangle warning-icon"></i>
+            <div>
+                <h3>Confirm Deletion</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Are you sure you want to delete this student
+                    record?</p>
+            </div>
+        </div>
+        <div id="studentDetails"></div>
+        <div class="modal-buttons">
+            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-confirm-delete" onclick="deleteStudent()">
+                <i class="fas fa-trash-alt"></i> Delete Student
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Modal -->
 <div id="profileModal" class="modal-overlay" onclick="closeModal(event)">
     <div class="profile-card" onclick="event.stopPropagation()">
         <i class="fas fa-times close-modal" onclick="document.getElementById('profileModal').style.display='none'"></i>
@@ -98,8 +248,7 @@
             <div class="detail-item"><label>Department</label><span id="modalDept"></span></div>
             <div class="detail-item"><label>Academic</label><span id="modalAcad"></span></div>
             <div class="detail-item"><label>Joined Date</label><span id="modalJoined"></span></div>
-            <div class="detail-item"><label>Status</label><span style="color: var(--success)">● Verified</span>
-            </div>
+            <div class="detail-item"><label>Status</label><span style="color: var(--success)">● Verified</span></div>
         </div>
         <button onclick="exportSingleProfile()" class="action-btn"
             style="margin-top: 2rem; width: 100%; justify-content: center; background: var(--primary); color: white; border: none;">
@@ -107,6 +256,8 @@
         </button>
     </div>
 </div>
+
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}" class="csrf-token">
 {% endblock %}
 
 {% block extra_scripts %}
@@ -123,7 +274,11 @@
         document.getElementById('profileModal').style.display = 'flex';
     }
 
-    function closeModal(e) { if (e.target.id === 'profileModal') e.target.style.display = 'none'; }
+    function closeModal(e) {
+        if (e.target.id === 'profileModal' || e.target.id === 'deleteModal') {
+            e.target.style.display = 'none';
+        }
+    }
 
     // Table Search
     document.getElementById('studentSearch').addEventListener('keyup', function () {
@@ -132,6 +287,56 @@
             row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
         });
     });
+
+    // Delete Confirmation Logic
+    let studentToDeleteId = null;
+
+    function showDeleteConfirmation(studentId, studentName) {
+        studentToDeleteId = studentId;
+        const studentRow = document.querySelector(`tr:has(button[onclick*="'${studentId}'"])`);
+        const studentRoll = studentRow?.querySelector('td:nth-child(2)')?.textContent.trim() || 'N/A';
+        const studentDept = studentRow?.querySelector('td:nth-child(3)')?.textContent.trim() || 'N/A';
+
+        document.getElementById('studentDetails').innerHTML = `
+            <div style="background: rgba(239, 68, 68, 0.05); padding: 15px; border-radius: 10px; margin: 15px 0;">
+                <p><strong>Name:</strong> ${studentName}</p>
+                <p><strong>Roll Number:</strong> ${studentRoll}</p>
+                <p><strong>Department:</strong> ${studentDept}</p>
+                <p style="color: var(--warning); font-size: 0.8rem; margin-top: 10px;">
+                    <i class="fas fa-exclamation-circle"></i> This action cannot be undone.
+                </p>
+            </div>`;
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    async function deleteStudent() {
+        if (!studentToDeleteId) return;
+        const deleteBtn = document.querySelector('.btn-confirm-delete');
+        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+        deleteBtn.disabled = true;
+
+        try {
+            const response = await fetch(`/dashboard/students/${studentToDeleteId}/delete/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+                        document.getElementById('csrf_token')?.value,
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                throw new Error('Deletion failed');
+            }
+        } catch (error) {
+            console.error(error);
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML = 'Delete Student';
+            closeModal();
+            alert('Failed to delete student. Please try again.');
+        }
+    }
 
     // PDF Exports
     async function exportProfessionalPDF() {
@@ -190,6 +395,14 @@
             </div>`;
         html2pdf().from(template).set({ filename: `Profile_${document.getElementById('modalRoll').innerText}.pdf` }).save();
     }
+
+    // Close modal on escape key
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            document.getElementById('profileModal').style.display = 'none';
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+    });
 </script>
 
 <style>
@@ -199,6 +412,9 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 2rem;
+        margin-top: 6px;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
 
     .search-bar {
@@ -207,7 +423,9 @@
         padding: 10px 15px;
         border-radius: 10px;
         color: white;
-        width: 300px;
+        min-width: 250px;
+        flex: 1;
+        max-width: 300px;
         outline: none;
     }
 
@@ -239,6 +457,7 @@
         padding: 15px;
         border-bottom: 1px solid var(--border);
         font-size: 0.9rem;
+        vertical-align: middle;
     }
 
     .avatar-img,
@@ -280,6 +499,7 @@
         align-items: center;
         gap: 5px;
         text-decoration: none;
+        white-space: nowrap;
     }
 
     .action-btn:hover {
@@ -287,7 +507,7 @@
         color: var(--primary);
     }
 
-    /* Modal */
+    /* Modal Styles */
     .modal-overlay {
         display: none;
         position: fixed;
@@ -300,6 +520,53 @@
         z-index: 1000;
         align-items: center;
         justify-content: center;
+    }
+
+    .confirmation-modal {
+        background: var(--surface);
+        width: 90%;
+        max-width: 500px;
+        border-radius: 24px;
+        padding: 2.5rem;
+        position: relative;
+        border: 1px solid var(--border);
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 1.5rem;
+    }
+
+    .warning-icon {
+        color: var(--warning);
+        font-size: 2rem;
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 2rem;
+        justify-content: flex-end;
+    }
+
+    .btn-cancel {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        padding: 10px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .btn-confirm-delete {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        cursor: pointer;
     }
 
     .profile-card {
@@ -319,6 +586,7 @@
         right: 1.5rem;
         color: var(--text-dim);
         cursor: pointer;
+        font-size: 1.2rem;
     }
 
     .modal-avatar {
@@ -350,6 +618,33 @@
         color: var(--text-main);
         font-weight: 600;
         font-size: 0.9rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .header-actions {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        th,
+        td {
+            padding: 10px;
+        }
+
+        .confirmation-modal,
+        .profile-card {
+            padding: 1.5rem;
+        }
     }
 </style>
 {% endblock %}

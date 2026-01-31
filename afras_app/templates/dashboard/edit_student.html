@@ -1,7 +1,7 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
 
-{% block title %}{{ page_title }}{% endblock %}
+{% block title %}Update Student Record{% endblock %}
 
 {% block extra_head %}
 <link
@@ -20,7 +20,7 @@
         --warning: #f59e0b;
     }
 
-    /* Layout Wrapper */
+    /* Layout Wrapper - EXACT SAME AS STAFF */
     .enrollment-page-wrapper {
         display: flex;
         justify-content: center;
@@ -56,7 +56,7 @@
         font-size: 0.85rem;
     }
 
-    /* Form Styling */
+    /* Form Styling - EXACT SAME AS STAFF */
     .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -85,7 +85,7 @@
         gap: 8px;
     }
 
-    /* Target Django form widgets */
+    /* Target Django form widgets - EXACT SAME AS STAFF */
     .input-group input,
     .input-group select,
     .input-group textarea {
@@ -107,7 +107,13 @@
         box-shadow: 0 0 0 4px var(--primary-glow) !important;
     }
 
-    /* Action Buttons */
+    input[readonly] {
+        background: rgba(255, 255, 255, 0.05) !important;
+        cursor: not-allowed;
+        color: var(--text-dim) !important;
+    }
+
+    /* Action Buttons - EXACT SAME AS STAFF */
     .action-bar {
         display: flex;
         justify-content: center;
@@ -150,40 +156,7 @@
         color: white;
     }
 
-    /* Admin Card Specific */
-    .admin-access-panel {
-        background: rgba(245, 158, 11, 0.05);
-        border: 1px solid rgba(245, 158, 11, 0.2);
-        padding: 12px 20px;
-        border-radius: 15px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        gap: 15px;
-        width: 100%;
-    }
-
-    .admin-access-panel input[type="checkbox"] {
-        width: 18px !important;
-        height: 18px !important;
-        margin: 0 !important;
-        cursor: pointer;
-        accent-color: var(--warning);
-    }
-
-    .admin-access-panel label {
-        color: var(--warning);
-        font-size: 0.75rem;
-        cursor: pointer;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        white-space: nowrap;
-        margin: 0 !important;
-    }
-
-    /* Profile Image Preview */
+    /* Profile Image Preview - EXACT SAME AS STAFF */
     .current-profile-preview {
         display: flex;
         justify-content: center;
@@ -205,6 +178,28 @@
         transform: scale(1.05);
         box-shadow: 0 0 20px var(--primary-glow);
         border-color: var(--primary);
+    }
+
+    /* Error messages styling */
+    .error-message {
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .error-message i {
+        font-size: 0.7rem;
+    }
+
+    /* Field help text */
+    .field-help {
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        margin-top: 4px;
+        font-style: italic;
     }
 
     /* PHOTO MODAL STYLES */
@@ -357,74 +352,150 @@
     <div class="enrollment-card">
         <header>
             <div class="current-profile-preview">
-                {% if staff_profile.photo %}
-                <img src="{{ staff_profile.photo.url }}" class="preview-circle" id="preview-target"
-                    onclick="openPhotoModal('{{ staff_profile.photo.url }}', '{{ staff_profile.full_name }}', '{{ staff_profile.designation }}')"
+                {% if student.photo %}
+                <img src="{{ student.photo.url }}" class="preview-circle" id="preview-target"
+                    onclick="openPhotoModal('{{ student.photo.url }}', '{{ student.full_name }}', '{{ student.roll_number }}')"
                     title="Click to view full size">
                 {% else %}
-                <img src="https://ui-avatars.com/api/?name={{ staff_profile.full_name }}&background=0062ff&color=fff"
+                <img src="https://ui-avatars.com/api/?name={{ student.full_name }}&background=0062ff&color=fff"
                     class="preview-circle" id="preview-target"
-                    onclick="openPhotoModal('https://ui-avatars.com/api/?name={{ staff_profile.full_name }}&background=0062ff&color=fff', '{{ staff_profile.full_name }}', '{{ staff_profile.designation }}')"
+                    onclick="openPhotoModal('https://ui-avatars.com/api/?name={{ student.full_name }}&background=0062ff&color=fff', '{{ student.full_name }}', '{{ student.roll_number }}')"
                     title="Click to view full size">
                 {% endif %}
             </div>
-            <h2>Update Personnel Record</h2>
-            <p>Editing Identity: {{ staff_profile.full_name }}</p>
+            <h2>Update Student Record</h2>
+            <p>Editing Identity: {{ student.full_name }}</p>
         </header>
 
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
+            {% if messages %}
+            <div style="margin-bottom: 20px;">
+                {% for message in messages %}
+                <div style="padding: 12px 20px; border-radius: 10px; margin-bottom: 10px; 
+                    background: {% if message.tags == 'success' %}rgba(16, 185, 129, 0.1){% else %}rgba(239, 68, 68, 0.1){% endif %};
+                    border: 1px solid {% if message.tags == 'success' %}rgba(16, 185, 129, 0.3){% else %}rgba(239, 68, 68, 0.3){% endif %};
+                    color: {% if message.tags == 'success' %}var(--success){% else %}#ef4444{% endif %};
+                    font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
+                    <i
+                        class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             <div class="form-grid">
+                <!-- Personal Information -->
                 <div class="input-group full-width">
                     <label><i class="fas fa-user"></i> Full Name</label>
                     {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.full_name.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
 
-                <div class="input-group full-width">
-                    <label><i class="fas fa-envelope"></i> Email Address</label>
-                    {{ form.email }}
+                <div class="input-group">
+                    <label><i class="fas fa-id-card"></i> Roll Number</label>
+                    {{ form.roll_number }}
+                    <div class="field-help">Roll number cannot be changed</div>
+                    {% if form.roll_number.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.roll_number.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="input-group">
                     <label><i class="fas fa-phone"></i> Contact Number</label>
                     {{ form.phone_number }}
+                    {% if form.phone_number.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.phone_number.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
 
-                <div class="input-group">
-                    <label><i class="fas fa-graduation-cap"></i> Educational Degree</label>
-                    {{ form.degree }}
+                <div class="input-group full-width">
+                    <label><i class="fas fa-envelope"></i> Email Address</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.email.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
 
+                <!-- Academic Information -->
                 <div class="input-group">
-                    <label><i class="fas fa-briefcase"></i> Designation</label>
-                    {{ form.designation }}
-                </div>
-
-                <div class="input-group">
-                    <label><i class="fas fa-sitemap"></i> Department</label>
+                    <label><i class="fas fa-building"></i> Department</label>
                     {{ form.department }}
+                    {% if form.department.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.department.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
 
+                <div class="input-group">
+                    <label><i class="fas fa-graduation-cap"></i> Semester</label>
+                    {{ form.semester }}
+                    {% if form.semester.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.semester.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="input-group">
+                    <label><i class="fas fa-users"></i> Section</label>
+                    {{ form.section }}
+                    {% if form.section.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.section.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Documents & Photos -->
                 <div class="input-group full-width">
                     <label><i class="fas fa-camera"></i> Update Profile Photo</label>
                     {{ form.photo }}
+                    {% if form.photo.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.photo.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="input-group full-width">
-                    <div class="admin-access-panel">
-                        {{ form.is_admin }}
-                        <label for="{{ form.is_admin.id_for_label }}">
-                            Grant Administrative Privileges (Full Dashboard Access)
-                        </label>
+                    <label><i class="fas fa-file-pdf"></i> Update ID Proof (Optional)</label>
+                    {{ form.id_proof }}
+                    {% if form.id_proof.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.id_proof.errors.0 }}
                     </div>
+                    {% endif %}
+
+                    {% if student.id_proof %}
+                    <div style="margin-top: 10px; padding: 10px; background: rgba(16, 185, 129, 0.05); 
+                        border-radius: 8px; font-size: 0.75rem;">
+                        <a href="{{ student.id_proof.url }}" target="_blank"
+                            style="color: var(--success); text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-eye"></i> View Current ID Proof
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
             <div class="action-bar">
-                <a href="{% url 'staff-directory' %}" class="btn-discard">Discard</a>
+                <a href="{% url 'student-directory' %}" class="btn-discard">Discard</a>
                 <button type="submit" class="btn-submit">
-                    <i class="fas fa-sync-alt"></i> Update Identity
+                    <i class="fas fa-sync-alt"></i> Update Student
                 </button>
             </div>
         </form>
@@ -438,11 +509,11 @@
             <i class="fas fa-times"></i>
         </button>
 
-        <img id="modalPhoto" class="modal-photo" alt="Staff Photo">
+        <img id="modalPhoto" class="modal-photo" alt="Student Photo">
 
         <div class="modal-info">
             <h3 id="modalName"></h3>
-            <p id="modalDesignation"></p>
+            <p id="modalRoll"></p>
         </div>
 
         <div class="zoom-controls">
@@ -466,7 +537,7 @@
 
 {% block extra_scripts %}
 <script>
-    // Live Image Preview logic
+    // Live Image Preview logic - EXACT SAME AS STAFF FORM
     const photoInput = document.querySelector('input[type="file"]');
     if (photoInput) {
         photoInput.addEventListener('change', function () {
@@ -479,7 +550,7 @@
                     const previewImg = document.getElementById('preview-target');
                     previewImg.setAttribute('data-new-src', e.target.result);
                     previewImg.onclick = function () {
-                        openPhotoModal(e.target.result, '{{ staff_profile.full_name }}', '{{ staff_profile.designation }}');
+                        openPhotoModal(e.target.result, '{{ student.full_name }}', '{{ student.roll_number }}');
                     };
                 }
                 reader.readAsDataURL(file);
@@ -487,25 +558,37 @@
         });
     }
 
-    // PHOTO MODAL FUNCTIONS - EXACT SAME AS STUDENT
+    // Add readonly field styling
+    document.addEventListener('DOMContentLoaded', function () {
+        const readonlyFields = document.querySelectorAll('input[readonly]');
+        readonlyFields.forEach(field => {
+            field.addEventListener('click', function () {
+                if (this.readOnly) {
+                    alert('This field cannot be modified.');
+                }
+            });
+        });
+    });
+
+    // PHOTO MODAL FUNCTIONS
     let currentZoom = 1;
     let currentPhotoUrl = '';
     let currentFileName = '';
 
-    function openPhotoModal(photoUrl, staffName, staffDesignation) {
+    function openPhotoModal(photoUrl, studentName, studentRoll) {
         const modal = document.getElementById('photoModal');
         const modalPhoto = document.getElementById('modalPhoto');
         const modalName = document.getElementById('modalName');
-        const modalDesignation = document.getElementById('modalDesignation');
+        const modalRoll = document.getElementById('modalRoll');
 
         // Set photo and info
         modalPhoto.src = photoUrl;
-        modalName.textContent = staffName;
-        modalDesignation.textContent = staffDesignation;
+        modalName.textContent = studentName;
+        modalRoll.textContent = `Roll: ${studentRoll}`;
 
         // Store current photo URL for download
         currentPhotoUrl = photoUrl;
-        currentFileName = `${staffName.replace(/\s+/g, '_')}_${staffDesignation.replace(/\s+/g, '_')}.jpg`;
+        currentFileName = `${studentRoll}_${studentName.replace(/\s+/g, '_')}.jpg`;
 
         // Reset zoom
         currentZoom = 1;

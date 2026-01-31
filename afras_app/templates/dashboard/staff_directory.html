@@ -214,6 +214,14 @@
         object-fit: cover;
         background: var(--surface-light);
         border: 2px solid var(--border);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .staff-avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(0, 98, 255, 0.3);
+        border-color: var(--primary);
     }
 
     .staff-info span {
@@ -364,6 +372,148 @@
     .csrf-token {
         display: none;
     }
+
+    /* PHOTO MODAL STYLES */
+    .photo-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        backdrop-filter: blur(10px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .photo-modal {
+        position: relative;
+        max-width: 90%;
+        max-height: 90%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        animation: zoomIn 0.3s ease;
+    }
+
+    @keyframes zoomIn {
+        from {
+            transform: scale(0.9);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .modal-photo {
+        max-width: 100%;
+        max-height: 80vh;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        object-fit: contain;
+        background: #000;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: rotate(90deg);
+    }
+
+    .modal-info {
+        margin-top: 20px;
+        text-align: center;
+        color: white;
+    }
+
+    .modal-info h3 {
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+        color: white;
+    }
+
+    .modal-info p {
+        color: var(--text-dim);
+        font-size: 0.9rem;
+    }
+
+    /* Zoom controls */
+    .zoom-controls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px 20px;
+        border-radius: 30px;
+        backdrop-filter: blur(10px);
+    }
+
+    .zoom-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .zoom-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+    }
+
+    .download-btn {
+        background: rgba(0, 98, 255, 0.2);
+        border: 1px solid rgba(0, 98, 255, 0.4);
+        color: var(--primary);
+    }
+
+    .download-btn:hover {
+        background: rgba(0, 98, 255, 0.3);
+    }
 </style>
 {% endblock %}
 
@@ -428,10 +578,15 @@
                 <td>
                     <div class="staff-profile">
                         {% if staff.photo %}
-                        <img src="{{ staff.photo.url }}" class="staff-avatar" alt="Profile">
+                        <img src="{{ staff.photo.url }}" class="staff-avatar" alt="{{ staff.full_name }}"
+                            onclick="openStaffPhotoModal('{{ staff.photo.url }}', '{{ staff.full_name }}', '{{ staff.designation }}')"
+                            title="Click to view full size">
                         {% else %}
-                        <div class="staff-avatar" style="display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-user-tie" style="opacity: 0.3;"></i>
+                        <div class="staff-avatar"
+                            style="display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                            onclick="openStaffPhotoModal('https://ui-avatars.com/api/?name={{ staff.full_name }}&background=0062ff&color=fff', '{{ staff.full_name }}', '{{ staff.designation }}')"
+                            title="Click to view full size">
+                            <i class="fas fa-user-tie" style="opacity: 0.3; font-size: 1.5rem;"></i>
                         </div>
                         {% endif %}
                         <div class="staff-info">
@@ -495,6 +650,7 @@
     </table>
 </div>
 
+<!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="modal-overlay" onclick="closeModal(event)">
     <div class="confirmation-modal" onclick="event.stopPropagation()">
         <i class="fas fa-times close-modal" onclick="closeModal()"></i>
@@ -516,10 +672,42 @@
     </div>
 </div>
 
+<!-- Photo Modal -->
+<div id="photoModal" class="photo-modal-overlay" onclick="closePhotoModal(event)">
+    <div class="photo-modal" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closePhotoModal()">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <img id="modalPhoto" class="modal-photo" alt="Staff Photo">
+
+        <div class="modal-info">
+            <h3 id="modalName"></h3>
+            <p id="modalDesignation"></p>
+        </div>
+
+        <div class="zoom-controls">
+            <button class="zoom-btn" onclick="zoomPhoto(0.1)" title="Zoom In">
+                <i class="fas fa-search-plus"></i>
+            </button>
+            <button class="zoom-btn" onclick="zoomPhoto(-0.1)" title="Zoom Out">
+                <i class="fas fa-search-minus"></i>
+            </button>
+            <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+            <button class="zoom-btn download-btn" onclick="downloadPhoto()" title="Download Photo">
+                <i class="fas fa-download"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
 <input type="hidden" id="csrf_token" value="{{ csrf_token }}" class="csrf-token">
 {% endblock %}
 
 {% block extra_scripts %}
+{{ block.super }}
 <script>
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
         document.getElementById('csrf_token')?.value;
@@ -636,7 +824,116 @@
         document.getElementById('deleteModal').style.display = 'none';
     }
 
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    // PHOTO MODAL FUNCTIONS
+    let currentZoom = 1;
+    let currentPhotoUrl = '';
+    let currentFileName = '';
+
+    function openStaffPhotoModal(photoUrl, staffName, staffDesignation) {
+        const modal = document.getElementById('photoModal');
+        const modalPhoto = document.getElementById('modalPhoto');
+        const modalName = document.getElementById('modalName');
+        const modalDesignation = document.getElementById('modalDesignation');
+
+        // Set photo and info
+        modalPhoto.src = photoUrl;
+        modalName.textContent = staffName;
+        modalDesignation.textContent = staffDesignation;
+
+        // Store current photo URL for download
+        currentPhotoUrl = photoUrl;
+        currentFileName = `${staffName.replace(/\s+/g, '_')}_${staffDesignation.replace(/\s+/g, '_')}.jpg`;
+
+        // Reset zoom
+        currentZoom = 1;
+        modalPhoto.style.transform = 'scale(1)';
+
+        // Show modal
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closePhotoModal(event = null) {
+        if (event && event.target.id !== 'photoModal' && !event.target.classList.contains('modal-close')) {
+            return;
+        }
+
+        const modal = document.getElementById('photoModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function zoomPhoto(amount) {
+        const modalPhoto = document.getElementById('modalPhoto');
+        currentZoom += amount;
+
+        // Limit zoom range
+        if (currentZoom < 0.5) currentZoom = 0.5;
+        if (currentZoom > 3) currentZoom = 3;
+
+        modalPhoto.style.transform = `scale(${currentZoom})`;
+        modalPhoto.style.transition = 'transform 0.3s ease';
+    }
+
+    function resetZoom() {
+        const modalPhoto = document.getElementById('modalPhoto');
+        currentZoom = 1;
+        modalPhoto.style.transform = 'scale(1)';
+        modalPhoto.style.transition = 'transform 0.3s ease';
+    }
+
+    function downloadPhoto() {
+        if (!currentPhotoUrl) return;
+
+        const link = document.createElement('a');
+        link.href = currentPhotoUrl;
+        link.download = currentFileName;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeModal();
+            closePhotoModal();
+        }
+    });
+
+    // Optional: Add touch gesture support for mobile zoom
+    let touchStartDistance = 0;
+
+    document.getElementById('modalPhoto').addEventListener('touchstart', function (e) {
+        if (e.touches.length === 2) {
+            touchStartDistance = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+        }
+    });
+
+    document.getElementById('modalPhoto').addEventListener('touchmove', function (e) {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const touchDistance = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            const zoomChange = (touchDistance - touchStartDistance) * 0.01;
+            zoomPhoto(zoomChange);
+            touchStartDistance = touchDistance;
+        }
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            closeModal();
+            closePhotoModal();
+        }
+    });
+
     applyFilters();
 </script>
 {% endblock %}
