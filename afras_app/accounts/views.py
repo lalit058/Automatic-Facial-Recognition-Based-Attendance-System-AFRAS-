@@ -12,7 +12,7 @@ def register_student(request):
         # Academic & Personal Data
         username = request.POST.get("roll_number")  # Using Roll Number as Username
         full_name = request.POST.get("name")
-        phone_number=request.post.get("phone_number")
+        phone_number=request.POST.get("phone_number")
         email = request.POST.get("email") 
         department = request.POST.get("department")
         semester = request.POST.get("semester")
