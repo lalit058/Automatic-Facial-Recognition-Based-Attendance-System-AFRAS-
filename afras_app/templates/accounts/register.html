@@ -48,6 +48,34 @@
             border-radius: 24px;
             padding: 2.5rem;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        /* Back button */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: translateX(-3px);
         }
 
         /* Message Styles */
@@ -64,6 +92,12 @@
             gap: 12px;
             border: 1px solid transparent;
             font-weight: 500;
+            margin-bottom: 10px;
+            animation: slideDown 0.4s ease-out forwards;
+        }
+
+        .msg:last-child {
+            margin-bottom: 0;
         }
 
         .msg.success {
@@ -78,9 +112,22 @@
             border-color: rgba(239, 68, 68, 0.2);
         }
 
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .header {
             text-align: center;
             margin-bottom: 2rem;
+            padding-top: 10px;
         }
 
         .header i {
@@ -214,18 +261,23 @@
 
 <body>
     <div class="register-card">
+        <!-- Back Button -->
+        <a href="{% url 'student-directory' %}" class="back-btn" title="Back to Student Directory">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+
         <div class="header">
             <i class="fas fa-university"></i>
             <h2>Academic Enrollment</h2>
             <p style="color: var(--text-dim); font-size: 0.85rem;">Secure Student Onboarding</p>
         </div>
 
+        <!-- Simplified Message Container - Only shows Django messages -->
         <div class="msg-container" id="django-messages">
             {% if messages %}
             {% for msg in messages %}
             <div class="msg {{ msg.tags }}">
-                <i
-                    class="fas {% if msg.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
+                <i class="fas {% if msg.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
                 {{ msg }}
             </div>
             {% endfor %}
@@ -246,6 +298,16 @@
                     <input type="text" name="roll_number" placeholder="2024-CS-101" required>
                 </div>
 
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" name="phone_number" placeholder="**********" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" placeholder="john.doe@example.com" required>
+                </div>
+                
                 <div class="form-group">
                     <label>Department</label>
                     <input type="text" name="department" placeholder="Computer Science">
@@ -294,7 +356,7 @@
         </form>
 
         <div class="footer">
-            Already registered? <a href="/accounts/login/">Access Portal</a>
+            Already registered? <a href="{% url 'login' %}">Access Portal</a>
         </div>
     </div>
 
@@ -322,16 +384,17 @@
             }
         }
 
-        // 2. Clear messages on reload and auto-hide
+        // 2. Auto-hide messages after 5 seconds
         document.addEventListener('DOMContentLoaded', function () {
             const container = document.getElementById('django-messages');
-
+            
             // Auto-hide messages after 5 seconds
             setTimeout(() => {
                 const msgs = container.querySelectorAll('.msg');
                 msgs.forEach(m => {
-                    m.style.transition = "opacity 0.6s ease";
+                    m.style.transition = "opacity 0.6s ease, transform 0.6s ease";
                     m.style.opacity = "0";
+                    m.style.transform = "translateY(-10px)";
                     setTimeout(() => m.remove(), 600);
                 });
             }, 5000);

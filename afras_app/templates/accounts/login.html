@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* Your existing CSS remains the same */
         :root {
             --primary: #0062ff;
             --primary-glow: rgba(0, 98, 255, 0.4);
@@ -75,7 +76,6 @@
             margin-bottom: 1rem;
         }
 
-
         .login-header h2 {
             font-size: 1.75rem;
             font-weight: 800;
@@ -88,8 +88,6 @@
             margin-top: 5px;
         }
 
-
-        /* --- UPDATED DYNAMIC MESSAGE SYSTEM --- */
         .msg-container {
             margin-bottom: 1.5rem;
         }
@@ -197,6 +195,23 @@
             text-decoration: none;
             font-weight: 600;
         }
+
+        .login-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .login-actions a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-actions a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 
@@ -207,7 +222,7 @@
     <div class="login-card">
         <div class="login-header">
             <i class="fas fa-user-shield"></i>
-            <h2>System  Login</h2>
+            <h2>System Login</h2>
             <p>Access the AFRAS Management Core</p>
         </div>
 
@@ -226,26 +241,36 @@
         </div>
         {% endif %}
 
-        <form method="post">
+        <form method="post" id="loginForm" autocomplete="off">
             {% csrf_token %}
             <div class="form-group">
-                <label class="label-with-symbol">
+                <label>
                     <span>IDENTIFIER</span>
                 </label>
                 <div class="input-wrapper">
                     <i class="fas fa-user" style="color: var(--primary);"></i>
-                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="username" placeholder="Username" required autocomplete="off"
+                        autocorrect="off" autocapitalize="off" spellcheck="false">
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="label-with-symbol">
+                <label>
                     <span>SECURITY_KEY</span>
                 </label>
                 <div class="input-wrapper">
                     <i class="fas fa-lock" style="color: yellow;"></i>
-                    <input type="password" name="password" placeholder="••••••••" required>
+                    <input type="password" name="password" placeholder="••••••••" required autocomplete="new-password">
                 </div>
+            </div>
+
+            <div class="login-actions">
+                <a href="#" onclick="clearForm()">
+                    <i class="fas fa-eraser"></i> Clear Form
+                </a>
+                <a href="#" onclick="window.location.reload()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </a>
             </div>
 
             <button type="submit" class="btn-login">AUTHORIZE ACCESS</button>
@@ -254,8 +279,84 @@
         <div class="footer-links">
             <p>Need system access?</p>
             <a href="{% url 'register-student' %}"><i class="fas fa-user-plus"></i> Register Student</a>
+            {% if user.is_authenticated %}
+            <span style="color: var(--success); margin-left: 15px;">
+                <i class="fas fa-check-circle"></i> Already logged in
+            </span>
+            {% endif %}
         </div>
     </div>
+
+    <script>
+        // Clear form function
+        function clearForm() {
+            document.getElementById('loginForm').reset();
+            // Force clear autofill
+            document.querySelectorAll('input').forEach(input => {
+                input.value = '';
+            });
+        }
+
+        // Clear form on page load (optional, can be enabled if needed)
+        // window.addEventListener('load', function() {
+        //     // Only clear if we have no previous errors
+        //     if (!document.querySelector('.msg.error')) {
+        //         clearForm();
+        //     }
+        // });
+
+        // Prevent browser autofill by adding fake hidden fields
+        // This tricks browsers into thinking they've already filled the form
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add a fake username field to confuse autofill
+            const fakeUsername = document.createElement('input');
+            fakeUsername.type = 'text';
+            fakeUsername.style.display = 'none';
+            fakeUsername.name = 'fake_username';
+            fakeUsername.autocomplete = 'username';
+
+            // Add a fake password field
+            const fakePassword = document.createElement('input');
+            fakePassword.type = 'password';
+            fakePassword.style.display = 'none';
+            fakePassword.name = 'fake_password';
+            fakePassword.autocomplete = 'new-password';
+
+            // Insert at the beginning of the form
+            const form = document.getElementById('loginForm');
+            form.insertBefore(fakeUsername, form.firstChild);
+            form.insertBefore(fakePassword, fakeUsername.nextSibling);
+
+            // Clear any pre-filled values after a short delay
+            setTimeout(() => {
+                const inputs = document.querySelectorAll('input[type="text"], input[type="password"]');
+                inputs.forEach(input => {
+                    if (input.name !== 'fake_username' && input.name !== 'fake_password') {
+                        input.value = '';
+                    }
+                });
+            }, 100);
+        });
+
+        // Handle browser back/forward navigation
+        window.addEventListener('pageshow', function (event) {
+            // If the page is loaded from cache (back/forward navigation)
+            if (event.persisted) {
+                // Clear the form
+                clearForm();
+                // Refresh the CSRF token
+                fetch('/get-csrf-token/')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelector('input[name="csrfmiddlewaretoken"]').value = data.csrfToken;
+                    })
+                    .catch(err => {
+                        // Reload the page if CSRF refresh fails
+                        window.location.reload();
+                    });
+            }
+        });
+    </script>
 
 </body>
 

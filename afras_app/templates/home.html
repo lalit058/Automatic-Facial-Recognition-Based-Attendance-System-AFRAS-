@@ -38,6 +38,13 @@
             line-height: 1.6;
         }
 
+        body.modal-open nav {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+        }
+
         .grid-overlay {
             position: fixed;
             top: 0;
@@ -51,18 +58,37 @@
         }
 
         nav {
-            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            padding: 0.5rem 1rem;
             max-width: 1300px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border);
+            background: transparent;
+            transition: background 0.3s ease,
+                backdrop-filter 0.3s ease,
+                box-shadow 0.3s ease;
+            z-index: 1000;
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+        }
+
+        nav.scrolled {
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(12px) saturate(160%);
+            -webkit-backdrop-filter: blur(12px) saturate(160%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
         }
 
         .logo {
             font-weight: 800;
-            font-size: 1.5rem;
+            font-size: 2rem;
             letter-spacing: -1px;
             display: flex;
             align-items: center;
@@ -90,7 +116,7 @@
         .hero {
             max-width: 1300px;
             margin: 0 auto;
-            padding: 4rem 2rem;
+            padding: 2rem 1rem;
             display: grid;
             grid-template-columns: 1.2fr 0.8fr;
             gap: 4rem;
@@ -163,6 +189,14 @@
             border: 1px solid var(--border);
             padding: 2.5rem;
             position: relative;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+        }
+
+        .modal-content.show {
+            transform: translateY(0);
+            opacity: 1;
         }
 
         .close-modal {
@@ -172,13 +206,127 @@
             color: var(--text-dim);
             cursor: pointer;
             font-size: 1.5rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+            z-index: 2;
+        }
+
+        .close-modal:hover {
+            color: var(--primary);
+            transform: rotate(90deg);
         }
 
         .login-form {
             display: flex;
             flex-direction: column;
             gap: 15px;
-            margin-top: 25px;
+            margin-top: 15px;
+        }
+
+        /* Enhanced Dropdown Styles */
+        .select-wrapper {
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .select-trigger {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 14px 45px 14px 15px;
+            border-radius: 10px;
+            color: white;
+            font-family: 'JetBrains Mono';
+            outline: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            z-index: 2;
+        }
+
+        .select-trigger:hover {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .select-trigger.active {
+            border-color: var(--primary);
+            background: rgba(0, 98, 255, 0.1);
+            box-shadow: 0 0 0 2px rgba(0, 98, 255, 0.2);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .select-trigger i {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-left: 10px;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        .select-trigger.active i {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--primary);
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            overflow: hidden;
+            z-index: 1;
+            opacity: 0;
+            transform: translateY(-10px);
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .dropdown-options.show {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .dropdown-option {
+            padding: 12px 15px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-family: 'JetBrains Mono';
+            font-size: 0.85rem;
+        }
+
+        .dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-option:hover {
+            background: rgba(0, 98, 255, 0.1);
+            color: var(--primary);
+            padding-left: 20px;
+        }
+
+        .dropdown-option.selected {
+            background: rgba(0, 98, 255, 0.15);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .dropdown-option i {
+            width: 20px;
+            text-align: center;
+            font-size: 0.9rem;
         }
 
         .input-group {
@@ -192,23 +340,45 @@
             color: var(--text-dim);
             font-weight: 600;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
+                margin: 0px 7px;
         }
 
-        .input-group input,
-        .input-group select {
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        input {
+            width: 100%;
             background: var(--bg);
             border: 1px solid var(--border);
-            padding: 12px;
-            border-radius: 8px;
+            padding: 14px 14px 14px 45px;
+            border-radius: 10px;
             color: white;
             font-family: 'JetBrains Mono';
             outline: none;
-            transition: 0.3s;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
         }
 
-        .input-group input:focus,
-        .input-group select:focus {
+        input:focus {
             border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 0 2px rgba(0, 98, 255, 0.2);
+        }
+
+        input:focus+i {
+            color: var(--primary);
         }
 
         .viz-container {
@@ -294,9 +464,10 @@
             font-size: 0.7rem;
             padding: 4px 12px;
             border-radius: 20px;
-            display: inline-block;
-            margin-top: 5px;
             font-family: 'JetBrains Mono';
+            margin: 10px auto;
+            text-align: center;
+            width: fit-content;
         }
 
         .action-dashboard {
@@ -322,6 +493,49 @@
             color: var(--primary);
             border: 1px solid var(--primary);
         }
+
+        footer {
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 1.5rem 1rem;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        footer #copy-right {
+            font-size: 0.8rem;
+        }
+
+        footer #admin-channel {
+            font-size: 0.65rem;
+            font-family: 'JetBrains Mono';
+            margin-top: 10px;
+            color: var(--primary);
+        }
+
+        #status {
+            color: var(--success);
+        }
+
+        /* Pulsing animation for submit button */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 10px 20px var(--primary-glow);
+            }
+
+            50% {
+                box-shadow: 0 10px 25px rgba(0, 98, 255, 0.6);
+            }
+
+            100% {
+                box-shadow: 0 10px 20px var(--primary-glow);
+            }
+        }
+
+        .submit-pulse {
+            animation: pulse 2s infinite;
+        }
     </style>
 </head>
 
@@ -331,38 +545,69 @@
     <div id="modal-auth" class="modal-overlay">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModals()">&times;</span>
-            <h3 id="auth-title"><i class="fas fa-lock" style="color: var(--primary); margin-right: 10px;"></i> Secure
-                Access</h3>
+            <h3 id="auth-title"
+                style="display: flex; justify-content: center; align-items: center; margin-bottom: 8px;">
+                <i class="fas fa-lock" style="color: var(--primary); margin-right: 5px;"></i> Secure Access
+            </h3>
             <div id="action-badge" class="modal-action-type" style="display: none;"></div>
-            <p id="auth-desc" style="color: var(--text-dim); font-size: 0.8rem; margin-top: 5px;">Credentials required
-                for gateway access.</p>
+            <p id="auth-desc" style="color: var(--text-dim); font-size: 0.8rem; margin-top: 5px; text-align: center;">
+                Credentials required for gateway access.
+            </p>
 
             <form id="login-form" class="login-form" method="POST" action="{% url 'login' %}">
-                {% csrf_token %} <div class="input-group">
+                {% csrf_token %}
+
+                <div class="input-group">
                     <label>System Role</label>
-                    <select id="role-select" name="role" required>
-                        <option value="staff">Staff Personnel</option>
-                        <option value="admin">Institutional Admin</option>
-                        <option value="root">System Developer</option>
-                    </select>
+                    <div class="select-wrapper">
+                        <div class="select-trigger" id="role-trigger">
+                            <span id="selected-role">Staff Personnel</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <input type="hidden" id="role-input" name="role" value="staff" required>
+                        <div class="dropdown-options" id="role-options">
+                            <div class="dropdown-option selected" data-value="staff">
+                                <i class="fas fa-user-tie"></i>
+                                <span>Staff Personnel</span>
+                            </div>
+                            <div class="dropdown-option" data-value="admin">
+                                <i class="fas fa-user-shield"></i>
+                                <span>Institutional Admin</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="input-group">
                     <label>Personnel ID</label>
-                    <input type="text" name="username" placeholder="FWU-XXXX-2026" required>
+                    <div class="input-wrapper">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" name="username" placeholder="STF-2026-001" required autocomplete="off">
+                    </div>
                 </div>
+
                 <div class="input-group">
                     <label>Access Key</label>
-                    <input type="password" name="password" placeholder="••••••••" required>
+                    <div class="input-wrapper">
+                        <i class="fas fa-key"></i>
+                        <input type="password" name="password" placeholder="••••••••" required
+                            autocomplete="new-password">
+                    </div>
                 </div>
-                <button type="submit" id="submit-button" class="btn btn-primary"
+
+                <button type="submit" id="submit-button" class="btn btn-primary submit-pulse"
                     style="margin-top: 10px; width: 100%; justify-content: center;">
-                    Authorize Session
+                    <i class="fas fa-fingerprint"></i> Authorize Session
                 </button>
-                <div style="display: flex; justify-content: space-between; margin-top: 15px;">
-                    <span
-                        style="font-size: 0.65rem; color: var(--text-dim); font-family: 'JetBrains Mono';">AES_256_ACTIVE</span>
-                    <a href="#" style="font-size: 0.65rem; color: var(--primary); text-decoration: none;">Forgot
-                        Key?</a>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 15px; align-items: center;">
+                    <span style="font-size: 0.65rem; color: var(--text-dim); font-family: 'JetBrains Mono';">
+                        <i class="fas fa-shield-alt"></i> AES_256_ACTIVE
+                    </span>
+                    <a href="#"
+                        style="font-size: 0.65rem; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                        <i class="fas fa-question-circle"></i> Forgot Key?
+                    </a>
                 </div>
             </form>
         </div>
@@ -375,7 +620,7 @@
         </div>
         <div class="nav-links">
             <a class="nav-link" onclick="openAuth('Staff Login', 'staff', 'login')">Staff Login</a>
-            <a class="nav-link" onclick="openAuth('System Admin', 'root', 'admin')">System Admin</a>
+            <a class="nav-link" onclick="openAuth('System Admin', 'admin', 'login')">System Admin</a>
             <a href="#" class="nav-link">Documentation</a>
         </div>
     </nav>
@@ -401,7 +646,7 @@
             </p>
 
             <div class="cta-section">
-                <button onclick="openAuth('Attendance Dashboard', 'staff', 'dashboard')" class="btn btn-primary"
+                <button onclick="openAuth('Attendance Dashboard', 'staff', 'login')" class="btn btn-primary"
                     style="padding: 18px 36px; font-size: 1.1rem; margin-bottom: 25px;">
                     <i class="fas fa-play"></i> Launch System Core
                 </button>
@@ -412,10 +657,6 @@
                     <a class="nav-link" onclick="openAuth('Routine Management', 'admin', 'routine')"
                         style="font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-clock" style="color: var(--primary);"></i> Routine
-                    </a>
-                    <a class="nav-link" onclick="openAuth('Administrator Portal', 'admin', 'admin')"
-                        style="font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-user-shield" style="color: var(--primary);"></i> Admin Portal
                     </a>
                 </div>
             </div>
@@ -480,36 +721,103 @@
         </div>
     </section>
 
-    <footer
-        style="text-align: center; padding: 4rem 2rem; border-top: 1px solid var(--border); color: var(--text-dim);">
-        <p style="font-size: 0.8rem;">© 2026 AFRAS | School of Engineering | Far Western University</p>
-        <p style="font-size: 0.65rem; font-family: 'JetBrains Mono'; margin-top: 10px; color: var(--primary);">ENCRYPTED_ADMIN_CHANNEL: <span style="color: var(--success);">ACTIVE</span>
+    <footer>
+        <p id="copy-right">&copy; 2026 AFRAS | School of Engineering | Far Western University </p>
+        <p id="admin-channel">
+            ENCRYPTED_ADMIN_CHANNEL: <span id="status">ACTIVE</span>
         </p>
     </footer>
 
     <script>
+        //nav scroll effect
+        const nav = document.querySelector("nav");
+
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > 20) {
+                nav.classList.add("scrolled");
+            } else {
+                nav.classList.remove("scrolled");
+            }
+        });
+
+        // Custom Dropdown Functionality
+        const roleTrigger = document.getElementById('role-trigger');
+        const roleOptions = document.getElementById('role-options');
+        const selectedRole = document.getElementById('selected-role');
+        const roleInput = document.getElementById('role-input');
+        const dropdownOptions = document.querySelectorAll('.dropdown-option');
+
+        // Create icon element for the trigger
+        const triggerIcon = document.createElement('i');
+        triggerIcon.className = 'fas fa-user-tie'; // Default icon
+        triggerIcon.style.marginRight = '8px';
+        roleTrigger.insertBefore(triggerIcon, selectedRole);
+
+        // Icon mapping for roles
+        const roleIcons = {
+            'staff': 'fa-user-tie',
+            'admin': 'fa-user-shield'
+        };
+
+        roleTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            roleTrigger.classList.toggle('active');
+            roleOptions.classList.toggle('show');
+        });
+
+        dropdownOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const value = option.getAttribute('data-value');
+                const text = option.querySelector('span').textContent;
+                const iconClass = option.querySelector('i').className;
+
+                // Update selected display
+                triggerIcon.className = iconClass;
+                selectedRole.textContent = text;
+                roleInput.value = value;
+
+                // Update active state
+                dropdownOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+
+                // Close dropdown
+                roleTrigger.classList.remove('active');
+                roleOptions.classList.remove('show');
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!roleTrigger.contains(e.target) && !roleOptions.contains(e.target)) {
+                roleTrigger.classList.remove('active');
+                roleOptions.classList.remove('show');
+            }
+        });
+
+        // Modal functions
         function openAuth(portalName, roleValue, actionType = 'login') {
             const iconMap = {
                 'Staff Login': 'fa-user-tie',
-                'System Admin': 'fa-terminal',
+                'System Admin': 'fa-user-shield',
                 'Attendance Dashboard': 'fa-chart-pie',
                 'Routine Management': 'fa-calendar-day',
-                'Administrator Portal': 'fa-user-shield'
             };
             const icon = iconMap[portalName] || 'fa-lock';
-            document.getElementById('auth-title').innerHTML = `<i class="fas ${icon}" style="color: var(--primary); margin-right: 10px;"></i> ${portalName}`;
+
+            document.body.classList.add('modal-open');
+            document.getElementById('auth-title').innerHTML = `<i class="fas ${icon}" style="color: var(--primary); margin-right: 5px;"></i> ${portalName}`;
 
             const actionBadge = document.getElementById('action-badge');
             let badgeText = ''; let badgeClass = '';
             switch (actionType) {
-                case 'dashboard': badgeText = 'DASHBOARD_ACCESS'; badgeClass = 'action-dashboard'; break;
-                case 'routine': badgeText = 'ROUTINE_MANAGEMENT'; badgeClass = 'action-routine'; break;
-                case 'admin': badgeText = 'ADMIN_PORTAL'; badgeClass = 'action-admin'; break;
-                default: badgeText = 'SYSTEM_LOGIN'; badgeClass = 'action-login';
+                case 'dashboard': badgeText = 'DASHBOARD-ACCESS'; badgeClass = 'action-dashboard'; break;
+                case 'routine': badgeText = 'ROUTINE-MANAGEMENT'; badgeClass = 'action-routine'; break;
+                case 'admin': badgeText = 'ADMIN-PORTAL'; badgeClass = 'action-admin'; break;
+                default: badgeText = 'SYSTEM-LOGIN'; badgeClass = 'action-login';
             }
             actionBadge.textContent = badgeText;
             actionBadge.className = `modal-action-type ${badgeClass}`;
-            actionBadge.style.display = 'inline-block';
+            actionBadge.style.display = 'block';
 
             let description = '';
             switch (actionType) {
@@ -520,23 +828,105 @@
             }
             document.getElementById('auth-desc').innerText = description;
 
-            const roleSelect = document.getElementById('role-select');
-            if (roleValue) roleSelect.value = roleValue;
-            roleSelect.disabled = (actionType === 'dashboard');
+            // Set role if provided
+            if (roleValue) {
+                const option = document.querySelector(`.dropdown-option[data-value="${roleValue}"]`);
+                if (option) {
+                    // Update trigger with icon
+                    const iconClass = option.querySelector('i').className;
+                    const text = option.querySelector('span').textContent;
 
+                    triggerIcon.className = iconClass;
+                    selectedRole.textContent = text;
+                    roleInput.value = roleValue;
+
+                    // Update active state in dropdown
+                    dropdownOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                }
+            }
+
+            // Disable dropdown if needed
+            roleTrigger.style.opacity = (actionType === 'dashboard') ? '0.5' : '1';
+            roleTrigger.style.pointerEvents = (actionType === 'dashboard') ? 'none' : 'all';
+
+            // Show modal with animation
             document.getElementById('modal-auth').style.display = 'flex';
             document.body.style.overflow = 'hidden';
+
+            // Trigger modal animation
+            setTimeout(() => {
+                document.querySelector('.modal-content').classList.add('show');
+            }, 10);
         }
 
         function closeModals() {
-            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-            document.body.style.overflow = 'auto';
-            document.getElementById('role-select').disabled = false;
+            // Hide modal with animation
+            document.querySelector('.modal-content').classList.remove('show');
+
+            setTimeout(() => {
+                document.getElementById('modal-auth').style.display = 'none';
+                document.body.style.overflow = 'auto';
+                document.body.classList.remove('modal-open');
+
+                // Reset dropdown
+                roleTrigger.classList.remove('active');
+                roleOptions.classList.remove('show');
+                roleTrigger.style.opacity = '1';
+                roleTrigger.style.pointerEvents = 'all';
+
+                // Reset to default state
+                const defaultOption = document.querySelector('.dropdown-option[data-value="staff"]');
+                if (defaultOption) {
+                    const iconClass = defaultOption.querySelector('i').className;
+                    const text = defaultOption.querySelector('span').textContent;
+
+                    triggerIcon.className = iconClass;
+                    selectedRole.textContent = text;
+                    roleInput.value = 'staff';
+
+                    dropdownOptions.forEach(opt => opt.classList.remove('selected'));
+                    defaultOption.classList.add('selected');
+                }
+
+                // Reset form
+                document.getElementById('login-form').reset();
+            }, 300);
         }
 
         window.onclick = function (event) {
-            if (event.target.className === 'modal-overlay') closeModals();
+            if (event.target.className === 'modal-overlay') {
+                closeModals();
+            }
         }
+
+        // Page load cleanup
+        document.addEventListener('DOMContentLoaded', function () {
+            document.body.classList.remove('modal-open');
+            document.querySelectorAll('.modal-overlay').forEach(m => {
+                m.style.display = 'none';
+            });
+            document.body.style.overflow = 'auto';
+        });
+
+        // Handle browser navigation
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted) {
+                closeModals();
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('login-form').addEventListener('submit', function (e) {
+            const submitBtn = document.getElementById('submit-button');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+
+            // Remove modal-open class before redirect
+            setTimeout(() => {
+                document.body.classList.remove('modal-open');
+            }, 100);
+        });
     </script>
 </body>
 

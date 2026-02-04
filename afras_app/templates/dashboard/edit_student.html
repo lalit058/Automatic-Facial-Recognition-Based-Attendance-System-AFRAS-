@@ -164,10 +164,9 @@
     }
 
     .preview-circle {
-        width: 80px;
-        height: 80px;
+        width: 110px;
+        height: 110px;
         border-radius: 20px;
-        border: 2px solid var(--primary);
         object-fit: cover;
         padding: 3px;
         cursor: pointer;
@@ -364,7 +363,7 @@
                 {% endif %}
             </div>
             <h2>Update Student Record</h2>
-            <p>Editing Identity: {{ student.full_name }}</p>
+            <p>Editing Identity: <span style="color: var(--primary); font-weight: 700;">{{ student.full_name }}</span></p>
         </header>
 
         <form method="POST" enctype="multipart/form-data">

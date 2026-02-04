@@ -115,6 +115,7 @@ def edit_staff(request, staff_id):
     }
     return render(request, "dashboard/edit_staff.html", context)
 
+
 @login_required
 def edit_student(request, student_id):
     """Edit student profile"""
@@ -123,11 +124,15 @@ def edit_student(request, student_id):
     
     # Permission check: only superusers or staff from same department can edit
     if not request.user.is_superuser:
-        if not hasattr(request.user, 'staffprofile'):
+        # Check if user has staff profile 
+        if not hasattr(request.user, 'staff_profile'):
             messages.error(request, "You don't have permission to edit students.")
             return redirect('student-directory')
         
-        if request.user.staffprofile.department != student.department:
+        staff_profile = request.user.staff_profile
+        
+        # Check if staff is from the same department as student
+        if staff_profile.department != student.department:
             messages.error(request, "You can only edit students from your department.")
             return redirect('student-directory')
     
@@ -152,6 +157,7 @@ def edit_student(request, student_id):
         'form': form,
         'student': student,
         'page_title': 'Edit Student',
+        'can_edit': True,
     }
     return render(request, 'dashboard/edit_student.html', context)
 
@@ -163,15 +169,19 @@ def delete_student(request, student_id):
     # Get student object
     student = get_object_or_404(Student, id=student_id)
     
-    # Permission check: only superusers or staff from same department can delete
+    # Permission check: only superusers can delete
     if not request.user.is_superuser:
-        if not hasattr(request.user, 'staffprofile'):
+        # Check if user has staff profile
+        if not hasattr(request.user, 'staff_profile'):
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'error': 'Permission denied'}, status=403)
             messages.error(request, "You don't have permission to delete students.")
             return redirect('student-directory')
         
-        if request.user.staffprofile.department != student.department:
+        staff_profile = request.user.staff_profile
+        
+        # Check if staff is from the same department as student
+        if staff_profile.department != student.department:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'error': 'You can only delete students from your department'}, status=403)
             messages.error(request, "You can only delete students from your department.")
@@ -187,6 +197,9 @@ def delete_student(request, student_id):
             # Delete the user account (cascades to student due to CASCADE)
             user = student.user
             user.delete()
+            
+            # Store message in session for the next request
+            messages.success(request, f'Student {student_name} deleted successfully!')
             
             return JsonResponse({
                 'success': True,
@@ -228,6 +241,7 @@ def delete_student(request, student_id):
         'page_title': 'Delete Student',
     }
     return render(request, 'dashboard/delete_student.html', context)
+
 
 @require_http_methods(["DELETE"])
 @login_required

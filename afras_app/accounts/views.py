@@ -10,10 +10,10 @@ User = get_user_model()
 def register_student(request):
     if request.method == "POST":
         # Academic & Personal Data
-        username = request.POST.get("roll_number")  # Using Roll Number as Username
+        username = request.POST.get("roll_number")  
         full_name = request.POST.get("name")
-        phone_number=request.post.get("phone_number")
-        email = request.POST.get("email") 
+        phone_number = request.POST.get("phone_number")
+        email = request.POST.get("email")
         department = request.POST.get("department")
         semester = request.POST.get("semester")
         section = request.POST.get("section")
@@ -30,7 +30,7 @@ def register_student(request):
         try:
             # Create CustomUser
             user = User.objects.create_user(username=username, password=password)
-            user.is_student = True  # Setting the flag from CustomUser model
+            user.is_student = True  
             user.save()
 
             # Create Student Profile
@@ -58,7 +58,7 @@ def register_student(request):
 
 def register_staff(request):
     # This key should be kept in your .env or settings.py for security
-    INSTITUTIONAL_MASTER_KEY = "AFRAS_ROOT_2026"
+    INSTITUTIONAL_MASTER_KEY = "AFRAS-ROOT-2026"
 
     if request.method == "POST":
         # Extract Data
@@ -102,13 +102,13 @@ def register_staff(request):
                 degree=request.POST.get("degree"),
                 designation=request.POST.get("designation"),
                 department=request.POST.get("department"),
-                photo=request.FILES.get("photo"),  
+                photo=request.FILES.get("photo"),
             )
 
             messages.success(
-                request, f"Welcome {request.POST.get('name')}! Registration complete."
+                request, f"staff {request.POST.get('name')} Registered successfully!"
             )
-            return redirect("login")
+            return redirect("register-staff")
 
         except Exception as e:
             messages.error(request, f"System Error: {e}")
@@ -121,14 +121,14 @@ def login_user(request):
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
-        if user:
+
+        if user is not None:
             login(request, user)
-            return redirect("dashboard_home")
+            messages.success(request, "Login successful!")
+            return redirect("dashboard_home")  
         else:
-            messages.error(request, "Invalid Credentials")
+            messages.error(request, "Invalid username or password. Please try again.")
     return render(request, "accounts/login.html")
-
-
 
 @login_required
 def logout_user(request):
