@@ -1,0 +1,1464 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ student.full_name }} - Student Profile{% endblock %}
+
+{% block extra_head %}
+<!-- Add photo modal CSS -->
+<link rel="stylesheet" href="{% static 'css/photo-modal.css' %}">
+
+<style>
+    .profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    /* Header Styles */
+    .profile-header {
+        background: linear-gradient(135deg, var(--primary) 0%, #0051ff 100%);
+        border-radius: 24px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 98, 255, 0.2);
+    }
+
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.3;
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .profile-avatar {
+        width: 180px;
+        height: 180px;
+        border-radius: 20px;
+        border: 5px solid rgba(255, 255, 255, 0.3);
+        object-fit: cover;
+        background: var(--surface-light);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .profile-avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        border-color: white;
+    }
+
+    .avatar-placeholder {
+        width: 180px;
+        height: 180px;
+        border-radius: 20px;
+        border: 5px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .avatar-placeholder:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        border-color: white;
+    }
+
+    .avatar-placeholder i {
+        font-size: 4rem;
+        opacity: 0.5;
+        color: white;
+    }
+
+    .header-info {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    .header-info h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        font-weight: 800;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .student-id {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 1rem;
+        font-family: 'JetBrains Mono', monospace;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 15px;
+        border-radius: 10px;
+        display: inline-block;
+        backdrop-filter: blur(10px);
+    }
+
+    .academic-badges {
+        display: flex;
+        gap: 10px;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .badge {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .badge i {
+        font-size: 0.8rem;
+    }
+
+    /* Profile Sections */
+    .profile-sections {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .profile-section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .profile-section:hover {
+        border-color: var(--primary);
+        box-shadow: 0 8px 20px rgba(0, 98, 255, 0.05);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--border);
+    }
+
+    .section-header i {
+        font-size: 1.2rem;
+        color: var(--primary);
+        width: 35px;
+        height: 35px;
+        background: rgba(0, 98, 255, 0.1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .section-header h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-main);
+        flex: 1;
+    }
+
+    .info-grid {
+        display: grid;
+        gap: 1.2rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 10px;
+        background: var(--surface-light);
+        transition: all 0.2s ease;
+    }
+
+    .info-item:hover {
+        background: rgba(0, 98, 255, 0.05);
+        transform: translateX(5px);
+    }
+
+    .info-item i {
+        color: var(--primary);
+        font-size: 1rem;
+        flex-shrink: 0;
+        width: 20px;
+        text-align: center;
+    }
+
+    .info-content {
+        flex: 1;
+    }
+
+    .info-content label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+
+    .info-content .value {
+        font-size: 14px;
+        color: var(--text-main);
+        word-break: break-word;
+        line-height: 1.4;
+    }
+
+    .info-content .value a {
+        color: var(--primary);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .info-content .value a:hover {
+        text-decoration: underline;
+    }
+
+    /* Document Section */
+    .document-section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+    }
+
+    .document-card {
+        background: var(--surface-light);
+        border: 2px dashed var(--border);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        margin: 1rem 0;
+    }
+
+    .document-card:hover {
+        border-color: var(--primary);
+        background: rgba(0, 98, 255, 0.05);
+        transform: translateY(-3px);
+    }
+
+    .document-card i {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .btn-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--primary);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 14px;
+        margin-top: 1rem;
+    }
+
+    .btn-download:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 98, 255, 0.3);
+    }
+
+    /* Face Encoding Section */
+    .face-encoding-section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .face-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding: 1.5rem;
+        border-radius: 12px;
+        background: var(--surface-light);
+    }
+
+    .face-status-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .face-status-icon.available {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+    }
+
+    .face-status-icon.unavailable {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+    }
+
+    .face-status-info {
+        flex: 1;
+        padding: 0 1.5rem;
+    }
+
+    .face-status-info h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-main);
+    }
+
+    .face-status-info p {
+        color: var(--text-dim);
+        font-size: 0.9rem;
+    }
+
+    .btn-view-encoding {
+        background: transparent;
+        border: 1px solid var(--primary);
+        color: var(--primary);
+        padding: 10px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .btn-view-encoding:hover {
+        background: var(--primary);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .btn-action {
+        padding: 12px 24px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        min-width: 150px;
+        justify-content: center;
+        font-size: 14px;
+    }
+
+    .btn-back {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-main);
+    }
+
+    .btn-back:hover {
+        background: var(--surface-light);
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .btn-edit {
+        background: var(--primary);
+        color: white;
+        border: 1px solid var(--primary);
+    }
+
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 98, 255, 0.3);
+    }
+
+    .btn-delete {
+        background: transparent;
+        border: 1px solid var(--danger);
+        color: var(--danger);
+    }
+
+    .btn-delete:hover {
+        background: var(--danger);
+        color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-dim);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+    }
+
+    /* Face Encoding Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 20px;
+    }
+
+    .confirmation-modal {
+        background: var(--surface);
+        border-radius: 20px;
+        width: 100%;
+        max-width: 600px;
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        padding: 2rem 2rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 1.2rem;
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 10;
+        background: transparent;
+        border: none;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+    }
+
+    .close-modal:hover {
+        color: var(--text-main);
+        background: var(--surface-light);
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 12px;
+        padding: 1.5rem 2rem 2rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .btn-cancel,
+    .btn-confirm-delete {
+        flex: 1;
+        padding: 14px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-cancel {
+        background: var(--surface-light);
+        color: var(--text-main);
+        border: 1px solid var(--border);
+    }
+
+    .btn-cancel:hover {
+        background: var(--surface-hover);
+        border-color: var(--text-dim);
+    }
+
+    .encoding-actions {
+        display: flex;
+        gap: 10px;
+        margin: 15px 0;
+        justify-content: center;
+    }
+
+    .btn-export {
+        background: transparent;
+        border: 1px solid var(--success);
+        color: var(--success);
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-export:hover {
+        background: var(--success);
+        color: white;
+    }
+
+    /* Encoding Data Display */
+    .encoding-data {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 1rem;
+        background: var(--bg);
+        border-radius: 8px;
+        margin: 1rem 0;
+        border: 1px solid var(--border);
+    }
+
+    .encoding-data pre {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        line-height: 1.5;
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-all;
+        color: var(--text-main);
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .profile-container {
+            padding: 1rem;
+        }
+
+        .profile-header {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .header-content {
+            flex-direction: column;
+            text-align: center;
+            gap: 1.5rem;
+        }
+
+        .profile-avatar,
+        .avatar-placeholder {
+            width: 150px;
+            height: 150px;
+        }
+
+        .avatar-placeholder i {
+            font-size: 3rem;
+        }
+
+        .header-info h1 {
+            font-size: 2rem;
+        }
+
+        .profile-sections {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-action {
+            width: 100%;
+        }
+
+        .modal-buttons {
+            flex-direction: column;
+        }
+
+        .face-status {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .face-status-info {
+            padding: 0;
+        }
+
+        .face-status-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .profile-header {
+            padding: 1rem;
+        }
+
+        .header-info h1 {
+            font-size: 1.5rem;
+        }
+
+        .profile-avatar,
+        .avatar-placeholder {
+            width: 120px;
+            height: 120px;
+        }
+
+        .profile-section {
+            padding: 1rem;
+        }
+
+        .info-item {
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .modal-overlay {
+            padding: 10px;
+        }
+
+        .confirmation-modal {
+            border-radius: 16px;
+        }
+
+        .academic-badges {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .badge {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <!-- Header Section -->
+    <div class="profile-header">
+        <div class="header-content">
+            {% if student.photo %}
+            <img src="{{ student.photo.url }}" class="profile-avatar" alt="{{ student.full_name }}"
+                data-photo-src="{{ student.photo.url }}" data-photo-title="{{ student.full_name }}"
+                data-photo-subtitle="Roll: {{ student.roll_number }} | Semester {{ student.semester }}"
+                title="Click to view full size">
+            {% else %}
+            <div class="avatar-placeholder"
+                data-photo-src="https://ui-avatars.com/api/?name={{ student.full_name }}&background=0062ff&color=fff&size=400"
+                data-photo-title="{{ student.full_name }}"
+                data-photo-subtitle="Roll: {{ student.roll_number }} | Semester {{ student.semester }}"
+                title="Click to view full size">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            {% endif %}
+
+            <div class="header-info">
+                <h1>{{ student.full_name }}</h1>
+                <div class="student-id">Roll Number: {{ student.roll_number }}</div>
+
+                <div class="academic-badges">
+                    <div class="badge">
+                        <i class="fas fa-graduation-cap"></i>
+                        {{ student.department|default:"No Department" }}
+                    </div>
+                    <div class="badge">
+                        <i class="fas fa-calendar-alt"></i>
+                        Semester {{ student.semester|default:"N/A" }}
+                    </div>
+                    <div class="badge">
+                        <i class="fas fa-users"></i>
+                        Section {{ student.section|default:"A" }}
+                    </div>
+                    <div class="badge">
+                        <i class="fas fa-calendar-check"></i>
+                        Enrolled {{ student.registration_date|date:"d M Y" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Sections -->
+    <div class="profile-sections">
+        <!-- Personal Information -->
+        <div class="profile-section">
+            <div class="section-header">
+                <i class="fas fa-user-circle"></i>
+                <h2>Personal Information</h2>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <i class="fas fa-id-card"></i>
+                    <div class="info-content">
+                        <label>Full Name</label>
+                        <div class="value">{{ student.full_name }}</div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <i class="fas fa-hashtag"></i>
+                    <div class="info-content">
+                        <label>Roll Number</label>
+                        <div class="value">{{ student.roll_number }}</div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <div class="info-content">
+                        <label>Phone Number</label>
+                        <div class="value">{{ student.phone_number|default:"Not provided" }}</div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <i class="fas fa-envelope"></i>
+                    <div class="info-content">
+                        <label>Email Address</label>
+                        <div class="value">
+                            {% if student.email %}
+                            <a href="mailto:{{ student.email }}">{{ student.email }}</a>
+                            {% else %}
+                            Not provided
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Information -->
+        <div class="profile-section">
+            <div class="section-header">
+                <i class="fas fa-graduation-cap"></i>
+                <h2>Academic Information</h2>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <i class="fas fa-university"></i>
+                    <div class="info-content">
+                        <label>Department</label>
+                        <div class="value">{{ student.department|default:"Not specified" }}</div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <div class="info-content">
+                        <label>Semester</label>
+                        <div class="value">Semester {{ student.semester|default:"N/A" }}</div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <i class="fas fa-users"></i>
+                    <div class="info-content">
+                        <label>Section</label>
+                        <div class="value">{{ student.section|default:"A" }}</div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <div class="info-content">
+                        <label>Registration Date</label>
+                        <div class="value">{{ student.registration_date|date:"d M Y, h:i A" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-sections">
+        <!-- Address Information -->
+        <div class="profile-section">
+            <div class="section-header">
+                <i class="fas fa-map-marker-alt"></i>
+                <h2>Address Information</h2>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item" style="grid-column: 1 / -1;">
+                    <i class="fas fa-home"></i>
+                    <div class="info-content">
+                        <label>Complete Address</label>
+                        <div class="value">
+                            {% if student.address %}
+                            {{ student.address }}
+                            {% else %}
+                            <span style="color: var(--text-dim); font-style: italic;">Address not provided</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Section -->
+        <div class="document-section profile-section">
+            <div class="section-header">
+                <i class="fas fa-file-alt"></i>
+                <h2>Documents</h2>
+            </div>
+
+            {% if student.id_proof %}
+            <div class="document-card">
+                <i class="fas fa-file-pdf"></i>
+                <h3 style="font-size: 16px; margin: 10px 0;">ID Proof Document</h3>
+                <a href="{{ student.id_proof.url }}" target="_blank" class="btn-download">
+                    <i class="fas fa-download"></i> Download Document
+                </a>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-file-alt"></i>
+                <h3>No Documents Uploaded</h3>
+                <p>No ID proof document has been uploaded for this student.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Face Encoding Status -->
+    <div class="face-encoding-section profile-section">
+        <div class="section-header">
+            <i class="fas fa-dna"></i>
+            <h2>Biometric Data</h2>
+        </div>
+
+        <div class="face-status">
+            <div class="face-status-icon {% if student.face_encoding %}available{% else %}unavailable{% endif %}">
+                <i class="fas {% if student.face_encoding %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+            </div>
+
+            <div class="face-status-info">
+                <h3>Face Encoding Status</h3>
+                <p>
+                    {% if student.face_encoding %}
+                    Face biometric data is available for facial recognition
+                    {% else %}
+                    No face biometric data has been registered yet
+                    {% endif %}
+                </p>
+            </div>
+
+            {% if student.face_encoding %}
+            <button class="btn-view-encoding" onclick="showFaceEncoding()">
+                <i class="fas fa-eye"></i> View & Export
+            </button>
+            {% else %}
+            <button class="btn-view-encoding" disabled style="opacity: 0.5; cursor: not-allowed;">
+                <i class="fas fa-eye-slash"></i> No Data
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{% url 'student-directory' %}" class="btn-action btn-back">
+            <i class="fas fa-arrow-left"></i> Back to Directory
+        </a>
+
+        <a href="{% url 'edit-student' student.id %}" class="btn-action btn-edit">
+            <i class="fas fa-edit"></i> Edit Profile
+        </a>
+
+        {% if request.user.is_superuser %}
+        <a href="{% url 'delete-student' student.id %}" class="btn-action btn-delete"
+            onclick="return confirm('Are you sure you want to delete {{ student.full_name }}? This action cannot be undone.');">
+            <i class="fas fa-trash-alt"></i> Delete Student
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Face Encoding Modal -->
+<div id="faceEncodingModal" class="modal-overlay" style="display: none;">
+    <div class="confirmation-modal">
+        <button class="close-modal" onclick="closeFaceEncodingModal()">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="modal-header">
+            <i class="fas fa-dna" style="color: var(--primary); font-size: 2rem;"></i>
+            <div>
+                <h3>Face Encoding Data</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Biometric data for {{ student.full_name }}</p>
+            </div>
+        </div>
+
+        <div style="padding: 0 2rem;">
+            <div class="encoding-actions">
+                <button class="btn-export" onclick="copyFaceEncoding()">
+                    <i class="fas fa-copy"></i> Copy to Clipboard
+                </button>
+                <button class="btn-export" onclick="downloadFaceEncoding()">
+                    <i class="fas fa-download"></i> Download as JSON
+                </button>
+            </div>
+
+            <div class="encoding-data">
+                <pre id="encodingContent">{{ student.face_encoding|default:"No face encoding data available." }}</pre>
+            </div>
+        </div>
+
+        <div class="modal-buttons">
+            <button class="btn-cancel" onclick="closeFaceEncodingModal()">Close</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Add photo modal JavaScript -->
+<script src="{% static 'js/photo-modal.js' %}"></script>
+
+<script>
+    // DEFINE PHOTOMODAL OBJECT GLOBALLY WITH ZOOM AND DOWNLOAD FEATURES
+    window.photoModal = {
+        zoomLevel: 1,
+        maxZoom: 3,
+        minZoom: 0.5,
+        zoomStep: 0.25,
+        currentImageSrc: '',
+
+        open: function (imageSrc, title = '', subtitle = '') {
+            this.currentImageSrc = imageSrc;
+            this.zoomLevel = 1;
+
+            // Create modal if it doesn't exist
+            let modal = document.getElementById('studentPhotoModal');
+            if (!modal) {
+                this.createModal();
+                modal = document.getElementById('studentPhotoModal');
+            }
+
+            // Set image source
+            const modalImg = document.getElementById('modalImage');
+            if (modalImg && imageSrc) {
+                modalImg.src = imageSrc;
+                modalImg.alt = title;
+                modalImg.style.transform = `scale(${this.zoomLevel})`;
+                modalImg.style.transition = 'transform 0.3s ease';
+            }
+
+            // Set title and subtitle
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
+
+            if (modalTitle) modalTitle.textContent = title;
+            if (modalSubtitle) modalSubtitle.textContent = subtitle;
+
+            // Reset zoom controls visibility
+            const zoomInBtn = document.getElementById('zoomInBtn');
+            const zoomOutBtn = document.getElementById('zoomOutBtn');
+            const resetZoomBtn = document.getElementById('resetZoomBtn');
+            const downloadBtn = document.getElementById('downloadImageBtn');
+
+            if (zoomInBtn) zoomInBtn.style.display = 'flex';
+            if (zoomOutBtn) zoomOutBtn.style.display = 'flex';
+            if (resetZoomBtn) resetZoomBtn.style.display = 'flex';
+            if (downloadBtn) downloadBtn.style.display = 'flex';
+
+            // Show modal
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+            // Update zoom buttons state
+            this.updateZoomButtons();
+        },
+
+        close: function () {
+            const modal = document.getElementById('studentPhotoModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                this.zoomLevel = 1;
+            }
+        },
+
+        zoomIn: function () {
+            if (this.zoomLevel < this.maxZoom) {
+                this.zoomLevel += this.zoomStep;
+                this.applyZoom();
+                this.updateZoomButtons();
+            }
+        },
+
+        zoomOut: function () {
+            if (this.zoomLevel > this.minZoom) {
+                this.zoomLevel -= this.zoomStep;
+                this.applyZoom();
+                this.updateZoomButtons();
+            }
+        },
+
+        resetZoom: function () {
+            this.zoomLevel = 1;
+            this.applyZoom();
+            this.updateZoomButtons();
+        },
+
+        applyZoom: function () {
+            const modalImg = document.getElementById('modalImage');
+            if (modalImg) {
+                modalImg.style.transform = `scale(${this.zoomLevel})`;
+            }
+        },
+
+        updateZoomButtons: function () {
+            const zoomInBtn = document.getElementById('zoomInBtn');
+            const zoomOutBtn = document.getElementById('zoomOutBtn');
+            const resetZoomBtn = document.getElementById('resetZoomBtn');
+
+            if (zoomInBtn) {
+                zoomInBtn.disabled = this.zoomLevel >= this.maxZoom;
+                zoomInBtn.style.opacity = zoomInBtn.disabled ? '0.5' : '1';
+            }
+
+            if (zoomOutBtn) {
+                zoomOutBtn.disabled = this.zoomLevel <= this.minZoom;
+                zoomOutBtn.style.opacity = zoomOutBtn.disabled ? '0.5' : '1';
+            }
+
+            if (resetZoomBtn) {
+                resetZoomBtn.disabled = this.zoomLevel === 1;
+                resetZoomBtn.style.opacity = resetZoomBtn.disabled ? '0.5' : '1';
+            }
+        },
+
+        downloadImage: function () {
+            if (!this.currentImageSrc) return;
+
+            const link = document.createElement('a');
+            link.href = this.currentImageSrc;
+
+            // Extract filename from URL or use a default
+            const filename = this.currentImageSrc.split('/').pop() || 'student_photo.jpg';
+            link.download = filename;
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            this.showToast('Image downloaded successfully!', 'success');
+        },
+
+        showToast: function (message, type) {
+            const toast = document.createElement('div');
+            toast.className = `msg ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.right = '20px';
+            toast.style.zIndex = '10002';
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        },
+
+        createModal: function () {
+            // Remove existing modal if any
+            const existingModal = document.getElementById('studentPhotoModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // Create new modal with zoom and download controls
+            const modalHTML = `
+                <div id="studentPhotoModal" class="modal-overlay" style="display: none; background: rgba(0,0,0,0.95);">
+                    <div style="position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column;">
+                        <!-- Top Controls -->
+                        <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 10001;">
+                            <!-- Zoom Controls -->
+                            <button id="zoomOutBtn" onclick="photoModal.zoomOut()" 
+                                    style="background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); transition: all 0.3s;">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button id="resetZoomBtn" onclick="photoModal.resetZoom()" 
+                                    style="background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); transition: all 0.3s;">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <button id="zoomInBtn" onclick="photoModal.zoomIn()" 
+                                    style="background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); transition: all 0.3s;">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <!-- Download Button -->
+                            <button id="downloadImageBtn" onclick="photoModal.downloadImage()" 
+                                    style="background: rgba(0, 98, 255, 0.8); border: none; color: white; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); transition: all 0.3s;">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <!-- Close Button -->
+                            <button onclick="photoModal.close()" 
+                                    style="background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); transition: all 0.3s;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Image Container -->
+                        <div style="flex: 1; display: flex; align-items: center; justify-content: center; overflow: auto; padding: 40px;">
+                            <img id="modalImage" style="max-width: 100%; max-height: 100%; border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); cursor: move; transform-origin: center center;">
+                        </div>
+                        
+                        <!-- Caption -->
+                        <div style="color: white; text-align: center; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 0 0 10px 10px;">
+                            <h3 id="modalTitle" style="margin: 10px 0 5px 0; font-size: 1.5rem; color: white;"></h3>
+                            <p id="modalSubtitle" style="color: #ccc; font-size: 14px; margin: 0;"></p>
+                            <div style="margin-top: 10px; font-size: 12px; color: #999; display: flex; justify-content: center; gap: 15px;">
+                                <span>Zoom: <span id="zoomLevelDisplay">100%</span></span>
+                                <span>| Use mouse wheel to zoom</span>
+                                <span>| Drag to pan when zoomed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // Add click outside to close
+            const modal = document.getElementById('studentPhotoModal');
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.close();
+                }
+            });
+
+            // Add Escape key to close
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.style.display === 'flex') {
+                    this.close();
+                }
+            });
+
+            // Add mouse wheel zoom
+            const modalImg = document.getElementById('modalImage');
+            if (modalImg) {
+                modalImg.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    if (e.deltaY < 0) {
+                        this.zoomIn();
+                    } else {
+                        this.zoomOut();
+                    }
+                });
+
+                // Add drag to pan when zoomed
+                let isDragging = false;
+                let startX, startY, translateX = 0, translateY = 0;
+
+                modalImg.addEventListener('mousedown', (e) => {
+                    if (this.zoomLevel > 1) {
+                        isDragging = true;
+                        startX = e.clientX - translateX;
+                        startY = e.clientY - translateY;
+                        modalImg.style.cursor = 'grabbing';
+                    }
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+
+                    e.preventDefault();
+                    translateX = e.clientX - startX;
+                    translateY = e.clientY - startY;
+
+                    modalImg.style.transform = `scale(${this.zoomLevel}) translate(${translateX}px, ${translateY}px)`;
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                    modalImg.style.cursor = this.zoomLevel > 1 ? 'grab' : 'move';
+                });
+
+                modalImg.addEventListener('mouseleave', () => {
+                    isDragging = false;
+                    modalImg.style.cursor = this.zoomLevel > 1 ? 'grab' : 'move';
+                });
+            }
+
+            // Initialize zoom display
+            this.updateZoomDisplay();
+        },
+
+        updateZoomDisplay: function () {
+            const zoomDisplay = document.getElementById('zoomLevelDisplay');
+            if (zoomDisplay) {
+                zoomDisplay.textContent = `${Math.round(this.zoomLevel * 100)}%`;
+            }
+        }
+    };
+
+    // Override zoom functions to update display
+    const originalZoomIn = window.photoModal.zoomIn;
+    const originalZoomOut = window.photoModal.zoomOut;
+    const originalResetZoom = window.photoModal.resetZoom;
+
+    window.photoModal.zoomIn = function () {
+        originalZoomIn.call(this);
+        this.updateZoomDisplay();
+    };
+
+    window.photoModal.zoomOut = function () {
+        originalZoomOut.call(this);
+        this.updateZoomDisplay();
+    };
+
+    window.photoModal.resetZoom = function () {
+        originalResetZoom.call(this);
+        this.updateZoomDisplay();
+    };
+
+    // Initialize photo modal when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function () {
+        // Create the modal structure
+        window.photoModal.createModal();
+
+        // Set up click handlers for profile photos
+        const avatar = document.querySelector('.profile-avatar');
+        const placeholder = document.querySelector('.avatar-placeholder');
+
+        if (avatar) {
+            avatar.addEventListener('click', function () {
+                const src = this.getAttribute('data-photo-src') || this.src;
+                const title = this.getAttribute('data-photo-title') || this.alt;
+                const subtitle = this.getAttribute('data-photo-subtitle') || '';
+                window.photoModal.open(src, title, subtitle);
+            });
+        }
+
+        if (placeholder) {
+            placeholder.addEventListener('click', function () {
+                const src = this.getAttribute('data-photo-src');
+                const title = this.getAttribute('data-photo-title') || '';
+                const subtitle = this.getAttribute('data-photo-subtitle') || '';
+                window.photoModal.open(src, title, subtitle);
+            });
+        }
+    });
+
+    // FACE ENCODING MODAL FUNCTIONS
+    function showFaceEncoding() {
+        const modal = document.getElementById('faceEncodingModal');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeFaceEncodingModal() {
+        const modal = document.getElementById('faceEncodingModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function copyFaceEncoding() {
+        const encodingText = document.getElementById('encodingContent').textContent;
+        navigator.clipboard.writeText(encodingText)
+            .then(() => {
+                showNotification('Face encoding data copied to clipboard!', 'success');
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+                showNotification('Failed to copy data. Please try again.', 'error');
+            });
+    }
+
+    function downloadFaceEncoding() {
+        const encodingText = document.getElementById('encodingContent').textContent;
+        const studentName = "{{ student.full_name|slugify }}";
+        const rollNumber = "{{ student.roll_number|slugify }}";
+        const fileName = `face_encoding_${studentName}_${rollNumber}_${Date.now()}.json`;
+
+        const blob = new Blob([encodingText], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showNotification('Face encoding data downloaded!', 'success');
+    }
+
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `msg ${type}`;
+        notification.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        `;
+
+        // Add to messages container
+        const container = document.getElementById('django-messages');
+        if (!container) {
+            // Create container if it doesn't exist
+            const newContainer = document.createElement('div');
+            newContainer.className = 'msg-container';
+            newContainer.id = 'django-messages';
+            newContainer.style.position = 'fixed';
+            newContainer.style.top = '20px';
+            newContainer.style.right = '20px';
+            newContainer.style.zIndex = '10001';
+            newContainer.style.width = '300px';
+            document.body.appendChild(newContainer);
+            newContainer.appendChild(notification);
+        } else {
+            container.appendChild(notification);
+        }
+
+        // Auto-dismiss after 3 seconds
+        setTimeout(() => {
+            notification.style.animation = 'slideUp 0.4s ease-out forwards';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+                const container = document.getElementById('django-messages');
+                if (container && container.children.length === 0) {
+                    container.remove();
+                }
+            }, 400);
+        }, 3000);
+    }
+
+    // EVENT LISTENERS
+    // Close modal when clicking outside
+    document.addEventListener('click', function (event) {
+        const faceModal = document.getElementById('faceEncodingModal');
+        if (event.target === faceModal) {
+            closeFaceEncodingModal();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeFaceEncodingModal();
+        }
+    });
+
+    // Add slideUp animation for notifications
+    if (!document.querySelector('style[data-notification-animations]')) {
+        const style = document.createElement('style');
+        style.setAttribute('data-notification-animations', '');
+        style.textContent = `
+            @keyframes slideUp {
+                from {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateY(-20px) scale(0.95);
+                }
+            }
+            
+            .msg {
+                margin-bottom: 10px;
+                animation: slideIn 0.3s ease-out;
+            }
+            
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(100%);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+            
+            /* Button hover effects */
+            #zoomInBtn:hover, #zoomOutBtn:hover, #resetZoomBtn:hover, #downloadImageBtn:hover {
+                background: rgba(255,255,255,0.2) !important;
+                transform: scale(1.1);
+            }
+            
+            #downloadImageBtn:hover {
+                background: rgba(0, 98, 255, 1) !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+</script>
+{% endblock %}

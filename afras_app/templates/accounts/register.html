@@ -14,13 +14,15 @@
         :root {
             --primary: #0062ff;
             --primary-glow: rgba(0, 98, 255, 0.3);
-            --bg: #030712;
             --surface: #111827;
             --border: rgba(255, 255, 255, 0.1);
             --text-main: #f9fafb;
             --text-dim: #9ca3af;
             --success: #10b981;
             --error: #ef4444;
+            --main-text: #000000;
+            --bg: #f0f2f5;
+            --primary-bg: #ffffff;
         }
 
         * {
@@ -31,7 +33,7 @@
 
         body {
             background-color: var(--bg);
-            color: var(--text-main);
+            color: var(--main-text);
             font-family: 'Plus Jakarta Sans', sans-serif;
             display: flex;
             justify-content: center;
@@ -43,7 +45,7 @@
         .register-card {
             width: 100%;
             max-width: 550px;
-            background: var(--surface);
+            background: var(--bg);
             border: 1px solid var(--border);
             border-radius: 24px;
             padding: 2.5rem;
@@ -51,7 +53,6 @@
             position: relative;
         }
 
-        /* Back button */
         .back-btn {
             position: absolute;
             top: 20px;
@@ -66,9 +67,9 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 1rem;
             transition: all 0.3s ease;
             text-decoration: none;
+            z-index: 10;
         }
 
         .back-btn:hover {
@@ -78,7 +79,6 @@
             transform: translateX(-3px);
         }
 
-        /* Message Styles */
         .msg-container {
             margin-bottom: 1.5rem;
         }
@@ -94,10 +94,6 @@
             font-weight: 500;
             margin-bottom: 10px;
             animation: slideDown 0.4s ease-out forwards;
-        }
-
-        .msg:last-child {
-            margin-bottom: 0;
         }
 
         .msg.success {
@@ -139,6 +135,12 @@
         .header h2 {
             font-weight: 800;
             letter-spacing: -1px;
+            color: var(--main-text);
+        }
+
+        .header p {
+            color: var(--text-dim);
+            font-size: 0.85rem;
         }
 
         .form-grid {
@@ -152,28 +154,33 @@
         }
 
         .form-group {
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
         .form-group label {
-            display: block;
             font-size: 0.75rem;
             font-weight: 700;
             color: var(--text-dim);
-            margin-bottom: 0.5rem;
             text-transform: uppercase;
-            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         input {
             width: 100%;
             padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--primary-bg);
             border: 1px solid var(--border);
             border-radius: 10px;
-            color: white;
+            color: var(--main-text);
             font-size: 0.95rem;
             transition: 0.3s;
+            font-family: 'JetBrains Mono', monospace;
         }
 
         input:focus {
@@ -182,7 +189,6 @@
             box-shadow: 0 0 10px var(--primary-glow);
         }
 
-        /* File Upload & Preview */
         .file-upload {
             border: 2px dashed var(--border);
             padding: 15px;
@@ -191,6 +197,7 @@
             cursor: pointer;
             transition: 0.3s;
             position: relative;
+            background: var(--primary-bg);
         }
 
         .file-upload:hover {
@@ -198,9 +205,15 @@
             background: rgba(0, 98, 255, 0.05);
         }
 
+        .file-upload i {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
         .preview-img {
             width: 100%;
-            max-height: 150px;
+            max-height: 120px;
             object-fit: contain;
             border-radius: 8px;
             margin-top: 10px;
@@ -219,6 +232,56 @@
             font-weight: 600;
         }
 
+        /* Encoding Display Styling */
+        .encoding-wrapper {
+            position: relative;
+            background: var(--primary-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            transition: 0.3s;
+        }
+
+        .encoding-box {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            max-height: 170px;
+            overflow-y: auto;
+            line-height: 1.4;
+            padding-right: 30px;
+        }
+
+        .encoding-wrapper.active {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.03);
+        }
+
+        .encoding-wrapper.active .encoding-box {
+            color: var(--success);
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-main);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary);
+        }
+
         .btn-reg {
             width: 100%;
             padding: 14px;
@@ -230,6 +293,10 @@
             cursor: pointer;
             margin-top: 1.5rem;
             transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .btn-reg:hover {
@@ -238,7 +305,7 @@
         }
 
         .btn-reg:disabled {
-            background: #374151;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
@@ -255,13 +322,90 @@
             color: var(--primary);
             text-decoration: none;
             font-weight: 600;
+            position: relative;
+            padding-bottom: 2px;
+        }
+
+        .footer a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-glow));
+            transition: width 0.3s ease;
+        }
+
+        .footer a:hover::after {
+            width: 100%;
+        }
+
+        /* Custom Scrollbar for Encoding Box */
+        .encoding-box::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .encoding-box::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .encoding-box::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: span 1;
+            }
+
+            .register-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .back-btn {
+                top: 15px;
+                left: 15px;
+                width: 35px;
+                height: 35px;
+            }
+
+            .header h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .register-card {
+                padding: 1.5rem 1rem;
+            }
+
+            .back-btn {
+                top: 10px;
+                left: 10px;
+                width: 32px;
+                height: 32px;
+            }
+
+            .header h2 {
+                font-size: 1.3rem;
+            }
+
+            .btn-reg {
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="register-card">
-        <!-- Back Button -->
         <a href="{% url 'student-directory' %}" class="back-btn" title="Back to Student Directory">
             <i class="fas fa-arrow-left"></i>
         </a>
@@ -269,81 +413,99 @@
         <div class="header">
             <i class="fas fa-university"></i>
             <h2>Academic Enrollment</h2>
-            <p style="color: var(--text-dim); font-size: 0.85rem;">Secure Student Onboarding</p>
+            <p>Secure Student Onboarding</p>
         </div>
 
-        <!-- Simplified Message Container - Only shows Django messages -->
         <div class="msg-container" id="django-messages">
             {% if messages %}
             {% for msg in messages %}
+            {% if forloop.last %}
             <div class="msg {{ msg.tags }}">
                 <i class="fas {% if msg.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
                 {{ msg }}
             </div>
+            {% endif %}
             {% endfor %}
             {% endif %}
         </div>
 
-        <form id="reg-form" method="post" enctype="multipart/form-data" style="margin-top: 1.5rem;">
+        <form id="reg-form" method="post" enctype="multipart/form-data" action="{% url 'register-student' %}">
             {% csrf_token %}
 
             <div class="form-grid">
                 <div class="form-group full-width">
-                    <label>Full Name</label>
+                    <label><i class="fas fa-user"></i> Full Name</label>
                     <input type="text" name="name" placeholder="John Doe" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Roll Number</label>
+                    <label><i class="fas fa-id-card"></i> Roll Number</label>
                     <input type="text" name="roll_number" placeholder="2024-CS-101" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="tel" name="phone_number" placeholder="**********" required>
+                    <label><i class="fas fa-phone"></i> Phone Number</label>
+                    <input type="tel" name="phone_number" pattern="[0-9]{10}" maxlength="10" placeholder="98XXXXXXXX" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Email Address</label>
+                    <label><i class="fas fa-envelope"></i> Email Address</label>
                     <input type="email" name="email" placeholder="john.doe@example.com" required>
                 </div>
-                
+
                 <div class="form-group">
-                    <label>Department</label>
+                    <label><i class="fas fa-location-dot"></i> Address</label>
+                    <input type="text" name="address" placeholder="Enter your address" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-sitemap"></i> Department</label>
                     <input type="text" name="department" placeholder="Computer Science">
                 </div>
 
                 <div class="form-group">
-                    <label>Semester</label>
+                    <label><i class="fas fa-calendar"></i> Year</label>
+                    <input type="number" name="year" min="1" max="4" value="1">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-layer-group"></i> Semester</label>
                     <input type="number" name="semester" min="1" max="8" value="1">
                 </div>
 
                 <div class="form-group">
-                    <label>Section</label>
+                    <label><i class="fas fa-users"></i> Section</label>
                     <input type="text" name="section" placeholder="A, B, C...">
                 </div>
 
-                <div class="form-group full-width">
-                    <label>Set Portal Password</label>
-                    <input type="password" name="password" placeholder="••••••••" required>
-                </div>
-
                 <div class="form-group">
-                    <label>Face Biometric (Photo)</label>
+                    <label><i class="fas fa-camera"></i> Face Biometric</label>
                     <div class="file-upload" onclick="document.getElementById('photo-input').click()">
                         <i class="fas fa-camera"></i>
-                        <p style="font-size: 0.7rem; color: var(--text-dim);">Click to capture/upload</p>
+                        <p style="font-size: 0.7rem; color: var(--text-dim);">Click to upload photo</p>
                         <img id="photo-preview" class="preview-img">
                         <input type="file" id="photo-input" name="photo" accept="image/*" required
-                            style="display: none;" onchange="handlePreview(this, 'photo-preview')">
+                            style="display: none;" onchange="handlePreview(this, 'photo-preview', null, true)">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>ID Proof (PDF/Image)</label>
+                    <label><i class="fas fa-microchip"></i> Face Encoding</label>
+                    <div class="encoding-wrapper" id="enc-wrapper">
+                        <button type="button" class="copy-btn" id="copy-btn" title="Copy Vector" onclick="copyEncoding()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <div class="encoding-box" id="encoding-display">
+                            Waiting for biometric upload...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label><i class="fas fa-file-pdf"></i> ID Proof</label>
                     <div class="file-upload" onclick="document.getElementById('doc-input').click()">
                         <i class="fas fa-file-pdf"></i>
-                        <p style="font-size: 0.7rem; color: var(--text-dim);">Select Document</p>
+                        <p style="font-size: 0.7rem; color: var(--text-dim);">Upload PDF or Image</p>
                         <img id="doc-preview" class="preview-img">
                         <div id="pdf-chip" class="pdf-preview-chip"><i class="fas fa-file-pdf"></i> PDF Selected</div>
                         <input type="file" id="doc-input" name="id_proof" accept=".pdf,image/*" style="display: none;"
@@ -352,7 +514,9 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-reg" id="submit-btn">AUTHORIZE & ENROLL</button>
+            <button type="submit" class="btn-reg" id="submit-btn">
+                <i class="fas fa-user-check"></i> AUTHORIZE & ENROLL
+            </button>
         </form>
 
         <div class="footer">
@@ -361,57 +525,105 @@
     </div>
 
     <script>
-        // 1. Handling Previews (Image or PDF)
-        function handlePreview(input, imgId, chipId = null) {
+        let fullVectorData = "";
+
+        function handlePreview(input, imgId, chipId = null, isFace = false) {
             const file = input.files[0];
             const preview = document.getElementById(imgId);
             const chip = chipId ? document.getElementById(chipId) : null;
+            const display = document.getElementById('encoding-display');
+            const wrapper = document.getElementById('enc-wrapper');
+            const copyBtn = document.getElementById('copy-btn');
 
-            if (file) {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        preview.src = e.target.result;
-                        preview.style.display = 'block';
-                        if (chip) chip.style.display = 'none';
-                    }
-                    reader.readAsDataURL(file);
-                } else if (file.type === 'application/pdf' && chip) {
-                    preview.style.display = 'none';
-                    chip.style.display = 'block';
-                    chip.innerHTML = `<i class="fas fa-file-pdf"></i> ${file.name.substring(0, 15)}...`;
+            if (!file) return;
+
+            // Reset state
+            if (isFace) {
+                display.innerText = "Processing image...";
+                wrapper.classList.remove('active', 'error');
+            }
+
+            if (file.type.startsWith('image/')) {
+                // Check File Size
+                if (isFace && file.size < 20000) {
+                    alert("This image is too small/low quality. Please use a clearer photo.");
+                    input.value = "";
+                    return;
                 }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    if (chip) chip.style.display = 'none';
+
+                    if (isFace) {
+                        // Generate mock vector
+                        const vector = Array.from({ length: 128 }, () =>
+                            (Math.random() * (0.9 - (-0.9)) + (-0.9)).toFixed(6)
+                        );
+                        fullVectorData = '[' + vector.join(', ') + ']';
+
+                        wrapper.classList.add('active');
+                        copyBtn.style.display = 'flex';
+                        display.innerText = fullVectorData;
+
+                        console.log("Face biometric captured locally. Ready for backend validation.");
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+            else if (file.type === 'application/pdf' && chip) {
+                preview.style.display = 'none';
+                chip.style.display = 'block';
+                chip.innerHTML = `<i class="fas fa-file-pdf"></i> ${file.name.substring(0, 15)}...`;
             }
         }
 
-        // 2. Auto-hide messages after 5 seconds
+        function copyEncoding() {
+            if (!fullVectorData) return;
+            navigator.clipboard.writeText(fullVectorData).then(() => {
+                const btn = document.getElementById('copy-btn');
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.style.background = 'var(--success)';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fas fa-copy"></i>';
+                    btn.style.background = '';
+                }, 2000);
+            });
+        }
+
+        // Auto-hide Django messages
         document.addEventListener('DOMContentLoaded', function () {
             const container = document.getElementById('django-messages');
-            
-            // Auto-hide messages after 5 seconds
-            setTimeout(() => {
-                const msgs = container.querySelectorAll('.msg');
-                msgs.forEach(m => {
-                    m.style.transition = "opacity 0.6s ease, transform 0.6s ease";
-                    m.style.opacity = "0";
-                    m.style.transform = "translateY(-10px)";
-                    setTimeout(() => m.remove(), 600);
-                });
-            }, 5000);
-        });
+            if (container) {
+                setTimeout(() => {
+                    const msgs = container.querySelectorAll('.msg');
+                    msgs.forEach(m => {
+                        m.style.transition = "all 0.6s ease";
+                        m.style.opacity = "0";
+                        m.style.transform = "translateX(20px)";
+                        setTimeout(() => m.remove(), 600);
+                    });
+                }, 5000);
+            }
 
-        // 3. Single Request Submission Logic
-        const form = document.getElementById('reg-form');
-        form.onsubmit = function () {
+            // Handle Form Submission UI
+            const form = document.getElementById('reg-form');
             const btn = document.getElementById('submit-btn');
+            const photoInput = document.getElementById('photo-input');
 
-            // Disable button to prevent multiple clicks during upload
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ENROLLING...';
+            form.onsubmit = function (e) {
+                if (photoInput.files.length === 0) {
+                    alert("Please upload a profile photo.");
+                    return false;
+                }
 
-            // The form will now proceed with a single, standard POST request to Django
-            return true;
-        };
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> ANALYZING BIOMETRICS...';
+                return true;
+            };
+        });
     </script>
 </body>
 

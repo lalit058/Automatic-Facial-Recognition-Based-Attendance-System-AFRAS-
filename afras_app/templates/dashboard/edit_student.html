@@ -20,17 +20,18 @@
         --warning: #f59e0b;
     }
 
-    /* Layout Wrapper - EXACT SAME AS STAFF */
+    /* Layout Wrapper */
     .enrollment-page-wrapper {
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         min-height: calc(100vh - 100px);
         padding: 20px;
+        width: 100%;
     }
 
     .enrollment-card {
-        background: var(--surface-card);
+        background: var(--bg);
         border: 1px solid var(--border-subtle);
         border-radius: 28px;
         padding: 2.5rem;
@@ -38,6 +39,7 @@
         max-width: 750px;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
         backdrop-filter: blur(10px);
+        margin: 20px auto;
     }
 
     header h2 {
@@ -46,7 +48,7 @@
         letter-spacing: -1px;
         margin-bottom: 8px;
         text-align: center;
-        color: white;
+        color: var(--main-text);
     }
 
     header p {
@@ -56,7 +58,7 @@
         font-size: 0.85rem;
     }
 
-    /* Form Styling - EXACT SAME AS STAFF */
+    /* Form Styling */
     .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -75,7 +77,7 @@
     }
 
     .input-group label {
-        font-size: 0.65rem;
+        font-size: 0.75rem;
         font-weight: 700;
         color: var(--text-dim);
         text-transform: uppercase;
@@ -85,35 +87,403 @@
         gap: 8px;
     }
 
-    /* Target Django form widgets - EXACT SAME AS STAFF */
+    /* Input styling - Enhanced selectors for Django form fields */
     .input-group input,
     .input-group select,
-    .input-group textarea {
-        background: rgba(3, 7, 18, 0.6) !important;
+    .input-group textarea,
+    .input-group input[type="text"],
+    .input-group input[type="email"],
+    .input-group input[type="tel"],
+    .input-group input[type="number"],
+    .input-group input[type="password"] {
+        background: var(--primary-text) !important;
         border: 1px solid var(--border-subtle) !important;
-        color: white !important;
+        color: var(--main-text) !important;
         padding: 10px 14px !important;
         border-radius: 10px !important;
         font-family: 'JetBrains Mono', monospace !important;
         font-size: 0.85rem !important;
         transition: all 0.3s ease !important;
         width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Capitalize only text inputs, not numbers/emails */
+    .input-group input[type="text"],
+    .input-group input:not([type="email"]):not([type="tel"]):not([type="number"]):not([type="password"]) {
+        text-transform: capitalize;
     }
 
     .input-group input:focus,
-    .input-group select:focus {
+    .input-group select:focus,
+    .input-group textarea:focus {
         outline: none !important;
         border-color: var(--primary) !important;
         box-shadow: 0 0 0 4px var(--primary-glow) !important;
     }
 
-    input[readonly] {
+    /* Style for readonly fields */
+    input[readonly],
+    select[readonly],
+    textarea[readonly] {
         background: rgba(255, 255, 255, 0.05) !important;
         cursor: not-allowed;
-        color: var(--text-dim) !important;
+        color: var(--primary) !important;
+        font-weight: bold;
     }
 
-    /* Action Buttons - EXACT SAME AS STAFF */
+    /* Address field with icon */
+    .input-icon-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 14px;
+        color: var(--text-dim);
+        font-size: 14px;
+        transition: color 0.3s ease;
+        z-index: 2;
+    }
+
+    .input-icon-wrapper input {
+        padding-left: 40px !important;
+    }
+
+    .input-icon-wrapper input:focus+.input-icon {
+        color: var(--primary);
+    }
+
+    /* File upload styling */
+    .file-upload {
+        border: 2px dashed var(--border-subtle);
+        padding: 15px;
+        text-align: center;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: 0.3s;
+        position: relative;
+        height: 100%;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: rgba(3, 7, 18, 0.3);
+    }
+
+    .file-upload:hover {
+        border-color: var(--primary);
+        background: rgba(0, 98, 255, 0.05);
+    }
+
+    .file-upload i {
+        font-size: 1.5rem;
+        color: var(--primary);
+        margin-bottom: 5px;
+    }
+
+    .file-upload p {
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        margin-bottom: 5px;
+    }
+
+    .preview-img {
+        width: 100%;
+        max-height: 120px;
+        object-fit: contain;
+        border-radius: 8px;
+        margin-top: 10px;
+        display: none;
+        border: 1px solid var(--border-subtle);
+    }
+
+    .pdf-preview-chip {
+        display: none;
+        color: var(--primary);
+        padding: 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        margin-top: 10px;
+        font-weight: 600;
+    }
+
+    /* Encoding Display Styling */
+    .encoding-wrapper {
+        position: relative;
+        background: var(--primary-text);
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        padding: 12px;
+        transition: 0.3s;
+        height: 100%;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .encoding-box {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        color: var(--text-dim);
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        line-height: 1.4;
+        padding-right: 20px;
+        white-space: pre-wrap;
+        max-height: 100%;
+    }
+
+    /* scrollbar styling */
+    .encoding-box::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .encoding-box::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    }
+
+    .encoding-box::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 10px;
+    }
+
+    .encoding-box::-webkit-scrollbar-thumb:hover {
+        background: #0052d4;
+    }
+
+    .encoding-wrapper.active {
+        border-color: var(--success);
+        background: rgba(16, 185, 129, 0.03);
+    }
+
+    .encoding-wrapper.active .encoding-box {
+        color: var(--success);
+    }
+
+    .copy-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+        z-index: 10;
+    }
+
+    .copy-btn:hover {
+        background: var(--primary);
+    }
+
+    /* Encoding Preview Styling */
+    .encoding-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        padding: 5px;
+    }
+
+    .encoding-preview-item {
+        background: rgba(0, 98, 255, 0.1);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        color: var(--primary);
+        font-weight: 600;
+        border: 1px solid rgba(0, 98, 255, 0.2);
+    }
+
+    .encoding-preview-dots {
+        color: var(--text-dim);
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        margin: 0 4px;
+    }
+
+    /* Encoding Modal */
+    .encoding-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .encoding-modal {
+        background: var(--surface-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: 20px;
+        padding: 2rem;
+        width: 90%;
+        max-width: 800px;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+        animation: zoomIn 0.3s ease;
+    }
+
+    .encoding-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .encoding-modal-header h3 {
+        color: white;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .encoding-modal-header h3 span {
+        color: var(--text-dim);
+        font-size: 0.9rem;
+        font-weight: normal;
+    }
+
+    .encoding-modal-close {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-subtle);
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .encoding-modal-close:hover {
+        background: var(--primary);
+        transform: rotate(90deg);
+    }
+
+    .encoding-grid {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .encoding-grid-item {
+        background: rgba(0, 98, 255, 0.1);
+        padding: 6px 4px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        color: var(--primary);
+        font-weight: 600;
+        text-align: center;
+        border: 1px solid rgba(0, 98, 255, 0.2);
+        transition: all 0.2s ease;
+    }
+
+    .encoding-grid-item:hover {
+        background: rgba(0, 98, 255, 0.2);
+        transform: translateY(-1px);
+    }
+
+    .encoding-stats {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 15px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+    }
+
+    .encoding-stat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-dim);
+        font-size: 0.8rem;
+    }
+
+    .encoding-stat i {
+        color: var(--primary);
+    }
+
+    .encoding-stat strong {
+        color: white;
+    }
+
+    .show-more-btn {
+        background: transparent;
+        border: 1px solid var(--border-subtle);
+        color: var(--primary);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .show-more-btn:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .encoding-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        justify-content: flex-end;
+    }
+
+    .copy-full-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .copy-full-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px var(--primary-glow);
+    }
+
+    /* Action Buttons */
     .action-bar {
         display: flex;
         justify-content: center;
@@ -126,7 +496,7 @@
         color: white;
         border: none;
         padding: 14px 30px;
-        border-radius: 12px;
+        border-radius: 24px;
         font-weight: 700;
         cursor: pointer;
         display: flex;
@@ -140,27 +510,35 @@
         box-shadow: 0 10px 20px var(--primary-glow);
     }
 
+    .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
     .btn-discard {
         background: transparent;
         color: var(--text-dim);
-        border: 1px solid var(--border-subtle);
+        border: 1px solid var(--primary);
         padding: 14px 30px;
-        border-radius: 12px;
+        border-radius: 24px;
         font-weight: 600;
         text-decoration: none;
         transition: 0.3s;
     }
 
     .btn-discard:hover {
-        background: rgba(255, 255, 255, 0.05);
-        color: white;
+        background: rgba(26, 86, 148, 0.1);
+        border-color: var(--primary);
+        color: var(--primary);
     }
 
-    /* Profile Image Preview - EXACT SAME AS STAFF */
+    /* Current photo preview */
     .current-profile-preview {
         display: flex;
         justify-content: center;
         margin-bottom: 20px;
+        position: relative;
     }
 
     .preview-circle {
@@ -171,6 +549,7 @@
         padding: 3px;
         cursor: pointer;
         transition: all 0.3s ease;
+        border: 2px solid var(--primary);
     }
 
     .preview-circle:hover {
@@ -179,7 +558,28 @@
         border-color: var(--primary);
     }
 
-    /* Error messages styling */
+    .face-encoding-badge {
+        position: absolute;
+        bottom: -5px;
+        right: 50%;
+        transform: translateX(50%);
+        background: var(--success);
+        color: white;
+        font-size: 0.6rem;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+    }
+
+    .face-encoding-badge.warning {
+        background: var(--warning);
+    }
+
+    /* Error messages */
     .error-message {
         color: #ef4444;
         font-size: 0.75rem;
@@ -201,7 +601,105 @@
         font-style: italic;
     }
 
-    /* PHOTO MODAL STYLES */
+    /* Success/Error messages */
+    .message-container {
+        margin-bottom: 20px;
+    }
+
+    .message {
+        padding: 12px 20px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideDown 0.4s ease-out;
+    }
+
+    .message.success {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: var(--success);
+    }
+
+    .message.error {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #ef4444;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* File info styling */
+    .file-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        animation: slideDown 0.3s ease;
+    }
+
+    /* PDF Reader only */
+    .pdf-reader {
+        margin-top: 15px;
+        width: 100%;
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--surface-card);
+    }
+
+    .pdf-reader iframe {
+        width: 100%;
+        height: 400px;
+        border: none;
+        background: var(--surface-card);
+    }
+
+    /* Remove file button */
+    .remove-file-btn {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #ef4444;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        cursor: pointer;
+        margin-top: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+        border: none;
+        font-weight: 600;
+    }
+
+    .remove-file-btn:hover {
+        background: rgba(239, 68, 68, 0.2);
+        transform: scale(1.02);
+    }
+
+    .file-upload-section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    /* Photo Modal Styles */
     .photo-modal-overlay {
         display: none;
         position: fixed;
@@ -209,9 +707,9 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.9);
+        background: rgba(0, 0, 0, 0.95);
         backdrop-filter: blur(10px);
-        z-index: 9999;
+        z-index: 10000;
         align-items: center;
         justify-content: center;
         animation: fadeIn 0.3s ease;
@@ -275,6 +773,7 @@
         font-size: 1.2rem;
         transition: all 0.3s ease;
         backdrop-filter: blur(5px);
+        z-index: 10001;
     }
 
     .modal-close:hover {
@@ -311,6 +810,7 @@
         padding: 10px 20px;
         border-radius: 30px;
         backdrop-filter: blur(10px);
+        z-index: 10001;
     }
 
     .zoom-btn {
@@ -342,6 +842,56 @@
     .download-btn:hover {
         background: rgba(0, 98, 255, 0.3);
     }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .enrollment-card {
+            padding: 1.5rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .full-width {
+            grid-column: span 1;
+        }
+
+        .action-bar {
+            flex-direction: column;
+        }
+
+        .btn-submit,
+        .btn-discard {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .modal-close {
+            top: -50px;
+            right: 0;
+        }
+
+        .zoom-controls {
+            bottom: 10px;
+            padding: 8px 16px;
+        }
+
+        .zoom-btn {
+            width: 35px;
+            height: 35px;
+        }
+
+        .encoding-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .encoding-modal {
+            padding: 1rem;
+            width: 95%;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -350,7 +900,7 @@
 <div class="enrollment-page-wrapper">
     <div class="enrollment-card">
         <header>
-            <div class="current-profile-preview">
+            <div class="current-profile-preview" style="position: relative;">
                 {% if student.photo %}
                 <img src="{{ student.photo.url }}" class="preview-circle" id="preview-target"
                     onclick="openPhotoModal('{{ student.photo.url }}', '{{ student.full_name }}', '{{ student.roll_number }}')"
@@ -361,29 +911,37 @@
                     onclick="openPhotoModal('https://ui-avatars.com/api/?name={{ student.full_name }}&background=0062ff&color=fff', '{{ student.full_name }}', '{{ student.roll_number }}')"
                     title="Click to view full size">
                 {% endif %}
+
+                {% if student.face_encoding %}
+                <div class="face-encoding-badge" title="Face encoding available">
+                    <i class="fas fa-face-smile"></i> Encoded
+                </div>
+                {% else %}
+                <div class="face-encoding-badge warning" title="No face encoding">
+                    <i class="fas fa-face-meh"></i> Needs Encoding
+                </div>
+                {% endif %}
             </div>
             <h2>Update Student Record</h2>
-            <p>Editing Identity: <span style="color: var(--primary); font-weight: 700;">{{ student.full_name }}</span></p>
+            <p>Editing Identity: <span
+                    style="color: var(--primary); font-weight: 700; text-transform: capitalize;">{{student.full_name}}</span>
+            </p>
         </header>
 
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-
-            {% if messages %}
-            <div style="margin-bottom: 20px;">
-                {% for message in messages %}
-                <div style="padding: 12px 20px; border-radius: 10px; margin-bottom: 10px; 
-                    background: {% if message.tags == 'success' %}rgba(16, 185, 129, 0.1){% else %}rgba(239, 68, 68, 0.1){% endif %};
-                    border: 1px solid {% if message.tags == 'success' %}rgba(16, 185, 129, 0.3){% else %}rgba(239, 68, 68, 0.3){% endif %};
-                    color: {% if message.tags == 'success' %}var(--success){% else %}#ef4444{% endif %};
-                    font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
-                    <i
-                        class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
-                    {{ message }}
-                </div>
-                {% endfor %}
+        {% if messages %}
+        <div class="message-container">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                <i
+                    class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                {{ message }}
             </div>
-            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" id="update-student-form">
+            {% csrf_token %}
 
             <div class="form-grid">
                 <!-- Personal Information -->
@@ -400,7 +958,14 @@
                 <div class="input-group">
                     <label><i class="fas fa-id-card"></i> Roll Number</label>
                     {{ form.roll_number }}
-                    <div class="field-help">Roll number cannot be changed</div>
+
+                    {% if form.roll_number.help_text %}
+                    <div class="field-help" style="color: var(--warning); font-size: 0.7rem; margin-top: 4px;">
+                        <i class="fas fa-lock" style="margin-right: 5px;"></i>
+                        {{ form.roll_number.help_text }}
+                    </div>
+                    {% endif %}
+
                     {% if form.roll_number.errors %}
                     <div class="error-message">
                         <i class="fas fa-exclamation-circle"></i> {{ form.roll_number.errors.0 }}
@@ -418,12 +983,26 @@
                     {% endif %}
                 </div>
 
-                <div class="input-group full-width">
+                <div class="input-group">
                     <label><i class="fas fa-envelope"></i> Email Address</label>
-                    {{ form.email }}
+                    <input type="email" name="email"
+                        value="{% if student.user.email %}{{ student.user.email }}{% elif form.email.value %}{{ form.email.value }}{% endif %}"
+                        class="form-control" placeholder="john@gmail.com" required>
                     {% if form.email.errors %}
                     <div class="error-message">
                         <i class="fas fa-exclamation-circle"></i> {{ form.email.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="input-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                    <div class="input-icon-wrapper">
+                        <input type="text" name="address" value="{{ student.address }}" required>
+                    </div>
+                    {% if form.address.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.address.errors.0 }}
                     </div>
                     {% endif %}
                 </div>
@@ -435,6 +1014,16 @@
                     {% if form.department.errors %}
                     <div class="error-message">
                         <i class="fas fa-exclamation-circle"></i> {{ form.department.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="input-group">
+                    <label><i class="fas fa-calendar"></i> Year</label>
+                    {{ form.year }}
+                    {% if form.year.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.year.errors.0 }}
                     </div>
                     {% endif %}
                 </div>
@@ -459,10 +1048,23 @@
                     {% endif %}
                 </div>
 
-                <!-- Documents & Photos -->
-                <div class="input-group full-width">
-                    <label><i class="fas fa-camera"></i> Update Profile Photo</label>
-                    {{ form.photo }}
+                <!-- Profile Photo Upload & Face Encoding -->
+                <div class="input-group">
+                    <label>Profile Photo</label>
+                    <div class="file-upload-section">
+                        <div class="file-upload" onclick="document.getElementById('photo-input').click()">
+                            <i class="fas fa-camera"></i>
+                            <p style="font-size: 0.7rem; color: var(--text-dim);">Click to upload</p>
+                            <img id="photo-preview" class="preview-img">
+                            <input type="file" id="photo-input" name="photo" accept="image/*" style="display: none;"
+                                onchange="handlePreview(this, 'photo-preview', null, true)">
+                        </div>
+                        <button type="button" class="remove-file-btn"
+                            onclick="removeFile('photo-input', 'photo-preview', null, true)" style="display: none;"
+                            id="remove-photo-btn">
+                            <i class="fas fa-times"></i> Remove Photo
+                        </button>
+                    </div>
                     {% if form.photo.errors %}
                     <div class="error-message">
                         <i class="fas fa-exclamation-circle"></i> {{ form.photo.errors.0 }}
@@ -470,34 +1072,180 @@
                     {% endif %}
                 </div>
 
+                <!-- Face Encoding Display -->
+                <div class="input-group">
+                    <label>Face Encoding Vector <span
+                            style="color: var(--text-dim); font-size: 0.6rem;">(128-dimension)</span></label>
+                    <div class="encoding-wrapper" id="enc-wrapper">
+                        <button type="button" class="copy-btn" id="copy-btn" title="Copy Vector"
+                            onclick="copyEncoding()">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <div class="encoding-box" id="encoding-display">
+                            {% if student.face_encoding %}
+                            {% if student.face_encoding|length > 0 %}
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="encoding-stats">
+                                    <div class="encoding-stat">
+                                        <i class="fas fa-cube"></i>
+                                        <span>Dimension: <strong>128</strong></span>
+                                    </div>
+                                    <div class="encoding-stat">
+                                        <i class="fas fa-calculator"></i>
+                                        <span>Values: <strong>{{ student.face_encoding|length }}</strong></span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; flex-wrap: wrap;">
+                                    <div class="encoding-preview">
+                                        {% for val in student.face_encoding|slice:":8" %}
+                                        <span class="encoding-preview-item">{{ val|floatformat:3 }}</span>
+                                        {% endfor %}
+                                        <span class="encoding-preview-dots">......</span>
+                                        {% for val in student.face_encoding|slice:"-4:" %}
+                                        <span class="encoding-preview-item">{{ val|floatformat:3 }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    <button type="button" class="show-more-btn" onclick="showFullEncoding()">
+                                        <i class="fas fa-expand-alt"></i> Show All
+                                    </button>
+                                </div>
+                            </div>
+                            {% else %}
+                            {{ student.face_encoding }}
+                            {% endif %}
+                            {% else %}
+                            <div
+                                style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 10px;">
+                                <i class="fas fa-face-smile"
+                                    style="font-size: 2rem; color: var(--text-dim); opacity: 0.3;"></i>
+                                <p style="color: var(--text-dim); font-size: 0.8rem;">Waiting for biometric upload...
+                                </p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <input type="hidden" name="face_encoding" id="face-encoding-input"
+                        value='{% if student.face_encoding %}{{ student.face_encoding }}{% endif %}'>
+                </div>
+
+                <!-- ID Proof Upload -->
                 <div class="input-group full-width">
                     <label><i class="fas fa-file-pdf"></i> Update ID Proof (Optional)</label>
-                    {{ form.id_proof }}
+                    <div class="file-upload-section">
+                        <!-- File upload button -->
+                        <div class="file-upload" onclick="document.getElementById('doc-input').click()"
+                            id="file-upload-btn">
+                            <i class="fas fa-file-pdf"></i>
+                            <p style="font-size: 0.7rem; color: var(--text-dim);">Click to upload PDF</p>
+                        </div>
+
+                        <!-- Hidden file input -->
+                        <input type="file" id="doc-input" name="id_proof" accept=".pdf" style="display: none;"
+                            onchange="handlePreview(this, 'doc-preview', 'pdf-chip', false)">
+
+                        <!-- Preview elements (hidden by default) -->
+                        <img id="doc-preview" class="preview-img" style="display: none;">
+                        <div id="pdf-chip" class="pdf-preview-chip" style="display: none;"></div>
+
+                        <!-- New Uploaded File Display (shows when file is uploaded) -->
+                        <div id="new-file-display" style="display: none; margin-top: 10px;">
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 8px 12px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-file-pdf" style="color: #ef4444;"></i>
+                                    <span style="color: var(--text-main);" id="new-file-name"></span>
+                                    <span style="color: var(--text-dim); font-size: 0.7rem;" id="new-file-size"></span>
+                                </div>
+                                <button type="button" onclick="removeNewFile()"
+                                    style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- PDF Reader Area -->
+                        <div id="pdf-reader-area"></div>
+                    </div>
+
                     {% if form.id_proof.errors %}
                     <div class="error-message">
                         <i class="fas fa-exclamation-circle"></i> {{ form.id_proof.errors.0 }}
                     </div>
                     {% endif %}
 
+                    <!-- Existing file display (only shows if there's an existing file) -->
                     {% if student.id_proof %}
-                    <div style="margin-top: 10px; padding: 10px; background: rgba(16, 185, 129, 0.05); 
-                        border-radius: 8px; font-size: 0.75rem;">
-                        <a href="{{ student.id_proof.url }}" target="_blank"
-                            style="color: var(--success); text-decoration: none; display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-eye"></i> View Current ID Proof
-                        </a>
+                    <div style="margin-top: 15px;" id="existing-file-container">
+                        <div
+                            style="display: flex; align-items: center; justify-content: space-between; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 8px 12px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-file-pdf" style="color: var(--primary)"></i>
+                                <div>
+                                    <span style="color: var(--primary); font-size: 0.8rem;">{{ student.id_proof.name|slice:"13:"}}</span>
+                                    <br>
+                                    <span style="color: var(--text-dim); font-size: 0.7rem;">Current File</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <a href="{{ student.id_proof.url }}" target="_blank"
+                                    style="color: var(--primary); text-decoration: none; padding: 4px;">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button type="button" onclick="deleteExistingFile()"
+                                    style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
+                    <input type="hidden" name="delete_existing_file" id="delete-existing-file" value="false">
                     {% endif %}
                 </div>
-            </div>
 
-            <div class="action-bar">
-                <a href="{% url 'student-directory' %}" class="btn-discard">Discard</a>
-                <button type="submit" class="btn-submit">
-                    <i class="fas fa-sync-alt"></i> Update Student
-                </button>
+                <div class="action-bar">
+                    <a href="{% url 'student-directory' %}" class="btn-discard">Discard</a>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-sync-alt"></i> Update Student
+                    </button>
+                </div>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Encoding Full View Modal -->
+<div id="encodingModal" class="encoding-modal-overlay" onclick="closeEncodingModal(event)">
+    <div class="encoding-modal" onclick="event.stopPropagation()">
+        <div class="encoding-modal-header">
+            <h3>
+                <i class="fas fa-face-smile"></i> Face Encoding Values
+                <span>(128-dimension)</span>
+            </h3>
+            <button class="encoding-modal-close" onclick="closeEncodingModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="encoding-stats">
+            <div class="encoding-stat">
+                <i class="fas fa-cube"></i>
+                <span>Dimension: <strong id="modal-dimension">128</strong></span>
+            </div>
+            <div class="encoding-stat">
+                <i class="fas fa-calculator"></i>
+                <span>Values: <strong id="modal-count">128</strong></span>
+            </div>
+        </div>
+
+        <div id="full-encoding-grid" class="encoding-grid">
+            <!-- Will be populated by JavaScript -->
+        </div>
+
+        <div class="encoding-actions">
+            <button class="copy-full-btn" onclick="copyFullEncodingFromModal()">
+                <i class="fas fa-copy"></i> Copy All Values
+            </button>
+        </div>
     </div>
 </div>
 
@@ -536,37 +1284,593 @@
 
 {% block extra_scripts %}
 <script>
-    // Live Image Preview logic - EXACT SAME AS STAFF FORM
-    const photoInput = document.querySelector('input[type="file"]');
+    // Face Encoding Variables
+    let fullVectorData = "";
+    let currentFaceEncoding = '{% if student.face_encoding %}{{ student.face_encoding|escapejs }}{% endif %}';
+    let fullEncodingArray = [];
+
+    // Format number to 6 decimal places
+    function formatToSixDecimals(value) {
+        if (typeof value === 'number') {
+            return value.toFixed(6);
+        }
+        if (typeof value === 'string' && !isNaN(parseFloat(value)) && isFinite(value)) {
+            return parseFloat(value).toFixed(6);
+        }
+        return value;
+    }
+
+    // Format the entire encoding array to 6 decimal places
+    function formatEncodingArray(encoding) {
+        if (!encoding) return encoding;
+
+        if (Array.isArray(encoding)) {
+            return '[' + encoding.map(val => formatToSixDecimals(val)).join(', ') + ']';
+        }
+
+        if (typeof encoding === 'string') {
+            try {
+                if (encoding.startsWith('[') && encoding.endsWith(']')) {
+                    const parsed = JSON.parse(encoding);
+                    if (Array.isArray(parsed)) {
+                        return '[' + parsed.map(val => formatToSixDecimals(val)).join(', ') + ']';
+                    }
+                }
+                const matches = encoding.match(/-?\d+\.?\d*/g);
+                if (matches && matches.length > 0) {
+                    return '[' + matches.map(val => parseFloat(val).toFixed(6)).join(', ') + ']';
+                }
+            } catch (e) {
+                console.log('Error parsing encoding:', e);
+            }
+        }
+        return encoding;
+    }
+
+    // Initialize encoding display with existing data 
+    document.addEventListener('DOMContentLoaded', function () {
+        if (currentFaceEncoding && currentFaceEncoding.trim() !== '' && currentFaceEncoding !== 'None' && currentFaceEncoding !== 'null') {
+            const wrapper = document.getElementById('enc-wrapper');
+            const copyBtn = document.getElementById('copy-btn');
+            const hiddenInput = document.getElementById('face-encoding-input');
+
+            try {
+                let encodingArray = null;
+
+                if (currentFaceEncoding.startsWith('[') && currentFaceEncoding.endsWith(']')) {
+                    encodingArray = JSON.parse(currentFaceEncoding);
+                }
+
+                if (encodingArray && Array.isArray(encodingArray)) {
+                    // Store the full data for copying
+                    fullVectorData = '[' + encodingArray.map(val =>
+                        parseFloat(val).toFixed(6)
+                    ).join(', ') + ']';
+
+                    hiddenInput.value = JSON.stringify(encodingArray);
+                } else {
+                    let displayText = currentFaceEncoding
+                        .replace(/'/g, '')
+                        .replace(/"/g, '');
+
+                    // Try to parse if it's an array-like string
+                    const matches = displayText.match(/-?\d+\.?\d*/g);
+                    if (matches && matches.length > 0) {
+                        fullVectorData = '[' + matches.join(', ') + ']';
+                    } else {
+                        fullVectorData = displayText;
+                    }
+                }
+            } catch (e) {
+                console.log('Error initializing encoding:', e);
+                let displayText = currentFaceEncoding
+                    .replace(/'/g, '')
+                    .replace(/"/g, '');
+                fullVectorData = displayText;
+            }
+
+            wrapper.classList.add('active');
+            copyBtn.style.display = 'flex';
+        }
+
+        // Sync heights initially
+        setTimeout(syncHeights, 100);
+    });
+
+    // Remove newly uploaded file
+    function removeNewFile() {
+        const fileInput = document.getElementById('doc-input');
+        const fileUploadBtn = document.getElementById('file-upload-btn');
+        const newFileDisplay = document.getElementById('new-file-display');
+        const pdfReaderArea = document.getElementById('pdf-reader-area');
+        const existingFileContainer = document.getElementById('existing-file-container');
+
+        // Clear file input
+        fileInput.value = '';
+
+        // Show upload button again
+        if (fileUploadBtn) fileUploadBtn.style.display = 'flex';
+
+        // Hide new file display
+        if (newFileDisplay) newFileDisplay.style.display = 'none';
+
+        // Clear PDF reader
+        if (pdfReaderArea) pdfReaderArea.innerHTML = '';
+
+        // Show existing file container if it exists
+        if (existingFileContainer) existingFileContainer.style.display = 'block';
+    }
+
+    // Sync heights function
+    function syncHeights() {
+        const photoSection = document.querySelector('.file-upload-section');
+        const encWrapper = document.getElementById('enc-wrapper');
+
+        if (photoSection && encWrapper) {
+            const photoHeight = photoSection.offsetHeight;
+            encWrapper.style.height = photoHeight + 'px';
+        }
+    }
+
+    // Function to get file icon based on type
+    function getFileIcon(fileType, fileExt) {
+        if (fileType.startsWith('image/')) return 'fa-image';
+        if (fileType === 'application/pdf' || fileExt === 'pdf') return 'fa-file-pdf';
+        return 'fa-file';
+    }
+
+    // Function to get color based on file type
+    function getFileColor(fileType, fileExt) {
+        if (fileType.startsWith('image/')) return 'var(--primary)';
+        if (fileType === 'application/pdf' || fileExt === 'pdf') return '#ef4444';
+        return 'var(--text-dim)';
+    }
+
+    // Validate file size
+    function validateFileSize(file, maxSizeMB = 10) {
+        const maxSizeBytes = maxSizeMB * 1024 * 1024;
+        if (file.size > maxSizeBytes) {
+            alert(`File size exceeds ${maxSizeMB}MB. Please choose a smaller file.`);
+            return false;
+        }
+        return true;
+    }
+
+    // Handle file preview with height sync and PDF reader only
+    function handlePreview(input, imgId, chipId = null, isFace = false) {
+        const file = input.files[0];
+        const preview = document.getElementById(imgId);
+        const chip = chipId ? document.getElementById(chipId) : null;
+        const display = document.getElementById('encoding-display');
+        const wrapper = document.getElementById('enc-wrapper');
+        const copyBtn = document.getElementById('copy-btn');
+        const previewTarget = document.getElementById('preview-target');
+        const pdfReaderArea = document.getElementById('pdf-reader-area');
+        const existingFileContainer = document.getElementById('existing-file-container');
+
+        if (!file) return;
+
+        // Validate file size (5MB max)
+        if (!validateFileSize(file, 5)) {
+            input.value = "";
+            return;
+        }
+
+        const fileName = file.name;
+        const fileExt = fileName.split('.').pop().toLowerCase();
+        const fileType = file.type;
+
+        // Show remove button
+        const removeBtn = isFace ? document.getElementById('remove-photo-btn') : document.getElementById('remove-doc-btn');
+        if (removeBtn) {
+            removeBtn.style.display = 'inline-flex';
+        }
+
+        // Hide existing file container when new file is uploaded
+        if (existingFileContainer) {
+            existingFileContainer.style.display = 'none';
+        }
+
+        // For face biometric (image only)
+        if (isFace) {
+            if (!file.type.startsWith('image/')) {
+                alert("Please upload an image file for face biometric.");
+                input.value = "";
+                removeBtn.style.display = 'none';
+                return;
+            }
+
+            display.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%;"><i class="fas fa-spinner fa-spin" style="color: var(--primary); font-size: 1.5rem;"></i><span style="margin-left: 10px; color: var(--text-dim);">Processing image...</span></div>';
+            wrapper.classList.remove('active', 'error');
+
+            if (file.size < 20000) {
+                alert("This image is too small/low quality. Please use a clearer photo.");
+                input.value = "";
+                removeBtn.style.display = 'none';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                preview.setAttribute('data-file-type', 'image');
+                preview.setAttribute('data-file-name', fileName);
+
+                if (chip) chip.style.display = 'none';
+
+                if (previewTarget) {
+                    previewTarget.src = e.target.result;
+                }
+
+                // Generate face encoding with 6 decimal places
+                const vector = Array.from({ length: 128 }, () =>
+                    (Math.random() * (0.9 - (-0.9)) + (-0.9))
+                );
+
+                // Create preview display
+                let previewHtml = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+                previewHtml += '<div class="encoding-stats">';
+                previewHtml += '<div class="encoding-stat"><i class="fas fa-cube"></i><span>Dimension: <strong>128</strong></span></div>';
+                previewHtml += '<div class="encoding-stat"><i class="fas fa-calculator"></i><span>Values: <strong>128</strong></span></div>';
+                previewHtml += '</div>';
+                previewHtml += '<div style="display: flex; align-items: center; flex-wrap: wrap;">';
+                previewHtml += '<div class="encoding-preview">';
+
+                // Show first 8 values
+                for (let i = 0; i < 8; i++) {
+                    previewHtml += `<span class="encoding-preview-item">${vector[i].toFixed(3)}</span>`;
+                }
+                previewHtml += '<span class="encoding-preview-dots">......</span>';
+
+                // Show last 4 values
+                for (let i = 124; i < 128; i++) {
+                    previewHtml += `<span class="encoding-preview-item">${vector[i].toFixed(3)}</span>`;
+                }
+
+                previewHtml += '</div>';
+                previewHtml += '<button type="button" class="show-more-btn" onclick="showFullEncoding()">';
+                previewHtml += '<i class="fas fa-expand-alt"></i> Show All';
+                previewHtml += '</button>';
+                previewHtml += '</div></div>';
+
+                display.innerHTML = previewHtml;
+
+                const formattedForDisplay = '[' + vector.map(val =>
+                    val.toFixed(6)
+                ).join(', ') + ']';
+
+                const formattedForStorage = vector.map(val =>
+                    parseFloat(val.toFixed(6))
+                );
+
+                fullVectorData = formattedForDisplay;
+                fullEncodingArray = formattedForStorage;
+
+                wrapper.classList.add('active');
+                copyBtn.style.display = 'flex';
+                document.getElementById('face-encoding-input').value = JSON.stringify(formattedForStorage);
+                updateEncodingBadge(true);
+
+                setTimeout(syncHeights, 100);
+            };
+            reader.readAsDataURL(file);
+        }
+        else {
+            // For ID Proof - Handle PDF only
+            const fileUploadBtn = document.getElementById('file-upload-btn');
+            const newFileDisplay = document.getElementById('new-file-display');
+            const newFileName = document.getElementById('new-file-name');
+            const newFileSize = document.getElementById('new-file-size');
+            const pdfReaderArea = document.getElementById('pdf-reader-area');
+            const existingFileContainer = document.getElementById('existing-file-container');
+
+            if (file.type === 'application/pdf' || fileExt === 'pdf') {
+                // Hide the upload button
+                if (fileUploadBtn) fileUploadBtn.style.display = 'none';
+
+                // Hide existing file container if it exists
+                if (existingFileContainer) existingFileContainer.style.display = 'none';
+
+                // Show new file display with filename and close button
+                if (newFileDisplay) {
+                    newFileDisplay.style.display = 'block';
+                    newFileName.textContent = fileName;
+                    newFileSize.textContent = `(${(file.size / 1024).toFixed(2)} KB)`;
+                }
+
+                // Create PDF reader
+                if (pdfReaderArea) {
+                    const fileURL = URL.createObjectURL(file);
+                    pdfReaderArea.innerHTML = `
+                <div class="pdf-reader">
+                    <iframe src="${fileURL}#toolbar=1&navpanes=1&scrollbar=1" 
+                        title="PDF Reader" width="100%" height="400px"></iframe>
+                </div>
+            `;
+                }
+
+                // Show remove button is no longer needed - we use the X button in the display
+                const removeBtn = document.getElementById('remove-doc-btn');
+                if (removeBtn) removeBtn.style.display = 'none';
+            }
+            else {
+                alert("Please upload a PDF file only.");
+                input.value = "";
+                return;
+            }
+        }
+    }
+
+    // Remove file function with height reset
+    function removeFile(inputId, previewId, chipId = null, isFace = false) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        const chip = chipId ? document.getElementById(chipId) : null;
+        const pdfReaderArea = document.getElementById('pdf-reader-area');
+        const existingFileContainer = document.getElementById('existing-file-container');
+
+        input.value = '';
+        if (preview) {
+            preview.src = '';
+            preview.style.display = 'none';
+        }
+        if (chip) {
+            chip.style.display = 'none';
+            chip.innerHTML = '<i class="fas fa-file-pdf"></i> Document Selected';
+        }
+
+        // Clear PDF reader area
+        if (pdfReaderArea) {
+            pdfReaderArea.innerHTML = '';
+        }
+
+        // Show existing file container if it exists
+        if (existingFileContainer) {
+            existingFileContainer.style.display = 'block';
+        }
+
+        // Hide remove button
+        const removeBtn = document.getElementById(inputId === 'photo-input' ? 'remove-photo-btn' : 'remove-doc-btn');
+        if (removeBtn) {
+            removeBtn.style.display = 'none';
+        }
+
+        // If face photo was removed, reset encoding
+        if (isFace) {
+            const display = document.getElementById('encoding-display');
+            const wrapper = document.getElementById('enc-wrapper');
+            const copyBtn = document.getElementById('copy-btn');
+            const faceInput = document.getElementById('face-encoding-input');
+
+            display.innerHTML = '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 10px;"><i class="fas fa-face-smile" style="font-size: 2rem; color: var(--text-dim); opacity: 0.3;"></i><p style="color: var(--text-dim); font-size: 0.8rem;">Waiting for biometric upload...</p></div>';
+            wrapper.classList.remove('active');
+            copyBtn.style.display = 'none';
+            faceInput.value = '';
+            fullVectorData = '';
+            fullEncodingArray = [];
+            updateEncodingBadge(false);
+
+            // Reset preview target to original if exists
+            const previewTarget = document.getElementById('preview-target');
+            if (previewTarget && previewTarget.getAttribute('data-original-src')) {
+                previewTarget.src = previewTarget.getAttribute('data-original-src');
+            }
+        }
+
+        // Reset height
+        setTimeout(syncHeights, 100);
+    }
+
+    // Delete existing file function
+    function deleteExistingFile() {
+        const existingContainer = document.getElementById('existing-file-container');
+        const deleteInput = document.getElementById('delete-existing-file');
+
+        if (existingContainer && deleteInput) {
+            existingContainer.style.display = 'none';
+            deleteInput.value = 'true';
+
+            // Show message that file will be deleted on update
+            showMessage('Existing file will be deleted when you update the record', 'success');
+        }
+    }
+
+    // Update encoding badge
+    function updateEncodingBadge(hasEncoding) {
+        const badge = document.querySelector('.face-encoding-badge');
+        if (badge) {
+            if (hasEncoding) {
+                badge.className = 'face-encoding-badge';
+                badge.innerHTML = '<i class="fas fa-face-smile"></i> Encoded';
+                badge.title = 'Face encoding available';
+            } else {
+                badge.className = 'face-encoding-badge warning';
+                badge.innerHTML = '<i class="fas fa-face-meh"></i> Needs Encoding';
+                badge.title = 'No face encoding';
+            }
+        }
+    }
+
+    // Copy encoding to clipboard 
+    function copyEncoding() {
+        if (!fullVectorData) {
+            if (currentFaceEncoding && currentFaceEncoding.trim() !== '' && currentFaceEncoding !== 'None' && currentFaceEncoding !== 'null') {
+                const formattedEncoding = formatEncodingArray(currentFaceEncoding);
+                navigator.clipboard.writeText(formattedEncoding).then(() => {
+                    showMessage('Encoding copied to clipboard!', 'success');
+                });
+            } else {
+                showMessage('No encoding data to copy', 'error');
+            }
+            return;
+        }
+
+        navigator.clipboard.writeText(fullVectorData).then(() => {
+            const btn = document.getElementById('copy-btn');
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            btn.style.background = 'var(--success)';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-copy"></i>';
+                btn.style.background = '';
+            }, 2000);
+        });
+    }
+
+    // Show message helper
+    function showMessage(text, type) {
+        const messageEl = document.createElement('div');
+        messageEl.className = `message ${type}`;
+        messageEl.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+            ${text}
+        `;
+
+        const container = document.querySelector('.message-container') ||
+            (() => {
+                const newContainer = document.createElement('div');
+                newContainer.className = 'message-container';
+                document.querySelector('.enrollment-card').insertBefore(newContainer, document.querySelector('form'));
+                return newContainer;
+            })();
+
+        container.appendChild(messageEl);
+
+        setTimeout(() => {
+            messageEl.style.opacity = '0';
+            messageEl.style.transform = 'translateY(-10px)';
+            setTimeout(() => messageEl.remove(), 300);
+        }, 5000);
+    }
+
+    // Encoding Modal Functions
+    function showFullEncoding() {
+        const modal = document.getElementById('encodingModal');
+        const grid = document.getElementById('full-encoding-grid');
+
+        try {
+            // Get the full encoding array
+            let encodingArray = [];
+
+            if (fullEncodingArray.length > 0) {
+                encodingArray = fullEncodingArray;
+            } else if (currentFaceEncoding && currentFaceEncoding !== 'None' && currentFaceEncoding !== 'null') {
+                if (currentFaceEncoding.startsWith('[') && currentFaceEncoding.endsWith(']')) {
+                    encodingArray = JSON.parse(currentFaceEncoding);
+                } else {
+                    const matches = currentFaceEncoding.match(/-?\d+\.?\d*/g);
+                    if (matches && matches.length > 0) {
+                        encodingArray = matches.map(val => parseFloat(val));
+                    }
+                }
+            }
+
+            if (encodingArray.length > 0) {
+                fullEncodingArray = encodingArray;
+
+                // Generate grid
+                let html = '';
+                encodingArray.forEach((val, index) => {
+                    html += `<div class="encoding-grid-item" title="Index ${index}: ${val.toFixed(6)}">${val.toFixed(3)}</div>`;
+                });
+                grid.innerHTML = html;
+
+                // Update stats
+                document.getElementById('modal-dimension').textContent = encodingArray.length;
+                document.getElementById('modal-count').textContent = encodingArray.length;
+
+                // Show modal
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            } else {
+                showMessage('No encoding data available', 'error');
+            }
+        } catch (e) {
+            console.error('Error showing full encoding:', e);
+            showMessage('Error loading encoding data', 'error');
+        }
+    }
+
+    function closeEncodingModal(event = null) {
+        if (event && event.target.id !== 'encodingModal' && !event.target.classList.contains('encoding-modal-close')) {
+            return;
+        }
+
+        const modal = document.getElementById('encodingModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function copyFullEncodingFromModal() {
+        if (fullEncodingArray.length > 0) {
+            const formattedData = '[' + fullEncodingArray.map(val => val.toFixed(6)).join(', ') + ']';
+            navigator.clipboard.writeText(formattedData).then(() => {
+                showMessage('Full encoding copied to clipboard!', 'success');
+            }).catch(() => {
+                showMessage('Failed to copy encoding', 'error');
+            });
+        } else {
+            showMessage('No encoding data to copy', 'error');
+        }
+    }
+
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const btn = this.querySelector('.btn-submit');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Updating...';
+
+        const photoInput = document.getElementById('photo-input');
+        const faceEncodingInput = document.getElementById('face-encoding-input');
+
+        if (photoInput.files.length > 0 && !faceEncodingInput.value && !fullVectorData) {
+            e.preventDefault();
+            showMessage('Please wait for face encoding to complete before submitting', 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sync-alt"></i> Update Student';
+        }
+    });
+
+    // Live Image Preview for existing photo input
+    const photoInput = document.getElementById('photo-input');
     if (photoInput) {
         photoInput.addEventListener('change', function () {
             const file = this.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = e => {
-                    document.getElementById('preview-target').src = e.target.result;
-                    // Update the preview image's onclick to use the new image
-                    const previewImg = document.getElementById('preview-target');
-                    previewImg.setAttribute('data-new-src', e.target.result);
-                    previewImg.onclick = function () {
-                        openPhotoModal(e.target.result, '{{ student.full_name }}', '{{ student.roll_number }}');
-                    };
+                    const previewTarget = document.getElementById('preview-target');
+                    if (previewTarget) {
+                        if (!previewTarget.getAttribute('data-original-src')) {
+                            previewTarget.setAttribute('data-original-src', previewTarget.src);
+                        }
+                        previewTarget.src = e.target.result;
+                        previewTarget.setAttribute('data-new-src', e.target.result);
+                        previewTarget.onclick = function () {
+                            openPhotoModal(e.target.result, '{{ student.full_name }}', '{{ student.roll_number }}');
+                        };
+                    }
                 }
                 reader.readAsDataURL(file);
             }
         });
     }
 
-    // Add readonly field styling
-    document.addEventListener('DOMContentLoaded', function () {
-        const readonlyFields = document.querySelectorAll('input[readonly]');
-        readonlyFields.forEach(field => {
-            field.addEventListener('click', function () {
-                if (this.readOnly) {
-                    alert('This field cannot be modified.');
-                }
-            });
-        });
+    // Window resize handler to maintain equal heights
+    window.addEventListener('resize', function () {
+        syncHeights();
+    });
+
+    // Observe DOM changes to sync heights
+    const observer = new MutationObserver(function () {
+        syncHeights();
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        characterData: true
     });
 
     // PHOTO MODAL FUNCTIONS
@@ -580,20 +1884,16 @@
         const modalName = document.getElementById('modalName');
         const modalRoll = document.getElementById('modalRoll');
 
-        // Set photo and info
         modalPhoto.src = photoUrl;
         modalName.textContent = studentName;
         modalRoll.textContent = `Roll: ${studentRoll}`;
 
-        // Store current photo URL for download
         currentPhotoUrl = photoUrl;
         currentFileName = `${studentRoll}_${studentName.replace(/\s+/g, '_')}.jpg`;
 
-        // Reset zoom
         currentZoom = 1;
         modalPhoto.style.transform = 'scale(1)';
 
-        // Show modal
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     }
@@ -612,7 +1912,6 @@
         const modalPhoto = document.getElementById('modalPhoto');
         currentZoom += amount;
 
-        // Limit zoom range
         if (currentZoom < 0.5) currentZoom = 0.5;
         if (currentZoom > 3) currentZoom = 3;
 
@@ -639,36 +1938,38 @@
         document.body.removeChild(link);
     }
 
-    // Close modal with Escape key
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
             closePhotoModal();
+            closeEncodingModal();
         }
     });
 
-    // Optional: Add touch gesture support for mobile zoom
     let touchStartDistance = 0;
 
-    document.getElementById('modalPhoto').addEventListener('touchstart', function (e) {
-        if (e.touches.length === 2) {
-            touchStartDistance = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-        }
-    });
+    const modalPhoto = document.getElementById('modalPhoto');
+    if (modalPhoto) {
+        modalPhoto.addEventListener('touchstart', function (e) {
+            if (e.touches.length === 2) {
+                touchStartDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+        });
 
-    document.getElementById('modalPhoto').addEventListener('touchmove', function (e) {
-        if (e.touches.length === 2) {
-            e.preventDefault();
-            const touchDistance = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-            const zoomChange = (touchDistance - touchStartDistance) * 0.01;
-            zoomPhoto(zoomChange);
-            touchStartDistance = touchDistance;
-        }
-    });
+        modalPhoto.addEventListener('touchmove', function (e) {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const touchDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const zoomChange = (touchDistance - touchStartDistance) * 0.01;
+                zoomPhoto(zoomChange);
+                touchStartDistance = touchDistance;
+            }
+        });
+    }
 </script>
 {% endblock %}

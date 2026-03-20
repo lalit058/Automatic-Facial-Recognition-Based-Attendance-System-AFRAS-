@@ -1,0 +1,104 @@
+/* --- 1. LAYOUT & GRID CORRECTIONS --- */
+/* Use 'main' or your specific wrapper to align with sidebar.css variables */
+main {
+    flex-grow: 1;
+    width: calc(100% - var(--sidebar-width));
+    transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 100vh;
+    padding: 1.5rem !important; /* Uniform padding for the workspace */
+}
+
+/* When the sidebar is collapsed (sidebar.css uses .collapsed) */
+aside.collapsed ~ main {
+    margin-left: var(--sidebar-collapsed) !important;
+    width: calc(100% - var(--sidebar-collapsed)) !important;
+}
+
+/* Ensure the row is centered and clean */
+.dashboard-content .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    margin-right: -10px;
+    margin-left: -10px;
+}
+
+/* Fix for the Zigzag: Ensure columns align at the top */
+.dashboard-content [class*="col-"] {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.dashboard-content .card {
+    flex: 1 0 auto;
+    width: 100%;
+}
+
+/* --- 2. THEME & GRADIENTS (Optimized for AFRAS) --- */
+:root {
+    --primary-gradient: linear-gradient(135deg, #1a5694 0%, #2575fc 100%);
+    --accent-color: #00d2ff;
+    --glass-bg: #ffffff;
+    --text-main: #34395e;
+    --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 15px 35px rgba(26, 86, 148, 0.1);
+}
+
+/* Specific fix for the 'Configuration' page wrapper */
+.dashboard-content {
+    /* Remove the margin-left here! It's already on <main> in base.html */
+    width: 100%;
+    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Existing Card Styling - Cleaned up */
+.card {
+    border: 1px solid var(--border) !important; /* Matches sidebar border */
+    border-radius: 16px;
+    background: var(--glass-bg);
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg) !important;
+    transform: translateY(-4px);
+}
+
+/* UI ELEMENTS FIXES */
+.card-header {
+    background: transparent !important;
+    border-bottom: 1px solid #edf2f7 !important;
+    padding: 1.25rem 1.5rem !important;
+}
+
+.card-header h6 {
+    font-weight: 800;
+    color: var(--primary) !important; /* Uses base.html primary color */
+    margin: 0;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+/* AI Slider / Range - Professional Polish */
+.form-range::-webkit-slider-thumb {
+    background: var(--primary);
+    border: 2px solid #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Mobile Fix: Ensure content is full width when sidebar is hidden */
+@media (max-width: 768px) {
+    main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding-top: 80px !important; /* Space for the mobile toggle button */
+    }
+}

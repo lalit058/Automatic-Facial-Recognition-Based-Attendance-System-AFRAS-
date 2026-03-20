@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,25 +10,38 @@
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{% static 'css/photo-modal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}?v={% now 'U' %}">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}?v={% now 'U' %}">
+
+    <script src="{% static 'js/photo-model.js' %}"></script>
+    <script src="{% static 'js/sidebar.js' %}?v={% now 'U' %}"></script>
     {% block extra_head %}{% endblock %}
+
+    <!-- Base Styles -->
     <style>
         :root {
-            --primary: #0062ff;
-            --bg: #030712;
-            --surface: #111827;
+            --primary: #1a5694;
+            --primary-glow: rgba(26, 86, 148, 0.2);
+            --bg: #f0f2f5;
+            --surface: #ffffff;
+            --border: #93b3dd;
+            --main-text: #000000;
+            --text-main: #34395e;
+            --primary-text: #ffffff;
+            --text-dim: #64748b;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+
             --surface-light: #1f2937;
-            --surface-hover: #1a2332;
-            --border: rgba(255, 255, 255, 0.1);
-            --text-main: #f9fafb;
-            --text-dim: #9ca3af;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --sidebar-width: 260px;
+            --surface-hover: #1a5694;
+            --sidebar-width: 240px;
             --sidebar-collapsed: 70px;
-            --sidebar-expanded: 260px;
+            --sidebar-expanded: 240px;
             --transition-speed: 0.3s;
-            --tooltip-bg: #1f2937;
+            --tooltip-bg: #ffffff;
             --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         }
@@ -48,517 +62,30 @@
             overflow-x: hidden;
         }
 
-        /* --- Enhanced Sidebar --- */
-        aside {
-            width: var(--sidebar-width);
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            padding: 1.5rem 0 !important;
-            position: fixed;
-            height: 100vh;
-            z-index: 1000;
-            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
-            overflow-x: hidden;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary) transparent;
-        }
-
-        aside::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        aside::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        aside::-webkit-scrollbar-thumb {
-            background-color: var(--primary);
-            border-radius: 4px;
-        }
-
-        aside.collapsed {
-            width: var(--sidebar-collapsed);
-            padding: 1.5rem 0;
-        }
-
-        /* Professional Toggle Button */
-        .sidebar-toggle {
-            position: absolute;
-            top: 24px;
-            right: -12px;
-            background: var(--primary);
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 2px solid var(--surface);
-            font-size: 0.8rem;
-            transition: all 0.2s ease;
-            z-index: 1001;
-            box-shadow: var(--shadow-md);
-        }
-
-        .sidebar-toggle:hover {
-            background: var(--primary);
-            transform: translateX(2px);
-            box-shadow: 0 0 15px rgba(0, 98, 255, 0.4);
-        }
-
-        aside.collapsed .sidebar-toggle {
-            right: -12px;
-            transform: rotate(180deg);
-        }
-
-        aside.collapsed .sidebar-toggle:hover {
-            transform: rotate(180deg) translateX(2px);
-        }
-
-        /* Brand Logo - Minimal in collapsed state */
-        .nav-brand {
-            font-weight: 800;
-            font-size: 1.25rem;
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--primary);
-            white-space: nowrap;
-            padding: 0 1.5rem;
-            transition: all var(--transition-speed) ease;
-            position: relative;
-        }
-
-        aside.collapsed .nav-brand {
-            padding: 0;
-            justify-content: center;
-            margin-bottom: 2rem;
-        }
-
-        .nav-brand i {
-            font-size: 1.5rem;
-            transition: transform var(--transition-speed) ease;
-        }
-
-        aside.collapsed .nav-brand i {
-            font-size: 1.8rem;
-        }
-
-        .nav-brand span {
-            transition: opacity var(--transition-speed) ease, width var(--transition-speed) ease;
-            overflow: hidden;
-        }
-
-        aside.collapsed .nav-brand span {
-            opacity: 0;
-            width: 0;
-            position: absolute;
-        }
-
-        /* Enhanced Profile Section */
-        .user-profile {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0 1rem 1.5rem;
-            margin-bottom: 1rem;
-            position: relative;
-            border-bottom: 1px solid var(--border);
-            transition: all var(--transition-speed) ease;
-        }
-
-        aside.collapsed .user-profile {
-            padding: 0 0.5rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .profile-photo-container {
-            position: relative;
-            margin-bottom: 12px;
-        }
-
-        .profile-photo {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            object-fit: cover;
-            border: 2px solid transparent;
-            transition: all var(--transition-speed) ease;
-            cursor: pointer;
-        }
-
-        aside.collapsed .profile-photo {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-        }
-
-        .profile-photo:hover {
-            border-color: var(--primary);
-            transform: scale(1.05);
-        }
-
-        aside.collapsed .profile-photo:hover {
-            transform: none;
-        }
-
-        .status-indicator {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 10px;
-            height: 10px;
-            background: var(--success);
-            border: 2px solid var(--surface);
-            border-radius: 50%;
-        }
-
-        /* Profile info hidden in collapsed state */
-        .profile-info {
-            text-align: center;
-            max-height: 100px;
-            opacity: 1;
-            visibility: visible;
-            transition: all var(--transition-speed) ease;
-            overflow: hidden;
-        }
-
-        aside.collapsed .profile-info {
-            max-height: 0;
-            opacity: 0;
-            visibility: hidden;
-            margin: 0;
-        }
-
-        .profile-name {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--text-main);
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .profile-role-badge {
-            font-size: 0.65rem;
-            color: var(--primary);
-            background: rgba(0, 98, 255, 0.1);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-block;
-        }
-
-        /* Navigation Menu */
-        .nav-menu {
-            list-style: none;
-            flex-grow: 1;
-            padding: 0 1rem;
-        }
-
-        .nav-item {
-            position: relative;
-            margin-bottom: 4px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            color: var(--text-dim);
-            text-decoration: none;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-            font-weight: 500;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            position: relative;
-            overflow: hidden;
-        }
-
-        aside.collapsed .nav-link {
-            padding: 12px;
-            justify-content: center;
-            border-radius: 10px;
-        }
-
-        .nav-link:hover {
-            background: var(--surface-hover);
-            color: var(--text-main);
-            transform: translateX(2px);
-        }
-
-        aside.collapsed .nav-link:hover {
-            transform: none;
-        }
-
-        .nav-link.active {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 4px 12px rgba(0, 98, 255, 0.3);
-        }
-
-        .nav-link.active:hover {
-            background: var(--primary);
-            transform: translateX(2px);
-        }
-
-        aside.collapsed .nav-link.active:hover {
-            transform: none;
-        }
-
-        /* Icon styling */
-        .nav-icon {
-            font-size: 1.1rem;
-            min-width: 24px;
-            text-align: center;
-            transition: transform 0.2s ease;
-        }
-
-        aside.collapsed .nav-icon {
-            font-size: 1.2rem;
-            margin: 0;
-        }
-
-        .nav-link:hover .nav-icon {
-            transform: scale(1.1);
-        }
-
-        aside.collapsed .nav-link:hover .nav-icon {
-            transform: none;
-        }
-
-        /* Text styling */
-        .nav-text {
-            transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease;
-            font-weight: 500;
-        }
-
-        aside.collapsed .nav-text {
-            opacity: 0;
-            width: 0;
-            position: absolute;
-            left: 100%;
-            white-space: nowrap;
-        }
-
-        /* Enhanced Tooltip for Collapsed State - Claude.ai Style */
-        .nav-tooltip {
-            position: absolute;
-            left: calc(100% + 12px);
-            top: 50%;
-            transform: translateY(-50%) scale(0.95);
-            background: var(--tooltip-bg);
-            color: var(--text-main);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1001;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-lg);
-            pointer-events: none;
-            min-width: 140px;
-            backdrop-filter: blur(10px);
-        }
-
-        /* Tooltip arrow */
-        .nav-tooltip::before {
-            content: '';
-            position: absolute;
-            left: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-            border-width: 6px 6px 6px 0;
-            border-style: solid;
-            border-color: transparent var(--tooltip-bg) transparent transparent;
-            filter: drop-shadow(-1px 0 1px rgba(0, 0, 0, 0.1));
-        }
-
-        /* Show tooltip on hover in collapsed state */
-        aside.collapsed .nav-link:hover .nav-tooltip {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(-50%) scale(1);
-            transition-delay: 0.1s;
-        }
-
-        /* Profile tooltip for collapsed state */
-        .profile-tooltip {
-            position: absolute;
-            left: calc(100% + 12px);
-            top: 50%;
-            transform: translateY(-50%) scale(0.95);
-            background: var(--tooltip-bg);
-            color: var(--text-main);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1001;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-lg);
-            pointer-events: none;
-            min-width: 160px;
-            backdrop-filter: blur(10px);
-            text-align: left;
-        }
-
-        .profile-tooltip::before {
-            content: '';
-            position: absolute;
-            left: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-            border-width: 6px 6px 6px 0;
-            border-style: solid;
-            border-color: transparent var(--tooltip-bg) transparent transparent;
-        }
-
-        aside.collapsed .user-profile:hover .profile-tooltip {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(-50%) scale(1);
-            transition-delay: 0.1s;
-        }
-
-        /* Logout Section */
-        .logout-section {
-            margin-top: auto;
-            padding: 1rem 1rem 0;
-            border-top: 1px solid var(--border);
-            position: relative;
-        }
-
-        aside.collapsed .logout-section {
-            padding: 1rem 0.5rem 0;
-        }
-
-        .logout-btn {
-            background: none;
-            border: none;
-            width: 100%;
-            color: var(--text-dim);
-            cursor: pointer;
-            text-align: left;
-            padding: 12px 16px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-radius: 10px;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-        }
-
-        aside.collapsed .logout-btn {
-            justify-content: center;
-            padding: 12px;
-        }
-
-        .logout-btn:hover {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-            transform: translateX(2px);
-        }
-
-        aside.collapsed .logout-btn:hover {
-            transform: none;
-        }
-
-        .logout-icon {
-            font-size: 1.1rem;
-            transition: transform 0.2s ease;
-        }
-
-        .logout-btn:hover .logout-icon {
-            transform: translateX(2px);
-        }
-
-        aside.collapsed .logout-btn:hover .logout-icon {
-            transform: none;
-        }
-
-        aside.collapsed .logout-btn span {
-            opacity: 0;
-            width: 0;
-            position: absolute;
-        }
-
-        /* Logout tooltip */
-        .logout-tooltip {
-            position: absolute;
-            left: calc(100% + 12px);
-            top: 50%;
-            transform: translateY(-50%) scale(0.95);
-            background: var(--tooltip-bg);
-            color: var(--text-main);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1001;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-lg);
-            pointer-events: none;
-            min-width: 120px;
-            backdrop-filter: blur(10px);
-        }
-
-        .logout-tooltip::before {
-            content: '';
-            position: absolute;
-            left: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-            border-width: 6px 6px 6px 0;
-            border-style: solid;
-            border-color: transparent var(--tooltip-bg) transparent transparent;
-        }
-
-        aside.collapsed .logout-btn:hover .logout-tooltip {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(-50%) scale(1);
-            transition-delay: 0.1s;
-        }
-
         /* Main Content */
         main {
             margin-left: var(--sidebar-width);
             flex-grow: 1;
-            padding: 2rem;
+            padding: 1rem;
             width: calc(100% - var(--sidebar-width));
             transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         aside.collapsed~main {
             margin-left: var(--sidebar-collapsed);
             width: calc(100% - var(--sidebar-collapsed));
+        }
+
+        main>*:not(.dashboard-footer):not(.system-status-bar) {
+            flex: 1 0 auto;
+        }
+
+        .dashboard-footer {
+            flex-shrink: 0;
+            margin-top: auto;
         }
 
         /* Mobile Overlay */
@@ -574,7 +101,7 @@
             z-index: 999;
         }
 
-        /* Message Styles (unchanged) */
+        /* Message Styles */
         .msg-container {
             position: fixed;
             top: 5px;
@@ -605,6 +132,46 @@
             overflow: hidden;
         }
 
+        .msg.success {
+            color: var(--success);
+        }
+
+        .msg.error {
+            color: var(--danger);
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1002;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(26, 86, 148, 0.3);
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-btn:hover {
+            background: #0e3d6b;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -621,21 +188,29 @@
         @media (max-width: 768px) {
             :root {
                 --sidebar-width: 280px;
-                --sidebar-collapsed: 0px;
+                --sidebar-collapsed: 280px;
+                /* Changed to keep full width */
+            }
+
+            .mobile-menu-btn {
+                display: flex;
             }
 
             aside {
                 transform: translateX(-100%);
-                width: var(--sidebar-width);
-                box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+                width: var(--sidebar-width) !important;
+                box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+                transition: transform 0.3s ease;
             }
 
             aside.active {
                 transform: translateX(0);
             }
 
+            /* Override collapsed styles on mobile */
             aside.collapsed {
                 transform: translateX(-100%);
+                width: var(--sidebar-width) !important;
             }
 
             aside.collapsed.active {
@@ -643,17 +218,56 @@
             }
 
             .sidebar-toggle {
-                display: none;
+                display: none !important;
             }
 
             .sidebar-overlay.active {
                 display: block;
             }
 
+            /* Ensure full content shows when active */
+            aside.active .nav-text,
+            aside.active .profile-info,
+            aside.active .nav-brand span,
+            aside.active .logout-btn span {
+                display: block !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                width: auto !important;
+                position: relative !important;
+                left: auto !important;
+            }
+
+            aside.active .nav-link {
+                justify-content: flex-start !important;
+                padding: 12px 16px !important;
+            }
+
+            aside.active .nav-link .nav-icon {
+                margin-right: 12px !important;
+            }
+
+            aside.active .profile-photo {
+                width: 80px !important;
+                height: 80px !important;
+            }
+
+            aside.active .nav-brand {
+                justify-content: flex-start !important;
+                padding: 0 1.5rem !important;
+            }
+
+            /* Hide tooltips on mobile */
+            .nav-tooltip,
+            .profile-tooltip,
+            .logout-tooltip {
+                display: none !important;
+            }
+
             main {
-                margin-left: 0;
-                width: 100%;
-                padding: 1.5rem;
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 1rem;
             }
 
             .msg-container {
@@ -664,133 +278,33 @@
             .msg {
                 min-width: 280px;
             }
-        }
 
-        /* Smooth transitions for all interactive elements */
-        .nav-link,
-        .logout-btn,
-        .sidebar-toggle,
-        .profile-photo {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            @keyframes slideUp {
+                from {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+
+                to {
+                    opacity: 0;
+                    transform: translateY(-20px) scale(0.95);
+                }
+            }
+
         }
     </style>
 </head>
 
 <body>
     <!-- Sidebar Overlay for Mobile -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay for Mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <aside id="sidebar">
-        <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-
-        <div class="nav-brand">
-            <i class="fas fa-microchip"></i>
-            <span>AFRAS</span>
-        </div>
-
-        <div class="user-profile">
-            <div class="profile-photo-container">
-                <img src="{% if request.user.staff_profile.photo %}{{ request.user.staff_profile.photo.url }}{% else %}https://ui-avatars.com/api/?name={{ request.user.username }}&background=0062ff&color=fff&size=128{% endif %}"
-                    class="profile-photo" alt="Profile">
-                <div class="status-indicator"></div>
-            </div>
-
-            <div class="profile-info">
-                <div class="profile-name">
-                    {% if request.user.is_superuser %}
-                    {{ request.user.username|title }}
-                    {% else %}
-                    {{ request.user.staff_profile.full_name|default:request.user.username }}
-                    {% endif %}
-                </div>
-
-                <div class="profile-role-badge">
-                    {% if request.user.is_superuser %}
-                    ADMIN
-                    {% else %}
-                    {{ request.user.staff_profile.designation|upper|default:"STAFF" }}
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Profile Tooltip for collapsed state -->
-            <div class="profile-tooltip">
-                <div style="font-weight: 600; margin-bottom: 4px;">
-                    {% if request.user.is_superuser %}
-                    {{ request.user.username|title }}
-                    {% else %}
-                    {{ request.user.staff_profile.full_name|default:request.user.username }}
-                    {% endif %}
-                </div>
-                <div style="font-size: 0.75rem; color: var(--text-dim);">
-                    {% if request.user.is_superuser %}
-                    Administrator
-                    {% else %}
-                    {{ request.user.staff_profile.department|default:"Staff" }}
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <ul class="nav-menu">
-            <li class="nav-item">
-                <a href="{% url 'dashboard_home' %}"
-                    class="nav-link {% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}">
-                    <i class="fas fa-th-large nav-icon"></i>
-                    <span class="nav-text">Dashboard</span>
-                    <div class="nav-tooltip">Dashboard</div>
-                </a>
-            </li>
-
-            {% if request.user.is_superuser %}
-            <li class="nav-item">
-                <a href="{% url 'staff-directory' %}"
-                    class="nav-link {% if request.resolver_match.url_name == 'staff-directory' %}active{% endif %}">
-                    <i class="fas fa-user-shield nav-icon"></i>
-                    <span class="nav-text">Staff Accounts</span>
-                    <div class="nav-tooltip">Staff Accounts</div>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'student-directory' %}"
-                    class="nav-link {% if request.resolver_match.url_name == 'student-directory' %}active{% endif %}">
-                    <i class="fas fa-user-graduate nav-icon"></i>
-                    <span class="nav-text">Student Accounts</span>
-                    <div class="nav-tooltip">Student Accounts</div>
-                </a>
-            </li>
-            {% else %}
-            <li class="nav-item">
-                <a href="{% url 'student-directory' %}"
-                    class="nav-link {% if request.resolver_match.url_name == 'student-directory' %}active{% endif %}">
-                    <i class="fas fa-user-graduate nav-icon"></i>
-                    <span class="nav-text">My Students</span>
-                    <div class="nav-tooltip">My Students</div>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">
-                    <i class="fas fa-camera nav-icon"></i>
-                    <span class="nav-text">Scan Session</span>
-                    <div class="nav-tooltip">Scan Session</div>
-                </a>
-            </li>
-            {% endif %}
-        </ul>
-
-        <div class="logout-section">
-            <form action="{% url 'logout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="logout-btn" aria-label="Logout">
-                    <i class="fas fa-sign-out-alt logout-icon"></i>
-                    <span>Logout</span>
-                    <div class="logout-tooltip">Logout</div>
-                </button>
-            </form>
-        </div>
-    </aside>
+    {% include 'dashboard/sidebar.html' %}
 
     <main>
         <div class="msg-container" id="django-messages">
@@ -809,231 +323,11 @@
         </div>
 
         {% block content %}{% endblock %}
+
+        {% include 'dashboard/footer.html' %}
     </main>
 
-    {% block extra_scripts %}
-    <script>
-        // Enhanced sidebar toggle with smooth animations
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-
-            sidebar.classList.toggle('collapsed');
-
-            // Animate the toggle button icon
-            const toggleIcon = document.querySelector('.sidebar-toggle i');
-            if (sidebar.classList.contains('collapsed')) {
-                toggleIcon.style.transform = 'rotate(180deg)';
-            } else {
-                toggleIcon.style.transform = 'rotate(0deg)';
-            }
-
-            // Handle mobile overlay
-            if (window.innerWidth <= 768) {
-                sidebar.classList.toggle('active');
-                overlay.classList.toggle('active');
-
-                // Prevent body scroll when sidebar is open on mobile
-                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
-            }
-
-            // Save state to localStorage
-            const isCollapsed = sidebar.classList.contains('collapsed');
-            localStorage.setItem('sidebarCollapsed', isCollapsed);
-        }
-
-        // Initialize sidebar state from localStorage
-        function initSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-
-            if (isCollapsed && window.innerWidth > 768) {
-                sidebar.classList.add('collapsed');
-                document.querySelector('.sidebar-toggle i').style.transform = 'rotate(180deg)';
-            }
-
-            // On mobile, start with collapsed sidebar
-            if (window.innerWidth <= 768) {
-                sidebar.classList.add('collapsed');
-                overlay.classList.remove('active');
-            }
-        }
-
-        // Enhanced hover effects for tooltips
-        function setupTooltipHover() {
-            const sidebar = document.getElementById('sidebar');
-            const navLinks = document.querySelectorAll('.nav-link');
-            const profile = document.querySelector('.user-profile');
-            const logoutBtn = document.querySelector('.logout-btn');
-
-            // Add mouseenter/mouseleave events for smooth tooltip display
-            navLinks.forEach(link => {
-                link.addEventListener('mouseenter', function (e) {
-                    if (sidebar.classList.contains('collapsed')) {
-                        const tooltip = this.querySelector('.nav-tooltip');
-                        if (tooltip) {
-                            tooltip.style.transition = 'none';
-                            tooltip.style.opacity = '0';
-                            tooltip.style.transform = 'translateY(-50%) scale(0.95)';
-
-                            // Trigger reflow
-                            void tooltip.offsetWidth;
-
-                            tooltip.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
-                            setTimeout(() => {
-                                tooltip.style.opacity = '1';
-                                tooltip.style.transform = 'translateY(-50%) scale(1)';
-                            }, 10);
-                        }
-                    }
-                });
-
-                link.addEventListener('mouseleave', function (e) {
-                    const tooltip = this.querySelector('.nav-tooltip');
-                    if (tooltip) {
-                        tooltip.style.opacity = '0';
-                        tooltip.style.transform = 'translateY(-50%) scale(0.95)';
-                    }
-                });
-            });
-
-            // Profile tooltip
-            profile.addEventListener('mouseenter', function (e) {
-                if (sidebar.classList.contains('collapsed')) {
-                    const tooltip = this.querySelector('.profile-tooltip');
-                    if (tooltip) {
-                        tooltip.style.transition = 'none';
-                        tooltip.style.opacity = '0';
-                        tooltip.style.transform = 'translateY(-50%) scale(0.95)';
-
-                        void tooltip.offsetWidth;
-
-                        tooltip.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
-                        setTimeout(() => {
-                            tooltip.style.opacity = '1';
-                            tooltip.style.transform = 'translateY(-50%) scale(1)';
-                        }, 10);
-                    }
-                }
-            });
-
-            profile.addEventListener('mouseleave', function (e) {
-                const tooltip = this.querySelector('.profile-tooltip');
-                if (tooltip) {
-                    tooltip.style.opacity = '0';
-                    tooltip.style.transform = 'translateY(-50%) scale(0.95)';
-                }
-            });
-
-            // Logout tooltip
-            logoutBtn.addEventListener('mouseenter', function (e) {
-                if (sidebar.classList.contains('collapsed')) {
-                    const tooltip = this.querySelector('.logout-tooltip');
-                    if (tooltip) {
-                        tooltip.style.transition = 'none';
-                        tooltip.style.opacity = '0';
-                        tooltip.style.transform = 'translateY(-50%) scale(0.95)';
-
-                        void tooltip.offsetWidth;
-
-                        tooltip.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
-                        setTimeout(() => {
-                            tooltip.style.opacity = '1';
-                            tooltip.style.transform = 'translateY(-50%) scale(1)';
-                        }, 10);
-                    }
-                }
-            });
-
-            logoutBtn.addEventListener('mouseleave', function (e) {
-                const tooltip = this.querySelector('.logout-tooltip');
-                if (tooltip) {
-                    tooltip.style.opacity = '0';
-                    tooltip.style.transform = 'translateY(-50%) scale(0.95)';
-                }
-            });
-        }
-
-        // Close sidebar on mobile when clicking overlay
-        document.getElementById('sidebarOverlay').addEventListener('click', function () {
-            if (window.innerWidth <= 768) {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.remove('active');
-                this.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
-
-        // Handle window resize
-        function handleResize() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-
-            if (window.innerWidth <= 768) {
-                // Mobile
-                sidebar.classList.add('collapsed');
-                overlay.classList.remove('active');
-                sidebar.classList.remove('active');
-                document.body.style.overflow = '';
-            } else {
-                // Desktop - restore saved state
-                const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-                if (isCollapsed) {
-                    sidebar.classList.add('collapsed');
-                    document.querySelector('.sidebar-toggle i').style.transform = 'rotate(180deg)';
-                } else {
-                    sidebar.classList.remove('collapsed');
-                    document.querySelector('.sidebar-toggle i').style.transform = 'rotate(0deg)';
-                }
-                overlay.classList.remove('active');
-            }
-        }
-
-        // Auto-dismiss messages
-        function autoDismissMessages() {
-            const messages = document.querySelectorAll('.msg[data-auto-dismiss="true"]');
-
-            messages.forEach((msg, index) => {
-                if (msg.dataset.timerSet) return;
-
-                msg.dataset.timerSet = 'true';
-
-                setTimeout(() => {
-                    msg.style.animation = 'slideUp 0.4s ease-out forwards';
-
-                    setTimeout(() => {
-                        if (msg.parentNode) {
-                            msg.remove();
-                        }
-                        const container = document.getElementById('django-messages');
-                        if (container && container.children.length === 0) {
-                            container.style.display = 'none';
-                        }
-                    }, 400);
-                }, 5000 + (index * 300));
-            });
-        }
-
-        // Initialize everything
-        document.addEventListener('DOMContentLoaded', function () {
-            initSidebar();
-            setupTooltipHover();
-            autoDismissMessages();
-
-            // Set up periodic checks for new messages
-            setInterval(autoDismissMessages, 1000);
-        });
-
-        // Handle resize events
-        window.addEventListener('resize', handleResize);
-
-        // Prevent form resubmission on page refresh
-        if (window.history.replaceState) {
-            window.history.replaceState(null, null, window.location.href);
-        }
-    </script>
-    {% endblock %}
+    {% block extra_scripts %}{% endblock %}
 </body>
 
 </html>

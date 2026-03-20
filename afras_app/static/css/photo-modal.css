@@ -1,0 +1,191 @@
+/* Photo Modal Styles */
+.photo-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.photo-modal-container {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Top Controls */
+.photo-controls {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    display: flex;
+    gap: 10px;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.photo-control-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+}
+
+.photo-control-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.photo-control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.photo-control-btn.download-btn {
+    background: rgba(0, 98, 255, 0.3);
+    border-color: rgba(0, 98, 255, 0.5);
+}
+
+.photo-control-btn.download-btn:hover:not(:disabled) {
+    background: rgba(0, 98, 255, 0.5);
+}
+
+.photo-control-btn.close-btn:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.5);
+    transform: rotate(90deg);
+}
+
+/* Image Container */
+.photo-modal-image-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    padding: 20px;
+    min-height: 300px;
+    max-height: 80vh;
+}
+
+.photo-modal-image {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 10px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    object-fit: contain;
+    background: #000;
+    cursor: grab;
+    transform-origin: center center;
+    transition: transform 0.3s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.photo-modal-image:active {
+    cursor: grabbing;
+}
+
+/* Caption */
+.photo-modal-caption {
+    color: white;
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    margin-top: 20px;
+    width: 100%;
+    backdrop-filter: blur(5px);
+}
+
+.photo-modal-caption h3 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    color: white;
+}
+
+.photo-modal-caption p {
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+.photo-info {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #999;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.photo-info .separator {
+    color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .photo-controls {
+        top: -45px;
+        right: 50%;
+        transform: translateX(50%);
+    }
+    
+    .photo-control-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+    
+    .photo-modal-caption {
+        padding: 15px;
+    }
+    
+    .photo-info {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .photo-info .separator {
+        display: none;
+    }
+}
+
+/* Loading State */
+.photo-modal-image.loading {
+    opacity: 0.5;
+}
+
+/* Smooth transitions */
+.photo-modal-overlay,
+.photo-controls,
+.photo-control-btn,
+.photo-modal-image {
+    transition: all 0.3s ease;
+}

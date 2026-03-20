@@ -1,0 +1,57 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+    <div class="panel">
+        <h3 style="margin-bottom: 15px;"><i class="fas fa-video"></i> Live Monitoring: {{ session.subject_name }}</h3>
+        <div style="position: relative; border-radius: 15px; overflow: hidden; background: #000;">
+            <img id="video-feed" src="{% url 'video_feed' session.id %}" style="width: 100%; display: block;">
+            <div id="scan-overlay" style="position: absolute; top: 10px; right: 10px;" class="badge admin-badge">
+                <i class="fas fa-sync fa-spin"></i> SCANNING LIVE
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3 style="margin-bottom: 15px;"><i class="fas fa-list-check"></i> Identified Students</h3>
+        <div id="attendance-list" style="max-height: 500px; overflow-y: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>NAME</th>
+                        <th>TIME</th>
+                    </tr>
+                </thead>
+                <tbody id="log-table-body">
+                    <tr id="no-data">
+                        <td colspan="2" style="text-align: center; color: var(--text-dim); padding: 20px;">
+                            Waiting for detections...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript logic to poll the server for new detections every 3 seconds
+    function updateLogs() {
+        fetch('{% url "get_logs" session.id %}')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('log-table-body');
+                if (data.logs.length > 0) {
+                    document.getElementById('no-data')?.remove();
+                    tbody.innerHTML = data.logs.map(log => `
+                        <tr>
+                            <td><strong>${log.name}</strong><br><small>${log.roll}</small></td>
+                            <td><span class="badge staff-badge">${log.time}</span></td>
+                        </tr>
+                    `).join('');
+                }
+            });
+    }
+    setInterval(updateLogs, 3000);
+</script>
+{% endblock %}

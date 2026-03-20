@@ -1,0 +1,331 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Session Summary - {{ session.subject_name }}{% endblock %}
+
+{% block content %}
+<style>
+    .summary-container {
+        padding: 30px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .summary-card {
+        background: var(--surface-card);
+        border-radius: 28px;
+        padding: 2.5rem;
+        border: 1px solid var(--border-subtle);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+    
+    .summary-header {
+        text-align: center;
+        margin-bottom: 40px;
+        border-bottom: 2px solid var(--border-subtle);
+        padding-bottom: 20px;
+    }
+    
+    .summary-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #0062ff, #00c6ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+    
+    .session-info {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        color: var(--text-dim);
+        flex-wrap: wrap;
+    }
+    
+    .session-info i {
+        color: var(--primary);
+        margin-right: 8px;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+    
+    .stat-item {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-subtle);
+        border-radius: 20px;
+        padding: 25px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-item:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary);
+    }
+    
+    .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 15px;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+    
+    .stat-label {
+        color: var(--text-dim);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .present .stat-number { color: #27ae60; }
+    .absent .stat-number { color: #e74c3c; }
+    .leave .stat-number { color: #f39c12; }
+    .retention .stat-number { color: var(--primary); }
+    
+    .students-list {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-subtle);
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 40px;
+    }
+    
+    .students-list h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+        border-radius: 12px;
+        border: 1px solid var(--border-subtle);
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    th {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 15px;
+        text-align: left;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-dim);
+    }
+    
+    td {
+        padding: 15px;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+    
+    tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+    
+    .status-present { background: rgba(39, 174, 96, 0.2); color: #27ae60; }
+    .status-absent { background: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+    .status-leave { background: rgba(243, 156, 18, 0.2); color: #f39c12; }
+    
+    .confidence-bar {
+        width: 80px;
+        height: 6px;
+        background: #334155;
+        border-radius: 3px;
+        overflow: hidden;
+        display: inline-block;
+        margin-right: 8px;
+    }
+    
+    .confidence-fill {
+        height: 100%;
+        border-radius: 3px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 15px 40px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 98, 255, 0.4);
+    }
+    
+    .btn-secondary {
+        background: transparent;
+        color: var(--text-dim);
+        border: 1px solid var(--border-subtle);
+    }
+    
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+    }
+    
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .summary-header h1 {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<div class="summary-container">
+    <div class="summary-card">
+        <div class="summary-header">
+            <h1>📊 Session Summary</h1>
+            <h2 style="margin-bottom: 15px;">{{ session.subject_name }}</h2>
+            <div class="session-info">
+                <span><i class="fas fa-calendar"></i> {{ session.date|date:"F d, Y" }}</span>
+                <span><i class="fas fa-clock"></i> {{ session.start_time|time:"h:i A" }}</span>
+                <span><i class="fas fa-hourglass-half"></i> {{ session.expected_duration }} minutes</span>
+            </div>
+        </div>
+        
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-item present">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number">{{ present_count }}</div>
+                <div class="stat-label">Present</div>
+            </div>
+            <div class="stat-item absent">
+                <div class="stat-icon">❌</div>
+                <div class="stat-number">{{ absent_count }}</div>
+                <div class="stat-label">Absent</div>
+            </div>
+            <div class="stat-item leave">
+                <div class="stat-icon">📝</div>
+                <div class="stat-number">{{ leave_count }}</div>
+                <div class="stat-label">On Leave</div>
+            </div>
+            <div class="stat-item retention">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-number">{{ avg_retention }}%</div>
+                <div class="stat-label">Avg Retention</div>
+            </div>
+        </div>
+        
+        <!-- Students List -->
+        <div class="students-list">
+            <h2><i class="fas fa-users"></i> Attendance Details</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Roll Number</th>
+                            <th>First Seen</th>
+                            <th>Last Seen</th>
+                            <th>Confidence</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td><i class="fas fa-user-graduate" style="margin-right: 8px; color: var(--primary);"></i> {{ log.student.full_name }}</td>
+                            <td style="font-family: monospace;">{{ log.student.roll_number }}</td>
+                            <td>{{ log.first_seen|time:"h:i:s A"|default:"--" }}</td>
+                            <td>{{ log.last_seen|time:"h:i:s A"|default:"--" }}</td>
+                            <td>
+                                <div style="display: flex; align-items: center;">
+                                    <span class="confidence-bar">
+                                        <div class="confidence-fill" style="width: {{ log.confidence|default:0 }}%; background: {% if log.confidence >= 75 %}#27ae60{% elif log.confidence >= 50 %}#f39c12{% else %}#e74c3c{% endif %};"></div>
+                                    </span>
+                                    <span style="color: {% if log.confidence >= 75 %}#27ae60{% elif log.confidence >= 50 %}#f39c12{% else %}#e74c3c{% endif %};">
+                                        {{ log.confidence|floatformat:0 }}%
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ log.status|lower }}">
+                                    {{ log.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px;">
+                                <i class="fas fa-info-circle" style="font-size: 2rem; color: var(--text-dim); margin-bottom: 10px; display: block;"></i>
+                                No attendance records found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{% url 'dashboard_home' %}" class="btn-secondary">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="{% url 'start_session' %}" class="btn-primary">
+                <i class="fas fa-plus-circle"></i> New Session
+            </a>
+            <a href="#" onclick="window.print()" class="btn-secondary">
+                <i class="fas fa-print"></i> Print Summary
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add animation to stats on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const stats = document.querySelectorAll('.stat-item');
+        stats.forEach((stat, index) => {
+            stat.style.opacity = '0';
+            stat.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                stat.style.transition = 'all 0.5s ease';
+                stat.style.opacity = '1';
+                stat.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+</script>
+{% endblock %}

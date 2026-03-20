@@ -5,11 +5,12 @@
 
 {% block extra_head %}
 <style>
+    /* Keep all your existing CSS - it's good */
     .top-intro {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         gap: 20px;
         flex-wrap: wrap;
     }
@@ -40,9 +41,9 @@
 
     .search-box input {
         width: 100%;
-        background: var(--surface-light);
+        background: var(--primary-text);
         border: 1px solid var(--border);
-        color: white;
+        color: #514b4b;
         padding: 12px 15px 12px 45px;
         border-radius: 12px;
         font-size: 0.9rem;
@@ -69,11 +70,15 @@
         min-width: 180px;
     }
 
+    .filter-dropdown:hover i {
+        color: var(--primary);
+    }
+
     .filter-select {
         width: 100%;
-        background: var(--surface-light);
+        background: var(--primary);
         border: 1px solid var(--border);
-        color: white;
+        color: var(--primary-text);
         padding: 12px 40px 12px 15px;
         border-radius: 12px;
         font-size: 0.9rem;
@@ -84,9 +89,31 @@
         transition: all 0.3s;
     }
 
+    .filter-select:hover {
+        background: rgba(0, 98, 255, 0.05);
+        border-color: var(--primary);
+    }
+
     .filter-select:focus {
         outline: none;
         border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 98, 255, 0.2);
+    }
+
+    .filter-select:active {
+        background: rgba(0, 98, 255, 0.1);
+        transform: scale(0.98);
+    }
+
+    .filter-select option {
+        background: var(--surface);
+        color: var(--text-main);
+        padding: 10px;
+    }
+
+    .filter-select option:hover {
+        background: var(--primary);
+        color: white;
     }
 
     .filter-dropdown i {
@@ -94,8 +121,9 @@
         right: 15px;
         top: 50%;
         transform: translateY(-50%);
-        color: var(--text-dim);
+        color: var(--primary-text);
         pointer-events: none;
+        transition: color 0.3s ease;
     }
 
     .filter-tags {
@@ -103,7 +131,6 @@
         gap: 8px;
         flex-wrap: wrap;
         margin-top: 10px;
-        margin-bottom: 1rem;
     }
 
     .filter-tag {
@@ -242,7 +269,7 @@
 
     .id-badge {
         font-family: 'JetBrains Mono', monospace;
-        background: var(--surface-light);
+        background: transparent;
         padding: 2px 8px;
         border-radius: 4px;
         font-size: 0.8rem;
@@ -541,7 +568,7 @@
         <i class="fas fa-user-tag"></i>
         <select id="roleFilter" class="filter-select">
             <option value="all">All Roles</option>
-            <option value="admin">Administrators Only</option>
+            <option value="admin">Administrators</option>
             <option value="staff">Staff Only</option>
         </select>
     </div>
@@ -574,7 +601,12 @@
         </thead>
         <tbody id="staffTableBody">
             {% for staff in all_staff %}
-            <tr data-staff-id="{{ staff.id }}" data-staff-name="{{ staff.full_name }}">
+            <tr data-staff-id="{{ staff.id }}" 
+                data-staff-name="{{ staff.full_name|lower }}"
+                data-staff-username="{{ staff.user.username|lower }}"
+                data-staff-department="{{ staff.department|lower|default:'' }}"
+                data-staff-designation="{{ staff.designation|lower|default:'' }}"
+                data-staff-role="{% if staff.user.is_superuser %}admin{% else %}staff{% endif %}">
                 <td>
                     <div class="staff-profile">
                         {% if staff.photo %}
@@ -607,17 +639,17 @@
                     </div>
                 </td>
                 <td><span class="id-badge">{{ staff.user.username }}</span></td>
-                <td><span class="dept-tag">{{ staff.department }}</span></td>
+                <td><span class="dept-tag">{{ staff.department|default:"Not Assigned" }}</span></td>
                 <td>
-                    <strong>{{ staff.designation }}</strong>
+                    <strong>{{ staff.designation|default:"Staff" }}</strong>
                     <span style="display: block; font-size: 0.75rem; color: var(--text-dim); margin-top: 5px;">
-                        {{ staff.degree }}
+                        {{ staff.degree|default:"" }}
                     </span>
                 </td>
                 <td>
                     <div style="font-size: 0.8rem;">
                         <i class="fas fa-phone" style="width: 15px; color: var(--primary);"></i>
-                        {{ staff.phone_number }}<br>
+                        {{ staff.phone_number|default:"-" }}<br>
                         <i class="fas fa-envelope" style="width: 15px; color: var(--primary);"></i>
                         {{ staff.user.email }}
                     </div>
@@ -720,35 +752,74 @@
     const clearFiltersBtn = document.getElementById('clearFilters');
     const filterTags = document.getElementById('filterTags');
     const visibleCount = document.getElementById('visibleCount');
-    const allRows = document.querySelectorAll('#staffTableBody tr');
 
-    searchInput.addEventListener('input', function () {
-        filterState.search = this.value.toLowerCase().trim();
-        applyFilters();
-    });
+    let allStaffData = []; // Initialize empty, will be populated after DOM is ready
 
-    roleFilter.addEventListener('change', function () {
-        filterState.role = this.value;
+    // Function to initialize staff data
+    function initializeStaffData() {
+        const allRows = document.querySelectorAll('#staffTableBody tr');
+        
+        allStaffData = Array.from(allRows).map(row => {
+            return {
+                element: row,
+                role: row.getAttribute('data-staff-role'),
+                name: row.getAttribute('data-staff-name'),
+                username: row.getAttribute('data-staff-username'),
+                department: row.getAttribute('data-staff-department'),
+                designation: row.getAttribute('data-staff-designation'),
+                text: row.textContent.toLowerCase()
+            };
+        });
+        
+        // Apply filters after data is initialized
         applyFilters();
-    });
+    }
 
-    clearFiltersBtn.addEventListener('click', function () {
-        searchInput.value = '';
-        roleFilter.value = 'all';
-        filterState.search = '';
-        filterState.role = 'all';
-        applyFilters();
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeStaffData();
+        
+        // Add event listeners
+        searchInput.addEventListener('input', function () {
+            filterState.search = this.value.toLowerCase().trim();
+            applyFilters();
+        });
+
+        roleFilter.addEventListener('change', function () {
+            filterState.role = this.value;
+            applyFilters();
+        });
+
+        clearFiltersBtn.addEventListener('click', function () {
+            searchInput.value = '';
+            roleFilter.value = 'all';
+            filterState.search = '';
+            filterState.role = 'all';
+            applyFilters();
+        });
     });
 
     function applyFilters() {
         let visibleRows = 0;
-        allRows.forEach(row => {
-            if (row.cells.length < 5) return;
-            const rowText = row.textContent.toLowerCase();
-            const isAdmin = rowText.includes('admin') || row.innerHTML.includes('admin-badge');
-            let matchesSearch = !filterState.search || rowText.includes(filterState.search);
-            let matchesRole = filterState.role === 'all' || (filterState.role === 'admin' ? isAdmin : !isAdmin);
-
+        
+        allStaffData.forEach(staff => {
+            const row = staff.element;
+            
+            // Search filter - check multiple fields
+            let matchesSearch = true;
+            if (filterState.search) {
+                const searchLower = filterState.search.toLowerCase();
+                matchesSearch = 
+                    (staff.name && staff.name.includes(searchLower)) ||
+                    (staff.username && staff.username.includes(searchLower)) ||
+                    (staff.department && staff.department.includes(searchLower)) ||
+                    (staff.designation && staff.designation.includes(searchLower)) ||
+                    staff.text.includes(searchLower);
+            }
+            
+            // Role filter - use data attribute
+            let matchesRole = filterState.role === 'all' || staff.role === filterState.role;
+            
             if (matchesSearch && matchesRole) {
                 row.style.display = '';
                 visibleRows++;
@@ -756,14 +827,23 @@
                 row.style.display = 'none';
             }
         });
+        
         visibleCount.textContent = visibleRows;
         updateFilterTags();
     }
 
     function updateFilterTags() {
         filterTags.innerHTML = '';
-        if (filterState.search) filterTags.appendChild(createFilterTag('search', `Search: "${filterState.search}"`));
-        if (filterState.role !== 'all') filterTags.appendChild(createFilterTag('role', `Role: ${filterState.role === 'admin' ? 'Administrators' : 'Staff Only'}`));
+        
+        if (filterState.search) {
+            filterTags.appendChild(createFilterTag('search', `Search: "${filterState.search}"`));
+        }
+        
+        if (filterState.role !== 'all') {
+            const roleText = filterState.role === 'admin' ? 'Administrators' : 'Staff Only';
+            filterTags.appendChild(createFilterTag('role', `Role: ${roleText}`));
+        }
+        
         filterTags.style.display = filterTags.children.length > 0 ? 'flex' : 'none';
     }
 
@@ -775,8 +855,13 @@
     }
 
     function removeFilter(type) {
-        if (type === 'search') { searchInput.value = ''; filterState.search = ''; }
-        else { roleFilter.value = 'all'; filterState.role = 'all'; }
+        if (type === 'search') {
+            searchInput.value = '';
+            filterState.search = '';
+        } else if (type === 'role') {
+            roleFilter.value = 'all';
+            filterState.role = 'all';
+        }
         applyFilters();
     }
 
@@ -804,136 +889,170 @@
         try {
             const response = await fetch(`/dashboard/staff/${staffToDeleteId}/delete/`, {
                 method: 'DELETE',
-                headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/json' }
+                headers: { 
+                    'X-CSRFToken': csrftoken, 
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             });
+            
             if (response.ok) {
-                window.location.reload();
+                const row = document.querySelector(`tr[data-staff-id="${staffToDeleteId}"]`);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        row.remove();
+                        // Re-initialize data after deletion
+                        initializeStaffData();
+                        showMessage('Staff member deleted successfully!', 'success');
+                        closeModal();
+                    }, 300);
+                }
             } else {
                 throw new Error('Deletion failed');
             }
         } catch (error) {
             console.error(error);
+            showMessage('Error deleting staff member', 'error');
+        } finally {
             deleteBtn.disabled = false;
             deleteBtn.innerHTML = 'Delete Staff';
-            closeModal();
         }
+    }
+
+    function showMessage(message, type = 'success') {
+        const container = document.getElementById('django-messages');
+        if (!container) return;
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg ${type}`;
+        msgDiv.setAttribute('data-auto-dismiss', 'true');
+
+        let iconClass = 'fa-info-circle';
+        if (type === 'success') iconClass = 'fa-check-circle';
+        else if (type === 'error') iconClass = 'fa-exclamation-circle';
+
+        msgDiv.innerHTML = `
+            <i class="fas ${iconClass}"></i>
+            <span>${message}</span>
+        `;
+
+        container.appendChild(msgDiv);
+        autoDismissMessages();
+    }
+
+    function autoDismissMessages() {
+        const messages = document.querySelectorAll('.msg[data-auto-dismiss="true"]');
+        messages.forEach((msg, index) => {
+            if (msg.dataset.timerSet) return;
+            msg.dataset.timerSet = 'true';
+            
+            setTimeout(() => {
+                msg.style.animation = 'slideUp 0.4s ease-out forwards';
+                setTimeout(() => {
+                    if (msg.parentNode) msg.remove();
+                }, 400);
+            }, 5000 + (index * 300));
+        });
     }
 
     function closeModal(event = null) {
         if (event && event.target.id !== 'deleteModal' && !event.target.classList.contains('close-modal')) return;
         document.getElementById('deleteModal').style.display = 'none';
+        staffToDeleteId = null;
     }
 
-    // PHOTO MODAL FUNCTIONS
-    let currentZoom = 1;
-    let currentPhotoUrl = '';
-    let currentFileName = '';
+    // PHOTO MODAL FUNCTIONS - Renamed to avoid conflict with global photoModal
+    let staffPhotoZoom = 1;
+    let staffPhotoUrl = '';
+    let staffPhotoFileName = '';
 
     function openStaffPhotoModal(photoUrl, staffName, staffDesignation) {
-        const modal = document.getElementById('photoModal');
-        const modalPhoto = document.getElementById('modalPhoto');
-        const modalName = document.getElementById('modalName');
-        const modalDesignation = document.getElementById('modalDesignation');
+        // Check if photoModal exists globally (from base template)
+        if (window.photoModal && typeof window.photoModal.open === 'function') {
+            // Use the global photo modal
+            window.photoModal.open(photoUrl, staffName, staffDesignation);
+        } else {
+            // Fallback to local implementation
+            const modal = document.getElementById('photoModal');
+            const modalPhoto = document.getElementById('modalPhoto');
+            const modalName = document.getElementById('modalName');
+            const modalDesignation = document.getElementById('modalDesignation');
 
-        // Set photo and info
-        modalPhoto.src = photoUrl;
-        modalName.textContent = staffName;
-        modalDesignation.textContent = staffDesignation;
+            if (!modal || !modalPhoto) {
+                console.error('Photo modal elements not found');
+                return;
+            }
 
-        // Store current photo URL for download
-        currentPhotoUrl = photoUrl;
-        currentFileName = `${staffName.replace(/\s+/g, '_')}_${staffDesignation.replace(/\s+/g, '_')}.jpg`;
+            modalPhoto.src = photoUrl;
+            modalName.textContent = staffName;
+            modalDesignation.textContent = staffDesignation;
 
-        // Reset zoom
-        currentZoom = 1;
-        modalPhoto.style.transform = 'scale(1)';
+            staffPhotoUrl = photoUrl;
+            staffPhotoFileName = `${staffName.replace(/\s+/g, '_')}_${staffDesignation.replace(/\s+/g, '_')}.jpg`;
 
-        // Show modal
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+            staffPhotoZoom = 1;
+            modalPhoto.style.transform = 'scale(1)';
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
     }
 
     function closePhotoModal(event = null) {
         if (event && event.target.id !== 'photoModal' && !event.target.classList.contains('modal-close')) {
             return;
         }
-
-        const modal = document.getElementById('photoModal');
-        modal.style.display = 'none';
+        
+        // Try global close first
+        if (window.photoModal && typeof window.photoModal.close === 'function') {
+            window.photoModal.close();
+        } else {
+            // Fallback
+            const modal = document.getElementById('photoModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
         document.body.style.overflow = 'auto';
     }
 
     function zoomPhoto(amount) {
         const modalPhoto = document.getElementById('modalPhoto');
-        currentZoom += amount;
-
-        // Limit zoom range
-        if (currentZoom < 0.5) currentZoom = 0.5;
-        if (currentZoom > 3) currentZoom = 3;
-
-        modalPhoto.style.transform = `scale(${currentZoom})`;
-        modalPhoto.style.transition = 'transform 0.3s ease';
+        if (!modalPhoto) return;
+        
+        staffPhotoZoom += amount;
+        if (staffPhotoZoom < 0.5) staffPhotoZoom = 0.5;
+        if (staffPhotoZoom > 3) staffPhotoZoom = 3;
+        modalPhoto.style.transform = `scale(${staffPhotoZoom})`;
     }
 
     function resetZoom() {
         const modalPhoto = document.getElementById('modalPhoto');
-        currentZoom = 1;
+        if (!modalPhoto) return;
+        
+        staffPhotoZoom = 1;
         modalPhoto.style.transform = 'scale(1)';
-        modalPhoto.style.transition = 'transform 0.3s ease';
     }
 
     function downloadPhoto() {
-        if (!currentPhotoUrl) return;
-
+        if (!staffPhotoUrl) return;
         const link = document.createElement('a');
-        link.href = currentPhotoUrl;
-        link.download = currentFileName;
-        link.style.display = 'none';
+        link.href = staffPhotoUrl;
+        link.download = staffPhotoFileName;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     }
 
-    // Close modal with Escape key
+    // Close modals with Escape key - only one listener needed
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
             closeModal();
             closePhotoModal();
         }
     });
-
-    // Optional: Add touch gesture support for mobile zoom
-    let touchStartDistance = 0;
-
-    document.getElementById('modalPhoto').addEventListener('touchstart', function (e) {
-        if (e.touches.length === 2) {
-            touchStartDistance = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-        }
-    });
-
-    document.getElementById('modalPhoto').addEventListener('touchmove', function (e) {
-        if (e.touches.length === 2) {
-            e.preventDefault();
-            const touchDistance = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-            const zoomChange = (touchDistance - touchStartDistance) * 0.01;
-            zoomPhoto(zoomChange);
-            touchStartDistance = touchDistance;
-        }
-    });
-
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') {
-            closeModal();
-            closePhotoModal();
-        }
-    });
-
-    applyFilters();
 </script>
 {% endblock %}

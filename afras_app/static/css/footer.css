@@ -1,0 +1,247 @@
+/* Dashboard Footer Styles */
+.dashboard-footer {
+    margin-top: 3rem;
+    padding: 1.5rem 1rem 1rem;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -4px 10px rgba(26, 86, 148, 0.05);
+    position: relative;
+    z-index: 10;
+    transition: margin-left var(--transition-speed) ease;
+}
+
+.dashboard-footer .footer-container {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.dashboard-footer .footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 1rem;
+}
+
+.dashboard-footer .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.dashboard-footer .footer-logo {
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text-main);
+}
+
+.dashboard-footer .footer-logo i {
+    color: var(--primary);
+    margin-right: 4px;
+}
+
+.dashboard-footer .footer-logo span {
+    font-weight: 300;
+    opacity: 0.5;
+    font-size: 0.9rem;
+}
+
+.dashboard-footer .footer-divider {
+    height: 30px;
+    width: 1px;
+    background: var(--border);
+}
+
+.dashboard-footer .footer-address p {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    line-height: 1.4;
+}
+
+.dashboard-footer .footer-address p:last-child {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+.dashboard-footer .footer-date p {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-weight: 500;
+}
+
+.dashboard-footer .social-links {
+    display: flex;
+    gap: 8px;
+    margin-top: 0.5rem;
+    justify-content: flex-end;
+}
+
+.dashboard-footer .social-link {
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border);
+    text-decoration: none;
+}
+
+.dashboard-footer .social-link:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(26, 86, 148, 0.3);
+}
+
+.dashboard-footer .footer-bottom {
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    text-align: center;
+}
+
+.dashboard-footer .footer-bottom p {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.dashboard-footer .footer-bottom p:last-child {
+    margin-bottom: 0;
+    font-size: 0.65rem;
+}
+
+.dashboard-footer .footer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: rgba(26, 86, 148, 0.1);
+    border-radius: 12px;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.dashboard-footer .footer-credits {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.dashboard-footer .footer-credits strong {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+/* System Status Bar */
+.system-status-bar {
+    background: rgba(26, 86, 148, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.8rem 1.5rem;
+    margin: 1.5rem 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.8rem;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+}
+
+.status-item i {
+    color: var(--primary);
+    width: 16px;
+}
+
+.status-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--primary);
+    background: rgba(26, 86, 148, 0.1);
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 4px;
+}
+
+.status-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+}
+
+/* Adjust footer margin when sidebar is collapsed */
+aside.collapsed ~ main .dashboard-footer {
+    margin-left: 0;
+    width: 100%;
+}
+
+/* Responsive footer */
+@media (max-width: 768px) {
+    .dashboard-footer .footer-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .dashboard-footer .footer-brand {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .dashboard-footer .footer-date {
+        width: 100%;
+    }
+    
+    .dashboard-footer .social-links {
+        justify-content: flex-start;
+    }
+    
+    .dashboard-footer .footer-bottom p {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .dashboard-footer {
+        padding: 1rem 0.8rem;
+    }
+    
+    .system-status-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem;
+    }
+    
+    .status-divider {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-footer .footer-brand {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .dashboard-footer .footer-divider {
+        display: none;
+    }
+}

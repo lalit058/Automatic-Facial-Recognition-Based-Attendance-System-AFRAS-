@@ -9,4 +9,4 @@ class Routine(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __clstr__(self):
-        return f"{self.subject} - {self.day_of_week}"
+        return f"{self.subject} - {self.day_of_week} ({self.start_time})"

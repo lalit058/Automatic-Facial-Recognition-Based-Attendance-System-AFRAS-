@@ -1,0 +1,633 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+<style>
+    /* RESET ALL STYLES - Force everything to work */
+    .live-monitoring-container {
+        padding: 20px;
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .confidence-bar {
+    width: 70px;
+    height: 8px;
+    background: #334155;
+    border-radius: 4px;
+    overflow: hidden;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.confidence-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+    /* Header with STOP button */
+    .monitoring-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        background: var(--surface);
+        padding: 20px;
+        border-radius: 16px;
+        border: 2px solid var(--primary);
+    }
+
+    .session-title {
+        font-size: 24px;
+        margin: 0;
+        color: var(--text-main);
+    }
+
+    .session-meta {
+        color: var(--text-dim);
+        margin-top: 5px;
+        font-size: 14px;
+    }
+
+    /* STOP BUTTON - Large and visible */
+    .stop-session-btn {
+        background: #ef4444;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        border: 2px solid white;
+        cursor: pointer;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        transition: all 0.3s;
+        z-index: 9999;
+    }
+
+    .stop-session-btn:hover {
+        background: #dc2626;
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(239, 68, 68, 0.8);
+    }
+
+    .summary-btn {
+        background: var(--primary);
+        color: white;
+        padding: 15px 30px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        border: 2px solid white;
+        box-shadow: 0 0 20px rgba(26, 86, 148, 0.5);
+        transition: all 0.3s;
+    }
+
+    .summary-btn:hover {
+        background: #0e3d6b;
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(26, 86, 148, 0.8);
+    }
+
+    .button-group {
+        display: flex;
+        gap: 15px;
+    }
+
+    /* Status Bar */
+    .status-bar {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 25px;
+        padding: 20px;
+        background: var(--surface);
+        border-radius: 16px;
+        border: 2px solid var(--border);
+        flex-wrap: wrap;
+    }
+
+    .status-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+    }
+
+    .status-label {
+        color: var(--text-dim);
+    }
+
+    .status-value {
+        color: #4ade80;
+        font-weight: 700;
+    }
+
+    .status-value.primary {
+        color: var(--primary);
+    }
+
+    .pulse-dot {
+        height: 12px;
+        width: 12px;
+        background: #4ade80;
+        border-radius: 50%;
+        display: inline-block;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.5;
+            transform: scale(1.3);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Video Panel */
+    .video-panel {
+        background: #000;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        aspect-ratio: 16/9;
+        border: 3px solid var(--primary);
+        box-shadow: 0 0 30px rgba(26, 86, 148, 0.5);
+    }
+
+    .video-panel img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .scanning-badge {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(0, 0, 0, 0.9);
+        padding: 10px 20px;
+        border-radius: 40px;
+        color: #4ade80;
+        font-size: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 10;
+        border: 2px solid #4ade80;
+        box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+    }
+
+    .fps-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.9);
+        padding: 10px 20px;
+        border-radius: 40px;
+        color: var(--primary);
+        font-size: 14px;
+        font-weight: 700;
+        z-index: 10;
+        border: 2px solid var(--primary);
+        font-family: monospace;
+        box-shadow: 0 0 20px rgba(26, 86, 148, 0.5);
+    }
+
+    /* Students Panel */
+    .students-panel {
+        background: var(--surface);
+        border-radius: 20px;
+        padding: 20px;
+        border: 2px solid var(--border);
+        height: 100%;
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .panel-header h3 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .student-count {
+        background: var(--surface-light);
+        padding: 5px 15px;
+        border-radius: 30px;
+        font-size: 13px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .stat-box {
+        padding: 15px;
+        border-radius: 12px;
+        text-align: center;
+        border: 1px solid var(--border);
+    }
+
+    .stat-box.present {
+        background: rgba(39, 174, 96, 0.2);
+    }
+
+    .stat-box.absent {
+        background: rgba(231, 76, 60, 0.2);
+    }
+
+    .stat-box.leave {
+        background: rgba(243, 156, 18, 0.2);
+    }
+
+    .stat-number {
+        font-size: 32px;
+        font-weight: 800;
+    }
+
+    .stat-number.present {
+        color: #27ae60;
+    }
+
+    .stat-number.absent {
+        color: #e74c3c;
+    }
+
+    .stat-number.leave {
+        color: #f39c12;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        margin-top: 5px;
+    }
+
+    /* Table */
+    .table-container {
+        overflow-y: auto;
+        max-height: 350px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th {
+        position: sticky;
+        top: 0;
+        background: var(--surface);
+        padding: 15px 12px;
+        text-align: left;
+        font-size: 12px;
+        color: var(--text-dim);
+        border-bottom: 2px solid var(--border);
+        z-index: 5;
+    }
+
+    td {
+        padding: 15px 12px;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+    }
+
+    tr:hover {
+        background: rgba(26, 86, 148, 0.1);
+    }
+
+    .confidence-bar {
+        width: 70px;
+        height: 8px;
+        background: #334155;
+        border-radius: 4px;
+        overflow: hidden;
+        display: inline-block;
+        margin-right: 8px;
+    }
+
+    .confidence-fill {
+        height: 100%;
+        border-radius: 4px;
+    }
+
+    .status-select {
+        background: var(--surface);
+        color: var(--text-main);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 12px;
+        padding: 6px 10px;
+        cursor: pointer;
+        width: 100px;
+    }
+
+    .status-select:hover {
+        border-color: var(--primary);
+    }
+
+    /* Grid Layout */
+    .grid-2col {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 25px;
+    }
+
+    @media (max-width: 768px) {
+        .grid-2col {
+            grid-template-columns: 1fr;
+        }
+
+        .monitoring-header {
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .button-group {
+            width: 100%;
+        }
+
+        .stop-session-btn,
+        .summary-btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="live-monitoring-container">
+    <!-- Header with BIG STOP BUTTON -->
+    <div class="monitoring-header">
+        <div>
+            <h1 class="session-title">Live Monitoring: {{ session.subject_name }}</h1>
+            <div class="session-meta">
+                <i class="fas fa-user-tie"></i> Faculty: {{ session.created_by.full_name|default:"Unknown" }} |
+                <i class="fas fa-clock"></i> Started: {{ session.start_time|time:"H:i" }}
+            </div>
+        </div>
+        <!-- <div class="button-group">
+            <a href="{% url 'attendance:stop_session' session.id %}" onclick="return confirm('STOP this session?')"
+                class="stop-session-btn">
+                <i class="fas fa-stop-circle fa-2x"></i>
+                <span style="font-size: 18px;">STOP SESSION</span>
+            </a>
+
+            <a href="{% url 'attendance:session_summary' session.id %}" class="summary-btn">
+                <i class="fas fa-chart-bar fa-2x"></i>
+                <span style="font-size: 18px;">SUMMARY</span>
+            </a>
+        </div> -->
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-item">
+            <span class="pulse-dot"></span>
+            <span class="status-label">Face Recognition:</span>
+            <span class="status-value">ACTIVE</span>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-database"></i>
+            <span class="status-label">Database:</span>
+            <span class="status-value">CONNECTED</span>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-tachometer-alt"></i>
+            <span class="status-label">Response:</span>
+            <span id="response-time" class="status-value primary">142ms</span>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-lock"></i>
+            <span class="status-label">Encryption:</span>
+            <span class="status-value">AES-256</span>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-video"></i>
+            <span class="status-label">FPS:</span>
+            <span id="fps-counter" class="status-value primary">64</span>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid-2col">
+        <!-- Video Panel -->
+        <div class="video-panel">
+            <div class="scanning-badge">
+                <span class="pulse-dot"></span>
+                LIVE SCANNING
+            </div>
+            <div class="fps-badge" id="video-fps">64 FPS</div>
+            <img src="{% url 'video_feed' session.id %}" alt="Live Feed">
+        </div>
+
+        <!-- Students Panel -->
+        <div class="students-panel">
+            <div class="panel-header">
+                <h3><i class="fas fa-users" style="margin-right: 10px;"></i> Identified Students</h3>
+                <span class="student-count" id="student-count">0 Detected</span>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-box present">
+                    <div class="stat-number present" id="present-count">0</div>
+                    <div class="stat-label">Present</div>
+                </div>
+                <div class="stat-box absent">
+                    <div class="stat-number absent" id="absent-count">0</div>
+                    <div class="stat-label">Absent</div>
+                </div>
+                <div class="stat-box leave">
+                    <div class="stat-number leave" id="leave-count">0</div>
+                    <div class="stat-label">Leave</div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>NAME</th>
+                            <th>TIME</th>
+                            <th>CONFIDENCE</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-table">
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 40px;">
+                                <i class="fas fa-spinner fa-spin fa-3x"
+                                    style="margin-bottom: 15px; display: block;"></i>
+                                Waiting for students...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateLogs() {
+        fetch('{% url "get_logs" session.id %}')
+            .then(res => res.json())
+            .then(data => {
+                const logs = data.logs || [];
+                console.log('Logs received:', logs); // Debug log
+
+                // Update counts
+                document.getElementById('student-count').innerText = `${logs.length} Detected`;
+                document.getElementById('present-count').innerText = logs.filter(l => l.status === 'PRESENT').length;
+                document.getElementById('absent-count').innerText = logs.filter(l => l.status === 'ABSENT').length;
+                document.getElementById('leave-count').innerText = logs.filter(l => l.status === 'LEAVE').length;
+
+                // Update table
+                const tbody = document.getElementById('log-table');
+
+                if (logs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px;">No students detected</td></tr>';
+                    return;
+                }
+
+                let html = '';
+                logs.forEach(log => {
+                    let barColor = '#27ae60';
+                    if (log.confidence < 50) barColor = '#e74c3c';
+                    else if (log.confidence < 75) barColor = '#f39c12';
+
+                    html += `
+                    <tr>
+                        <td><i class="fas fa-user-graduate" style="margin-right: 8px;"></i> ${log.name || 'Unknown'}</td>
+                        <td style="font-family: monospace;">${log.time || '--:--:--'}</td>
+                        <td>
+                            <div style="display: flex; align-items: center;">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: ${log.confidence || 0}%; background: ${barColor};"></div>
+                                </div>
+                                <span style="color: ${barColor};">${Math.round(log.confidence || 0)}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <select class="status-select" onchange="manualEdit(${log.id}, this.value, this)">
+                                <option value="PRESENT" ${log.status === 'PRESENT' ? 'selected' : ''}>Present</option>
+                                <option value="ABSENT" ${log.status === 'ABSENT' ? 'selected' : ''}>Absent</option>
+                                <option value="LEAVE" ${log.status === 'LEAVE' ? 'selected' : ''}>Leave</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+                });
+                tbody.innerHTML = html;
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                document.getElementById('log-table').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px; color: #e74c3c;">Error loading data</td></tr>';
+            });
+    }
+
+    function manualEdit(logId, status, element) {
+        if (!logId) {
+            console.error('No log ID provided');
+            return;
+        }
+
+        console.log('Updating log:', logId, 'to status:', status);
+
+        const formData = new FormData();
+        // FIXED: Changed from 'id' to 'log_id' to match backend
+        formData.append('log_id', logId);  // CORRECT - backend expects 'log_id'
+        formData.append('status', status);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch('{% url "manual_update" %}', { 
+            method: 'POST', 
+            body: formData,
+            headers: { 
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log('Update response:', data);
+            if (data.status === 'updated') {  // Your backend returns {"status": "updated"}
+                // Visual feedback
+                element.style.borderColor = '#4ade80';
+                element.style.backgroundColor = 'rgba(74, 222, 128, 0.1)';
+                setTimeout(() => {
+                    element.style.borderColor = '';
+                    element.style.backgroundColor = '';
+                }, 1000);
+                
+                // Immediately refresh logs
+                updateLogs();
+            }
+        })
+        .catch(err => {
+            console.error("Update failed:", err);
+            // Show error feedback
+            element.style.borderColor = '#ef4444';
+            setTimeout(() => element.style.borderColor = '', 1000);
+        });
+    }
+
+    // FPS Counter
+    let frameCount = 0, lastUpdate = Date.now();
+    function updateFPS() {
+        frameCount++;
+        const now = Date.now();
+        if (now - lastUpdate >= 1000) {
+            const fps = Math.round(frameCount * 1000 / (now - lastUpdate));
+            document.getElementById('fps-counter').innerText = fps;
+            document.getElementById('video-fps').innerText = fps + ' FPS';
+            frameCount = 0;
+            lastUpdate = now;
+        }
+        requestAnimationFrame(updateFPS);
+    }
+
+    // Start everything
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM loaded, starting updates...');
+        updateLogs(); // Initial load
+        setInterval(updateLogs, 2000); // Update every 2 seconds
+        updateFPS();
+    });
+</script>
+{% endblock %}

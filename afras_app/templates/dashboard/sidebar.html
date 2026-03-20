@@ -1,503 +1,309 @@
-<!-- templates/includes/sidebar.html -->
-<style>
-    /* Move sidebar-specific styles here */
-    :root {
-        --primary: #0062ff;
-        --bg: #030712;
-        --surface: #111827;
-        --surface-light: #1f2937;
-        --border: rgba(255, 255, 255, 0.1);
-        --text-main: #f9fafb;
-        --text-dim: #9ca3af;
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-        --sidebar-width: 260px;
-        --sidebar-collapsed: 70px;
-        --transition-speed: 0.3s;
-    }
+{% load static %}
+<aside id="sidebar" class="{% if request.user.is_superuser %}admin-sidebar{% else %}staff-sidebar{% endif %}">
+    <button class="sidebar-toggle" onclick="window.toggleSidebar()" aria-label="Toggle sidebar">
+        <i class="fas fa-chevron-left"></i>
+    </button>
 
-    .sidebar-container {
-        position: relative;
-    }
+    <div class="nav-brand">
+        <i class="fas fa-microchip"></i>
+        <span>AFRAS</span>
+    </div>
 
-    aside {
-        width: var(--sidebar-width);
-        background: var(--surface);
-        border-right: 1px solid var(--border);
-        display: flex;
-        flex-direction: column;
-        padding: 2rem 1.5rem;
-        position: fixed;
-        height: 100vh;
-        z-index: 100;
-        transition: all var(--transition-speed) ease;
-        overflow: hidden;
-    }
-
-    aside.collapsed {
-        width: var(--sidebar-collapsed);
-        padding: 2rem 0.5rem;
-    }
-
-    /* Toggle Button */
-    .sidebar-toggle {
-        position: absolute;
-        top: 20px;
-        right: -5px;
-        background: var(--primary);
-        color: white;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        border: 2px solid var(--surface);
-        font-size: 0.9rem;
-        transition: all var(--transition-speed) ease;
-        z-index: 101;
-    }
-
-    .sidebar-toggle:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 10px var(--primary-glow);
-    }
-
-    aside.collapsed .sidebar-toggle {
-        right: -15px;
-        transform: rotate(180deg);
-    }
-
-    aside.collapsed .sidebar-toggle:hover {
-        transform: rotate(180deg) scale(1.1);
-    }
-
-    .nav-brand {
-        font-weight: 800;
-        font-size: 1.25rem;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: var(--primary);
-        white-space: nowrap;
-        transition: opacity var(--transition-speed) ease;
-    }
-
-    aside.collapsed .nav-brand {
-        justify-content: center;
-        font-size: 1.5rem;
-        gap: 0;
-    }
-
-    aside.collapsed .nav-brand span {
-        display: none;
-    }
-
-    /* Enhanced Professional Sidebar Profile */
-    .user-profile {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 1.5rem 1rem;
-        border-radius: 20px;
-        margin-bottom: 2rem;
-        position: relative;
-        overflow: hidden;
-        transition: all var(--transition-speed) ease;
-    }
-
-    aside.collapsed .user-profile {
-        padding: 1rem 0.5rem;
-    }
-
-    .profile-photo-container {
-        position: relative;
-        margin-bottom: 12px;
-        transition: all var(--transition-speed) ease;
-    }
-
-    aside.collapsed .profile-photo-container {
-        margin-bottom: 8px;
-    }
-
-    .profile-photo {
-        width: 80px;
-        height: 80px;
-        border-radius: 18px;
-        object-fit: cover;
-        border: 2px solid var(--surface-light);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        transition: all var(--transition-speed) ease;
-    }
-
-    aside.collapsed .profile-photo {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-    }
-
-    .status-indicator {
-        position: absolute;
-        bottom: -2px;
-        right: -2px;
-        width: 14px;
-        height: 14px;
-        background: var(--success);
-        border: 3px solid var(--surface);
-        border-radius: 50%;
-        transition: all var(--transition-speed) ease;
-    }
-
-    aside.collapsed .status-indicator {
-        width: 10px;
-        height: 10px;
-        bottom: 0;
-        right: 0;
-    }
-
-    .profile-info {
-        text-align: center;
-        width: 100%;
-        transition: all var(--transition-speed) ease;
-        overflow: hidden;
-        max-height: 200px;
-    }
-
-    aside.collapsed .profile-info {
-        max-height: 0;
-        opacity: 0;
-        visibility: hidden;
-    }
-
-    .profile-name {
-        font-weight: 700;
-        font-size: 0.95rem;
-        color: var(--text-main);
-        letter-spacing: -0.2px;
-        margin-bottom: 5px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .profile-role-badge {
-        display: inline-block;
-        font-size: 0.65rem;
-        color: var(--primary);
-        background: rgba(0, 98, 255, 0.1);
-        padding: 2px 10px;
-        border-radius: 20px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        border: 1px solid rgba(0, 98, 255, 0.2);
-        white-space: nowrap;
-    }
-
-    .nav-menu {
-        list-style: none;
-        flex-grow: 1;
-        width: 100%;
-    }
-
-    .nav-link {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 16px;
-        color: var(--text-dim);
-        text-decoration: none;
-        border-radius: 12px;
-        transition: all var(--transition-speed) ease;
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-bottom: 4px;
-        white-space: nowrap;
-        position: relative;
-    }
-
-    aside.collapsed .nav-link {
-        padding: 12px;
-        justify-content: center;
-    }
-
-    .nav-link:hover,
-    .nav-link.active {
-        background: var(--primary);
-        color: white;
-        border-left: 5px solid var(--warning);
-        border-radius: 12px;
-    }
-
-    aside.collapsed .nav-link:hover,
-    aside.collapsed .nav-link.active {
-        border-left: 0;
-        border-radius: 12px;
-    }
-
-    .nav-text {
-        transition: opacity var(--transition-speed) ease;
-    }
-
-    aside.collapsed .nav-text {
-        opacity: 0;
-        visibility: hidden;
-        width: 0;
-        position: absolute;
-    }
-
-    .nav-link i {
-        font-size: 1.2rem;
-        min-width: 24px;
-        text-align: center;
-        transition: all var(--transition-speed) ease;
-    }
-
-    aside.collapsed .nav-link i {
-        font-size: 1.3rem;
-    }
-
-    /* Tooltip for collapsed state */
-    .nav-link-tooltip {
-        position: absolute;
-        left: 100%;
-        top: 50%;
-        transform: translateY(-50%);
-        background: var(--surface-light);
-        color: white;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        white-space: nowrap;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.2s ease;
-        z-index: 1000;
-        margin-left: 10px;
-        border: 1px solid var(--border);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .nav-link-tooltip::before {
-        content: '';
-        position: absolute;
-        left: -6px;
-        top: 50%;
-        transform: translateY(-50%);
-        border-width: 6px 6px 6px 0;
-        border-style: solid;
-        border-color: transparent var(--surface-light) transparent transparent;
-    }
-
-    aside.collapsed .nav-link:hover .nav-link-tooltip {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    /* Logout Form */
-    .logout-form {
-        margin-top: auto;
-        transition: all var(--transition-speed) ease;
-    }
-
-    aside.collapsed .logout-form {
-        padding: 0;
-    }
-
-    .logout-btn {
-        background: none;
-        border: none;
-        width: 100%;
-        color: var(--warning);
-        border-top: 1px solid var(--border);
-        cursor: pointer;
-        text-align: left;
-        padding: 12px 16px;
-        font-family: inherit;
-        font-size: 0.9rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        border-radius: 0;
-        white-space: nowrap;
-    }
-
-    aside.collapsed .logout-btn {
-        justify-content: center;
-        padding: 12px;
-    }
-
-    aside.collapsed .logout-btn span {
-        display: none;
-    }
-
-    .logout-btn:hover {
-        color: var(--danger);
-    }
-
-    /* Logout tooltip */
-    .logout-tooltip {
-        position: absolute;
-        left: 100%;
-        top: 50%;
-        transform: translateY(-50%);
-        background: var(--surface-light);
-        color: white;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        white-space: nowrap;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.2s ease;
-        z-index: 1000;
-        margin-left: 10px;
-        border: 1px solid var(--border);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .logout-tooltip::before {
-        content: '';
-        position: absolute;
-        left: -6px;
-        top: 50%;
-        transform: translateY(-50%);
-        border-width: 6px 6px 6px 0;
-        border-style: solid;
-        border-color: transparent var(--surface-light) transparent transparent;
-    }
-
-    aside.collapsed .logout-form:hover .logout-tooltip {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        :root {
-            --sidebar-width: 260px;
-            --sidebar-collapsed: 0px;
-        }
-
-        aside {
-            transform: translateX(0);
-            width: var(--sidebar-width);
-        }
-
-        aside.collapsed {
-            transform: translateX(-100%);
-            width: var(--sidebar-width);
-        }
-
-        .sidebar-toggle {
-            display: none;
-        }
-    }
-
-    /* Smooth transitions */
-    aside * {
-        transition: background-color var(--transition-speed) ease,
-            color var(--transition-speed) ease,
-            border-color var(--transition-speed) ease;
-    }
-</style>
-
-<div class="sidebar-container">
-    <aside id="sidebar">
-        <button class="sidebar-toggle" onclick="toggleSidebar()">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-
-        <div class="nav-brand">
-            <i class="fas fa-microchip"></i>
-            <span>AFRAS</span>
-        </div>
-
-        <div class="user-profile">
-            <div class="profile-photo-container">
-                <img src="{% if request.user.staff_profile.photo %}{{ request.user.staff_profile.photo.url }}{% else %}https://ui-avatars.com/api/?name={{ request.user.username }}&background=0062ff&color=fff&size=128{% endif %}"
-                    class="profile-photo" alt="Profile">
-                <div class="status-indicator"></div>
-            </div>
-
-            <div class="profile-info">
-                <div class="profile-name">
-                    {% if request.user.is_superuser %}
-                    {{ request.user.username|title }}
-                    {% else %}
-                    {{ request.user.staff_profile.full_name|default:request.user.username }}
-                    {% endif %}
-                </div>
-
-                <div class="profile-role-badge">
-                    {% if request.user.is_superuser %}
-                    ADMIN
-                    {% else %}
-                    {{ request.user.staff_profile.designation|upper|default:"STAFF" }}
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <ul class="nav-menu">
-            <li>
-                <a href="{% url 'dashboard_home' %}"
-                    class="nav-link {% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}">
-                    <i class="fas fa-th-large"></i>
-                    <span class="nav-text">Dashboard</span>
-                    <span class="nav-link-tooltip">Dashboard</span>
-                </a>
-            </li>
-
+    <div class="user-profile">
+        <div class="profile-photo-container">
             {% if request.user.is_superuser %}
-            <li>
+                {% if request.user.staff_profile.photo %}
+                    <img src="{{ request.user.staff_profile.photo.url }}" class="profile-photo" alt="Profile"
+                        onclick="openPhotoModal(this.src, '{{ request.user.username }}', 'Administrator')">
+                {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=1a5694&color=fff&size=128"
+                        class="profile-photo" alt="Profile"
+                        onclick="openPhotoModal(this.src, '{{ request.user.username }}', 'Administrator')">
+                {% endif %}
+            {% else %}
+                {% if request.user.staff_profile.photo %}
+                    <img src="{{ request.user.staff_profile.photo.url }}" class="profile-photo" alt="Profile"
+                        onclick="openPhotoModal(this.src, '{{ request.user.staff_profile.full_name }}', '{{ request.user.staff_profile.designation }}')">
+                {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ request.user.staff_profile.full_name|default:request.user.username }}&background=1a5694&color=fff&size=128"
+                        class="profile-photo" alt="Profile"
+                        onclick="openPhotoModal(this.src, '{{ request.user.staff_profile.full_name|default:request.user.username }}', '{{ request.user.staff_profile.designation|default:'Staff' }}')">
+                {% endif %}
+            {% endif %}
+            <div class="status-indicator"></div>
+        </div>
+
+        <div class="profile-info">
+            <div class="profile-name">
+                {% if request.user.is_superuser %}
+                    {{ request.user.username|title }}
+                {% else %}
+                    {{ request.user.staff_profile.full_name|default:request.user.username }}
+                {% endif %}
+            </div>
+
+            <div class="profile-role-badge">
+                {% if request.user.is_superuser %}
+                    <i class="fas fa-crown" style="font-size: 0.6rem; margin-right: 4px;"></i> ADMIN
+                {% else %}
+                    <i class="fas fa-user-tie" style="font-size: 0.6rem; margin-right: 4px;"></i>
+                    {{ request.user.staff_profile.designation|upper|default:"STAFF" }}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Profile Tooltip for collapsed state -->
+        <div class="profile-tooltip">
+            <div style="font-weight: 600; margin-bottom: 4px; color: var(--text-main);">
+                {% if request.user.is_superuser %}
+                    {{ request.user.username|title }}
+                {% else %}
+                    {{ request.user.staff_profile.full_name|default:request.user.username }}
+                {% endif %}
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-dim); display: flex; flex-direction: column; gap: 2px;">
+                <span><i class="fas fa-badge"></i> {% if request.user.is_superuser %}Administrator{% else %}{{ request.user.staff_profile.designation|default:"Staff Member" }}{% endif %}</span>
+                <span><i class="fas fa-building"></i> {{ request.user.staff_profile.department|default:"System" }}</span>
+                <span><i class="fas fa-envelope"></i> {{ request.user.email|truncatechars:20 }}</span>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav-menu">
+        <li class="nav-item">
+            <a href="{% url 'dashboard_home' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}">
+                <i class="fas fa-th-large nav-icon"></i>
+                <span class="nav-text">Dashboard</span>
+                <div class="nav-tooltip">
+                    <i class="fas fa-th-large" style="margin-right: 8px;"></i> Dashboard
+                    <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Overview & Analytics</span>
+                </div>
+            </a>
+        </li>
+
+        {% if request.user.is_superuser %}
+            <li class="nav-item">
                 <a href="{% url 'staff-directory' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'staff-directory' %}active{% endif %}">
-                    <i class="fas fa-user-shield"></i>
-                    <span class="nav-text">Staff Accounts</span>
-                    <span class="nav-link-tooltip">Staff Accounts</span>
+                    <i class="fas fa-user-shield nav-icon"></i>
+                    <span class="nav-text">Staff Directory</span>
+                    <div class="nav-tooltip">
+                        <i class="fas fa-user-shield" style="margin-right: 8px;"></i> Staff Directory
+                        <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Manage personnel</span>
+                    </div>
                 </a>
             </li>
-            <li>
+            <li class="nav-item">
                 <a href="{% url 'student-directory' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'student-directory' %}active{% endif %}">
-                    <i class="fas fa-user-graduate"></i>
-                    <span class="nav-text">Student Accounts</span>
-                    <span class="nav-link-tooltip">Student Accounts</span>
+                    <i class="fas fa-user-graduate nav-icon"></i>
+                    <span class="nav-text">Student Directory</span>
+                    <div class="nav-tooltip">
+                        <i class="fas fa-user-graduate" style="margin-right: 8px;"></i> Student Directory
+                        <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">View all students</span>
+                    </div>
                 </a>
             </li>
-            {% else %}
-            <li>
+            <li class="nav-item">
+                {% if active_session %}
+                    <a href="{% url 'live_monitoring' session_id=active_session.id %}"
+                        class="nav-link {% if request.resolver_match.url_name == 'live_monitoring' %}active{% endif %}">
+                        <i class="fas fa-video nav-icon"></i>
+                        <span class="nav-text">Live Monitoring</span>
+                        <div class="nav-tooltip">
+                            <i class="fas fa-video" style="margin-right: 8px;"></i> Live Monitoring
+                            <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Active session</span>
+                        </div>
+                    </a>
+                {% endif %}
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'system-logs' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'system-logs' %}active{% endif %}">
+                    <i class="fas fa-database nav-icon"></i>
+                    <span class="nav-text">System Logs</span>
+                    <div class="nav-tooltip">
+                        <i class="fas fa-database" style="margin-right: 8px;"></i> System Logs
+                        <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Audit trail</span>
+                    </div>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'routine_management' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'routine_management' %}active{% endif %}">
+                    <i class="fas fa-calendar-alt nav-icon"></i>
+                    <span class="nav-text">Routine Management</span>
+                    <div class="nav-tooltip">
+                        <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i> Routine Management
+                        <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Schedule classes</span>
+                    </div>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'system_configuration' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'system_configuration' %}active{% endif %}">
+                    <i class="fas fa-cog nav-icon"></i>
+                    <span class="nav-text">Configuration</span>
+                    <div class="nav-tooltip">
+                        <i class="fas fa-cog" style="margin-right: 8px;"></i> Configuration
+                        <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">System settings</span>
+                    </div>
+                </a>
+            </li>
+        {% else %}
+            <li class="nav-item">
                 <a href="{% url 'student-directory' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'student-directory' %}active{% endif %}">
-                    <i class="fas fa-user-graduate"></i>
+                    <i class="fas fa-user-graduate nav-icon"></i>
                     <span class="nav-text">My Students</span>
-                    <span class="nav-link-tooltip">My Students</span>
+                    <div class="nav-tooltip">
+                        <i class="fas fa-user-graduate" style="margin-right: 8px;"></i> My Students
+                        <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Your class students</span>
+                    </div>
                 </a>
             </li>
-            <li>
+            <li class="nav-item">
+                {% if active_session %}
+                    <a href="{% url 'live_monitoring' session_id=active_session.id %}"
+                        class="nav-link {% if request.resolver_match.url_name == 'live_monitoring' %}active{% endif %}">
+                        <i class="fas fa-camera nav-icon"></i>
+                        <span class="nav-text">Live Scan</span>
+                        <div class="nav-tooltip">
+                            <i class="fas fa-camera" style="margin-right: 8px;"></i> Live Scan
+                            <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Take attendance</span>
+                        </div>
+                    </a>
+                {% endif %}
+            </li>
+            <li class="nav-item">
                 <a href="#" class="nav-link">
-                    <i class="fas fa-camera"></i>
-                    <span class="nav-text">Scan Session</span>
-                    <span class="nav-link-tooltip">Scan Session</span>
+                    <i class="fas fa-calendar-check nav-icon"></i>
+                    <span class="nav-text">Attendance Sheet</span>
+                    <div class="nav-tooltip">
+                        <i class="fas fa-calendar-check" style="margin-right: 8px;"></i> Attendance Sheet
+                        <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">View records</span>
+                    </div>
                 </a>
             </li>
-            {% endif %}
-        </ul>
+        {% endif %}
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="fas fa-file-export nav-icon"></i>
+                <span class="nav-text">Export Reports</span>
+                <div class="nav-tooltip">
+                    <i class="fas fa-file-export" style="margin-right: 8px;"></i> Export Reports
+                    <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Generate PDF/Excel</span>
+                </div>
+            </a>
+        </li>
+    </ul>
 
-        <form action="{% url 'logout' %}" method="post" class="logout-form">
+    <div class="logout-section">
+        <form action="{% url 'logout' %}" method="post" style="width: 100%;">
             {% csrf_token %}
-            <button type="submit" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i>
+            <button type="submit" class="logout-btn" aria-label="Logout">
+                <i class="fas fa-sign-out-alt logout-icon"></i>
                 <span>Logout</span>
-                <span class="logout-tooltip">Logout</span>
             </button>
         </form>
-    </aside>
+        <div class="logout-tooltip">
+            <i class="fas fa-sign-out-alt" style="margin-right: 8px; color: var(--danger);"></i> Sign Out
+            <span style="display: block; font-size: 0.7rem; opacity: 0.7;">End your session</span>
+        </div>
+    </div>
+</aside>
+
+<!-- Photo Modal for Profile Pictures -->
+<div id="photoModal" class="photo-modal-overlay" onclick="closePhotoModal(event)">
+    <div class="photo-modal-content" onclick="event.stopPropagation()">
+        <button class="photo-modal-close" onclick="closePhotoModal()">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="modalPhoto" class="photo-modal-img" alt="Profile Photo">
+        <div class="photo-modal-info">
+            <h3 id="modalPhotoName"></h3>
+            <p id="modalPhotoRole"></p>
+        </div>
+        <div class="photo-modal-controls">
+            <button onclick="downloadPhoto()" class="photo-control-btn" title="Download">
+                <i class="fas fa-download"></i>
+            </button>
+            <button onclick="zoomPhoto(0.1)" class="photo-control-btn" title="Zoom In">
+                <i class="fas fa-search-plus"></i>
+            </button>
+            <button onclick="zoomPhoto(-0.1)" class="photo-control-btn" title="Zoom Out">
+                <i class="fas fa-search-minus"></i>
+            </button>
+            <button onclick="resetZoom()" class="photo-control-btn" title="Reset">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+    </div>
 </div>
+
+<script>
+    // Photo Modal Functions
+    let currentZoom = 1;
+    let currentPhotoUrl = '';
+
+    function openPhotoModal(src, name, role) {
+        const modal = document.getElementById('photoModal');
+        const modalImg = document.getElementById('modalPhoto');
+        const modalName = document.getElementById('modalPhotoName');
+        const modalRole = document.getElementById('modalPhotoRole');
+
+        currentPhotoUrl = src;
+        currentZoom = 1;
+
+        modalImg.src = src;
+        modalName.textContent = name;
+        modalRole.textContent = role;
+        modalImg.style.transform = 'scale(1)';
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closePhotoModal(event) {
+        if (event && event.target.id !== 'photoModal') return;
+
+        const modal = document.getElementById('photoModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function zoomPhoto(amount) {
+        const modalImg = document.getElementById('modalPhoto');
+        currentZoom += amount;
+
+        if (currentZoom < 0.5) currentZoom = 0.5;
+        if (currentZoom > 3) currentZoom = 3;
+
+        modalImg.style.transform = `scale(${currentZoom})`;
+    }
+
+    function resetZoom() {
+        const modalImg = document.getElementById('modalPhoto');
+        currentZoom = 1;
+        modalImg.style.transform = 'scale(1)';
+    }
+
+    function downloadPhoto() {
+        if (!currentPhotoUrl) return;
+
+        const link = document.createElement('a');
+        link.href = currentPhotoUrl;
+        link.download = 'profile-photo.jpg';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closePhotoModal();
+        }
+    });
+</script>

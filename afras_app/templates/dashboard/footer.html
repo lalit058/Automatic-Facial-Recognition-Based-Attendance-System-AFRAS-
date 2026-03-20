@@ -1,0 +1,42 @@
+{% load static %}
+<!-- Dashboard Footer -->
+<footer class="dashboard-footer" style="margin-top: 1rem;">
+    <div class="footer-container">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <i class="fas fa-shield-cat"></i> AFRAS<span>CORE</span>
+                </div>
+                <div class="footer-divider"></div>
+                <div class="footer-address">
+                    <p>School of Engineering</p>
+                    <p>Far Western University, Nepal</p>
+                </div>
+            </div>
+            <div class="footer-date">
+                <p>Automatic Facial Recognition Attendance System</p>
+                <div class="social-links">
+                    <a href="#" class="social-link" title="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="#" class="social-link" title="Documentation"><i class="fas fa-book"></i></a>
+                    <a href="#" class="social-link" title="Support"><i class="fas fa-headset"></i></a>
+                    <a href="#" class="social-link" title="System Status"><i class="fas fa-shield-alt"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>
+                <i class="fas fa-copyright"></i> {% now "Y" %} AFRAS | 
+                <span class="footer-badge">
+                    <i class="fas fa-circle" style="font-size: 6px; color: var(--success);"></i> 
+                    SYSTEM ACTIVE
+                </span>
+                | v2.5.0
+            </p>
+            <p class="footer-credits"> 
+                <strong>Computer Engineering Team</strong> | 
+                <i class="fas fa-fingerprint"></i> Face Recognition v2.5
+            </p>
+        </div>
+    </div>
+</footer>

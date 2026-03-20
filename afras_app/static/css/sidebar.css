@@ -1,0 +1,728 @@
+/* Sidebar Styles */
+aside {
+    width: var(--sidebar-width);
+    background: var(--bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 0 !important;
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+    transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-x: hidden;
+    overflow-y: auto;
+    left: 0;
+    top: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+aside.collapsed {
+    width: var(--sidebar-collapsed);
+}
+
+/* Desktop Styles - Sidebar pushes content */
+@media (min-width: 769px) {
+    aside {
+        transform: translateX(0) !important;
+        transition: width var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    main {
+        margin-left: var(--sidebar-width);
+        transition: margin-left var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+        width: calc(100% - var(--sidebar-width));
+    }
+
+    main.expanded {
+        margin-left: var(--sidebar-collapsed);
+        width: calc(100% - var(--sidebar-collapsed));
+    }
+}
+
+/* Toggle Button - Desktop only */
+@media (min-width: 769px) {
+    .sidebar-toggle {
+        position: absolute;
+        top: 24px;
+        right: -12px;
+        background: var(--primary);
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: 2px solid var(--surface);
+        font-size: 0.8rem;
+        transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1001;
+        box-shadow: var(--shadow-md);
+    }
+
+    .sidebar-toggle:hover {
+        background: var(--primary);
+        transform: translateX(2px);
+        box-shadow: 0 0 15px rgba(26, 86, 148, 0.4);
+    }
+
+    aside.collapsed .sidebar-toggle {
+        right: -12px;
+    }
+
+    aside.collapsed .sidebar-toggle:hover {
+        transform: translateX(-2px);
+    }
+
+    .sidebar-toggle i {
+        transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
+
+/* Mobile Menu Button */
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    width: 45px;
+    height: 45px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1002;
+    box-shadow: 0 4px 12px rgba(26, 86, 148, 0.3);
+    font-size: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-menu-btn:hover {
+    background: #0e3d6b;
+    transform: scale(1.05);
+}
+
+/* Overlay for mobile - covers content when drawer is open */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-speed) ease;
+    backdrop-filter: blur(3px);
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Mobile Styles - Drawer Behavior (sidebar slides OVER content) */
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 280px;
+    }
+
+    .mobile-menu-btn {
+        display: flex;
+    }
+
+    /* Sidebar starts hidden off-screen */
+    aside {
+        transform: translateX(-100%);
+        width: var(--sidebar-width) !important;
+        box-shadow: 2px 0 30px rgba(0, 0, 0, 0.3);
+        transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1001;
+    }
+
+    /* When active, slide in OVER the content */
+    aside.active {
+        transform: translateX(0);
+    }
+
+    /* Ignore collapsed state on mobile - always show full content */
+    aside.collapsed {
+        width: var(--sidebar-width) !important;
+        transform: translateX(-100%);
+    }
+
+    aside.collapsed.active {
+        transform: translateX(0);
+    }
+
+    /* Hide desktop toggle button on mobile */
+    .sidebar-toggle {
+        display: none !important;
+    }
+
+    /* Main content is FULL WIDTH - no margin shift */
+    main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 70px 1rem 1rem !important;
+        /* Space for mobile menu button */
+        transition: none !important;
+        /* No margin transition on mobile */
+    }
+
+    /* Ensure full content shows when sidebar is active */
+    aside.active .nav-text,
+    aside.active .profile-info,
+    aside.active .nav-brand span,
+    aside.active .logout-btn span {
+        opacity: 1 !important;
+        width: auto !important;
+        display: inline-block !important;
+        visibility: visible !important;
+    }
+
+    aside.active .nav-link {
+        justify-content: flex-start !important;
+        padding: 12px 16px !important;
+    }
+
+    aside.active .nav-link .nav-icon {
+        margin-right: 12px !important;
+    }
+
+    aside.active .profile-photo {
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+    aside.active .nav-brand {
+        justify-content: flex-start !important;
+        padding: 0 1.5rem !important;
+    }
+
+    /* Hide tooltips on mobile */
+    .nav-tooltip,
+    .profile-tooltip,
+    .logout-tooltip {
+        display: none !important;
+    }
+
+    /* Message container adjustment for mobile */
+    .msg-container {
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        max-width: 90% !important;
+        top: 70px !important;
+        width: auto !important;
+    }
+
+    .msg {
+        min-width: 280px !important;
+        width: auto !important;
+    }
+
+    /* When sidebar is open, prevent body scroll */
+    body.sidebar-open {
+        overflow: hidden;
+    }
+}
+
+/* Rest of your existing styles remain the same */
+/* Brand Logo */
+.nav-brand {
+    font-weight: 800;
+    font-size: 1.25rem;
+    margin: 1rem 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--primary);
+    white-space: nowrap;
+    padding: 0 1.5rem;
+    transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+aside.collapsed .nav-brand {
+    padding: 0;
+    justify-content: center;
+    margin: 1.5rem 0 2rem;
+}
+
+.nav-brand i {
+    font-size: 1.8rem;
+    transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-brand span {
+    transition: opacity var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.4rem;
+    letter-spacing: 1px;
+}
+
+aside.collapsed .nav-brand span {
+    opacity: 0;
+    width: 0;
+    display: none;
+}
+
+/* Profile Section */
+.user-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1.5rem 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+aside.collapsed .user-profile {
+    padding: 0 0.5rem 1.5rem;
+}
+
+.profile-photo-container {
+    position: relative;
+}
+
+.profile-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
+    object-fit: cover;
+    border: 3px solid var(--primary);
+    transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(26, 86, 148, 0.2);
+}
+
+aside.collapsed .profile-photo {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+}
+
+.profile-photo:hover {
+    transform: scale(1.05);
+    border-color: #0e3d6b;
+}
+
+aside.collapsed .profile-photo:hover {
+    transform: none;
+}
+
+.status-indicator {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    background: var(--success);
+    border: 2px solid var(--surface);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile info */
+.profile-info {
+    text-align: center;
+    width: 100%;
+    transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+aside.collapsed .profile-info {
+    display: none;
+}
+
+.profile-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    margin-bottom: 6px;
+}
+
+.profile-role-badge {
+    font-size: 0.7rem;
+    color: var(--primary);
+    background: rgba(26, 86, 148, 0.1);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Navigation Menu */
+.nav-menu {
+    list-style: none;
+    flex-grow: 1;
+    padding: 0 1rem;
+}
+
+.nav-item {
+    position: relative;
+    margin-bottom: 6px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 4px;
+    color: var(--text-dim);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+aside.collapsed .nav-link {
+    padding: 14px;
+    justify-content: center;
+}
+
+.nav-link:hover {
+    background: rgba(26, 86, 148, 0.08);
+    color: var(--primary);
+}
+
+.nav-link.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(26, 86, 148, 0.3);
+}
+
+/* Icon styling */
+.nav-icon {
+    font-size: 1.2rem;
+    min-width: 24px;
+    text-align: center;
+    color: inherit;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block !important;
+}
+
+aside.collapsed .nav-icon {
+    font-size: 1.3rem;
+    margin: 0;
+}
+
+.nav-link:hover .nav-icon {
+    transform: scale(1.1);
+}
+
+aside.collapsed .nav-link:hover .nav-icon {
+    transform: none;
+}
+
+/* Text styling */
+.nav-text {
+    transition: opacity var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+}
+
+aside.collapsed .nav-text {
+    opacity: 0;
+    width: 0;
+    display: none;
+}
+
+/* Tooltips */
+.nav-tooltip,
+.profile-tooltip,
+.logout-tooltip {
+    position: absolute;
+    left: calc(100% + 15px);
+    top: 50%;
+    transform: translateY(-50%) scale(0.95);
+    background: var(--surface);
+    color: var(--text-main);
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1001;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 15px rgba(26, 86, 148, 0.15);
+    pointer-events: none;
+    min-width: 180px;
+    backdrop-filter: blur(10px);
+}
+
+.nav-tooltip::before,
+.profile-tooltip::before,
+.logout-tooltip::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px 6px 6px 0;
+    border-style: solid;
+    border-color: transparent var(--surface) transparent transparent;
+}
+
+aside.collapsed .nav-link:hover .nav-tooltip,
+aside.collapsed .user-profile:hover .profile-tooltip,
+aside.collapsed .logout-btn:hover .logout-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) scale(1);
+    left: calc(100% + 10px);
+}
+
+/* Logout Section */
+.logout-section {
+    margin-top: auto;
+    padding: 0.5rem 1rem 0.5rem;
+    border-top: 1px solid var(--border);
+    position: relative;
+}
+
+aside.collapsed .logout-section {
+    padding: 1rem 0.5rem 1.5rem;
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    width: 100%;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 12px 16px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+aside.collapsed .logout-btn {
+    justify-content: center;
+    padding: 12px;
+}
+
+.logout-btn:hover {
+    background: rgba(231, 76, 60, 0.1);
+    color: var(--danger);
+}
+
+.logout-icon {
+    font-size: 1.2rem;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logout-btn:hover .logout-icon {
+    transform: translateX(2px);
+}
+
+aside.collapsed .logout-btn span {
+    display: none;
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 220px;
+        --sidebar-collapsed: 70px;
+    }
+
+    .nav-brand {
+        font-size: 1.1rem;
+    }
+
+    .nav-brand i {
+        font-size: 1.5rem;
+    }
+
+    .nav-brand span {
+        font-size: 1.2rem;
+    }
+}
+
+
+@media (max-width: 768px) {
+
+
+    aside {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        width: 280px !important;
+        /* Fixed width */
+    }
+
+    aside.active {
+        transform: translateX(0);
+    }
+
+    /* Main content stays full width */
+    main {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Hide desktop toggle, show mobile menu button */
+    .sidebar-toggle {
+        display: none !important;
+    }
+
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+
+    /* Overlay */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    /* Ignore collapsed state on mobile */
+    aside.collapsed {
+        transform: translateX(-100%);
+        width: 280px !important;
+    }
+
+    aside.collapsed.active {
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --sidebar-width: 260px;
+    }
+
+    .nav-brand {
+        margin: 1rem 0 1.5rem;
+    }
+
+    .nav-brand i {
+        font-size: 1.3rem;
+    }
+
+    .nav-brand span {
+        font-size: 1rem;
+    }
+
+    .profile-photo {
+        width: 70px;
+        height: 70px;
+    }
+
+    .profile-name {
+        font-size: 0.85rem;
+    }
+
+    .profile-role-badge {
+        font-size: 0.65rem;
+        padding: 3px 10px;
+    }
+
+    .nav-link {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+
+    .nav-icon {
+        font-size: 1.1rem;
+        min-width: 22px;
+    }
+
+    .logout-btn {
+        padding: 10px 14px;
+    }
+}
+
+/* Landscape mode on mobile */
+@media (max-width: 896px) and (orientation: landscape) {
+    aside.active {
+        overflow-y: auto;
+    }
+
+    .user-profile {
+        padding: 0 1rem 1rem;
+    }
+
+    .profile-photo {
+        width: 60px;
+        height: 60px;
+    }
+
+    .nav-menu {
+        padding: 0 0.8rem;
+    }
+
+    .nav-link {
+        padding: 8px 12px;
+    }
+}
+
+/* Smooth transitions for all interactive elements */
+.nav-link,
+.logout-btn,
+.sidebar-toggle,
+.mobile-menu-btn,
+.profile-photo,
+.nav-brand,
+.nav-icon,
+.nav-text,
+.sidebar-overlay,
+aside,
+main,
+.sidebar-toggle i {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fix for very small devices */
+@media (max-width: 320px) {
+    :root {
+        --sidebar-width: 240px;
+    }
+
+    .nav-brand i {
+        font-size: 1.2rem;
+    }
+
+    .profile-photo {
+        width: 60px;
+        height: 60px;
+    }
+
+    .nav-link {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+
+    .nav-icon {
+        font-size: 1rem;
+        min-width: 20px;
+    }
+}

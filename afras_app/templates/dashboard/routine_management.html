@@ -1,297 +1,824 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'dashboard/base.html' %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AFRAS CORE | Routine Management</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% block title %}AFRAS | Routine Management{% endblock %}
 
-    <style>
-        :root {
-            --primary: #0062ff;
-            --primary-glow: rgba(0, 98, 255, 0.4);
-            --bg: #030712;
-            --surface: #111827;
-            --border: rgba(255, 255, 255, 0.1);
-            --text-main: #f9fafb;
-            --text-dim: #9ca3af;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --gradient: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+{% block extra_head %}
+<style>
+    .viz-container {
+        background: var(--surface);
+        border-radius: 24px;
+        padding: 2rem;
+        border: 1px solid var(--border);
+        transition: 0.3s;
+        height: 100%;
+    }
+
+    .viz-container:hover {
+        border-color: var(--primary);
+        box-shadow: 0 8px 20px rgba(0, 98, 255, 0.1);
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.3s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 10px 20px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 25px var(--primary-glow);
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .input-group label {
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .input-group input,
+    .input-group select {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        padding: 14px;
+        border-radius: 12px;
+        color: var(--text-main);
+        font-family: 'JetBrains Mono';
+        outline: none;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 98, 255, 0.1);
+    }
+
+    .status-badge {
+        font-family: 'JetBrains Mono';
+        font-size: 0.7rem;
+        background: rgba(0, 98, 255, 0.1);
+        color: var(--primary);
+        padding: 6px 16px;
+        border-radius: 30px;
+        border: 1px solid rgba(0, 98, 255, 0.2);
+    }
+
+    .session-active {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .session-inactive {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: 0.3s;
+    }
+
+    .stat-card:hover {
+        border-color: var(--primary);
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-dim);
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .stat-value.primary {
+        color: var(--primary);
+    }
+
+    .stat-value.success {
+        color: var(--success);
+    }
+
+    .stat-value.warning {
+        color: var(--warning);
+    }
+
+    @media (max-width: 768px) {
+        div[style*="margin-left: 260px"] {
+            margin-left: 0 !important;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .stats-cards {
+            grid-template-columns: 1fr;
         }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            line-height: 1.6;
+        div[style*="grid-template-columns: 1fr 1fr"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+
+    /* File upload zone styles */
+    #upload-zone {
+        transition: all 0.3s ease;
+    }
+
+    #upload-zone:hover {
+        border-color: var(--primary) !important;
+        background: rgba(0, 98, 255, 0.02);
+    }
+
+    #upload-zone.dragover {
+        border-color: var(--primary) !important;
+        background: rgba(0, 98, 255, 0.05);
+    }
+
+    /* Notification styles */
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 12px;
+        color: white;
+        z-index: 9999;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        max-width: 400px;
+        white-space: pre-line;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
         }
 
-        .grid-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: -1;
-            opacity: 0.15;
+        to {
+            transform: translateX(0);
+            opacity: 1;
         }
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
+    .notification.success {
+        background: var(--success);
+    }
 
-        .viz-container {
-            background: var(--surface);
-            border-radius: 24px;
-            padding: 2.5rem;
-            border: 1px solid var(--border);
-            transition: 0.3s;
-        }
+    .notification.error {
+        background: var(--danger);
+    }
 
-        .viz-container:hover {
-            border-color: var(--primary);
-        }
+    .notification.warning {
+        background: var(--warning);
+    }
 
-        .btn {
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            transition: 0.3s;
-            border: none;
-            cursor: pointer;
-        }
+    .notification.info {
+        background: var(--primary);
+    }
+</style>
+{% endblock %}
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 10px 20px var(--primary-glow);
-        }
+{% block content %}
 
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-main);
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            font-size: 0.7rem;
-            color: var(--text-dim);
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
-        .input-group input,
-        .input-group select {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            padding: 12px;
-            border-radius: 8px;
-            color: white;
-            font-family: 'JetBrains Mono';
-            outline: none;
-        }
-
-        .status-badge {
-            font-family: 'JetBrains Mono';
-            font-size: 0.7rem;
-            background: rgba(0, 98, 255, 0.1);
-            color: var(--primary);
-            padding: 4px 12px;
-            border-radius: 20px;
-        }
-
-        /* Spinner for processing */
-        .spinner {
-            animation: rotate 2s linear infinite;
-            display: none;
-            margin-right: 8px;
-        }
-
-        @keyframes rotate {
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
-</head>
-
-<body>
-    <div class="grid-overlay"></div>
-
-    <div class="container">
-        <div
-            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 20px;">
-            <div>
-                <h2><i class="fas fa-calendar-check" style="color: var(--primary);"></i> Routine Management</h2>
-                <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 5px;">Synchronize institutional
-                    schedules with ResNet-101 Identity Core.</p>
-            </div>
-            <span class="status-badge" id="system-status">SYSTEM_IDLE</span>
+<div style="flex: 1; padding: 1rem;">
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 20px;">
+        <div>
+            <h2 style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-calendar-check" style="color: var(--primary);"></i>
+                Routine Management
+            </h2>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 5px;">Synchronize institutional
+                schedules with ResNet-101 Identity Core.</p>
         </div>
+        <span class="status-badge" id="system-status">SYSTEM_IDLE</span>
+    </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-
-            <div class="viz-container">
-                <h4 style="margin-bottom: 1.5rem; color: var(--success);"><i class="fas fa-hand-pointer"></i> Manual
-                    Session Entry</h4>
-                <form id="manual-routine-form">
-                    {% csrf_token %}
-                    <div class="input-group">
-                        <label>Subject / Module</label>
-                        <input type="text" name="subject" id="manual-name" placeholder="e.g., Computer Graphics"
-                            required>
-                    </div>
-                    <div class="input-group">
-                        <label>Department</label>
-                        <select name="department" id="manual-dept">
-                            <option value="Engineering">School of Engineering</option>
-                            <option value="CSIT">Department of CSIT</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label>Target Semester</label>
-                        <input type="number" name="semester" min="1" max="8" value="1">
-                    </div>
-                    <button type="button" onclick="handleManualSubmit()" class="btn btn-primary"
-                        style="width: 100%; justify-content: center;">
-                        <i class="fas fa-play"></i> Start Session Now
-                    </button>
-                </form>
-            </div>
-
-            <div class="viz-container">
-                <h4 style="margin-bottom: 1.5rem; color: var(--primary);"><i class="fas fa-file-invoice"></i> AI
-                    Document Extraction</h4>
-                <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1.5rem;">Upload a PDF routine to
-                    automatically extract schedule vectors and automate attendance sessions.</p>
-
-                <form id="extraction-form" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div style="border: 2px dashed var(--border); padding: 40px; border-radius: 12px; text-align: center; position: relative;"
-                        id="upload-zone">
-                        <input type="file" name="routine_file" id="routine-file" hidden
-                            onchange="updateFileLabel(this)">
-                        <div id="file-label-container">
-                            <i class="fas fa-cloud-upload-alt"
-                                style="font-size: 2rem; color: var(--text-dim); margin-bottom: 10px;"></i>
-                            <p style="font-size: 0.8rem; color: var(--text-dim);">Drag & Drop or</p>
-                            <button type="button" onclick="document.getElementById('routine-file').click()"
-                                class="btn btn-outline" style="margin-top: 10px;">Select PDF/XLSX</button>
-                        </div>
-                        <p id="file-name"
-                            style="font-size: 0.75rem; font-family: 'JetBrains Mono'; margin-top: 15px; color: var(--primary);">
-                        </p>
-                    </div>
-
-                    <div id="extraction-actions" style="display: none; margin-top: 20px;">
-                        <button type="button" onclick="handleExtractionSubmit()" class="btn btn-primary"
-                            style="width: 100%; justify-content: center; background: var(--gradient);">
-                            <i class="fas fa-brain"></i> Extract & Automate
-                        </button>
-                    </div>
-                </form>
-            </div>
-
+    <!-- Stats Cards -->
+    <div class="stats-cards">
+        <div class="stat-card">
+            <div class="stat-label">Total Sessions</div>
+            <div class="stat-value primary" id="total-sessions">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Active Sessions</div>
+            <div class="stat-value success" id="active-sessions">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Today's Sessions</div>
+            <div class="stat-value warning" id="today-sessions">0</div>
         </div>
     </div>
 
-    <script>
-        function updateFileLabel(input) {
-            if (input.files[0]) {
-                document.getElementById('file-name').innerText = `ATTACHED: ${input.files[0].name}`;
-                document.getElementById('extraction-actions').style.display = 'block';
-                document.getElementById('file-label-container').style.opacity = '0.3';
-            }
-        }
+    <!-- Main Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
 
-        async function handleManualSubmit() {
+        <!-- Manual Session Entry -->
+        <div class="viz-container">
+            <h4 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-hand-pointer" style="color: var(--success);"></i>
+                Manual Session Entry
+            </h4>
+            <form id="manual-routine-form">
+                {% csrf_token %}
+                <div class="input-group">
+                    <label>Subject / Module</label>
+                    <input type="text" name="subject" id="manual-name" placeholder="e.g., Computer Graphics" required>
+                </div>
+                <div class="input-group">
+                    <label>Duration (minutes)</label>
+                    <input type="number" name="duration" id="manual-duration" min="15" max="180" value="60" required>
+                </div>
+                <div class="input-group">
+                    <label>Department</label>
+                    <select name="department" id="manual-dept">
+                        <option value="Engineering">School of Engineering</option>
+                        <option value="CSIT">Department of CSIT</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Target Semester</label>
+                    <input type="number" name="semester" id="manual-semester" min="1" max="8" value="1">
+                </div>
+                <button type="button" onclick="handleManualSubmit()" class="btn btn-primary"
+                    style="width: 100%; justify-content: center;">
+                    <i class="fas fa-play"></i> Start Session Now
+                </button>
+            </form>
+        </div>
+
+        <!-- AI Document Extraction -->
+        <div class="viz-container">
+            <h4 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-file-invoice" style="color: var(--primary);"></i>
+                AI Document Extraction
+            </h4>
+            <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1.5rem;">Upload a PDF routine to
+                automatically extract schedule vectors and automate attendance sessions.</p>
+
+            <form id="extraction-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div style="border: 2px dashed var(--border); padding: 40px; border-radius: 16px; text-align: center; position: relative;"
+                    id="upload-zone">
+                    <input type="file" name="routine_file" id="routine-file" hidden onchange="updateFileLabel(this)"
+                        accept=".pdf,.xlsx,.xls,.csv">
+                    <div id="file-label-container">
+                        <i class="fas fa-cloud-upload-alt"
+                            style="font-size: 2.5rem; color: var(--text-dim); margin-bottom: 15px;"></i>
+                        <p style="font-size: 0.9rem; color: var(--text-dim);">Drag & Drop or</p>
+                        <button type="button" onclick="document.getElementById('routine-file').click()"
+                            class="btn btn-outline" style="margin-top: 10px;">Select PDF/XLSX</button>
+                    </div>
+                    <p id="file-name"
+                        style="font-size: 0.75rem; font-family: 'JetBrains Mono'; margin-top: 15px; color: var(--primary);">
+                    </p>
+                </div>
+
+                <div id="extraction-actions" style="display: none; margin-top: 20px;">
+                    <button type="button" onclick="handleExtractionSubmit()" class="btn btn-primary"
+                        style="width: 100%; justify-content: center; background: var(--gradient);">
+                        <i class="fas fa-brain"></i> Extract & Automate
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- Recent Sessions Section -->
+    <div
+        style="margin-top: 40px; background: var(--surface); border-radius: 24px; border: 1px solid var(--border); padding: 1.5rem;">
+        <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-history" style="color: var(--primary);"></i>
+            Recent Sessions
+        </h3>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th
+                            style="text-align: left; padding: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border);">
+                            Subject</th>
+                        <th
+                            style="text-align: left; padding: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border);">
+                            Date</th>
+                        <th
+                            style="text-align: left; padding: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border);">
+                            Time</th>
+                        <th
+                            style="text-align: left; padding: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border);">
+                            Status</th>
+                        <th
+                            style="text-align: left; padding: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border);">
+                            Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="recent-sessions-table">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-dim);">
+                            <i class="fas fa-spinner fa-spin"
+                                style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                            Loading sessions...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Notification container -->
+<div id="notification-container"></div>
+
+<script>
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    console.log('🚀 Routine Management Script Loaded');
+
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('✅ DOM fully loaded');
+        loadRecentSessions();
+        loadSessionStats();
+
+        // Check for active session every 10 seconds
+        setInterval(checkActiveSession, 10000);
+    });
+
+    // ============================================
+    // ACTIVE SESSION CHECK (Auto-start feature)
+    // ============================================
+    async function checkActiveSession() {
+        try {
+            const response = await fetch('/attendance/api/session-stats/');
+            const data = await response.json();
+
             const statusBadge = document.getElementById('system-status');
-            const form = document.getElementById('manual-routine-form');
 
-            // Create FormData from the form element
-            const formData = new FormData(form);
+            if (data.active > 0) {
+                statusBadge.innerText = 'SESSION_ACTIVE';
+                statusBadge.style.color = 'var(--success)';
+            } else {
+                statusBadge.innerText = 'SYSTEM_IDLE';
+                statusBadge.style.color = 'var(--primary)';
+            }
+        } catch (err) {
+            console.error('Error checking active session:', err);
+        }
+    }
 
-            statusBadge.innerText = 'INITIALIZING_SESSION...';
-            statusBadge.style.color = 'var(--warning)';
+    // ============================================
+    // DRAG & DROP FUNCTIONALITY
+    // ============================================
+    const uploadZone = document.getElementById('upload-zone');
+    const fileInput = document.getElementById('routine-file');
 
-            try {
-                // Ensure the URL matches your urls.py exactly
-                const response = await fetch('/dashboard/routine-start-manual/', {
-                    method: 'POST', // This must be POST
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    }
+    if (uploadZone) {
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                updateFileLabel(fileInput);
+            }
+        });
+    }
+
+    window.updateFileLabel = function(input) {
+        if (input.files && input.files[0]) {
+            document.getElementById('file-name').innerText = `ATTACHED: ${input.files[0].name}`;
+            document.getElementById('extraction-actions').style.display = 'block';
+            document.getElementById('file-label-container').style.opacity = '0.3';
+        }
+    };
+
+    // ============================================
+    // SESSION STATISTICS
+    // ============================================
+    async function loadSessionStats() {
+        try {
+            const response = await fetch('/attendance/api/session-stats/');
+            const data = await response.json();
+
+            document.getElementById('total-sessions').textContent = data.total || 0;
+            document.getElementById('active-sessions').textContent = data.active || 0;
+            document.getElementById('today-sessions').textContent = data.today || 0;
+        } catch (err) {
+            console.error('Error loading stats:', err);
+        }
+    }
+
+    // ============================================
+    // RECENT SESSIONS TABLE
+    // ============================================
+    async function loadRecentSessions() {
+        const tbody = document.getElementById('recent-sessions-table');
+
+        try {
+            const response = await fetch('/attendance/api/recent-sessions/');
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.sessions && data.sessions.length > 0) {
+                let tableHTML = '';
+                data.sessions.forEach((session) => {
+                    tableHTML += `
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid var(--border); font-weight: 500;">${session.subject || 'N/A'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid var(--border);">${session.date || 'N/A'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono';">${session.time_range || 'N/A'}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid var(--border);">
+                            <span class="${session.is_active ? 'session-active' : 'session-inactive'}">
+                                ${session.is_active ? 'ACTIVE' : 'INACTIVE'}
+                            </span>
+                        </td>
+                        <td style="padding: 12px; border-bottom: 1px solid var(--border);">
+                            ${session.is_active ?
+                            `<a href="/attendance/live/${session.id}/" class="btn" style="background: var(--primary); color: white; padding: 6px 16px; border-radius: 20px; text-decoration: none; font-size: 0.7rem; font-weight: 600;">
+                                    <i class="fas fa-video"></i> Monitor
+                                </a>` :
+                            `<span style="color: var(--text-dim); font-size: 0.7rem;">Completed</span>`
+                        }
+                        </td>
+                    </tr>
+                `;
                 });
 
-                const data = await response.json();
+                tbody.innerHTML = tableHTML;
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-dim);">No sessions found</td></tr>';
+            }
+        } catch (err) {
+            console.error('Error loading sessions:', err);
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-dim);">
+                    <i class="fas fa-exclamation-triangle" style="color: var(--danger); font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                    Error loading sessions: ${err.message}
+                    <button onclick="loadRecentSessions()" class="btn btn-outline" style="margin-top: 1rem;">Retry</button>
+                </td>
+            </tr>
+        `;
+        }
+    }
+
+    // ============================================
+    // MANUAL SESSION SUBMISSION
+    // ============================================
+    window.handleManualSubmit = function() {
+        const statusBadge = document.getElementById('system-status');
+        const form = document.getElementById('manual-routine-form');
+        const submitBtn = document.querySelector('button[onclick="handleManualSubmit()"]');
+
+        // Validate form
+        const subject = document.getElementById('manual-name').value;
+        const duration = document.getElementById('manual-duration').value;
+
+        if (!subject || !duration) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+
+        // Disable button
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            var originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+        }
+
+        const formData = new FormData(form);
+
+        statusBadge.innerText = 'INITIALIZING_SESSION...';
+        statusBadge.style.color = 'var(--warning)';
+
+        fetch('/attendance/start/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => {
+            // Check if the response is a redirect (session started successfully)
+            if (response.redirected) {
+                // Session was created and server redirected to live monitoring
+                statusBadge.innerText = 'SESSION_ACTIVE';
+                statusBadge.style.color = 'var(--success)';
+                
+                showNotification('Session started successfully!', 'success');
+                
+                // Reload the sessions table and stats
+                return Promise.all([
+                    loadRecentSessions(),
+                    loadSessionStats()
+                ]).then(() => {
+                    // After reloading data, redirect to the live monitoring page
+                    setTimeout(() => {
+                        window.location.href = response.url;
+                    }, 1500);
+                });
+            }
+            
+            // If not a redirect, try to parse as JSON
+            return response.json().then(data => {
                 if (data.success) {
-                    alert("SUCCESS: Biometric Session Initialized.");
                     statusBadge.innerText = 'SESSION_ACTIVE';
                     statusBadge.style.color = 'var(--success)';
+
+                    showNotification('Session started successfully!', 'success');
+
+                    // Reload data
+                    loadRecentSessions();
+                    loadSessionStats();
+
+                    // Redirect to live monitoring
+                    if (data.redirect_url) {
+                        setTimeout(() => {
+                            window.location.href = data.redirect_url;
+                        }, 1500);
+                    }
                 } else {
-                    alert("SYSTEM ERROR: " + data.message);
                     statusBadge.innerText = 'ERROR';
+                    statusBadge.style.color = 'var(--danger)';
+                    showNotification('Error: ' + (data.message || 'Unknown error'), 'error');
                 }
-            } catch (err) {
-                console.error(err);
-                alert("CRITICAL ERROR: Could not connect to Backend Core.");
-            }
-        }
-
-        async function handleExtractionSubmit() {
-            const statusBadge = document.getElementById('system-status');
-            const form = document.getElementById('extraction-form');
-            const formData = new FormData(form);
-
-            statusBadge.innerText = 'AI_EXTRACTING_DATA...';
-
-            try {
-                const response = await fetch('{% url "extract_routine_ai" %}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'X-CSRFToken': '{{ csrf_token }}' }
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    alert(`Extraction Complete! Found ${data.classes_count} scheduled sessions.`);
-                    statusBadge.innerText = 'AUTOMATION_SYNCED';
+            });
+        })
+        .catch(err => {
+            console.error('Submission error:', err);
+            
+            // Even if there's an error, the session might have been created
+            // Try to reload the sessions to see if it worked
+            loadRecentSessions();
+            loadSessionStats();
+            
+            statusBadge.innerText = 'CHECKING_STATUS...';
+            statusBadge.style.color = 'var(--warning)';
+            
+            // Check if session was actually created by looking at the stats after a short delay
+            setTimeout(() => {
+                checkActiveSession();
+                // If we see an active session now, consider it a success
+                const activeElement = document.getElementById('active-sessions');
+                if (activeElement && parseInt(activeElement.textContent) > 0) {
+                    showNotification('Session started! Refreshing data...', 'success');
                 } else {
-                    alert("Extraction Failed: " + data.message);
+                    showNotification('Session may not have started. Please check the table.', 'warning');
                 }
-            } catch (err) {
-                alert("AI Processing Error");
+            }, 2000);
+        })
+        .finally(() => {
+            // Re-enable button
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+    };
+
+    // ============================================
+    // AI EXTRACTION SUBMISSION
+    // ============================================
+    window.handleExtractionSubmit = function() {
+        const statusBadge = document.getElementById('system-status');
+        const form = document.getElementById('extraction-form');
+        const submitBtn = document.querySelector('button[onclick="handleExtractionSubmit()"]');
+        const formData = new FormData(form);
+
+        // Check if file is selected
+        const fileInput = document.getElementById('routine-file');
+        if (!fileInput.files || !fileInput.files[0]) {
+            showNotification('Please select a file first', 'error');
+            return;
+        }
+
+        // Validate file type
+        const fileName = fileInput.files[0].name;
+        const fileExt = fileName.split('.').pop().toLowerCase();
+        if (!['pdf', 'xlsx', 'xls', 'csv'].includes(fileExt)) {
+            showNotification('Please select a valid PDF or Excel file', 'error');
+            return;
+        }
+
+        // Disable button
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            var originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Extracting...';
+        }
+
+        statusBadge.innerText = 'AI_EXTRACTING_DATA...';
+        statusBadge.style.color = 'var(--warning)';
+
+        fetch('/attendance/api/extract-routine/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => {
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return response.json();
+            }
+            // If not JSON but successful, assume it worked
+            if (response.ok || response.redirected) {
+                return { success: true, message: 'Extraction completed' };
+            }
+            throw new Error('Unexpected response format');
+        })
+        .then(data => {
+            if (data.success) {
+                statusBadge.innerText = 'AUTOMATION_SYNCED';
+                statusBadge.style.color = 'var(--success)';
+
+                let message = `✅ Extraction Complete! Found ${data.classes_count || 0} scheduled sessions.`;
+                showNotification(message, 'success');
+
+                // Reload recent sessions and stats
+                loadRecentSessions();
+                loadSessionStats();
+
+                // Reset file input
+                fileInput.value = '';
+                document.getElementById('file-name').innerText = '';
+                document.getElementById('extraction-actions').style.display = 'none';
+                document.getElementById('file-label-container').style.opacity = '1';
+            } else {
+                statusBadge.innerText = 'ERROR';
+                statusBadge.style.color = 'var(--danger)';
+                showNotification('Extraction Failed: ' + (data.message || 'Unknown error'), 'error');
+            }
+        })
+        .catch(err => {
+            console.error('Extraction error:', err);
+            statusBadge.innerText = 'ERROR';
+            statusBadge.style.color = 'var(--danger)';
+            showNotification('AI Processing Error', 'error');
+        })
+        .finally(() => {
+            // Re-enable button
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+    };
+
+    // ============================================
+    // NOTIFICATION SYSTEM
+    // ============================================
+    function showNotification(message, type = 'info') {
+        const container = document.getElementById('notification-container');
+
+        // Remove existing notifications
+        const existingNotifications = container.querySelectorAll('.notification');
+        existingNotifications.forEach(n => n.remove());
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = message;
+        
+        // Set background color based on type
+        let bgColor;
+        switch(type) {
+            case 'success':
+                bgColor = 'var(--success)';
+                break;
+            case 'error':
+                bgColor = 'var(--danger)';
+                break;
+            case 'warning':
+                bgColor = 'var(--warning)';
+                break;
+            default:
+                bgColor = 'var(--primary)';
+        }
+        
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: white;
+            z-index: 9999;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            max-width: 400px;
+            animation: slideIn 0.3s ease;
+            background: ${bgColor};
+        `;
+
+        container.appendChild(notification);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease forwards';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 5000);
+    }
+
+    // ============================================
+    // ANIMATIONS
+    // ============================================
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
             }
         }
-    </script>
-</body>
+    `;
+    document.head.appendChild(styleElement);
 
-</html>
+    // ============================================
+    // AUTO-REFRESH (every 30 seconds)
+    // ============================================
+    setInterval(() => {
+        loadRecentSessions();
+        loadSessionStats();
+        checkActiveSession();
+    }, 30000);
+</script>
+{% endblock %}

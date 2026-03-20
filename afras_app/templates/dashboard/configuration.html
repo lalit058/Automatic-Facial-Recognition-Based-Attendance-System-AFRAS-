@@ -1,0 +1,1000 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}System Configuration{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* SIDEBAR HANDLING  */
+    main {
+        transition: margin-left var(--transition-speed) ease;
+        width: calc(100% - var(--sidebar-width));
+    }
+
+    aside.collapsed~main {
+        margin-left: var(--sidebar-collapsed) !important;
+        width: calc(100% - var(--sidebar-collapsed)) !important;
+    }
+
+    /* CONFIGURATION PAGE STYLES */
+    .config-wrapper {
+        padding: 1rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+        transition: all var(--transition-speed) ease;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Header Section - Like Staff Directory */
+    .config-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .config-header h2 {
+        margin: 0;
+        font-size: 1.8rem;
+        background: linear-gradient(135deg, var(--primary), #2575fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .config-header h2 i {
+        background: var(--primary);
+        color: white;
+        padding: 10px;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        -webkit-text-fill-color: white;
+    }
+
+    /* Status Bar - Like Staff Directory Filter Bar */
+    .status-bar {
+        display: flex;
+        gap: 2rem;
+        padding: 1.25rem 1.5rem;
+        background: var(--surface);
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+        flex-wrap: wrap;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .status-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    .status-item.success {
+        color: #27ae60;
+    }
+
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        background: #27ae60;
+        border-radius: 50%;
+        position: relative;
+    }
+
+    .status-dot::after {
+        content: '';
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        background: rgba(39, 174, 96, 0.3);
+        border-radius: 50%;
+        top: -2px;
+        left: -2px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.5);
+            opacity: 0;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 0;
+        }
+    }
+
+    /* Configuration Tabs - Like Filter Tags */
+    .config-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        padding: 10px 20px;
+        background: var(--primary-text);
+        border: 1px solid var(--border);
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .tab-btn i {
+        font-size: 0.9rem;
+    }
+
+    .tab-btn:hover {
+        background: rgba(26, 86, 148, 0.1);
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .tab-btn.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    .tab-btn.active i {
+        color: white;
+    }
+
+    /* Tab Content Animation */
+    .tab-content {
+        display: none;
+        animation: slideIn 0.3s ease;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Settings Card */
+    .settings-card {
+        background: var(--surface);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+        transition: all 0.3s ease;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .settings-card:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+        border-color: var(--primary);
+    }
+
+    .settings-card h3 {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        color: var(--text-main);
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .settings-card h3 i {
+        color: var(--primary);
+        font-size: 1.2rem;
+    }
+
+    /* Form Grid */
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-main);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--bg);
+        color: var(--text-main);
+        transition: all 0.3s;
+        font-size: 0.9rem;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(26, 86, 148, 0.1);
+    }
+
+    .help-text {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--text-dim);
+    }
+
+    /* Range Slider */
+    .range-with-value {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .range-with-value input {
+        flex: 1;
+        height: 6px;
+        -webkit-appearance: none;
+        background: linear-gradient(to right, var(--primary) 0%, var(--primary) 50%, var(--border) 50%, var(--border) 100%);
+        border-radius: 3px;
+    }
+
+    .range-with-value input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        background: var(--primary);
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        margin-top: -7px;
+    }
+
+    .range-value {
+        min-width: 60px;
+        text-align: center;
+        font-weight: bold;
+        color: var(--primary);
+        font-size: 0.95rem;
+        background: rgba(26, 86, 148, 0.1);
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+
+    .range-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 5px;
+        font-size: 0.7rem;
+        color: var(--text-dim);
+    }
+
+    /* Checkbox Group */
+    .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 1rem;
+        background: var(--bg);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: var(--primary);
+    }
+
+    /* Action Bar - Like Staff Directory Actions */
+    .action-bar {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-save,
+    .btn-test,
+    .btn-reset,
+    .btn-small {
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        white-space: nowrap;
+    }
+
+    .btn-save {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 4px 12px rgba(26, 86, 148, 0.3);
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(26, 86, 148, 0.4);
+    }
+
+    .btn-test {
+        background: #27ae60;
+        color: white;
+    }
+
+    .btn-test:hover {
+        background: #219a52;
+        transform: translateY(-2px);
+    }
+
+    .btn-reset {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-reset:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+    }
+
+    .btn-small {
+        background: var(--surface);
+        color: var(--text-main);
+        border: 1px solid var(--border);
+        padding: 8px 16px;
+        font-size: 0.8rem;
+    }
+
+    .btn-small:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: rgba(26, 86, 148, 0.05);
+    }
+
+    /* Loading state */
+    .btn-save:disabled,
+    .btn-test:disabled,
+    .btn-reset:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .status-item {
+            white-space: normal;
+        }
+    }
+
+    @media (max-width: 768px) {
+
+        main,
+        aside.collapsed~main {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+
+        .config-wrapper {
+            padding: 1rem;
+        }
+
+        .config-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        
+
+        .status-bar {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .action-bar {
+            flex-direction: column;
+        }
+
+        .btn-save,
+        .btn-test,
+        .btn-reset {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="config-wrapper">
+    <!-- Header -->
+    <div class="config-header">
+        <h2>
+            <i class="fas fa-cog"></i>
+            System Configuration
+        </h2>
+    </div>
+
+    <!-- System Status -->
+    <div class="status-bar">
+        <div class="status-item success">
+            <span class="status-dot"></span>
+            <span>Face Recognition:</span>
+            <strong id="faceStatus">Loading...</strong>
+        </div>
+        <div class="status-item success">
+            <i class="fas fa-database"></i>
+            <span>Database:</span>
+            <strong id="dbStatus">Loading...</strong>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-microchip"></i>
+            <span>CPU:</span>
+            <strong id="cpuUsage">Loading...</strong>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-memory"></i>
+            <span>Memory:</span>
+            <strong id="memoryUsage">Loading...</strong>
+        </div>
+    </div>
+
+    <!-- Configuration Tabs -->
+    <div class="config-tabs">
+        <button class="tab-btn active" data-tab="general">
+            <i class="fas fa-building"></i> General
+        </button>
+        <button class="tab-btn" data-tab="recognition">
+            <i class="fas fa-brain"></i> Recognition
+        </button>
+        <button class="tab-btn" data-tab="performance">
+            <i class="fas fa-tachometer-alt"></i> Performance
+        </button>
+        <button class="tab-btn" data-tab="notifications">
+            <i class="fas fa-bell"></i> Notifications
+        </button>
+        <button class="tab-btn" data-tab="advanced">
+            <i class="fas fa-code"></i> Advanced
+        </button>
+    </div>
+
+    <form method="POST" id="configForm">
+        {% csrf_token %}
+
+        <!-- Tab 1: General Settings -->
+        <div class="tab-content active" id="tab-general">
+            <div class="settings-card">
+                <h3><i class="fas fa-university"></i> Institution Settings</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Institution Name</label>
+                        <input type="text" name="institution_name"
+                            value="{{ config.institution_name|default:'Far Western University' }}" class="form-control"
+                            placeholder="Enter institution name">
+                    </div>
+                    <div class="form-group">
+                        <label>Timezone</label>
+                        <select name="timezone" class="form-control">
+                            <option value="UTC" {% if config.timezone == "UTC" %}selected{% endif %}>UTC</option>
+                            <option value="Asia/Kathmandu" {% if config.timezone == "Asia/Kathmandu" %}selected{% endif %}>Asia/Kathmandu (+5:45)</option>
+                            <option value="Asia/Kolkata" {% if config.timezone == "Asia/Kolkata" %}selected{% endif %}>Asia/Kolkata (+5:30)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3><i class="fas fa-clock"></i> Session Defaults</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Default Duration (minutes)</label>
+                        <input type="number" name="default_duration" value="{{ config.default_duration|default:'60' }}"
+                            min="15" max="180" class="form-control">
+                        <small class="help-text">How long sessions last by default</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Auto-stop after (minutes)</label>
+                        <input type="number" name="auto_stop" value="{{ config.auto_stop_minutes|default:'5' }}" min="1"
+                            max="30" class="form-control">
+                        <small class="help-text">No detection for X minutes = auto stop</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Recognition Settings -->
+        <div class="tab-content" id="tab-recognition">
+            <div class="settings-card">
+                <h3><i class="fas fa-brain"></i> Face Recognition Parameters</h3>
+
+                <div class="form-group">
+                    <label>Recognition Threshold (Sensitivity)</label>
+                    <div class="range-with-value">
+                        <input type="range" name="threshold" min="0.3" max="0.9" step="0.01"
+                            value="{{ config.recognition_threshold|default:'0.65' }}" class="form-range"
+                            id="thresholdRange">
+                        <span class="range-value" id="thresholdValue">{{ config.recognition_threshold|default:'0.65' }}</span>
+                    </div>
+                    <div class="range-labels">
+                        <span>Stricter (0.3)</span>
+                        <span>Balanced (0.65)</span>
+                        <span>Looser (0.9)</span>
+                    </div>
+                    <small class="help-text">Lower values = more accurate but may miss some faces</small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Detection Model</label>
+                        <select name="detection_model" class="form-control">
+                            <option value="hog" {% if config.detection_model == "hog" %}selected{% endif %}>HOG (Fast, CPU)</option>
+                            <option value="cnn" {% if config.detection_model == "cnn" %}selected{% endif %}>CNN (Slow, GPU)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Upsample Factor</label>
+                        <select name="upsample" class="form-control">
+                            <option value="0" {% if config.upsample_factor == 0 %}selected{% endif %}>0 (Fastest)</option>
+                            <option value="1" {% if config.upsample_factor == 1 %}selected{% endif %}>1 (Balanced)</option>
+                            <option value="2" {% if config.upsample_factor == 2 %}selected{% endif %}>2 (Best Quality)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Camera Source</label>
+                        <select name="camera" class="form-control" id="cameraSelect">
+                            <option value="0" {% if config.camera_source == "0" %}selected{% endif %}>Camera 0 (Built-in)</option>
+                            <option value="1" {% if config.camera_source == "1" %}selected{% endif %}>Camera 1 (External)</option>
+                            <option value="rtsp" {% if config.camera_source == "rtsp" %}selected{% endif %}>IP Camera (RTSP)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="rtspGroup"
+                        style="{% if config.camera_source != 'rtsp' %}display: none;{% endif %}">
+                        <label>RTSP URL</label>
+                        <input type="text" name="rtsp_url" value="{{ config.rtsp_url|default:'' }}"
+                            placeholder="rtsp://username:password@ip:port/stream" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Frame Resolution</label>
+                        <select name="resolution" class="form-control">
+                            <option value="0.5" {% if config.frame_resolution|stringformat:".1f" == "0.5" %}selected{% endif %}>640x480 (Fast)</option>
+                            <option value="0.75" {% if config.frame_resolution|stringformat:".2f" == "0.75" %}selected{% endif %}>960x720 (Balanced)</option>
+                            <option value="1" {% if config.frame_resolution|stringformat:".1f" == "1.0" %}selected{% endif %}>1280x720 (HD)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Process Every N Frame</label>
+                        <select name="frame_skip" class="form-control">
+                            <option value="1" {% if config.frame_skip == 1 %}selected{% endif %}>Every Frame (Max CPU)</option>
+                            <option value="3" {% if config.frame_skip == 3 %}selected{% endif %}>Every 3rd Frame (Recommended)</option>
+                            <option value="5" {% if config.frame_skip == 5 %}selected{% endif %}>Every 5th Frame (Eco)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Performance -->
+        <div class="tab-content" id="tab-performance">
+            <div class="settings-card">
+                <h3><i class="fas fa-tachometer-alt"></i> Performance Tuning</h3>
+
+                <div class="form-group">
+                    <label>Student Cache Size</label>
+                    <input type="number" name="cache_size" value="{{ config.cache_size|default:'100' }}" min="10"
+                        max="1000" class="form-control">
+                    <small class="help-text">Number of face encodings to keep in RAM</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Processing Threads</label>
+                    <select name="threads" class="form-control">
+                        <option value="1" {% if config.processing_threads == 1 %}selected{% endif %}>1 Thread (Low CPU)</option>
+                        <option value="2" {% if config.processing_threads == 2 %}selected{% endif %}>2 Threads (Balanced)</option>
+                        <option value="4" {% if config.processing_threads == 4 %}selected{% endif %}>4 Threads (High Performance)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Log Retention (days)</label>
+                    <input type="number" name="log_retention" value="{{ config.log_retention_days|default:'30' }}"
+                        min="1" max="365" class="form-control">
+                    <small class="help-text">How long to keep attendance logs</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Notifications -->
+        <div class="tab-content" id="tab-notifications">
+            <div class="settings-card">
+                <h3><i class="fas fa-bell"></i> Notification Settings</h3>
+
+                <div class="form-group">
+                    <label>Email Notifications</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="notify_session_start" {% if config.notify_session_start %}checked{% endif %}>
+                            <span>Session Started</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="notify_session_end" {% if config.notify_session_end %}checked{% endif %}>
+                            <span>Session Ended</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="notify_low_attendance" {% if config.notify_low_attendance %}checked{% endif %}>
+                            <span>Low Attendance Alert</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Alert Email</label>
+                        <input type="email" name="alert_email"
+                            value="{{ config.alert_email|default:'admin@example.com' }}" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Low Attendance Threshold (%)</label>
+                        <input type="number" name="attendance_threshold"
+                            value="{{ config.attendance_threshold|default:'50' }}" min="1" max="100"
+                            class="form-control">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Advanced -->
+        <div class="tab-content" id="tab-advanced">
+            <div class="settings-card">
+                <h3><i class="fas fa-code"></i> Advanced Settings</h3>
+
+                <div class="form-group">
+                    <label>API Access</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="enable_api" {% if config.enable_api %}checked{% endif %}>
+                            <span>Enable REST API</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="require_api_key" {% if config.require_api_key %}checked{% endif %}>
+                            <span>Require API Key</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>API Key</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" name="api_key" value="{{ config.api_key|default:'sk_live_xxxxxxxxxxxx' }}"
+                            class="form-control" readonly style="flex: 1;">
+                        <button type="button" class="btn-small" onclick="generateApiKey()">
+                            <i class="fas fa-key"></i> Generate New
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Webhook URL</label>
+                    <input type="url" name="webhook_url" value="{{ config.webhook_url|default:'' }}"
+                        placeholder="https://your-system.com/webhook" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label>Debug Mode</label>
+                    <select name="debug_mode" class="form-control">
+                        <option value="0" {% if config.debug_mode == 0 %}selected{% endif %}>Disabled</option>
+                        <option value="1" {% if config.debug_mode == 1 %}selected{% endif %}>Basic Logging</option>
+                        <option value="2" {% if config.debug_mode == 2 %}selected{% endif %}>Verbose Logging</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <button type="button" class="btn-test" onclick="window.testConfiguration()">
+                <i class="fas fa-play"></i> Test Configuration
+            </button>
+            <button type="button" class="btn-reset" onclick="window.resetDefaults()">
+                <i class="fas fa-undo"></i> Reset to Defaults
+            </button>
+            <button type="submit" class="btn-save">
+                <i class="fas fa-save"></i> Save All Settings
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    (function () {
+        'use strict';
+
+        // TAB SWITCHING FUNCTIONALITY
+        function initTabs() {
+            const tabs = document.querySelectorAll('.tab-btn');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    // Get tab name from data attribute
+                    const tabName = this.dataset.tab;
+
+                    // Remove active class from all tabs and contents
+                    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                    // Add active class to current tab and content
+                    this.classList.add('active');
+                    const content = document.getElementById(`tab-${tabName}`);
+                    if (content) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // THRESHOLD SLIDER
+        function initSlider() {
+            const range = document.getElementById('thresholdRange');
+            const value = document.getElementById('thresholdValue');
+
+            if (range && value) {
+                // Set initial value
+                value.textContent = parseFloat(range.value).toFixed(2);
+
+                // Update on input
+                range.addEventListener('input', function () {
+                    value.textContent = parseFloat(this.value).toFixed(2);
+                });
+            }
+        }
+
+        // CAMERA SOURCE TOGGLE
+        function initCameraToggle() {
+            const cameraSelect = document.getElementById('cameraSelect');
+            const rtspGroup = document.getElementById('rtspGroup');
+
+            if (cameraSelect && rtspGroup) {
+                cameraSelect.addEventListener('change', function () {
+                    rtspGroup.style.display = this.value === 'rtsp' ? 'block' : 'none';
+                });
+            }
+        }
+
+        // REAL SYSTEM STATUS FROM API
+        function updateSystemStatus() {
+            fetch('/dashboard/api/system-status/')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('cpuUsage').textContent = data.cpu || 'N/A';
+                    document.getElementById('memoryUsage').textContent = data.memory || 'N/A';
+                    document.getElementById('faceStatus').textContent = data.face_recognition || 'Unknown';
+                    document.getElementById('dbStatus').textContent = data.database || 'Unknown';
+                })
+                .catch(error => {
+                    console.error('Error updating status:', error);
+                });
+        }
+
+        function initSystemStatus() {
+            updateSystemStatus();
+            setInterval(updateSystemStatus, 5000);
+        }
+
+        // TEST CONFIGURATION WITH REAL API
+        window.testConfiguration = function () {
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+            btn.disabled = true;
+
+            fetch('/dashboard/api/test-config/')
+                .then(response => response.json())
+                .then(data => {
+                    let message = 'TEST RESULTS:\n\n';
+                    data.results.forEach(result => {
+                        message += `${result.test}: ${result.message}\n`;
+                    });
+
+                    alert(message);
+                })
+                .catch(error => {
+                    alert('Error testing configuration: ' + error.message);
+                })
+                .finally(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+        };
+
+        // RESET TO SAVED VALUES (reload from server)
+        window.resetDefaults = function () {
+            if (confirm('Reset all settings to saved values? This will reload the page.')) {
+                window.location.reload();
+            }
+        };
+
+        // GENERATE API KEY - REAL
+        window.generateApiKey = function () {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            btn.disabled = true;
+
+            fetch('/dashboard/api/generate-key/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.api_key) {
+                        const apiKeyInput = document.querySelector('input[name="api_key"]');
+                        if (apiKeyInput) {
+                            apiKeyInput.value = data.api_key;
+                        }
+                        alert('New API key generated successfully!');
+                    }
+                })
+                .catch(error => {
+                    alert('Error generating API key: ' + error.message);
+                })
+                .finally(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+        };
+
+        // FORM VALIDATION
+        function initFormValidation() {
+            const form = document.getElementById('configForm');
+
+            form.addEventListener('submit', function (e) {
+                const institution = document.querySelector('input[name="institution_name"]');
+                if (!institution.value.trim()) {
+                    e.preventDefault();
+                    alert('Institution name is required');
+                    institution.focus();
+                    return false;
+                }
+
+                const duration = document.querySelector('input[name="default_duration"]');
+                if (duration.value < 15 || duration.value > 180) {
+                    e.preventDefault();
+                    alert('Duration must be between 15 and 180 minutes');
+                    duration.focus();
+                    return false;
+                }
+
+                return true;
+            });
+        }
+
+        // SIDEBAR HANDLING
+        function initSidebarHandling() {
+            const sidebar = document.querySelector('aside');
+            const main = document.querySelector('main');
+
+            if (!sidebar || !main) return;
+
+            // Watch for class changes on sidebar
+            const observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.attributeName === 'class') {
+                        const isCollapsed = sidebar.classList.contains('collapsed');
+
+                        if (isCollapsed) {
+                            main.style.marginLeft = 'var(--sidebar-collapsed)';
+                            main.style.width = 'calc(100% - var(--sidebar-collapsed))';
+                        } else {
+                            main.style.marginLeft = 'var(--sidebar-width)';
+                            main.style.width = 'calc(100% - var(--sidebar-width))';
+                        }
+                    }
+                });
+            });
+
+            observer.observe(sidebar, { attributes: true });
+
+            // Initial check
+            if (sidebar.classList.contains('collapsed')) {
+                main.style.marginLeft = 'var(--sidebar-collapsed)';
+                main.style.width = 'calc(100% - var(--sidebar-collapsed))';
+            }
+        }
+
+        // INITIALIZE ALL
+        document.addEventListener('DOMContentLoaded', function () {
+            initTabs();
+            initSlider();
+            initCameraToggle();
+            initSystemStatus();
+            initFormValidation();
+            initSidebarHandling();
+        });
+
+    })();
+</script>
+{% endblock %}
