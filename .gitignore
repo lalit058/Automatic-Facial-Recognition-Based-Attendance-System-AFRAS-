@@ -1,0 +1,10 @@
+*.sqlite3
+__pycache__/
+venv/
+media/
+# Create .gitignore to exclude unnecessary files
+echo "*.pyc" > .gitignore
+echo "__pycache__/" >> .gitignore
+echo "venv/" >> .gitignore
+echo ".DS_Store" >> .gitignore
+echo "*.pyo" >> .gitignore
