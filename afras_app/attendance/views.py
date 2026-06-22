@@ -436,7 +436,7 @@ def session_summary(request, session_id):
     return render(request, 'dashboard/session_summary.html', context)
 
 
-# Video Processing (The Generator) - FIXED FOR IMMEDIATE RECOGNITION
+# Video Processing (The Generator) 
 def gen_frames(session_id):
     import time
     from collections import defaultdict
