@@ -1,10 +1,27 @@
-*.sqlite3
+# Python
 __pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
 venv/
+
+# Database
+db.sqlite3
+*.sqlite3
+
+# Media & user uploads
 media/
-# Create .gitignore to exclude unnecessary files
-echo "*.pyc" > .gitignore
-echo "__pycache__/" >> .gitignore
-echo "venv/" >> .gitignore
-echo ".DS_Store" >> .gitignore
-echo "*.pyo" >> .gitignore
+student_images/
+
+# Debug / generated files
+debug_*
+*.png
+*.jpg
+*.jpeg
+
+# OS
+.DS_Store
+
+# Django stuff (optional but recommended)
+*.log
