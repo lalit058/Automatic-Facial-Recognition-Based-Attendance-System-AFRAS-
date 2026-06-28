@@ -1,10 +1,7 @@
 from django.urls import path
 from . import views
 
-app_name = 'recognition'
-
 urlpatterns = [
-    # Add your URL patterns here
-    # Example:
-    # path('', views.index, name='index'),
+    path('video_feed/', views.video_feed, name='video_feed'),
+    path('scan_face/', views.scan_face, name='scan_face'),
 ]

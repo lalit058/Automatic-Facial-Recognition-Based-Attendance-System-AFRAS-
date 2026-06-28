@@ -1,0 +1,1071 @@
+<!-- templates/attendance/session_details.html -->
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Session Details - {{ session.subject_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       PROFESSIONAL SESSION DETAILS STYLES
+       Matching start_session.html Theme
+    ============================================ */
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    .session-details-container {
+        padding: 0.5rem;
+        max-width: 1400px;
+    }
+
+    /* ============================================
+       PAGE HEADER WITH BREADCRUMB INSIDE
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Breadcrumb inside header */
+    .breadcrumb-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.5rem;
+        padding: 0;
+    }
+
+    .breadcrumb-header a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-header a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .breadcrumb-header .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .breadcrumb-header .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    /* Header content */
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-content .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .header-content .header-left h1 i {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .header-content .header-left .subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .header-content .header-left .subtitle .badge-status {
+        padding: 2px 14px;
+        border-radius: 100px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-status.active {
+        background: rgba(16, 185, 129, 0.2);
+        color: #6ee7b7;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .badge-status.ended {
+        background: rgba(148, 163, 184, 0.15);
+        color: #94a3b8;
+        border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+
+    .header-content .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-outline-light {
+        padding: 0.6rem 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    .btn-primary-light {
+        padding: 0.6rem 1.5rem;
+        background: #16a34a;
+        border: none;
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-primary-light:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+    }
+
+    /* ============================================
+       BADGES
+    ============================================ */
+    .dept-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #4f46e5;
+    }
+
+    .sem-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #d97706;
+    }
+
+    .year-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #2563eb;
+    }
+
+    .section-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #db2777;
+    }
+
+    /* ============================================
+       SESSION INFO CARDS
+    ============================================ */
+    .session-info-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-card {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #f1f5f9;
+        text-align: center;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        border-color: #e2e8f0;
+    }
+
+    .info-card .label {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        display: block;
+    }
+
+    .info-card .value {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-top: 2px;
+    }
+
+    /* ============================================
+       SUMMARY CARDS - Clean White Theme
+    ============================================ */
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .summary-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        border: 1px solid #f1f5f9;
+        text-align: center;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        border-color: #e2e8f0;
+    }
+
+    .summary-card .number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: block;
+        line-height: 1.2;
+    }
+
+    .summary-card .label {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .summary-card .number.green { color: #16a34a; }
+    .summary-card .number.red { color: #dc2626; }
+    .summary-card .number.orange { color: #d97706; }
+    .summary-card .number.blue { color: #3b82f6; }
+    .summary-card .number.purple { color: #8b5cf6; }
+    .summary-card .number.pink { color: #ec4899; }
+
+    .summary-card .icon {
+        font-size: 1.2rem;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    /* ============================================
+       STUDENT LIST - Clean White Theme
+    ============================================ */
+    .student-list {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        margin-bottom: 1rem;
+    }
+
+    .student-list .list-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #f8fafc;
+    }
+
+    .student-list .list-header h3 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .student-list .list-header h3 i {
+        color: #6366f1;
+    }
+
+    .student-list .list-header .count {
+        background: #f1f5f9;
+        padding: 2px 12px;
+        border-radius: 100px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .student-list .list-header .count.active {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .student-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    .student-table thead {
+        background: #f8fafc;
+    }
+
+    .student-table thead th {
+        padding: 0.6rem 0.5rem;
+        text-align: left;
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        color: #94a3b8;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #f1f5f9;
+        white-space: nowrap;
+    }
+
+    .student-table thead th:last-child {
+        text-align: center;
+    }
+
+    .student-table tbody td {
+        padding: 0.6rem 0.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+        vertical-align: middle;
+    }
+
+    .student-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .student-table tbody tr:hover td {
+        background: #f8fafc;
+    }
+
+    .student-table .student-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .student-table .student-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: #4f46e5;
+        flex-shrink: 0;
+    }
+
+    .student-table .student-name {
+        font-weight: 500;
+        color: #0f172a;
+    }
+
+    .student-table .student-roll {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        display: block;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        padding: 2px 12px;
+        border-radius: 100px;
+        font-size: 0.55rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-block;
+    }
+
+    .status-badge.present {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .status-badge.absent {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .status-badge.partial {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .status-badge.late {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .status-badge.leave {
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
+
+    /* Retention Progress */
+    .retention-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .progress-bar {
+        width: 80px;
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 10px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .progress-bar .fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.6s ease;
+    }
+
+    .progress-bar .fill.good { background: #16a34a; }
+    .progress-bar .fill.medium { background: #d97706; }
+    .progress-bar .fill.poor { background: #dc2626; }
+
+    .retention-text {
+        font-weight: 600;
+        font-size: 0.8rem;
+        min-width: 36px;
+    }
+
+    .retention-text.good { color: #16a34a; }
+    .retention-text.medium { color: #d97706; }
+    .retention-text.poor { color: #dc2626; }
+
+    .time-cell {
+        font-size: 0.75rem;
+        color: #64748b;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+
+    /* Pattern Button */
+    .btn-pattern {
+        padding: 0.2rem 0.7rem;
+        border-radius: 6px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        background: #8b5cf6;
+        color: #ffffff;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-pattern:hover {
+        background: #7c3aed;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-pattern i {
+        font-size: 0.6rem;
+    }
+
+    /* ============================================
+       ABSENT STUDENTS
+    ============================================ */
+    .absent-students {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        margin-top: 1rem;
+    }
+
+    .absent-students .list-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #fef2f2;
+    }
+
+    .absent-students .list-header h3 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #dc2626;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .absent-students .list-header .count {
+        background: #fee2e2;
+        padding: 2px 12px;
+        border-radius: 100px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #dc2626;
+    }
+
+    .absent-table tbody tr:hover td {
+        background: #fef2f2;
+    }
+
+    /* ============================================
+       EMPTY STATE
+    ============================================ */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 0;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 1200px) {
+        .summary-cards {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .session-details-container {
+            padding: 0.75rem 1rem;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-content .header-actions {
+            width: 100%;
+        }
+
+        .header-content .header-actions .btn-outline-light,
+        .header-content .header-actions .btn-primary-light {
+            flex: 1;
+            justify-content: center;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .summary-cards {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .summary-card {
+            padding: 0.75rem 1rem;
+        }
+
+        .summary-card .number {
+            font-size: 1.3rem;
+        }
+
+        .session-info-cards {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .student-table thead th,
+        .student-table tbody td {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .student-table .student-avatar {
+            width: 24px;
+            height: 24px;
+            font-size: 0.55rem;
+        }
+
+        .progress-bar {
+            width: 50px;
+        }
+
+        .retention-text {
+            font-size: 0.7rem;
+            min-width: 30px;
+        }
+
+        .btn-pattern {
+            font-size: 0.55rem;
+            padding: 0.15rem 0.5rem;
+        }
+
+        .student-list .list-header {
+            padding: 0.75rem 1rem;
+        }
+
+        .absent-students .list-header {
+            padding: 0.75rem 1rem;
+        }
+
+        .time-cell {
+            font-size: 0.65rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .summary-cards {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .summary-card {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .summary-card .number {
+            font-size: 1.1rem;
+        }
+
+        .summary-card .label {
+            font-size: 0.55rem;
+        }
+
+        .session-info-cards {
+            grid-template-columns: 1fr;
+        }
+
+        .student-table thead th,
+        .student-table tbody td {
+            padding: 0.3rem 0.5rem;
+            font-size: 0.65rem;
+        }
+
+        .student-table .student-avatar {
+            width: 20px;
+            height: 20px;
+            font-size: 0.45rem;
+        }
+
+        .progress-bar {
+            width: 30px;
+            height: 4px;
+        }
+
+        .retention-text {
+            font-size: 0.6rem;
+            min-width: 24px;
+        }
+
+        .header-content .header-left h1 {
+            font-size: 1.2rem;
+        }
+
+        .header-content .header-left .subtitle {
+            font-size: 0.7rem;
+        }
+    }
+
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+        .header-content .header-actions,
+        .btn-outline-light,
+        .btn-primary-light,
+        .btn-pattern {
+            display: none !important;
+        }
+
+        .page-header {
+            background: #0f172a !important;
+            border-radius: 0 !important;
+        }
+
+        .header-content .header-left h1 {
+            color: #ffffff !important;
+        }
+
+        .header-content .header-left .subtitle {
+            color: #94a3b8 !important;
+        }
+
+        .summary-card,
+        .student-list,
+        .absent-students {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+        }
+
+        .summary-card .number {
+            font-size: 1.2rem !important;
+        }
+
+        .status-badge {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .progress-bar .fill {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .student-table tbody tr:hover td {
+            background: transparent !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="session-details-container">
+    <!-- ============================================
+    PAGE HEADER WITH BREADCRUMB INSIDE
+    ============================================ -->
+    <div class="page-header">
+        <!-- Breadcrumb INSIDE the header -->
+        <div class="breadcrumb-header">
+            <a href="{% url 'dashboard_home' %}">Dashboard</a>
+            <span class="separator">/</span>
+            <a href="{% url 'attendance:all_sessions' %}">All Sessions</a>
+            <span class="separator">/</span>
+            <span class="current">Session Details</span>
+        </div>
+
+        <!-- Header Content -->
+        <div class="header-content">
+            <div class="header-left">
+                <h1>
+                    <i class="fas fa-chart-bar"></i>
+                    {{ session.subject_name }}
+                </h1>
+                <div class="subtitle">
+                    <span><strong>Session:</strong> #{{ session.id }}</span>
+                    <span>•</span>
+                    <span><i class="fas fa-calendar"></i> {{ session.date|date:"F d, Y" }}</span>
+                    <span>•</span>
+                    <span><i class="fas fa-clock"></i> {{ session.start_time|date:"h:i A" }}</span>
+                    <span>•</span>
+                    <span class="badge-status {% if session.is_active %}active{% else %}ended{% endif %}">
+                        {% if session.is_active %}Active{% else %}Ended{% endif %}
+                    </span>
+                    <span>•</span>
+                    <span><i class="fas fa-hourglass-half"></i> {{ session.expected_duration }} min</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'attendance:session_summary' session.id %}" class="btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <button onclick="window.print()" class="btn-outline-light">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <a href="{% url 'attendance:start_session' %}" class="btn-primary-light">
+                    <i class="fas fa-plus"></i> New Session
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    SESSION INFO CARDS - Department, Year, Semester, Section
+    ============================================ -->
+    <div class="session-info-cards">
+        <div class="info-card">
+            <span class="label">Department</span>
+            <span class="value">
+                <span class="dept-badge">{{ session.department|default:'N/A' }}</span>
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Year</span>
+            <span class="value">
+                <span class="year-badge">{{ session.year|default:'N/A' }}</span>
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Semester</span>
+            <span class="value">
+                <span class="sem-badge">{{ session.semester|default:'N/A' }}</span>
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Section</span>
+            <span class="value">
+                <span class="section-badge">{{ session.section|default:'N/A' }}</span>
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Created By</span>
+            <span class="value">{{ session.created_by.full_name|default:'System' }}</span>
+        </div>
+        <div class="info-card">
+            <span class="label">Status</span>
+            <span class="value">
+                <span class="badge-status {% if session.is_active %}active{% else %}ended{% endif %}" style="font-size:0.7rem;">
+                    {% if session.is_active %}● Active{% else %}Ended{% endif %}
+                </span>
+            </span>
+        </div>
+    </div>
+
+    <!-- ============================================
+    SUMMARY CARDS
+    ============================================ -->
+    <div class="summary-cards">
+        <div class="summary-card">
+            <span class="icon">👥</span>
+            <span class="number blue">{{ total_students }}</span>
+            <span class="label">Total Students</span>
+        </div>
+        <div class="summary-card">
+            <span class="icon">✅</span>
+            <span class="number green">{{ present_count }}</span>
+            <span class="label">Present</span>
+        </div>
+        <div class="summary-card">
+            <span class="icon">⚠️</span>
+            <span class="number orange">{{ partial_count|default:0 }}</span>
+            <span class="label">Partial</span>
+        </div>
+        <div class="summary-card">
+            <span class="icon">⏰</span>
+            <span class="number orange">{{ late_count|default:0 }}</span>
+            <span class="label">Late</span>
+        </div>
+        <div class="summary-card">
+            <span class="icon">❌</span>
+            <span class="number red">{{ absent_count }}</span>
+            <span class="label">Absent</span>
+        </div>
+        <div class="summary-card">
+            <span class="icon">📊</span>
+            <span class="number purple">{{ avg_retention|floatformat:1 }}%</span>
+            <span class="label">Avg Retention</span>
+        </div>
+    </div>
+
+    <!-- ============================================
+    STUDENT LIST
+    ============================================ -->
+    <div class="student-list">
+        <div class="list-header">
+            <h3>
+                <i class="fas fa-users" style="color: #6366f1;"></i>
+                Attendance Details
+            </h3>
+            <span class="count {% if logs|length > 0 %}active{% endif %}">
+                {{ logs|length }} students
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table class="student-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Roll No.</th>
+                        <th>Status</th>
+                        <th>Retention</th>
+                        <th>First Seen</th>
+                        <th>Last Seen</th>
+                        <th>Detections</th>
+                        <th>Out of Frame</th>
+                        <th>Total Time</th>
+                        <th style="text-align: center;">Pattern</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>
+                            <div class="student-cell">
+                                <div class="student-avatar">
+                                    {{ log.student.full_name|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <span class="student-name">{{ log.student.full_name }}</span>
+                                    <span class="student-roll">{{ log.student.roll_number }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ log.student.roll_number }}</td>
+                        <td>
+                            <span class="status-badge {{ log.status|lower }}">
+                                {{ log.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="retention-cell">
+                                <div class="progress-bar">
+                                    <div class="fill 
+                                        {% if log.retention_percentage >= 80 %}good
+                                        {% elif log.retention_percentage >= 50 %}medium
+                                        {% else %}poor{% endif %}"
+                                        style="width: {{ log.retention_percentage|floatformat:0 }}%;">
+                                    </div>
+                                </div>
+                                <span class="retention-text 
+                                    {% if log.retention_percentage >= 80 %}good
+                                    {% elif log.retention_percentage >= 50 %}medium
+                                    {% else %}poor{% endif %}">
+                                    {{ log.retention_percentage|floatformat:0 }}%
+                                </span>
+                            </div>
+                        </td>
+                        <td class="time-cell">{{ log.first_seen|date:"h:i:s A" }}</td>
+                        <td class="time-cell">{{ log.last_seen|date:"h:i:s A" }}</td>
+                        <td class="time-cell">{{ log.detection_count }}</td>
+                        <td class="time-cell">{{ log.out_of_frame_count }}</td>
+                        <td class="time-cell">
+                            {{ log.presence_duration_minutes|floatformat:1 }} min
+                        </td>
+                        <td style="text-align: center;">
+                            <a href="{% url 'attendance:attendance_pattern' log.id %}" class="btn-pattern">
+                                <i class="fas fa-chart-line"></i> Pattern
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h5>No Attendance Records</h5>
+                                <p>This session has no attendance logs yet</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============================================
+    ABSENT STUDENTS
+    ============================================ -->
+    {% if absent_students %}
+    <div class="absent-students">
+        <div class="list-header">
+            <h3>
+                <i class="fas fa-user-slash"></i>
+                Absent Students
+            </h3>
+            <span class="count">{{ absent_students|length }}</span>
+        </div>
+        <div class="table-responsive">
+            <table class="student-table absent-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Roll Number</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in absent_students %}
+                    <tr>
+                        <td>
+                            <div class="student-cell">
+                                <div class="student-avatar" style="background: #fee2e2; color: #dc2626;">
+                                    {{ student.full_name|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <span class="student-name">{{ student.full_name }}</span>
+                                    <span class="student-roll">{{ student.roll_number }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ student.roll_number }}</td>
+                        <td>
+                            <span class="status-badge absent">ABSENT</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

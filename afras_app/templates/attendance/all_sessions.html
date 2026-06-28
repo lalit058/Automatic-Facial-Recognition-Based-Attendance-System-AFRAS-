@@ -1,0 +1,1437 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}All Sessions - Attendance Management{% endblock %}
+
+{% block content %}
+<style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .page-container {
+        padding: 0.5rem;
+        max-width: 1400px;
+    }
+
+    /* ============================================
+       PAGE HEADER
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        display: flex;
+        padding: 1rem 1.5rem;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        color: var(--primary-text);
+        margin-bottom: 1rem;
+    }
+
+    .page-header .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+    }
+
+    .page-header .header-left p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0;
+    }
+
+    .page-header .header-left .breadcrumb {
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header .header-left .breadcrumb a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .page-header .header-left .breadcrumb a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .page-header .header-left .breadcrumb .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .page-header .header-left .breadcrumb .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .page-header .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        padding: 0.6rem 1.5rem;
+        background: #16a34a;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-export {
+        padding: 0.6rem 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-export:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    /* ============================================
+       STATS ROW
+    ============================================ */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+        background: #fff;
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.2s;
+    }
+
+    .stat-item:hover {
+        border-color: #e2e8f0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .stat-item .icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .stat-item .icon.blue {
+        background: #eef2ff;
+        color: #4f46e5;
+    }
+
+    .stat-item .icon.green {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .stat-item .icon.orange {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .stat-item .icon.purple {
+        background: #f3e8ff;
+        color: #7c3aed;
+    }
+
+    .stat-item .icon.gray {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .stat-item .info .label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+    }
+
+    .stat-item .info .value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+
+    /* ============================================
+       TOOLBAR
+    ============================================ */
+    .toolbar {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 0.75rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .toolbar .search-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8fafc;
+        padding: 0.3rem 0.8rem;
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        transition: all 0.2s;
+        flex: 1;
+        min-width: 200px;
+        max-width: 350px;
+    }
+
+    .toolbar .search-box:focus-within {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06);
+        background: #fff;
+    }
+
+    .toolbar .search-box i {
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+
+    .toolbar .search-box input {
+        border: none;
+        background: transparent;
+        padding: 0.2rem 0;
+        font-size: 0.85rem;
+        color: #1e293b;
+        width: 100%;
+        outline: none;
+    }
+
+    .toolbar .search-box input::placeholder {
+        color: #94a3b8;
+    }
+
+    .toolbar .filter-group {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .toolbar .filter-group select {
+        padding: 0.4rem 0.8rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        background: #fafbfc;
+        color: #1e293b;
+        outline: none;
+        cursor: pointer;
+    }
+
+    .toolbar .filter-group select:focus {
+        border-color: #6366f1;
+    }
+
+    .toolbar .filter-group .clear-btn {
+        padding: 0.3rem 1rem;
+        border: none;
+        background: #f1f5f9;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .toolbar .filter-group .clear-btn:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+    /* ============================================
+       SESSION TABLE
+    ============================================ */
+    .table-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+    }
+
+    .table-scroll {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    thead {
+        background: #f8fafc;
+    }
+
+    thead th {
+        padding: 0.75rem 1.5rem;
+        text-align: left;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        border-bottom: 2px solid #f1f5f9;
+        white-space: nowrap;
+    }
+
+    thead th:last-child {
+        text-align: right;
+    }
+
+    tbody td {
+        padding: 0.4rem 0.8rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+        vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .session-id {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 0.8rem;
+    }
+
+    .session-subject {
+        font-weight: 500;
+        color: #0f172a;
+    }
+
+    .session-dept {
+        color: #64748b;
+        font-size: 0.75rem;
+    }
+
+    .session-semester {
+        color: #64748b;
+        font-size: 0.75rem;
+        text-align: center;
+    }
+
+    .session-date {
+        color: #64748b;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .session-time {
+        color: #64748b;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .session-duration {
+        color: #64748b;
+        font-size: 0.75rem;
+        text-align: center;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        padding: 3px 12px;
+        border-radius: 100px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .status-badge.active {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .status-badge.active .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #16a34a;
+        display: inline-block;
+        animation: pulse-dot 1.5s infinite;
+    }
+
+    @keyframes pulse-dot {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.3;
+        }
+    }
+
+    .status-badge.ended {
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    .status-badge.scheduled {
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
+
+    /* Department/Semester badges */
+    .dept-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: #eef2ff;
+        color: #4f46e5;
+    }
+
+    .sem-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .year-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .section-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: #fce7f3;
+        color: #db2777;
+    }
+
+    /* Action Links */
+    .action-link {
+        color: #6366f1;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.8rem;
+        transition: color 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .action-link:hover {
+        color: #4f46e5;
+    }
+
+    .action-link.delete-link {
+        color: #dc2626;
+    }
+
+    .action-link.delete-link:hover {
+        color: #b91c1c;
+    }
+
+    .action-divider {
+        color: #e2e8f0;
+        margin: 0 4px;
+    }
+
+    /* ============================================
+       PAGINATION
+    ============================================ */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.75rem;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .pagination-container .info {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .pagination-container .info strong {
+        color: #0f172a;
+    }
+
+    .pagination-controls {
+        display: flex;
+        gap: 0.3rem;
+        align-items: center;
+    }
+
+    .pagination-controls button {
+        padding: 0.3rem 0.8rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #fff;
+        color: #1e293b;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pagination-controls button:hover:not(:disabled) {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+
+    .pagination-controls button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .pagination-controls button.active {
+        background: #0f172a;
+        color: #fff;
+        border-color: #0f172a;
+    }
+
+    .pagination-controls button.active:hover {
+        background: #1e293b;
+    }
+
+    .pagination-controls .page-numbers {
+        display: flex;
+        gap: 0.2rem;
+    }
+
+    .pagination-controls .page-numbers button {
+        min-width: 32px;
+        justify-content: center;
+    }
+
+    .pagination-controls .dots {
+        padding: 0 0.3rem;
+        color: #94a3b8;
+    }
+
+    /* ============================================
+       EMPTY STATE
+    ============================================ */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 0;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .empty-state p {
+        margin: 0;
+    }
+
+    .empty-state .sub {
+        font-size: 0.85rem;
+        color: #cbd5e1;
+    }
+
+    /* ============================================
+       DELETE MODAL
+    ============================================ */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    .delete-modal {
+        background: #fff;
+        border-radius: 16px;
+        max-width: 480px;
+        width: 90%;
+        padding: 2rem;
+        animation: modalSlideIn 0.3s ease-out;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-30px) scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .delete-modal .modal-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #fee2e2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 2rem;
+        color: #dc2626;
+    }
+
+    .delete-modal h3 {
+        text-align: center;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .delete-modal p {
+        text-align: center;
+        color: #64748b;
+        font-size: 0.9rem;
+        margin: 0 0 1.5rem 0;
+        line-height: 1.6;
+    }
+
+    .delete-modal p strong {
+        color: #0f172a;
+    }
+
+    .delete-modal .modal-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+    }
+
+    .delete-modal .modal-actions button {
+        padding: 0.6rem 2rem;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .delete-modal .modal-actions .btn-cancel {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .delete-modal .modal-actions .btn-cancel:hover {
+        background: #e2e8f0;
+    }
+
+    .delete-modal .modal-actions .btn-danger {
+        background: #dc2626;
+        color: #fff;
+    }
+
+    .delete-modal .modal-actions .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
+    }
+
+    .delete-modal .modal-actions .btn-danger:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 1200px) {
+        .stats-row {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 1rem;
+        }
+
+        .toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 0.75rem 1rem;
+        }
+
+        .toolbar .search-box {
+            max-width: 100%;
+        }
+
+        .toolbar .filter-group {
+            justify-content: space-between;
+        }
+
+        .toolbar .filter-group select {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .stat-item {
+            padding: 0.75rem 1rem;
+        }
+
+        .stat-item .info .value {
+            font-size: 1.1rem;
+        }
+
+        .pagination-container {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .pagination-controls {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        table {
+            font-size: 0.75rem;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.4rem 0.75rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .page-header .header-actions {
+            width: 100%;
+        }
+
+        .page-header .header-actions .btn-primary,
+        .page-header .header-actions .btn-export {
+            flex: 1;
+            justify-content: center;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .delete-modal {
+            padding: 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+
+        .delete-modal .modal-actions {
+            flex-direction: column;
+        }
+
+        .delete-modal .modal-actions button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="page-container">
+    <!-- ============================================
+    PAGE HEADER
+    ============================================ -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="breadcrumb">
+                <a href="{% url 'dashboard_home' %}">Dashboard</a>
+                <span class="separator">/</span>
+                <span class="current">All Sessions</span>
+            </div>
+            <h1>All Sessions</h1>
+            <p>Complete history of all attendance sessions</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'attendance:start_session' %}" class="btn-primary">
+                <i class="fas fa-plus"></i> New Session
+            </a>
+            <a href="#" class="btn-export" onclick="exportSessions()">
+                <i class="fas fa-file-export"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <!-- ============================================
+    STATS ROW
+    ============================================ -->
+    <div class="stats-row">
+        <div class="stat-item">
+            <div class="icon blue"><i class="fas fa-calendar-alt"></i></div>
+            <div class="info">
+                <div class="label">Total Sessions</div>
+                <div class="value" id="totalSessions">0</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon green"><i class="fas fa-play-circle"></i></div>
+            <div class="info">
+                <div class="label">Active</div>
+                <div class="value" id="activeSessions">0</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon orange"><i class="fas fa-clock"></i></div>
+            <div class="info">
+                <div class="label">Scheduled</div>
+                <div class="value" id="scheduledSessions">0</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon gray"><i class="fas fa-stop-circle"></i></div>
+            <div class="info">
+                <div class="label">Ended</div>
+                <div class="value" id="endedSessions">0</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon purple"><i class="fas fa-users"></i></div>
+            <div class="info">
+                <div class="label">Total Students</div>
+                <div class="value" id="totalStudents">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    TOOLBAR
+    ============================================ -->
+    <div class="toolbar">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search by subject or ID..." onkeyup="applyFilters()">
+        </div>
+        <div class="filter-group">
+            <select id="statusFilter" onchange="applyFilters()">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="ended">Ended</option>
+                <option value="scheduled">Scheduled</option>
+            </select>
+            <select id="dateFilter" onchange="applyFilters()">
+                <option value="all">All Time</option>
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+            </select>
+            <select id="departmentFilter" onchange="applyFilters()">
+                <option value="all">All Departments</option>
+                {% for dept in departments %}
+                <option value="{{ dept }}">{{ dept }}</option>
+                {% endfor %}
+            </select>
+            <button class="clear-btn" onclick="clearFilters()">
+                <i class="fas fa-times"></i> Clear
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================
+    SESSION TABLE
+    ============================================ -->
+    <div class="table-card">
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Subject</th>
+                        <th>Department</th>
+                        <th>Year</th>
+                        <th>Sem</th>
+                        <th>Section</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="sessionsTableBody">
+                    <tr>
+                        <td colspan="11" style="text-align:center; padding: 3rem 0;">
+                            <div class="empty-state" style="padding:0;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <h3>Loading...</h3>
+                                <p>Please wait while sessions are loaded</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container" id="paginationContainer">
+            <div class="info" id="paginationInfo">
+                Showing <strong id="startRange">0</strong> - <strong id="endRange">0</strong> of <strong
+                    id="totalSessionsCount">0</strong> sessions
+            </div>
+            <div class="pagination-controls">
+                <button id="prevPage" onclick="goToPage(currentPage - 1)" disabled>
+                    <i class="fas fa-chevron-left"></i> Prev
+                </button>
+                <div class="page-numbers" id="pageNumbers"></div>
+                <button id="nextPage" onclick="goToPage(currentPage + 1)">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+DELETE CONFIRMATION MODAL
+============================================ -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="delete-modal">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Delete Session?</h3>
+        <p>
+            Are you sure you want to delete <strong id="deleteSessionName">this session</strong>?
+            <br>
+            <span style="color: #dc2626; font-size: 0.8rem;">
+                This action cannot be undone. All attendance records for this session will be permanently removed.
+            </span>
+        </p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <button class="btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">
+                <i class="fas fa-trash"></i> Delete Permanently
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================
+    // PERMISSIONS (passed from Django)
+    // ============================================
+    const isStaff = {{ user.is_staff| lower }};
+    const isSuperuser = {{ user.is_superuser| lower }};
+    const canDelete = isStaff || isSuperuser;
+
+    // ============================================
+    // GLOBALS
+    // ============================================
+    let allSessions = [];
+    let filteredSessions = [];
+    let currentPage = 1;
+    const pageSize = 10;
+    let deleteSessionId = null;
+    let deleteSessionName = '';
+
+    // ============================================
+    // SHOW MESSAGE USING BASE TEMPLATE FORMAT
+    // ============================================
+    function showMessage(message, type = 'success') {
+        let container = document.getElementById('django-messages');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'django-messages';
+            container.className = 'msg-container';
+            document.body.appendChild(container);
+        }
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg ${type}`;
+        msgDiv.setAttribute('data-auto-dismiss', 'true');
+
+        let iconClass = 'fa-info-circle';
+        if (type === 'success') iconClass = 'fa-check-circle';
+        else if (type === 'error' || type === 'warning') iconClass = 'fa-exclamation-circle';
+
+        msgDiv.innerHTML = `
+            <i class="fas ${iconClass}"></i>
+            <span>${message}</span>
+        `;
+
+        container.appendChild(msgDiv);
+
+        setTimeout(() => {
+            if (msgDiv.parentNode) {
+                msgDiv.style.animation = 'slideUp 0.4s ease-in forwards';
+                setTimeout(() => {
+                    if (msgDiv.parentNode) {
+                        msgDiv.remove();
+                    }
+                }, 400);
+            }
+        }, 5000);
+    }
+
+    // ============================================
+    // DELETE MODAL
+    // ============================================
+    function openDeleteModal(sessionId, sessionName) {
+        deleteSessionId = sessionId;
+        deleteSessionName = sessionName;
+        document.getElementById('deleteSessionName').textContent = sessionName;
+        document.getElementById('deleteModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+        document.body.style.overflow = '';
+        deleteSessionId = null;
+    }
+
+    function confirmDelete() {
+        if (!deleteSessionId) return;
+
+        const btn = document.getElementById('confirmDeleteBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+
+        fetch(`/attendance/api/delete-session/${deleteSessionId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(data.message || 'Session deleted successfully', 'success');
+                    allSessions = allSessions.filter(s => s.id !== deleteSessionId);
+                    updateStats();
+                    applyFilters();
+                    closeDeleteModal();
+                } else {
+                    showMessage(data.message || 'Failed to delete session', 'error');
+                }
+            })
+            .catch(() => {
+                showMessage('An error occurred while deleting the session', 'error');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-trash"></i> Delete Permanently';
+            });
+    }
+
+    // ============================================
+    // LOAD SESSIONS
+    // ============================================
+    function loadSessions() {
+        fetch('/attendance/api/recent/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.sessions && data.sessions.length > 0) {
+                    allSessions = data.sessions;
+                    updateStats();
+                    applyFilters();
+                } else {
+                    allSessions = [];
+                    updateStats();
+                    showEmptyState('No sessions found', 'Start your first session to begin tracking attendance');
+                }
+            })
+            .catch(() => {
+                showEmptyState('Could not load sessions', 'Please refresh the page or try again later');
+            });
+    }
+
+    // ============================================
+    // UPDATE STATS
+    // ============================================
+    function updateStats() {
+        const total = allSessions.length;
+        const active = allSessions.filter(s => s.is_active).length;
+        const scheduled = allSessions.filter(s => s.status === 'Scheduled').length;
+        const ended = allSessions.filter(s => s.status === 'Ended' && !s.is_active).length;
+
+        document.getElementById('totalSessions').textContent = total;
+        document.getElementById('activeSessions').textContent = active;
+        document.getElementById('scheduledSessions').textContent = scheduled;
+        document.getElementById('endedSessions').textContent = ended;
+        document.getElementById('totalStudents').textContent = 'N/A';
+    }
+
+    // ============================================
+    // APPLY FILTERS
+    // ============================================
+    function applyFilters() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const status = document.getElementById('statusFilter').value;
+        const date = document.getElementById('dateFilter').value;
+        const dept = document.getElementById('departmentFilter').value;
+
+        filteredSessions = allSessions.filter(s => {
+            const matchSearch = s.subject.toLowerCase().includes(search) ||
+                s.id.toString().includes(search);
+
+            let matchStatus = true;
+            if (status === 'active') matchStatus = s.is_active === true;
+            else if (status === 'ended') matchStatus = s.status === 'Ended';
+            else if (status === 'scheduled') matchStatus = s.status === 'Scheduled';
+
+            let matchDate = true;
+            if (date !== 'all') {
+                const days = parseInt(date);
+                const cutoff = new Date();
+                cutoff.setDate(cutoff.getDate() - days);
+                matchDate = new Date(s.date) >= cutoff;
+            }
+
+            let matchDept = true;
+            if (dept !== 'all') matchDept = s.department === dept;
+
+            return matchSearch && matchStatus && matchDate && matchDept;
+        });
+
+        currentPage = 1;
+        renderTable();
+    }
+
+    // ============================================
+    // CLEAR FILTERS
+    // ============================================
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('statusFilter').value = 'all';
+        document.getElementById('dateFilter').value = 'all';
+        document.getElementById('departmentFilter').value = 'all';
+        applyFilters();
+    }
+
+    // ============================================
+    // RENDER TABLE
+    // ============================================
+    function renderTable() {
+        const tbody = document.getElementById('sessionsTableBody');
+        const total = filteredSessions.length;
+        const totalPages = Math.ceil(total / pageSize) || 1;
+        const start = (currentPage - 1) * pageSize;
+        const end = Math.min(start + pageSize, total);
+        const pageSessions = filteredSessions.slice(start, end);
+
+        document.getElementById('startRange').textContent = total > 0 ? start + 1 : 0;
+        document.getElementById('endRange').textContent = end;
+        document.getElementById('totalSessionsCount').textContent = total;
+
+        document.getElementById('paginationContainer').style.display = total > pageSize ? 'flex' : 'none';
+
+        document.getElementById('prevPage').disabled = currentPage <= 1;
+        document.getElementById('nextPage').disabled = currentPage >= totalPages;
+
+        renderPageNumbers(totalPages);
+
+        if (pageSessions.length === 0) {
+            showEmptyState('No sessions match your filters', 'Try adjusting your search or filter criteria');
+            return;
+        }
+
+        tbody.innerHTML = pageSessions.map((s) => {
+            const duration = s.duration || 'N/A';
+            const year = s.year || 'N/A';
+            const semester = s.semester || 'N/A';
+            const section = s.section || 'N/A';
+
+            let statusClass = 'ended';
+            let statusText = s.status || 'Ended';
+
+            if (s.is_active) {
+                statusClass = 'active';
+                statusText = 'Active';
+            } else if (s.status === 'Scheduled') {
+                statusClass = 'scheduled';
+                statusText = 'Scheduled';
+            }
+
+            let actionsHtml = '';
+
+            if (s.is_active) {
+                actionsHtml = `<a href="/attendance/live/${s.id}/" class="action-link">
+                                <i class="fas fa-video"></i> Monitor
+                            </a>`;
+            } else if (s.status === 'Scheduled') {
+                actionsHtml = `<span class="text-muted" style="font-size: 0.7rem;">
+                                <i class="fas fa-clock"></i> Upcoming
+                            </span>`;
+            } else {
+                actionsHtml = `<a href="/attendance/summary/${s.id}/" class="action-link">
+                                <i class="fas fa-chart-bar"></i> Summary
+                            </a>`;
+            }
+
+            if (canDelete && !s.is_active) {
+                actionsHtml += `
+                    <span class="action-divider">|</span>
+                    <a href="#" class="action-link delete-link" onclick="event.preventDefault(); openDeleteModal(${s.id}, '${s.subject}')">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                `;
+            }
+
+            return `
+            <tr>
+                <td class="session-id">#${s.id}</td>
+                <td class="session-subject">${s.subject}</td>
+                <td class="session-dept">
+                    <span class="dept-badge">${s.department || 'N/A'}</span>
+                </td>
+                <td class="session-semester">
+                    <span class="year-badge">${year}</span>
+                </td>
+                <td class="session-semester">
+                    <span class="sem-badge">${semester}</span>
+                </td>
+                <td class="session-semester">
+                    <span class="section-badge">${section}</span>
+                </td>
+                <td class="session-date">${s.date}</td>
+                <td class="session-time">${s.time_range}</td>
+                <td class="session-duration">${duration} min</td>
+                <td>
+                    <span class="status-badge ${statusClass}">
+                        ${s.is_active ? '<span class="dot"></span>' : ''}
+                        ${statusText}
+                    </span>
+                </td>
+                <td style="text-align: right; white-space: nowrap;">
+                    ${actionsHtml}
+                </td>
+            </tr>
+        `}).join('');
+    }
+
+    // ============================================
+    // SHOW EMPTY STATE
+    // ============================================
+    function showEmptyState(title, message) {
+        const tbody = document.getElementById('sessionsTableBody');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="11">
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>${title}</h3>
+                        <p>${message}</p>
+                        <div class="sub">Try adjusting your filters or start a new session</div>
+                    </div>
+                </td>
+            </tr>
+        `;
+        document.getElementById('paginationContainer').style.display = 'none';
+    }
+
+    // ============================================
+    // RENDER PAGE NUMBERS
+    // ============================================
+    function renderPageNumbers(totalPages) {
+        const container = document.getElementById('pageNumbers');
+        let html = '';
+
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+        } else {
+            html += `<button class="${1 === currentPage ? 'active' : ''}" onclick="goToPage(1)">1</button>`;
+
+            if (currentPage > 3) {
+                html += `<span class="dots">…</span>`;
+            }
+
+            let startPage = Math.max(2, currentPage - 1);
+            let endPage = Math.min(totalPages - 1, currentPage + 1);
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            if (currentPage < totalPages - 2) {
+                html += `<span class="dots">…</span>`;
+            }
+
+            html += `<button class="${totalPages === currentPage ? 'active' : ''}" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+        }
+
+        container.innerHTML = html;
+    }
+
+    // ============================================
+    // GO TO PAGE
+    // ============================================
+    function goToPage(page) {
+        const totalPages = Math.ceil(filteredSessions.length / pageSize) || 1;
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        renderTable();
+    }
+
+    // ============================================
+    // EXPORT SESSIONS
+    // ============================================
+    function exportSessions() {
+        if (filteredSessions.length === 0) {
+            showMessage('No sessions to export', 'warning');
+            return;
+        }
+
+        let csv = 'Session ID,Subject,Department,Year,Semester,Section,Date,Time Range,Duration,Status\n';
+        filteredSessions.forEach(s => {
+            const status = s.is_active ? 'Active' : (s.status || 'Ended');
+            csv += `${s.id},"${s.subject}","${s.department || 'N/A'}",${s.year || 'N/A'},${s.semester || 'N/A'},"${s.section || 'N/A'}",${s.date},"${s.time_range}",${s.duration || 'N/A'} min,${status}\n`;
+        });
+
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `all_sessions_export_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+
+        showMessage('Sessions exported successfully', 'success');
+    }
+
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
+        }
+    });
+
+    // ============================================
+    // CLOSE MODAL ON CLICK OUTSIDE
+    // ============================================
+    document.getElementById('deleteModal').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    // ============================================
+    // INITIALIZE
+    // ============================================
+    document.addEventListener('DOMContentLoaded', loadSessions);
+</script>
+{% endblock %}

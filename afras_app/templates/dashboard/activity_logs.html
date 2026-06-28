@@ -1,9 +1,9 @@
-{% extends 'dashboard/base.html' %} {% block title %}Activity Logs - AFRAS{% endblock %} {% block extra_head %}
+{% extends 'dashboard/base.html' %} 
+{% block title %}Activity Logs - AFRAS{% endblock %} {% block extra_head %}
 <style>
     .activity-logs-wrapper {
         max-width: 1400px;
-        margin: 0 auto;
-        padding: 1rem;
+        padding: 0.5rem;
     }
     /* Header Section */
     
@@ -11,13 +11,13 @@
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         border-radius: 24px;
         padding: 1.5rem 2rem;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 1rem;
-        color: white;
+        color: var(--primary-text);
     }
     
     .header-title h1 {

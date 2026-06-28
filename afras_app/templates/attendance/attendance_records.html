@@ -1,0 +1,744 @@
+<!-- templates/attendance/attendance_records.html -->
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Attendance Records{% endblock %}
+
+{% block content %}
+<style>
+    .page-container {
+        padding: 0.5rem;
+        max-width: 1400px;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .breadcrumb-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.5rem;
+    }
+
+    .breadcrumb-header a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-header a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .breadcrumb-header .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .breadcrumb-header .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-content .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .header-content .header-left p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    /* Stats Row */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+        background: #fff;
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        text-align: center;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .stat-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        border-color: #e2e8f0;
+    }
+
+    .stat-item .number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: block;
+        line-height: 1.2;
+    }
+
+    .stat-item .number.blue { color: #3b82f6; }
+    .stat-item .number.green { color: #16a34a; }
+    .stat-item .number.red { color: #dc2626; }
+    .stat-item .number.orange { color: #d97706; }
+    .stat-item .number.purple { color: #8b5cf6; }
+
+    .stat-item .label {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    /* Filter Section */
+    .filter-section {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 1rem 1.5rem;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .filter-section select {
+        padding: 0.4rem 0.8rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        background: #fafbfc;
+        color: #1e293b;
+        outline: none;
+        cursor: pointer;
+        min-width: 140px;
+    }
+
+    .filter-section select:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06);
+    }
+
+    .filter-section .btn-filter {
+        padding: 0.4rem 1.2rem;
+        border: none;
+        background: var(--primary);
+        color: #fff;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .filter-section .btn-filter:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(26, 86, 148, 0.25);
+    }
+
+    .filter-section .btn-clear {
+        padding: 0.4rem 1rem;
+        border: none;
+        background: #f1f5f9;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .filter-section .btn-clear:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+    .filter-section .filter-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Table */
+    .table-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .table-card .table-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #f8fafc;
+    }
+
+    .table-card .table-header h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .table-card .table-header h3 i {
+        color: #6366f1;
+    }
+
+    .table-card .table-header .count {
+        background: #e2e8f0;
+        padding: 2px 12px;
+        border-radius: 100px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .table-scroll {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    thead {
+        background: #f8fafc;
+    }
+
+    thead th {
+        padding: 0.75rem 1.5rem;
+        text-align: left;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        border-bottom: 2px solid #f1f5f9;
+        white-space: nowrap;
+    }
+
+    thead th:last-child {
+        text-align: right;
+    }
+
+    tbody td {
+        padding: 0.6rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+        vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    tbody tr:hover td {
+        background: #f8fafc;
+    }
+
+    .status-badge {
+        padding: 2px 12px;
+        border-radius: 100px;
+        font-size: 0.55rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-block;
+    }
+
+    .status-badge.PRESENT { background: #dcfce7; color: #16a34a; }
+    .status-badge.ABSENT { background: #fee2e2; color: #dc2626; }
+    .status-badge.PARTIAL { background: #fef3c7; color: #d97706; }
+    .status-badge.LATE { background: #fef3c7; color: #d97706; }
+    .status-badge.LEAVE { background: #e0e7ff; color: #4f46e5; }
+
+    .student-link {
+        color: #6366f1;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .student-link:hover {
+        text-decoration: underline;
+        color: #4f46e5;
+    }
+
+    .retention-text {
+        font-weight: 600;
+    }
+
+    .retention-text.good { color: #16a34a; }
+    .retention-text.medium { color: #d97706; }
+    .retention-text.poor { color: #dc2626; }
+
+    /* Pagination */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .pagination-container .info {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .pagination-container .info strong {
+        color: #0f172a;
+    }
+
+    .pagination-controls {
+        display: flex;
+        gap: 0.3rem;
+        align-items: center;
+    }
+
+    .pagination-controls a {
+        padding: 0.3rem 0.8rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #fff;
+        color: #1e293b;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pagination-controls a:hover:not(.active):not(.disabled) {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+
+    .pagination-controls a.active {
+        background: #0f172a;
+        color: #fff;
+        border-color: #0f172a;
+    }
+
+    .pagination-controls a.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 0;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .empty-state p {
+        margin: 0;
+    }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 1200px) {
+        .stats-row {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .stats-row {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 0.75rem 1rem;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-content .header-left h1 {
+            font-size: 1.2rem;
+        }
+
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .stat-item {
+            padding: 0.75rem 1rem;
+        }
+
+        .stat-item .number {
+            font-size: 1.3rem;
+        }
+
+        .filter-section {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 0.75rem 1rem;
+        }
+
+        .filter-section select {
+            width: 100%;
+        }
+
+        .filter-section .btn-filter,
+        .filter-section .btn-clear {
+            justify-content: center;
+        }
+
+        .pagination-container {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .pagination-controls {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        table {
+            font-size: 0.75rem;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.4rem 0.75rem;
+        }
+
+        .table-card .table-header {
+            padding: 0.75rem 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .stat-item {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .stat-item .number {
+            font-size: 1.1rem;
+        }
+
+        .stat-item .label {
+            font-size: 0.55rem;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.3rem 0.5rem;
+            font-size: 0.65rem;
+        }
+
+        .status-badge {
+            font-size: 0.45rem;
+            padding: 1px 8px;
+        }
+    }
+
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+        .page-header .header-actions,
+        .filter-section .btn-filter,
+        .filter-section .btn-clear {
+            display: none !important;
+        }
+
+        .page-header {
+            background: #0f172a !important;
+            border-radius: 0 !important;
+        }
+
+        .stat-item,
+        .table-card,
+        .filter-section {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+        }
+
+        .status-badge {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .pagination-container {
+            display: none !important;
+        }
+    }
+</style>
+
+<div class="page-container">
+    <!-- ============================================
+    PAGE HEADER
+    ============================================ -->
+    <div class="page-header">
+        <div class="breadcrumb-header">
+            <a href="{% url 'dashboard_home' %}">Dashboard</a>
+            <span class="separator">/</span>
+            <span class="current">Attendance Records</span>
+        </div>
+
+        <div class="header-content">
+            <div class="header-left">
+                <h1><i class="fas fa-clipboard-list"></i> Attendance Records</h1>
+                <p>View all student attendance logs</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    STATS ROW - Real backend data
+    ============================================ -->
+    <div class="stats-row">
+        <div class="stat-item">
+            <span class="number blue">{{ total_logs|default:0 }}</span>
+            <span class="label">Total Records</span>
+        </div>
+        <div class="stat-item">
+            <span class="number green">{{ present_count|default:0 }}</span>
+            <span class="label">Present</span>
+        </div>
+        <div class="stat-item">
+            <span class="number orange">{{ partial_count|default:0 }}</span>
+            <span class="label">Partial</span>
+        </div>
+        <div class="stat-item">
+            <span class="number orange">{{ late_count|default:0 }}</span>
+            <span class="label">Late</span>
+        </div>
+        <div class="stat-item">
+            <span class="number red">{{ absent_count|default:0 }}</span>
+            <span class="label">Absent</span>
+        </div>
+    </div>
+
+    <!-- ============================================
+    FILTER SECTION - Real backend data
+    ============================================ -->
+    <div class="filter-section">
+        <form method="GET" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; width: 100%;">
+            <span class="filter-label"><i class="fas fa-filter"></i> Filter:</span>
+            
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="PRESENT" {% if status_filter == 'PRESENT' %}selected{% endif %}>Present</option>
+                <option value="ABSENT" {% if status_filter == 'ABSENT' %}selected{% endif %}>Absent</option>
+                <option value="PARTIAL" {% if status_filter == 'PARTIAL' %}selected{% endif %}>Partial</option>
+                <option value="LATE" {% if status_filter == 'LATE' %}selected{% endif %}>Late</option>
+                <option value="LEAVE" {% if status_filter == 'LEAVE' %}selected{% endif %}>Leave</option>
+            </select>
+
+            <select name="department">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                <option value="{{ dept }}" {% if department_filter == dept %}selected{% endif %}>{{ dept }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="semester">
+                <option value="">All Semesters</option>
+                {% for sem in semesters %}
+                <option value="{{ sem }}" {% if semester_filter|add:'0' == sem %}selected{% endif %}>
+                    Semester {{ sem }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn-filter">
+                <i class="fas fa-search"></i> Apply
+            </button>
+            <a href="{% url 'attendance:attendance_records' %}" class="btn-clear">
+                <i class="fas fa-times"></i> Clear
+            </a>
+        </form>
+    </div>
+
+    <!-- ============================================
+    TABLE - Real backend data
+    ============================================ -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3>
+                <i class="fas fa-list-ul"></i>
+                Attendance Logs
+            </h3>
+            <span class="count">{{ logs|length }} records</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Roll No.</th>
+                        <th>Subject</th>
+                        <th>Department</th>
+                        <th>Sem</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Retention</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'attendance:student_attendance_record' log.student.id %}" class="student-link">
+                                {{ log.student.full_name }}
+                            </a>
+                        </td>
+                        <td>{{ log.student.roll_number }}</td>
+                        <td>{{ log.session.subject_name }}</td>
+                        <td>{{ log.session.department|default:"N/A" }}</td>
+                        <td>{{ log.session.semester|default:"N/A" }}</td>
+                        <td>{{ log.session.date|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="status-badge {{ log.status }}">
+                                {{ log.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% with retention=log.retention_percentage|floatformat:0 %}
+                            <span class="retention-text 
+                                {% if retention|add:"0" >= 80 %}good
+                                {% elif retention|add:"0" >= 50 %}medium
+                                {% else %}poor{% endif %}">
+                                {{ retention }}%
+                            </span>
+                            {% endwith %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h3>No Attendance Records</h3>
+                                <p>No attendance logs found matching your criteria</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ============================================
+        PAGINATION
+        ============================================ -->
+        {% if logs.paginator and logs.paginator.num_pages > 1 %}
+        <div class="pagination-container">
+            <div class="info">
+                Showing <strong>{{ logs.start_index }}</strong> - <strong>{{ logs.end_index }}</strong>
+                of <strong>{{ logs.paginator.count }}</strong> records
+            </div>
+            <div class="pagination-controls">
+                {% if logs.has_previous %}
+                <a href="?page={{ logs.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% else %}
+                <a class="disabled"><i class="fas fa-chevron-left"></i></a>
+                {% endif %}
+
+                {% for num in logs.paginator.page_range %}
+                    {% if num == logs.number %}
+                    <a class="active">{{ num }}</a>
+                    {% elif num > logs.number|add:'-3' and num < logs.number|add:'3' %}
+                    <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if logs.has_next %}
+                <a href="?page={{ logs.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% else %}
+                <a class="disabled"><i class="fas fa-chevron-right"></i></a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
