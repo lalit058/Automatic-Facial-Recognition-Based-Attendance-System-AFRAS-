@@ -113,7 +113,6 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -143,6 +142,284 @@
             font-size: 0.85rem;
         }
 
+        /* ============================================
+           FACE CAPTURE SECTION (NEW)
+           ============================================ */
+        .face-capture-section {
+            background: var(--primary-bg);
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .face-capture-section.active {
+            border-color: var(--primary);
+            background: rgba(0, 98, 255, 0.03);
+        }
+
+        .face-capture-section.success {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .face-capture-section.error {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .face-capture-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .face-capture-header h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .face-capture-header h4 i {
+            color: var(--primary);
+        }
+
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-dim);
+        }
+
+        .status-badge.active {
+            background: rgba(0, 98, 255, 0.15);
+            color: var(--primary);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .status-badge.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .status-badge.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Video Container */
+        .video-container {
+            position: relative;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 4/3;
+            min-height: 250px;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            transform: scaleX(-1);
+        }
+
+        /* Face Detection Box */
+        .face-box {
+            position: absolute;
+            border: 3px solid #00ff00;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            animation: glowPulse 0.5s ease-in-out;
+            display: none;
+        }
+
+        .face-box.detected {
+            display: block;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 0, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(0, 255, 0, 0.6); }
+        }
+
+        /* Progress Ring */
+        #progress-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 5;
+        }
+
+        #progress-ring.visible {
+            display: block;
+        }
+
+        #progress-ring svg {
+            width: 80px;
+            height: 80px;
+            transform: rotate(-90deg);
+        }
+
+        #progress-ring circle {
+            fill: none;
+            stroke: #00ff00;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 188.5;
+            stroke-dashoffset: 188.5;
+            transition: stroke-dashoffset 0.1s ease;
+        }
+
+        #progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-weight: 800;
+            font-size: 18px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        /* Captured Preview */
+        .captured-preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+            border-radius: 12px;
+            z-index: 3;
+            display: none;
+        }
+
+        .captured-preview.show {
+            display: block;
+        }
+
+        /* Control Buttons */
+        .face-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .face-controls button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 100px;
+        }
+
+        .face-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-start-camera {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-start-camera:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--primary-glow);
+        }
+
+        .btn-retake {
+            background: #ef4444;
+            color: white;
+            display: none;
+        }
+
+        .btn-retake:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-confirm {
+            background: var(--success);
+            color: white;
+            display: none;
+        }
+
+        .btn-confirm:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Status Message */
+        .face-status {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-dim);
+        }
+
+        .face-status.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .face-status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .face-status.info {
+            background: rgba(0, 98, 255, 0.1);
+            color: var(--primary);
+        }
+
+        /* Hidden inputs for face data */
+        .face-hidden-inputs {
+            display: none;
+        }
+
+        /* ============================================
+           FORM STYLES
+           ============================================ */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -171,7 +448,7 @@
             gap: 6px;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 12px 16px;
             background: var(--primary-bg);
@@ -183,12 +460,13 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 10px var(--primary-glow);
         }
 
+        /* File Upload (for ID Proof only) */
         .file-upload {
             border: 2px dashed var(--border);
             padding: 15px;
@@ -232,7 +510,7 @@
             font-weight: 600;
         }
 
-        /* Encoding Display Styling */
+        /* Encoding Display */
         .encoding-wrapper {
             position: relative;
             background: var(--primary-bg);
@@ -299,7 +577,7 @@
             gap: 10px;
         }
 
-        .btn-reg:hover {
+        .btn-reg:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px var(--primary-glow);
         }
@@ -341,15 +619,13 @@
             width: 100%;
         }
 
-        /* Custom Scrollbar for Encoding Box */
+        /* Scrollbar */
         .encoding-box::-webkit-scrollbar {
             width: 4px;
         }
-
         .encoding-box::-webkit-scrollbar-track {
             background: transparent;
         }
-
         .encoding-box::-webkit-scrollbar-thumb {
             background: var(--border);
             border-radius: 10px;
@@ -360,24 +636,24 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
-
             .full-width {
                 grid-column: span 1;
             }
-
             .register-card {
                 padding: 2rem 1.5rem;
             }
-
             .back-btn {
                 top: 15px;
                 left: 15px;
                 width: 35px;
                 height: 35px;
             }
-
             .header h2 {
                 font-size: 1.5rem;
+            }
+            .face-controls button {
+                min-width: 80px;
+                font-size: 0.75rem;
             }
         }
 
@@ -385,20 +661,20 @@
             .register-card {
                 padding: 1.5rem 1rem;
             }
-
             .back-btn {
                 top: 10px;
                 left: 10px;
                 width: 32px;
                 height: 32px;
             }
-
             .header h2 {
                 font-size: 1.3rem;
             }
-
             .btn-reg {
                 font-size: 0.85rem;
+            }
+            .video-container {
+                min-height: 200px;
             }
         }
     </style>
@@ -429,9 +705,62 @@
             {% endif %}
         </div>
 
-        <form id="reg-form" method="post" enctype="multipart/form-data" action="{% url 'register-student' %}">
+        <form id="reg-form" method="post" action="{% url 'register-student' %}">
             {% csrf_token %}
 
+            <!-- ==========================================
+            FACE CAPTURE SECTION (Face Lock Style)
+            ========================================== -->
+            <div class="face-capture-section" id="face-section">
+                <div class="face-capture-header">
+                    <h4><i class="fas fa-face-smile"></i> Face Lock Capture</h4>
+                    <span class="status-badge" id="status-badge">Not Started</span>
+                </div>
+
+                <!-- Video Container -->
+                <div class="video-container" id="video-container">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="overlay"></canvas>
+                    <img id="captured-preview" class="captured-preview">
+                    
+                    <!-- Progress Ring -->
+                    <div id="progress-ring">
+                        <svg viewBox="0 0 60 60">
+                            <circle cx="30" cy="30" r="25" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/>
+                            <circle cx="30" cy="30" r="25" id="progress-circle" fill="none" stroke="#00ff00" stroke-width="4"/>
+                        </svg>
+                        <div id="progress-text">0%</div>
+                    </div>
+                </div>
+
+                <!-- Face Status -->
+                <div class="face-status" id="face-status">
+                    <i class="fas fa-info-circle"></i> Click "Start Camera" to begin face capture
+                </div>
+
+                <!-- Controls -->
+                <div class="face-controls">
+                    <button type="button" class="btn-start-camera" id="btn-start-camera">
+                        <i class="fas fa-camera"></i> Start Camera
+                    </button>
+                    <button type="button" class="btn-retake" id="btn-retake">
+                        <i class="fas fa-redo"></i> Retake
+                    </button>
+                    <button type="button" class="btn-confirm" id="btn-confirm">
+                        <i class="fas fa-check"></i> Confirm & Submit
+                    </button>
+                </div>
+
+                <!-- Hidden Inputs for Face Data -->
+                <div class="face-hidden-inputs">
+                    <input type="hidden" name="face_encoding" id="face-encoding">
+                    <input type="hidden" name="photo_data" id="photo-data">
+                </div>
+            </div>
+
+            <!-- ==========================================
+            STUDENT DETAILS FORM
+            ========================================== -->
             <div class="form-grid">
                 <div class="form-group full-width">
                     <label><i class="fas fa-user"></i> Full Name</label>
@@ -478,17 +807,7 @@
                     <input type="text" name="section" placeholder="A, B, C...">
                 </div>
 
-                <div class="form-group">
-                    <label><i class="fas fa-camera"></i> Face Biometric</label>
-                    <div class="file-upload" onclick="document.getElementById('photo-input').click()">
-                        <i class="fas fa-camera"></i>
-                        <p style="font-size: 0.7rem; color: var(--text-dim);">Click to upload photo</p>
-                        <img id="photo-preview" class="preview-img">
-                        <input type="file" id="photo-input" name="photo" accept="image/*" required
-                            style="display: none;" onchange="handlePreview(this, 'photo-preview', null, true)">
-                    </div>
-                </div>
-
+                <!-- Face Encoding Display (Auto-filled) -->
                 <div class="form-group">
                     <label><i class="fas fa-microchip"></i> Face Encoding</label>
                     <div class="encoding-wrapper" id="enc-wrapper">
@@ -496,13 +815,14 @@
                             <i class="fas fa-copy"></i>
                         </button>
                         <div class="encoding-box" id="encoding-display">
-                            Waiting for biometric upload...
+                            Capture face to generate encoding...
                         </div>
                     </div>
                 </div>
 
+                <!-- ID Proof Upload (Optional) -->
                 <div class="form-group full-width">
-                    <label><i class="fas fa-file-pdf"></i> ID Proof</label>
+                    <label><i class="fas fa-file-pdf"></i> ID Proof (Optional)</label>
                     <div class="file-upload" onclick="document.getElementById('doc-input').click()">
                         <i class="fas fa-file-pdf"></i>
                         <p style="font-size: 0.7rem; color: var(--text-dim);">Upload PDF or Image</p>
@@ -514,8 +834,8 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-reg" id="submit-btn">
-                <i class="fas fa-user-check"></i> AUTHORIZE & ENROLL
+            <button type="submit" class="btn-reg" id="submit-btn" disabled>
+                <i class="fas fa-user-check"></i> CAPTURE FACE FIRST
             </button>
         </form>
 
@@ -524,77 +844,449 @@
         </div>
     </div>
 
+    <!-- ==========================================
+    JAVASCRIPT - Face Lock Auto Capture
+    ========================================== -->
     <script>
-        let fullVectorData = "";
+        // ============================================
+        // DOM Elements
+        // ============================================
+        const video = document.getElementById('video');
+        const overlay = document.getElementById('overlay');
+        const faceSection = document.getElementById('face-section');
+        const statusBadge = document.getElementById('status-badge');
+        const faceStatus = document.getElementById('face-status');
+        const progressRing = document.getElementById('progress-ring');
+        const progressCircle = document.getElementById('progress-circle');
+        const progressText = document.getElementById('progress-text');
+        const capturedPreview = document.getElementById('captured-preview');
+        const btnStartCamera = document.getElementById('btn-start-camera');
+        const btnRetake = document.getElementById('btn-retake');
+        const btnConfirm = document.getElementById('btn-confirm');
+        const submitBtn = document.getElementById('submit-btn');
+        const faceEncodingInput = document.getElementById('face-encoding');
+        const photoDataInput = document.getElementById('photo-data');
+        const encodingDisplay = document.getElementById('encoding-display');
+        const encWrapper = document.getElementById('enc-wrapper');
+        const copyBtn = document.getElementById('copy-btn');
+        const form = document.getElementById('reg-form');
 
-        function handlePreview(input, imgId, chipId = null, isFace = false) {
+        // ============================================
+        // State Variables
+        // ============================================
+        let stream = null;
+        let faceDetected = false;
+        let detectionCount = 0;
+        let requiredDetections = 30; // ~1 second at 30fps
+        let isCapturing = false;
+        let faceEncoding = null;
+        let capturedPhotoData = null;
+        let animationId = null;
+
+        // ============================================
+        // Set Canvas Size
+        // ============================================
+        function resizeCanvas() {
+            const rect = video.getBoundingClientRect();
+            overlay.width = rect.width || 640;
+            overlay.height = rect.height || 480;
+        }
+
+        // ============================================
+        // Start Camera
+        // ============================================
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    },
+                    audio: false
+                });
+
+                video.srcObject = stream;
+                await video.play();
+
+                resizeCanvas();
+                updateStatus('info', 'Looking for face...', 'active');
+                btnStartCamera.disabled = true;
+                btnStartCamera.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting...';
+                faceSection.classList.add('active');
+
+                // Start face detection
+                detectFace();
+
+            } catch (error) {
+                console.error('Camera Error:', error);
+                updateStatus('error', '❌ Camera access denied. Please allow camera permissions.');
+                btnStartCamera.disabled = false;
+                btnStartCamera.innerHTML = '<i class="fas fa-camera"></i> Start Camera';
+                statusBadge.textContent = 'Error';
+                statusBadge.className = 'status-badge error';
+            }
+        }
+
+        // ============================================
+        // Face Detection Loop
+        // ============================================
+        async function detectFace() {
+            if (!stream) return;
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+
+            // Draw video frame to canvas
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Get image data
+            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+
+            try {
+                // Send to server for face detection
+                const formData = new FormData();
+                formData.append('photo_data', imageData);
+
+                const response = await fetch('/process-face/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.face_count > 0) {
+                    // Face detected!
+                    if (!faceDetected) {
+                        faceDetected = true;
+                        detectionCount = 0;
+                        updateStatus('info', '✅ Face detected! Hold still...', 'active');
+                        progressRing.classList.add('visible');
+                    }
+
+                    // Increment detection count
+                    detectionCount++;
+                    const progress = Math.min((detectionCount / requiredDetections) * 100, 100);
+
+                    // Update progress ring
+                    const circumference = 157.08;
+                    const offset = circumference - (progress / 100) * circumference;
+                    progressCircle.style.strokeDasharray = circumference;
+                    progressCircle.style.strokeDashoffset = offset;
+                    progressText.textContent = Math.round(progress) + '%';
+
+                    // Auto-capture when face held long enough
+                    if (detectionCount >= requiredDetections && !isCapturing) {
+                        await captureFace(imageData);
+                    }
+
+                    // Draw face box on overlay
+                    drawFaceBox(true);
+
+                } else {
+                    // No face detected
+                    if (faceDetected) {
+                        faceDetected = false;
+                        detectionCount = 0;
+                        progressRing.classList.remove('visible');
+                        updateStatus('info', '⚠️ Face lost. Please look at camera.', 'active');
+                        progressCircle.style.strokeDashoffset = 157.08;
+                        progressText.textContent = '0%';
+                    }
+                    drawFaceBox(false);
+                }
+
+            } catch (error) {
+                console.error('Detection error:', error);
+            }
+
+            // Continue detection
+            if (!isCapturing) {
+                animationId = requestAnimationFrame(detectFace);
+            }
+        }
+
+        // ============================================
+        // Draw Face Box on Overlay
+        // ============================================
+        function drawFaceBox(detected) {
+            const ctx = overlay.getContext('2d');
+            ctx.clearRect(0, 0, overlay.width, overlay.height);
+
+            if (detected) {
+                // Draw a nice face box
+                const size = Math.min(overlay.width, overlay.height) * 0.6;
+                const x = (overlay.width - size) / 2;
+                const y = (overlay.height - size) / 2;
+
+                ctx.strokeStyle = '#00ff00';
+                ctx.lineWidth = 4;
+                ctx.shadowColor = 'rgba(0, 255, 0, 0.5)';
+                ctx.shadowBlur = 20;
+                ctx.strokeRect(x, y, size, size);
+
+                // Draw corner accents
+                const cornerLength = 20;
+                ctx.shadowBlur = 0;
+                ctx.lineWidth = 3;
+
+                // Top-left
+                ctx.beginPath();
+                ctx.moveTo(x, y + cornerLength);
+                ctx.lineTo(x, y);
+                ctx.lineTo(x + cornerLength, y);
+                ctx.stroke();
+
+                // Top-right
+                ctx.beginPath();
+                ctx.moveTo(x + size - cornerLength, y);
+                ctx.lineTo(x + size, y);
+                ctx.lineTo(x + size, y + cornerLength);
+                ctx.stroke();
+
+                // Bottom-left
+                ctx.beginPath();
+                ctx.moveTo(x, y + size - cornerLength);
+                ctx.lineTo(x, y + size);
+                ctx.lineTo(x + cornerLength, y + size);
+                ctx.stroke();
+
+                // Bottom-right
+                ctx.beginPath();
+                ctx.moveTo(x + size - cornerLength, y + size);
+                ctx.lineTo(x + size, y + size);
+                ctx.lineTo(x + size, y + size - cornerLength);
+                ctx.stroke();
+            }
+        }
+
+        // ============================================
+        // Capture Face
+        // ============================================
+        async function captureFace(imageData) {
+            isCapturing = true;
+            detectionCount = 0;
+            faceDetected = false;
+
+            // Stop detection loop
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+
+            try {
+                // Process the captured image to get encoding
+                const formData = new FormData();
+                formData.append('photo_data', imageData);
+
+                const response = await fetch('/process-face/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Store face data
+                    faceEncoding = data.encoding;
+                    capturedPhotoData = imageData;
+
+                    // Update UI
+                    faceEncodingInput.value = JSON.stringify(faceEncoding);
+                    photoDataInput.value = imageData;
+
+                    // Show preview
+                    capturedPreview.src = imageData;
+                    capturedPreview.classList.add('show');
+
+                    // Update encoding display
+                    const vectorStr = '[' + faceEncoding.slice(0, 10).map(v => v.toFixed(6)).join(', ') + ' ...]';
+                    encodingDisplay.textContent = vectorStr;
+                    encWrapper.classList.add('active');
+                    copyBtn.style.display = 'flex';
+
+                    // Update status
+                    updateStatus('success', '✅ Face captured successfully!', 'success');
+                    statusBadge.textContent = 'Captured ✓';
+                    statusBadge.className = 'status-badge success';
+                    faceSection.classList.remove('active');
+                    faceSection.classList.add('success');
+
+                    // Show confirm button
+                    btnConfirm.style.display = 'flex';
+                    btnRetake.style.display = 'flex';
+                    btnStartCamera.style.display = 'none';
+                    progressRing.classList.remove('visible');
+
+                    // Enable submit button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-user-check"></i> AUTHORIZE & ENROLL';
+
+                    // Stop camera
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                        stream = null;
+                    }
+
+                    console.log('✅ Face captured successfully!');
+                } else {
+                    throw new Error(data.error || 'Face processing failed');
+                }
+
+            } catch (error) {
+                console.error('Capture error:', error);
+                updateStatus('error', '❌ ' + error.message);
+                statusBadge.textContent = 'Error';
+                statusBadge.className = 'status-badge error';
+                isCapturing = false;
+
+                // Restart detection
+                if (!stream) {
+                    await startCamera();
+                } else {
+                    detectFace();
+                }
+            }
+        }
+
+        // ============================================
+        // Retake Face
+        // ============================================
+        async function retakeFace() {
+            // Reset state
+            isCapturing = false;
+            faceDetected = false;
+            detectionCount = 0;
+            faceEncoding = null;
+            capturedPhotoData = null;
+
+            // Reset UI
+            capturedPreview.classList.remove('show');
+            encWrapper.classList.remove('active');
+            encodingDisplay.textContent = 'Capture face to generate encoding...';
+            copyBtn.style.display = 'none';
+            faceEncodingInput.value = '';
+            photoDataInput.value = '';
+
+            btnConfirm.style.display = 'none';
+            btnRetake.style.display = 'none';
+            btnStartCamera.style.display = 'flex';
+            btnStartCamera.disabled = false;
+            btnStartCamera.innerHTML = '<i class="fas fa-camera"></i> Start Camera';
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-user-check"></i> CAPTURE FACE FIRST';
+
+            faceSection.classList.remove('success', 'error');
+            faceSection.classList.add('active');
+
+            // Stop any existing stream
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+
+            // Reset progress ring
+            progressRing.classList.remove('visible');
+            progressCircle.style.strokeDashoffset = 157.08;
+            progressText.textContent = '0%';
+
+            updateStatus('info', 'Click "Start Camera" to begin face capture', '');
+            statusBadge.textContent = 'Not Started';
+            statusBadge.className = 'status-badge';
+        }
+
+        // ============================================
+        // Confirm and Submit
+        // ============================================
+        function confirmAndSubmit() {
+            if (!faceEncoding) {
+                alert('❌ Please capture your face first.');
+                return;
+            }
+
+            // Submit the form
+            form.submit();
+        }
+
+        // ============================================
+        // Update Status
+        // ============================================
+        function updateStatus(type, message, badgeClass = '') {
+            faceStatus.className = 'face-status ' + type;
+            faceStatus.innerHTML = message;
+
+            if (badgeClass) {
+                statusBadge.className = 'status-badge ' + badgeClass;
+            }
+        }
+
+        // ============================================
+        // Copy Encoding
+        // ============================================
+        function copyEncoding() {
+            if (!faceEncoding) return;
+            navigator.clipboard.writeText(JSON.stringify(faceEncoding)).then(() => {
+                copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                copyBtn.style.background = 'var(--success)';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                    copyBtn.style.background = '';
+                }, 2000);
+            });
+        }
+
+        // ============================================
+        // ID Proof Preview
+        // ============================================
+        function handlePreview(input, imgId, chipId = null) {
             const file = input.files[0];
             const preview = document.getElementById(imgId);
             const chip = chipId ? document.getElementById(chipId) : null;
-            const display = document.getElementById('encoding-display');
-            const wrapper = document.getElementById('enc-wrapper');
-            const copyBtn = document.getElementById('copy-btn');
 
             if (!file) return;
 
-            // Reset state
-            if (isFace) {
-                display.innerText = "Processing image...";
-                wrapper.classList.remove('active', 'error');
-            }
-
             if (file.type.startsWith('image/')) {
-                // Check File Size
-                if (isFace && file.size < 20000) {
-                    alert("This image is too small/low quality. Please use a clearer photo.");
-                    input.value = "";
-                    return;
-                }
-
                 const reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     preview.src = e.target.result;
                     preview.style.display = 'block';
                     if (chip) chip.style.display = 'none';
-
-                    if (isFace) {
-                        // Generate mock vector
-                        const vector = Array.from({ length: 128 }, () =>
-                            (Math.random() * (0.9 - (-0.9)) + (-0.9)).toFixed(6)
-                        );
-                        fullVectorData = '[' + vector.join(', ') + ']';
-
-                        wrapper.classList.add('active');
-                        copyBtn.style.display = 'flex';
-                        display.innerText = fullVectorData;
-
-                        console.log("Face biometric captured locally. Ready for backend validation.");
-                    }
-                }
+                };
                 reader.readAsDataURL(file);
-            }
-            else if (file.type === 'application/pdf' && chip) {
+            } else if (file.type === 'application/pdf' && chip) {
                 preview.style.display = 'none';
                 chip.style.display = 'block';
                 chip.innerHTML = `<i class="fas fa-file-pdf"></i> ${file.name.substring(0, 15)}...`;
             }
         }
 
-        function copyEncoding() {
-            if (!fullVectorData) return;
-            navigator.clipboard.writeText(fullVectorData).then(() => {
-                const btn = document.getElementById('copy-btn');
-                btn.innerHTML = '<i class="fas fa-check"></i>';
-                btn.style.background = 'var(--success)';
-                setTimeout(() => {
-                    btn.innerHTML = '<i class="fas fa-copy"></i>';
-                    btn.style.background = '';
-                }, 2000);
-            });
-        }
+        // ============================================
+        // Event Listeners
+        // ============================================
+        btnStartCamera.addEventListener('click', startCamera);
+        btnRetake.addEventListener('click', retakeFace);
+        btnConfirm.addEventListener('click', confirmAndSubmit);
+
+        // Prevent form submission without face capture
+        form.addEventListener('submit', function(e) {
+            if (!faceEncoding) {
+                e.preventDefault();
+                alert('❌ Please capture your face first before submitting.');
+                return false;
+            }
+        });
 
         // Auto-hide Django messages
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const container = document.getElementById('django-messages');
             if (container) {
                 setTimeout(() => {
@@ -608,21 +1300,18 @@
                 }, 5000);
             }
 
-            // Handle Form Submission UI
-            const form = document.getElementById('reg-form');
-            const btn = document.getElementById('submit-btn');
-            const photoInput = document.getElementById('photo-input');
+            // Handle window resize for canvas
+            window.addEventListener('resize', resizeCanvas);
+        });
 
-            form.onsubmit = function (e) {
-                if (photoInput.files.length === 0) {
-                    alert("Please upload a profile photo.");
-                    return false;
-                }
-
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> ANALYZING BIOMETRICS...';
-                return true;
-            };
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
         });
     </script>
 </body>

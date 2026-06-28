@@ -1,4 +1,6 @@
 import face_recognition
+import json
+import base64
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
@@ -10,6 +12,10 @@ from django.contrib import messages
 from .models import SystemConfiguration
 import io
 from datetime import datetime
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.core.files.base import ContentFile
 
 User = get_user_model()
 
@@ -26,23 +32,148 @@ def get_processed_image(photo):
     return np.array(img)
 
 
+# ============================================
+# FACE PROCESSING API ENDPOINT (For Auto Capture)
+# ============================================
+
+@csrf_exempt
+@require_POST
+def process_face_api(request):
+    """
+    API endpoint for processing auto-captured face from camera
+    Returns face encoding and validates face presence
+    """
+    try:
+        photo_data = request.POST.get('photo_data')
+        
+        if not photo_data:
+            return JsonResponse({
+                'success': False, 
+                'error': 'No photo data received'
+            })
+        
+        # Decode base64 image
+        if 'base64,' in photo_data:
+            photo_data = photo_data.split('base64,')[1]
+        elif 'data:image' in photo_data:
+            photo_data = photo_data.split(',')[1]
+        
+        # Convert base64 to image
+        image_bytes = base64.b64decode(photo_data)
+        image = Image.open(io.BytesIO(image_bytes))
+        
+        # Fix orientation
+        image = ImageOps.exif_transpose(image)
+        image = image.convert("RGB")
+        image_array = np.array(image)
+        
+        # Detect faces using face_recognition
+        face_locations = face_recognition.face_locations(
+            image_array, 
+            number_of_times_to_upsample=2, 
+            model="hog"  # Faster detection
+        )
+        
+        # If no face found, try CNN model
+        if not face_locations:
+            print("Trying CNN model for auto-capture...")
+            face_locations = face_recognition.face_locations(
+                image_array, 
+                number_of_times_to_upsample=1, 
+                model="cnn"
+            )
+        
+        if not face_locations:
+            return JsonResponse({
+                'success': False, 
+                'error': 'No face detected. Please ensure your face is clearly visible and well-lit.'
+            })
+        
+        # If multiple faces detected
+        if len(face_locations) > 1:
+            return JsonResponse({
+                'success': False, 
+                'error': f'Multiple faces ({len(face_locations)}) detected. Please ensure only one face is visible.'
+            })
+        
+        # Get face encoding
+        encodings = face_recognition.face_encodings(image_array, face_locations)
+        
+        if not encodings:
+            return JsonResponse({
+                'success': False, 
+                'error': 'Could not encode face features. Please try again with better lighting.'
+            })
+        
+        # Return success with encoding
+        encoding_list = encodings[0].tolist()
+        
+        return JsonResponse({
+            'success': True,
+            'encoding': encoding_list,
+            'face_count': len(face_locations),
+            'message': 'Face captured successfully!'
+        })
+        
+    except Exception as e:
+        print(f"Face processing error: {e}")
+        return JsonResponse({
+            'success': False, 
+            'error': f'Face processing failed: {str(e)}'
+        })
+
+
+# ============================================
+# STUDENT REGISTRATION VIEW (Updated with Auto Capture)
+# ============================================
+
 def register_student(request):
+    """
+    Student registration with auto face capture (Face Lock style)
+    """
     if request.method == "POST":
-        # Data Extraction
+        # ========================================
+        # 1. Extract Form Data
+        # ========================================
         username = request.POST.get("roll_number")
         full_name = request.POST.get("name")
         phone_number = request.POST.get("phone_number")
         email = request.POST.get("email")
         department = request.POST.get("department")
-        year=request.POST.get("year")
+        year = request.POST.get("year")
         semester = request.POST.get("semester")
         section = request.POST.get("section")
-        # password = request.POST.get("password")
         address = request.POST.get("address")
-        photo = request.FILES.get("photo")
-        id_proof = request.FILES.get("id_proof")
+        
+        # ========================================
+        # 2. Get Face Data from Hidden Inputs
+        # ========================================
+        face_encoding_json = request.POST.get("face_encoding")
+        photo_data = request.POST.get("photo_data")  # Base64 image data
+        
+        # ========================================
+        # 3. Validate Face Data
+        # ========================================
+        if not face_encoding_json:
+            messages.error(request, "❌ Face capture required. Please look at the camera.")
+            return render(request, "accounts/register.html")
+        
+        if not photo_data:
+            messages.error(request, "❌ Photo data missing. Please try again.")
+            return render(request, "accounts/register.html")
+        
+        # Parse face encoding
+        try:
+            face_value = json.loads(face_encoding_json)
+            if not isinstance(face_value, list):
+                raise ValueError("Invalid face encoding format")
+        except (json.JSONDecodeError, ValueError) as e:
+            messages.error(request, f"❌ Invalid face data: {str(e)}")
+            return render(request, "accounts/register.html")
 
-        # Verification: Roll Number exists?
+        # ========================================
+        # 4. Verification: Roll Number exists?
+        # ========================================
         if User.objects.filter(username=username).exists():
             messages.error(request, "This Roll Number is already registered.")
             return render(request, "accounts/register.html")
@@ -52,51 +183,30 @@ def register_student(request):
             messages.error(request, f"Email {email} already exists!")
             return render(request, "accounts/register.html")
 
-        # Extract Face Encoding
-        face_value = None
-        if photo:
-            try:
-                # Process image and convert to array
-                image_array = get_processed_image(photo)
-
-                # Try multiple detection methods
-                face_locations = []
-
-                # Method 1: Try with HOG model (faster)
-                face_locations = face_recognition.face_locations(
-                    image_array, number_of_times_to_upsample=2, model="hog"
-                )
-
-                # Method 2: If no face found, try CNN model (more accurate but slower)
-                if not face_locations:
-                    print("Trying CNN model...")
-                    face_locations = face_recognition.face_locations(
-                        image_array, number_of_times_to_upsample=1, model="cnn"
-                    )
-
-                encodings = face_recognition.face_encodings(image_array, face_locations)
-
-                if encodings:
-                    face_value = encodings[0].tolist()
-                else:
-                    # Save the problematic image for debugging
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    debug_path = f"debug_face_{timestamp}.jpg"
-                    Image.fromarray(image_array).save(debug_path)
-                    print(f"Failed image saved to: {debug_path}")
-                    messages.error(
-                        request,
-                        "No face detected. Please ensure your face is well-lit and clearly visible.",
-                    )
-                    return render(request, "accounts/register.html")
-            except Exception as e:
-                messages.error(request, f"Face processing error: {e}")
-                return render(request, "accounts/register.html")
-        else:
-            messages.error(request, "A profile photo is required for registration.")
+        # ========================================
+        # 5. Save Captured Photo as File
+        # ========================================
+        photo = None
+        try:
+            # Decode base64 to image
+            if 'base64,' in photo_data:
+                photo_data_clean = photo_data.split('base64,')[1]
+            elif 'data:image' in photo_data:
+                photo_data_clean = photo_data.split(',')[1]
+            else:
+                photo_data_clean = photo_data
+            
+            # Convert to file
+            image_bytes = base64.b64decode(photo_data_clean)
+            photo = ContentFile(image_bytes, name=f"{username}_photo.jpg")
+            
+        except Exception as e:
+            messages.error(request, f"❌ Failed to save photo: {str(e)}")
             return render(request, "accounts/register.html")
 
-        # Save User and Profile
+        # ========================================
+        # 6. Save User and Profile
+        # ========================================
         try:
             # Create user
             user = User.objects.create_user(username=username)
@@ -107,7 +217,7 @@ def register_student(request):
 
             print(f"User created: {user.username}")  # Debug print
 
-            # Create student profile
+            # Create student profile with auto-captured face encoding
             student = Student.objects.create(
                 user=user,
                 full_name=full_name,
@@ -116,19 +226,18 @@ def register_student(request):
                 email=email,
                 department=department,
                 year=year,
-                semester=semester if semester else 1,
+                semester=int(semester) if semester else 1,
                 section=section,
                 address=address,
-                photo=photo,
-                id_proof=id_proof,
-                face_encoding=face_value,
+                photo=photo,  # Auto-captured photo
+                face_encoding=face_value,  # Auto-captured encoding
             )
 
             # Add System Log for Student Registration
             SystemLog.objects.create(
                 user=request.user if request.user.is_authenticated else None,
-                action="Student Registered",
-                details=f"Student {full_name} (Roll: {username}) successfully enrolled.",
+                action="Student Registered (Auto Face Capture)",
+                details=f"Student {full_name} (Roll: {username}) successfully enrolled using auto face capture.",
                 ip_address=request.META.get("REMOTE_ADDR"),
             )
 
@@ -146,6 +255,7 @@ def register_student(request):
             return render(request, "accounts/register.html")
 
     return render(request, "accounts/register.html")
+
 
 
 def register_staff(request):
