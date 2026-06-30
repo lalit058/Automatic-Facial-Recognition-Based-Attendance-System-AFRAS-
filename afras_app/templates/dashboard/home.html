@@ -1,7 +1,51 @@
-{% extends 'dashboard/base.html' %} 
-{% block title %}{% if request.user.is_superuser %}Admin{% else %}Staff{% endif %} Dashboard{% endblock %} {% block extra_head %}
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{% if request.user.is_superuser %}Admin{% else %}Staff{% endif %} Dashboard{% endblock %}
+
+{% block extra_head %}
 <style>
-    /* ========== PRESERVED STATS STYLES ========== */
+    /* ============================================
+       ROOT VARIABLES
+    ============================================ */
+    :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --primary-light: #818cf8;
+        --success: #16a34a;
+        --danger: #dc2626;
+        --warning: #d97706;
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --surface-light: #f1f5f9;
+        --border: #e2e8f0;
+        --text-main: #0f172a;
+        --text-dim: #64748b;
+        --text-light: #94a3b8;
+        --shadow: 0 1px 3px rgba(0,0,0,0.06);
+        --radius: 12px;
+        --transition: 0.3s ease;
+        --stat-staff: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        --stat-students: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+        --stat-attendance: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        --stat-scans: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+        --stat-dept: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        --stat-proxy: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        --sidebar-width: 250px;
+        --sidebar-collapsed: 70px;
+        --transition-speed: 0.3s;
+    }
+
+    /* ============================================
+       BASE LAYOUT
+    ============================================ */
+    .page-container {
+        padding: 0.5rem;
+        max-width: 1600px;
+        margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
+    }
 
     main {
         transition: margin-left var(--transition-speed) ease;
@@ -15,29 +59,27 @@
         width: calc(100% - var(--sidebar-collapsed)) !important;
     }
 
-
-    .dashboard-container {
-        width: 100%;
-        max-width: 1600px;
-        margin: 0 auto;
-        padding: 0.5rem;
-    }
-
-    /* HEADER STYLES - IMPROVED LAYOUT */
-
+    /* ============================================
+       HEADER - FIXED ALIGNMENT
+    ============================================ */
     .dashboard-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 1rem;
-        padding: 0.5rem 0;
+        padding: 0.5rem 0 1rem 0;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 1.5rem;
+        width: 100%;
     }
 
     .header-left {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+        flex: 0 1 auto;
+        min-width: 200px;
     }
 
     .welcome-section {
@@ -60,7 +102,7 @@
     }
 
     .badge {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 8px;
         padding: 4px 12px;
@@ -68,57 +110,8 @@
         font-size: 0.7rem;
         font-weight: 700;
         letter-spacing: 0.5px;
-        flex-direction: co;
-        width: fit-content;
+        white-space: nowrap;
     }
-
-
-    .action-buttons-cell {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        justify-content: flex-start;
-    }
-
-    .view-details,
-    .view-face {
-        width: 30px;
-        height: 30px;
-        padding: 0;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-        background: rgba(26, 86, 148, 0.1);
-        color: var(--primary);
-        border: 1px solid var(--primary);
-        margin: 0;
-    }
-
-    .view-details:hover {
-        background: var(--success);
-        color: white;
-        border-color: var(--success);
-    }
-
-    .view-face:hover:not(:disabled) {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
-    }
-
-    .view-face:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        background: rgba(128, 128, 128, 0.1);
-        border-color: #999;
-        color: #999;
-    }
-
-
 
     .admin-badge {
         background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
@@ -127,13 +120,14 @@
     }
 
     .staff-badge {
-        background: linear-gradient(135deg, var(--primary) 0%, #2575fc 100%);
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         color: white;
     }
 
     .quick-stats {
         display: flex;
-        gap: 1rem;
+        gap: 0.75rem;
+        flex-wrap: wrap;
         margin-top: 0.25rem;
     }
 
@@ -158,35 +152,9 @@
         display: flex;
         align-items: center;
         gap: 1.5rem;
-        padding: 0.5rem 1.25rem;
-        border-radius: 60px;
-    }
-
-    .datetime-group {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.2rem;
-        padding-left: 1rem;
-        border-left: 1px solid var(--border);
-    }
-
-    .live-clock {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 1.15rem;
-        font-weight: 700;
-        background: transparent;
-        padding: 0;
-        border-radius: 0;
-        color: var(--primary);
-        text-align: right;
-        letter-spacing: 0.5px;
-        min-width: auto;
-    }
-
-    .live-date {
-        font-size: 0.7rem;
-        color: var(--primary);
+        flex-wrap: wrap;
+        flex: 0 1 auto;
+        margin-left: auto;
     }
 
     .system-status {
@@ -196,26 +164,43 @@
         align-items: center;
         gap: 6px;
         font-weight: 600;
-        background: transparent;
-        padding: 0;
-        border-radius: 0;
     }
 
     .system-status::before {
         content: '●';
         font-size: 0.75rem;
-        animation: pulse 2s infinite;
+        animation: pulse-dot 2s infinite;
     }
 
-
-
-
-    /* Notification Styles */
-
-    .notification-wrapper {
-        border-left: 1px solid var(--border);
-        margin-left: 0.25rem;
+    .datetime-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.2rem;
         padding-left: 1rem;
+        border-left: 1px solid var(--border);
+    }
+
+    .live-clock {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--primary);
+        letter-spacing: 0.5px;
+    }
+
+    .live-date {
+        font-size: 0.7rem;
+        color: var(--text-light);
+    }
+
+    /* ============================================
+       NOTIFICATION - FIXED DELETE BUTTON
+    ============================================ */
+    .notification-wrapper {
+        position: relative;
+        padding-left: 1rem;
+        border-left: 1px solid var(--border);
     }
 
     .notification-btn {
@@ -229,7 +214,7 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all var(--transition);
         color: var(--text-dim);
     }
 
@@ -238,14 +223,13 @@
         color: white;
         border-color: var(--primary);
         transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     }
 
     .notification-btn.active {
         background: var(--primary);
         color: white;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(26, 86, 148, 0.3);
     }
 
     .notification-btn i {
@@ -262,8 +246,8 @@
         font-weight: 700;
         min-width: 18px;
         height: 18px;
-        border-radius: 50px;
-        display: flex;
+        border-radius: 50%;
+        display: none;
         align-items: center;
         justify-content: center;
         padding: 0 3px;
@@ -273,9 +257,10 @@
 
     .notification-dropdown {
         position: absolute;
-        top: 77px;
-        right: 8px;
+        top: 50px;
+        right: 0;
         width: 380px;
+        max-width: 90vw;
         background: var(--surface);
         border-radius: 16px;
         border: 1px solid var(--border);
@@ -291,24 +276,18 @@
     }
 
     @keyframes fadeInDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .dropdown-header {
-        padding: 16px 20px;
+        padding: 1rem 1.25rem;
         border-bottom: 1px solid var(--border);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: var(--surface);
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
 
     .dropdown-header h4 {
@@ -337,7 +316,7 @@
     }
 
     .mark-all-btn:hover {
-        background: rgba(26, 86, 148, 0.1);
+        background: rgba(99, 102, 241, 0.1);
     }
 
     .dropdown-body {
@@ -345,8 +324,22 @@
         overflow-y: auto;
     }
 
+    .dropdown-body::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .dropdown-body::-webkit-scrollbar-track {
+        background: var(--bg);
+    }
+
+    .dropdown-body::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 10px;
+    }
+
     .notification-item {
-        padding: 14px 20px;
+        padding: 0.75rem 1.25rem;
+        padding-right: 40px;
         border-bottom: 1px solid var(--border);
         cursor: pointer;
         transition: all 0.2s;
@@ -356,11 +349,11 @@
     }
 
     .notification-item:hover {
-        background: rgba(26, 86, 148, 0.04);
+        background: rgba(99, 102, 241, 0.04);
     }
 
     .notification-item.unread {
-        background: rgba(26, 86, 148, 0.06);
+        background: rgba(99, 102, 241, 0.06);
     }
 
     .notification-item.unread::before {
@@ -384,37 +377,37 @@
     }
 
     .notification-icon.attendance {
-        background: rgba(39, 174, 96, 0.1);
+        background: rgba(22, 163, 74, 0.1);
         color: var(--success);
     }
 
     .notification-icon.session {
-        background: rgba(26, 86, 148, 0.1);
+        background: rgba(99, 102, 241, 0.1);
         color: var(--primary);
     }
 
     .notification-icon.proxy {
-        background: rgba(231, 76, 60, 0.1);
+        background: rgba(220, 38, 38, 0.1);
         color: var(--danger);
     }
 
     .notification-icon.student {
-        background: rgba(243, 156, 18, 0.1);
+        background: rgba(217, 119, 6, 0.1);
         color: var(--warning);
     }
 
     .notification-icon.system {
-        background: rgba(155, 89, 182, 0.1);
-        color: #9b59b6;
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
     }
 
     .notification-icon.success {
-        background: rgba(39, 174, 96, 0.1);
+        background: rgba(22, 163, 74, 0.1);
         color: var(--success);
     }
 
     .notification-icon.warning {
-        background: rgba(243, 156, 18, 0.1);
+        background: rgba(217, 119, 6, 0.1);
         color: var(--warning);
     }
 
@@ -426,20 +419,20 @@
     .notification-title {
         font-size: 0.8rem;
         font-weight: 700;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
         color: var(--text-main);
     }
 
     .notification-message {
         font-size: 0.7rem;
         color: var(--text-dim);
-        margin-bottom: 4px;
+        margin-bottom: 2px;
         line-height: 1.4;
     }
 
     .notification-time {
         font-size: 0.6rem;
-        color: var(--text-dim);
+        color: var(--text-light);
         display: flex;
         align-items: center;
         gap: 4px;
@@ -448,16 +441,17 @@
     .notification-delete {
         position: absolute;
         top: 50%;
-        right: 12px;
+        right: 8px;
         transform: translateY(-50%);
         background: transparent;
         border: none;
         color: var(--text-dim);
         cursor: pointer;
-        padding: 6px;
+        padding: 6px 8px;
         border-radius: 6px;
         opacity: 0;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
+        z-index: 5;
     }
 
     .notification-item:hover .notification-delete {
@@ -465,40 +459,30 @@
     }
 
     .notification-delete:hover {
-        background: rgba(231, 76, 60, 0.1);
+        background: rgba(220, 38, 38, 0.1);
         color: var(--danger);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .notification-delete:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
     .empty-notifications {
         text-align: center;
-        padding: 40px 20px;
+        padding: 2.5rem 1.25rem;
         color: var(--text-dim);
     }
 
     .empty-notifications i {
         font-size: 2.5rem;
-        margin-bottom: 12px;
+        margin-bottom: 0.75rem;
         opacity: 0.3;
     }
 
-    .loading-notifications {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--text-dim);
-    }
-
-    .loading-spinner {
-        width: 30px;
-        height: 30px;
-        border: 2px solid var(--border);
-        border-top-color: var(--primary);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-        margin: 0 auto 10px;
-    }
-
     .dropdown-footer {
-        padding: 12px 16px;
+        padding: 0.75rem 1.25rem;
         border-top: 1px solid var(--border);
         text-align: center;
     }
@@ -511,7 +495,7 @@
         font-weight: 600;
         cursor: pointer;
         width: 100%;
-        padding: 8px;
+        padding: 0.5rem;
         border-radius: 8px;
         transition: all 0.2s;
         text-decoration: none;
@@ -519,45 +503,17 @@
     }
 
     .view-all-btn:hover {
-        background: rgba(26, 86, 148, 0.05);
+        background: rgba(99, 102, 241, 0.05);
     }
 
-    .notification-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 999;
-        display: none;
-        cursor: pointer;
-    }
-
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    @keyframes pulse {
-
-        0%,
-        100% {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0.3;
-        }
-    }
-
-    /* STATS ROW - ORIGINAL STYLES */
-
+    /* ============================================
+       STATS ROW
+    ============================================ */
     .stats-row {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 0.7rem;
-        margin-bottom: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
     }
 
     .stat-link {
@@ -567,47 +523,30 @@
     }
 
     .stat-card {
-        padding: 1rem;
-        border-radius: 24px;
+        padding: 1rem 1.25rem;
+        border-radius: var(--radius);
         position: relative;
         overflow: hidden;
         cursor: pointer;
-        min-height: 150px;
+        min-height: 130px;
         display: flex;
         align-items: center;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all var(--transition);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 35px rgba(0, 0, 0, 0.3);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
     }
 
-    .stat-staff {
-        background: var(--stat-staff);
-    }
-
-    .stat-students {
-        background: var(--stat-students);
-    }
-
-    .stat-attendance {
-        background: var(--stat-attendance);
-    }
-
-    .stat-scans {
-        background: var(--stat-scans);
-    }
-
-    .stat-dept {
-        background: var(--stat-dept);
-    }
-
-    .stat-proxy {
-        background: var(--stat-proxy);
-    }
+    .stat-staff { background: var(--stat-staff); }
+    .stat-students { background: var(--stat-students); }
+    .stat-attendance { background: var(--stat-attendance); }
+    .stat-scans { background: var(--stat-scans); }
+    .stat-dept { background: var(--stat-dept); }
+    .stat-proxy { background: var(--stat-proxy); }
 
     .stat-content {
         position: relative;
@@ -616,10 +555,10 @@
     }
 
     .stat-card h4 {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin: 0 0 0.75rem 0;
+        margin: 0 0 0.5rem 0;
         display: flex;
         align-items: center;
         gap: 8px;
@@ -628,29 +567,21 @@
     }
 
     .stat-card .val {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
         font-weight: 800;
         line-height: 1;
-        margin: 0 0 0.75rem 0;
+        margin: 0 0 0.5rem 0;
         color: white;
         font-family: 'JetBrains Mono', monospace;
     }
 
-    .dept-val {
-        color: #ffd966 !important;
-    }
-
-    .attendance-val {
-        color: #a8e6cf !important;
-    }
-
-    .proxy-val {
-        color: #ffb347 !important;
-    }
+    .dept-val { color: #ffd966 !important; }
+    .attendance-val { color: #a8e6cf !important; }
+    .proxy-val { color: #ffb347 !important; }
 
     .stat-footer {
         opacity: 0.7;
-        transition: opacity 0.3s ease;
+        transition: opacity var(--transition);
     }
 
     .stat-card:hover .stat-footer {
@@ -667,12 +598,11 @@
         letter-spacing: 0.5px;
         color: white;
         background: rgba(255, 255, 255, 0.15);
-        padding: 6px 12px;
+        padding: 4px 12px;
         border-radius: 20px;
         border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
+        transition: all var(--transition);
         cursor: pointer;
-        backdrop-filter: blur(5px);
         background: none;
         border: none;
     }
@@ -681,7 +611,7 @@
         position: absolute;
         right: -10px;
         bottom: -10px;
-        font-size: 5rem;
+        font-size: 4.5rem;
         opacity: 0.15;
         color: white;
         transform: rotate(-5deg);
@@ -703,28 +633,24 @@
     }
 
     @keyframes scan-line {
-        0% {
-            left: -100%;
-        }
-
-        20% {
-            left: 100%;
-        }
-
-        100% {
-            left: 100%;
-        }
+        0% { left: -100%; }
+        20% { left: 100%; }
+        100% { left: 100%; }
     }
 
-    /* ========== MODERN DASHBOARD LAYOUT ========== */
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
 
+    /* ============================================
+       DASHBOARD GRID
+    ============================================ */
     .dashboard-grid {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.5rem;
     }
-
-    /* Two Column Layout */
 
     .row-two-column {
         display: grid;
@@ -732,38 +658,42 @@
         gap: 1.5rem;
     }
 
-    /* Card Styles */
-
+    /* ============================================
+       CARDS
+    ============================================ */
     .card {
         background: var(--surface);
-        border-radius: 20px;
+        border-radius: var(--radius);
         border: 1px solid var(--border);
         overflow: hidden;
-        transition: all 0.3s ease;
+        transition: all var(--transition);
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .card:hover {
-        box-shadow: var(--shadow-md);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
     }
 
     .card-header {
-        padding: 1rem 1.25rem;
+        padding: 0.75rem 1.25rem;
         border-bottom: 1px solid var(--border);
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 0.5rem;
-        background: rgba(26, 86, 148, 0.02);
+        background: rgba(99, 102, 241, 0.02);
     }
 
     .card-header h3 {
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 600;
         display: flex;
         align-items: center;
         gap: 8px;
         color: var(--text-main);
+        margin: 0;
     }
 
     .card-header h3 i {
@@ -774,11 +704,25 @@
         padding: 1.25rem;
     }
 
-    /* Camera Feed */
+    .badge-info {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary);
+        padding: 0.2rem 0.8rem;
+        border-radius: 40px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
 
+    /* ============================================
+       CAMERA
+    ============================================ */
     .camera-container {
         background: #000;
-        border-radius: 16px;
+        border-radius: var(--radius);
         overflow: hidden;
         aspect-ratio: 16/9;
         position: relative;
@@ -802,6 +746,8 @@
         align-items: center;
         color: white;
         font-size: 0.7rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
 
     .recognition-dot {
@@ -809,7 +755,7 @@
         height: 8px;
         border-radius: 50%;
         background: var(--success);
-        animation: pulse 1.5s infinite;
+        animation: pulse-dot 1.5s infinite;
         display: inline-block;
         margin-right: 6px;
     }
@@ -818,11 +764,12 @@
         display: flex;
         gap: 0.75rem;
         margin-top: 1rem;
+        flex-wrap: wrap;
     }
 
     .btn {
         flex: 1;
-        padding: 0.6rem;
+        padding: 0.5rem 1rem;
         border-radius: 40px;
         font-weight: 600;
         font-size: 0.8rem;
@@ -832,7 +779,8 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        transition: all 0.2s;
+        transition: all var(--transition);
+        min-width: 100px;
     }
 
     .btn-primary {
@@ -840,9 +788,15 @@
         color: white;
     }
 
-    .btn-primary:hover {
-        background: #219a52;
+    .btn-primary:hover:not(:disabled) {
+        background: #15803d;
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
     .btn-danger {
@@ -850,13 +804,20 @@
         color: white;
     }
 
-    .btn-danger:hover {
-        background: #c0392b;
+    .btn-danger:hover:not(:disabled) {
+        background: #b91c1c;
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
     }
 
-    /* Quick Actions Grid */
+    .btn-danger:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 
+    /* ============================================
+       ACTIONS GRID
+    ============================================ */
     .actions-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -865,8 +826,8 @@
 
     .action-card {
         background: var(--surface-light);
-        padding: 0.8rem 0.5rem;
-        border-radius: 16px;
+        padding: 0.75rem 0.5rem;
+        border-radius: var(--radius);
         text-decoration: none;
         display: flex;
         flex-direction: column;
@@ -874,10 +835,12 @@
         gap: 0.5rem;
         font-size: 0.7rem;
         font-weight: 600;
-        transition: all 0.2s;
+        transition: all var(--transition);
         border: 1px solid var(--border);
         color: var(--text-main);
         text-align: center;
+        min-height: 70px;
+        justify-content: center;
     }
 
     .action-card i {
@@ -888,25 +851,26 @@
     .action-card:hover {
         transform: translateY(-3px);
         border-color: var(--primary);
-        box-shadow: var(--shadow-md);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         background: var(--surface);
     }
 
-    /* Stats Mini Grid */
-
+    /* ============================================
+       STATS MINI GRID
+    ============================================ */
     .stats-mini-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
     }
 
     .stat-mini-card {
         background: var(--surface-light);
-        border-radius: 30px;
-        padding: 2rem;
+        border-radius: var(--radius);
+        padding: 1rem;
         text-align: center;
         border: 1px solid var(--border);
-        transition: all 0.2s;
+        transition: all var(--transition);
     }
 
     .stat-mini-card:hover {
@@ -915,10 +879,10 @@
     }
 
     .stat-mini-value {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
         font-weight: 800;
         color: var(--primary);
-        font-family: monospace;
+        font-family: 'JetBrains Mono', monospace;
     }
 
     .stat-mini-label {
@@ -927,15 +891,18 @@
         margin-top: 0.25rem;
     }
 
-    /* Chart */
-
+    /* ============================================
+       CHART
+    ============================================ */
     .chart-container {
         margin-top: 0.5rem;
+        position: relative;
+        height: 200px;
     }
 
-    canvas {
-        max-width: 100%;
-        height: auto;
+    .chart-container canvas {
+        width: 100% !important;
+        height: 100% !important;
     }
 
     .chart-period {
@@ -950,7 +917,7 @@
         border-radius: 20px;
         font-size: 0.6rem;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all var(--transition);
     }
 
     .period-btn.active {
@@ -959,90 +926,94 @@
         color: white;
     }
 
-    /* Search & Table */
-
+    /* ============================================
+       TABLE
+    ============================================ */
     .search-bar {
         display: flex;
         gap: 0.75rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1rem;
         flex-wrap: wrap;
     }
 
     .search-input {
         flex: 1;
-        padding: 0.6rem 1rem;
+        padding: 0.5rem 1rem;
         border: 1px solid var(--border);
         border-radius: 40px;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         background: var(--surface);
+        min-width: 120px;
     }
 
     .search-input:focus {
         outline: none;
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(26, 86, 148, 0.1);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 
-    .filter-btn,
-    .refresh-btn {
+    .filter-btn {
         background: var(--primary);
         color: white;
         border: none;
-        padding: 0.6rem 1.2rem;
+        padding: 0.5rem 1.2rem;
         border-radius: 40px;
         font-weight: 600;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        transition: all 0.2s;
+        transition: all var(--transition);
+        white-space: nowrap;
     }
 
-    .filter-btn:hover,
-    .refresh-btn:hover {
-        background: #0e3d6b;
+    .filter-btn:hover {
+        background: var(--primary-dark);
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     }
 
     .refresh-btn {
         background: transparent;
         border: 1px solid var(--border);
         color: var(--text-dim);
+        padding: 0.5rem 1rem;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all var(--transition);
+        white-space: nowrap;
     }
 
     .refresh-btn:hover {
         background: var(--primary);
         color: white;
         border-color: var(--primary);
-    }
-
-    .badge-info {
-        background: rgba(26, 86, 148, 0.1);
-        color: var(--primary);
-        padding: 0.3rem 0.8rem;
-        border-radius: 40px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     }
 
     .table-wrapper {
         overflow-x: auto;
-        border-radius: 12px;
+        border-radius: var(--radius);
+        -webkit-overflow-scrolling: touch;
     }
 
     .data-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        min-width: 700px;
     }
 
     .data-table th,
     .data-table td {
-        padding: 0.8rem 0.6rem;
+        padding: 0.6rem 0.6rem;
         text-align: left;
         border-bottom: 1px solid var(--border);
         vertical-align: middle;
@@ -1050,72 +1021,122 @@
 
     .data-table th {
         color: var(--text-dim);
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         font-weight: 700;
         text-transform: uppercase;
-        background: rgba(26, 86, 148, 0.03);
+        background: rgba(99, 102, 241, 0.03);
+        white-space: nowrap;
     }
 
     .data-table tr:hover {
-        background: rgba(26, 86, 148, 0.03);
+        background: rgba(99, 102, 241, 0.03);
     }
 
-    /* Badges */
+    .data-table td {
+        word-break: break-word;
+    }
 
+    /* ============================================
+       BADGES
+    ============================================ */
     .badge {
-        padding: 0.25rem 0.7rem;
+        padding: 0.2rem 0.7rem;
         border-radius: 40px;
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 700;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
         white-space: nowrap;
     }
 
     .badge-success {
-        background: rgba(39, 174, 96, 0.12);
+        background: rgba(22, 163, 74, 0.12);
         color: var(--success);
-        border: 1px solid var(--success);
+        border: 1px solid rgba(22, 163, 74, 0.2);
     }
 
     .badge-danger {
-        background: rgba(231, 76, 60, 0.12);
+        background: rgba(220, 38, 38, 0.12);
         color: var(--danger);
-        border: 1px solid var(--danger);
+        border: 1px solid rgba(220, 38, 38, 0.2);
     }
 
     .badge-warning {
-        background: rgba(243, 156, 18, 0.12);
+        background: rgba(217, 119, 6, 0.12);
         color: var(--warning);
-        border: 1px solid var(--warning);
+        border: 1px solid rgba(217, 119, 6, 0.2);
     }
 
-    /* Status List */
+    /* ============================================
+       ACTION BUTTONS
+    ============================================ */
+    .action-buttons-cell {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
 
+    .view-details,
+    .view-face {
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all var(--transition);
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        flex-shrink: 0;
+    }
+
+    .view-details:hover {
+        background: var(--success);
+        color: white;
+        border-color: var(--success);
+        transform: translateY(-2px);
+    }
+
+    .view-face:hover:not(:disabled) {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .view-face:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        background: rgba(128, 128, 128, 0.1);
+        border-color: #999;
+        color: #999;
+    }
+
+    /* ============================================
+       STATUS LIST
+    ============================================ */
     .status-list {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
 
     .status-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0.6rem 0;
+        padding: 0.5rem 0;
         border-bottom: 1px solid var(--border);
         font-size: 0.8rem;
-    }
-
-    .status-item i {
-        color: var(--success);
-        font-size: 0.75rem;
-    }
-
-    .health-status::before {
-        content: '●';
-        font-size: 0.75rem;
-        animation: pulse 2s infinite;
-        color: var(--success);
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
 
     .status-item:last-child {
@@ -1132,7 +1153,8 @@
     .status-value {
         font-weight: 600;
         color: var(--text-main);
-        font-family: monospace;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
     }
 
     .progress-container {
@@ -1150,107 +1172,72 @@
         transition: width 0.3s;
     }
 
-    #exportSelectedBtn {
-        background: var(--primary);
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 40px;
-        font-weight: 600;
-        font-size: 0.75rem;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        transition: all 0.2s;
-    }
-
-    #exportSelectedBtn:hover {
-        background: #0e3d6b;
-        transform: translateY(-2px);
-    }
-
-    /* Activity Feed */
-
+    /* ============================================
+       ACTIVITY FEED
+    ============================================ */
     .activity-feed {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0.5rem;
         max-height: 340px;
         overflow-y: auto;
     }
 
     .activity-feed::-webkit-scrollbar {
-        width: 3px;
-        background: transparent;
+        width: 4px;
     }
 
     .activity-feed::-webkit-scrollbar-track {
         background: transparent;
-        margin: 5px 0;
     }
 
     .activity-feed::-webkit-scrollbar-thumb {
-        background: transparent;
-        border-radius: 5px;
-        transition: background 0.3s ease;
+        background: var(--border);
+        border-radius: 10px;
     }
-
-    /* Show scrollbar ONLY on hover AND only if content overflows */
 
     .activity-feed:hover::-webkit-scrollbar-thumb {
         background: var(--border);
     }
 
-    .activity-feed:hover::-webkit-scrollbar-thumb:hover {
-        background: var(--primary);
-        width: 5px;
-    }
-
-    /* Firefox - show only on hover */
-
-    .activity-feed {
-        scrollbar-color: transparent transparent;
-    }
-
-    .activity-feed:hover {
-        scrollbar-color: var(--border) transparent;
-    }
-
     .activity-item {
         display: flex;
         gap: 0.75rem;
-        padding: 0.7rem;
-        border-radius: 12px;
+        padding: 0.6rem;
+        border-radius: var(--radius);
         background: var(--surface-light);
-        transition: all 0.2s;
+        transition: all var(--transition);
     }
 
     .activity-item:hover {
-        background: rgba(26, 86, 148, 0.05);
+        background: rgba(99, 102, 241, 0.05);
     }
 
     .activity-icon {
-        width: 34px;
-        height: 34px;
+        width: 32px;
+        height: 32px;
         border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
     }
 
     .activity-icon i {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
 
     .activity-details {
         flex: 1;
+        min-width: 0;
     }
 
     .activity-title {
         font-size: 0.75rem;
         font-weight: 500;
         margin-bottom: 0.2rem;
+        color: var(--text-main);
+        word-break: break-word;
     }
 
     .activity-time {
@@ -1269,16 +1256,20 @@
         border: none;
         background: transparent;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all var(--transition);
     }
 
     .view-more:hover {
         gap: 12px;
+        color: var(--primary-dark);
     }
 
+    /* ============================================
+       EMPTY STATE
+    ============================================ */
     .empty-state {
         text-align: center;
-        padding: 2rem;
+        padding: 2rem 1rem;
         color: var(--text-dim);
     }
 
@@ -1288,8 +1279,9 @@
         opacity: 0.3;
     }
 
-    /* Modals */
-
+    /* ============================================
+       MODALS
+    ============================================ */
     .modal-overlay {
         display: none;
         position: fixed;
@@ -1297,23 +1289,34 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.9);
+        background: rgba(0, 0, 0, 0.85);
         backdrop-filter: blur(8px);
-        z-index: 10000;
+        z-index: 100000;
         align-items: center;
         justify-content: center;
+        padding: 1rem;
+    }
+
+    .modal-overlay.show {
+        display: flex;
     }
 
     .modal-container {
         background: var(--surface);
-        border-radius: 24px;
+        border-radius: var(--radius);
         padding: 1.5rem;
         max-width: 700px;
-        width: 90%;
+        width: 100%;
         max-height: 85vh;
         overflow-y: auto;
         position: relative;
         border: 1px solid var(--border);
+        animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+        from { opacity: 0; transform: translateY(-30px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .modal-close {
@@ -1322,14 +1325,16 @@
         right: 1rem;
         font-size: 1.2rem;
         cursor: pointer;
-        width: 30px;
-        height: 30px;
+        width: 32px;
+        height: 32px;
         display: flex;
         align-items: center;
         justify-content: center;
         border-radius: 8px;
         background: var(--bg);
         border: 1px solid var(--border);
+        color: var(--text-dim);
+        transition: all var(--transition);
     }
 
     .modal-close:hover {
@@ -1337,31 +1342,412 @@
         transform: rotate(90deg);
     }
 
-    /* Responsive */
+    .face-preview-container,
+    .face-full-data {
+        background: var(--bg);
+        border-radius: 8px;
+        padding: 0.75rem;
+        max-height: 150px;
+        overflow-y: auto;
+        margin-top: 0.5rem;
+        border: 1px solid var(--border);
+    }
 
-    @media (max-width: 1024px) {
+    .face-full-data {
+        max-height: 200px;
+    }
+
+    /* ============================================
+       FULLY RESPONSIVE BREAKPOINTS
+    ============================================ */
+
+    /* Laptops */
+    @media (max-width: 1200px) {
+        .stats-row {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
         .row-two-column {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
         }
     }
 
-    @media (max-width: 768px) {
-        .dashboard-header {
-            flex-direction: column;
-            align-items: flex-start;
+    /* Tablets */
+    @media (max-width: 992px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
         }
 
+        .row-two-column {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .stats-mini-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .dashboard-header {
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .header-left {
+            flex: 1 1 100%;
+            min-width: unset;
+        }
 
         .header-right {
+            flex: 0 1 auto;
+            margin-left: 0;
+            width: 100%;
             justify-content: flex-start;
             flex-wrap: wrap;
+            gap: 0.75rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border);
         }
 
         .datetime-group {
             align-items: flex-start;
+            padding-left: 0;
+            border-left: none;
+        }
+
+        .notification-wrapper {
+            padding-left: 0;
+            border-left: none;
+        }
+
+        .notification-dropdown {
+            right: -80px;
+            width: 340px;
+        }
+    }
+
+    /* Mobile Large */
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 0.25rem;
+        }
+
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.25rem 0 0.75rem 0;
+        }
+
+        .header-left {
+            flex: 1 1 100%;
+            width: 100%;
+        }
+
+        .header-right {
+            flex: 1 1 100%;
+            width: 100%;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border);
+            margin-left: 0;
+        }
+
+        .welcome-text {
+            font-size: 0.9rem;
+        }
+
+        .welcome-text strong {
+            font-size: 0.95rem;
+        }
+
+        .badge {
+            font-size: 0.6rem;
+            padding: 3px 10px;
+        }
+
+        .quick-stats {
+            gap: 0.5rem;
+        }
+
+        .stat-chip {
+            font-size: 0.6rem;
+            padding: 0.2rem 0.6rem;
+        }
+
+        .live-clock {
+            font-size: 0.95rem;
         }
 
         .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .stat-card {
+            padding: 0.75rem 1rem;
+            min-height: 100px;
+        }
+
+        .stat-card .val {
+            font-size: 1.6rem;
+        }
+
+        .stat-card h4 {
+            font-size: 0.6rem;
+        }
+
+        .stat-bg-icon {
+            font-size: 3rem;
+        }
+
+        .card-body {
+            padding: 0.75rem 1rem;
+        }
+
+        .card-header {
+            padding: 0.5rem 1rem;
+        }
+
+        .card-header h3 {
+            font-size: 0.85rem;
+        }
+
+        .actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .action-card {
+            padding: 0.5rem 0.3rem;
+            min-height: 60px;
+            font-size: 0.65rem;
+        }
+
+        .action-card i {
+            font-size: 1rem;
+        }
+
+        .stats-mini-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .stat-mini-card {
+            padding: 0.75rem;
+        }
+
+        .stat-mini-value {
+            font-size: 1.2rem;
+        }
+
+        .btn {
+            font-size: 0.7rem;
+            padding: 0.4rem 0.8rem;
+            min-width: 80px;
+        }
+
+        .search-bar {
+            flex-direction: row;
+            gap: 0.5rem;
+        }
+
+        .search-input {
+            font-size: 0.7rem;
+            padding: 0.4rem 0.8rem;
+            min-width: 80px;
+        }
+
+        .filter-btn,
+        .refresh-btn {
+            font-size: 0.65rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .data-table {
+            font-size: 0.7rem;
+            min-width: 600px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.4rem 0.4rem;
+        }
+
+        .data-table th {
+            font-size: 0.55rem;
+        }
+
+        .badge {
+            font-size: 0.5rem;
+            padding: 0.15rem 0.5rem;
+        }
+
+        .view-details,
+        .view-face {
+            width: 26px;
+            height: 26px;
+            font-size: 0.6rem;
+        }
+
+        .notification-dropdown {
+            width: 300px;
+            right: -60px;
+        }
+
+        .dropdown-header {
+            padding: 0.75rem 1rem;
+        }
+
+        .dropdown-header h4 {
+            font-size: 0.8rem;
+        }
+
+        .notification-item {
+            padding: 0.5rem 1rem;
+            padding-right: 35px;
+        }
+
+        .notification-title {
+            font-size: 0.7rem;
+        }
+
+        .notification-message {
+            font-size: 0.6rem;
+        }
+
+        .modal-container {
+            padding: 1rem;
+            max-width: 95%;
+        }
+
+        .chart-container {
+            height: 160px;
+        }
+    }
+
+    /* Mobile Small */
+    @media (max-width: 480px) {
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-card {
+            min-height: 90px;
+        }
+
+        .stat-card .val {
+            font-size: 1.4rem;
+        }
+
+        .actions-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .stats-mini-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .stat-mini-value {
+            font-size: 1rem;
+        }
+
+        .stat-mini-label {
+            font-size: 0.55rem;
+        }
+
+        .header-right {
+            gap: 0.4rem;
+        }
+
+        .system-status {
+            font-size: 0.55rem;
+        }
+
+        .live-clock {
+            font-size: 0.75rem;
+        }
+
+        .live-date {
+            font-size: 0.55rem;
+        }
+
+        .notification-btn {
+            width: 32px;
+            height: 32px;
+        }
+
+        .notification-btn i {
+            font-size: 0.9rem;
+        }
+
+        .notification-dropdown {
+            width: 280px;
+            right: -40px;
+        }
+
+        .search-bar {
+            flex-direction: column;
+        }
+
+        .search-input {
+            width: 100%;
+        }
+
+        .filter-btn,
+        .refresh-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .data-table {
+            font-size: 0.6rem;
+            min-width: 500px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.3rem 0.3rem;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+
+        .modal-container {
+            padding: 0.75rem;
+        }
+
+        .chart-container {
+            height: 140px;
+        }
+
+        .status-item {
+            font-size: 0.7rem;
+        }
+
+        .progress-container {
+            width: 60px;
+        }
+
+        .view-more {
+            font-size: 0.6rem;
+        }
+    }
+
+    /* Extra Small */
+    @media (max-width: 360px) {
+        .actions-grid {
             grid-template-columns: 1fr;
         }
 
@@ -1369,72 +1755,97 @@
             grid-template-columns: 1fr;
         }
 
-        .actions-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .search-bar {
-            flex-direction: row;
-        }
-
-        .filter-btn {
-            justify-content: center;
+        .data-table {
+            min-width: 400px;
         }
 
         .notification-dropdown {
-            width: 320px;
-            right: -80px;
+            width: 260px;
+            right: -20px;
         }
 
-        .live-clock {
-            font-size: 0.9rem;
+        .stat-card .val {
+            font-size: 1.2rem;
         }
 
-        .quick-stats {
-            flex-wrap: wrap;
-        }
-    }
-
-    @keyframes pulse {
-
-        0%,
-        100% {
-            opacity: 1;
+        .stat-card h4 {
+            font-size: 0.55rem;
         }
 
-        50% {
-            opacity: 0.3;
+        .welcome-text {
+            font-size: 0.75rem;
+        }
+
+        .welcome-text strong {
+            font-size: 0.8rem;
         }
     }
 
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+        .header-right,
+        .notification-wrapper,
+        .btn-group,
+        .search-bar,
+        .filter-btn,
+        .refresh-btn,
+        .action-buttons-cell {
+            display: none !important;
+        }
+
+        .card {
+            border: 1px solid #e2e8f0;
+            break-inside: avoid;
+        }
+
+        .stat-card {
+            break-inside: avoid;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stats-row {
+            break-inside: avoid;
+        }
+
+        .page-header {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border: 1px solid #e2e8f0;
+        }
+
+        .modal-overlay {
+            display: none !important;
         }
     }
 </style>
-{% endblock %} {% block content %}
-<div class="dashboard-container">
-    <!-- HEADER - IMPROVED LAYOUT -->
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- ============================================
+    HEADER
+    ============================================ -->
     <div class="dashboard-header">
         <div class="header-left">
             <div class="welcome-section">
                 <div class="welcome-text">
                     Welcome Back, <strong>
                         {% if request.user.is_superuser %}
-                        {% if request.user.staffProfile and request.user.staffProfile.full_name %}
-                        {{ request.user.staffProfile.full_name }}
-                        {% elif request.user.get_full_name %}
-                        {{ request.user.get_full_name }}
-                        {% else %}
-                        Administrator
-                        {% endif %}
+                            {% if request.user.staffProfile and request.user.staffProfile.full_name %}
+                                {{ request.user.staffProfile.full_name }}
+                            {% elif request.user.get_full_name %}
+                                {{ request.user.get_full_name }}
+                            {% else %}
+                                Administrator
+                            {% endif %}
                         {% elif request.user.staffProfile and request.user.staffProfile.full_name %}
-                        {{ request.user.staffProfile.full_name }}
+                            {{ request.user.staffProfile.full_name }}
                         {% elif request.user.get_full_name %}
-                        {{ request.user.get_full_name }}
+                            {{ request.user.get_full_name }}
                         {% else %}
-                        {{ request.user.username|title }}
+                            {{ request.user.username|title }}
                         {% endif %}
                     </strong>
                 </div>
@@ -1445,10 +1856,10 @@
             </div>
             <div class="quick-stats">
                 <span class="stat-chip"><i class="fas fa-users"></i> {{ total_staff|default:"0" }} Staff</span>
-                <span class="stat-chip"><i class="fas fa-user-graduate"></i> {{ total_students|default:"0" }}
-                    Students</span> {% if not request.user.is_superuser %}
-                <span class="stat-chip"><i class="fas fa-chart-line"></i> {{ attendance_rate|default:"0" }}%
-                    Today</span> {% endif %}
+                <span class="stat-chip"><i class="fas fa-user-graduate"></i> {{ total_students|default:"0" }} Students</span>
+                {% if not request.user.is_superuser %}
+                <span class="stat-chip"><i class="fas fa-chart-line"></i> {{ attendance_rate|default:"0" }}% Today</span>
+                {% endif %}
             </div>
         </div>
 
@@ -1461,7 +1872,7 @@
             <div class="notification-wrapper">
                 <div class="notification-btn" id="notificationBell">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
+                    <span class="notification-badge" id="notificationCount">0</span>
                 </div>
                 <div class="notification-dropdown" id="notificationDropdown">
                     <div class="dropdown-header">
@@ -1482,7 +1893,9 @@
         </div>
     </div>
 
-    <!-- stats row -->
+    <!-- ============================================
+    STATS ROW
+    ============================================ -->
     <div class="stats-row">
         {% if request.user.is_superuser %}
         <a href="{% url 'staff-directory' %}" class="stat-link">
@@ -1532,8 +1945,7 @@
                 <h4><i class="fas fa-chart-line"></i> Today's Attendance</h4>
                 <div class="val attendance-val" id="attendanceRate">{{ attendance_rate|default:"0" }}%</div>
                 <div class="stat-footer">
-                    <button class="view-details-btn" onclick="showAttendanceDetails()">View Details <i
-                            class="fas fa-arrow-right"></i></button>
+                    <button class="view-details-btn" onclick="showAttendanceDetails()">View Details <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>
@@ -1545,8 +1957,7 @@
                 <h4><i class="fas fa-fingerprint"></i> Today's Scans</h4>
                 <div class="val" id="dailyScans">{{ daily_scans|default:"0" }}</div>
                 <div class="stat-footer">
-                    <button class="view-details-btn" onclick="showScanDetails()">View Details <i
-                            class="fas fa-arrow-right"></i></button>
+                    <button class="view-details-btn" onclick="showScanDetails()">View Details <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>
@@ -1557,14 +1968,15 @@
                 <h4><i class="fas fa-shield-alt"></i> Proxy Alerts</h4>
                 <div class="val proxy-val" id="proxyAlerts">{{ proxy_alerts|default:"0" }}</div>
                 <div class="stat-footer">
-                    <button class="view-details-btn" onclick="showProxyDetails()">View Details <i
-                            class="fas fa-arrow-right"></i></button>
+                    <button class="view-details-btn" onclick="showProxyDetails()">View Details <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- DASHBOARD GRID -->
+    <!-- ============================================
+    DASHBOARD GRID
+    ============================================ -->
     <div class="dashboard-grid">
 
         <!-- Row 1: Camera + Quick Actions -->
@@ -1573,8 +1985,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3><i class="fas fa-video"></i> Live Recognition Feed</h3>
-                    <span class="badge-info" id="cameraStatus"><i class="fas fa-circle"
-                            style="color: var(--success); font-size: 0.6rem;"></i> Ready</span>
+                    <span class="badge-info" id="cameraStatus"><i class="fas fa-circle" style="color: var(--success); font-size: 0.6rem;"></i> Ready</span>
                 </div>
                 <div class="card-body">
                     <div class="camera-container">
@@ -1585,18 +1996,14 @@
                         </div>
                     </div>
                     <div class="btn-group">
-                        <button id="startCameraBtn" class="btn btn-primary"><i class="fas fa-play"></i> Start
-                            Recognition</button>
-                        <button id="stopCameraBtn" class="btn btn-danger" disabled><i class="fas fa-stop"></i>
-                            Stop</button>
+                        <button id="startCameraBtn" class="btn btn-primary"><i class="fas fa-play"></i> Start Recognition</button>
+                        <button id="stopCameraBtn" class="btn btn-danger" disabled><i class="fas fa-stop"></i> Stop</button>
                     </div>
-                    <div id="lastRecognized"
-                        style="margin-top: 0.75rem; font-size: 0.7rem; text-align: center; color: var(--text-dim); min-height: 32px;">
-                    </div>
+                    <div id="lastRecognized" style="margin-top: 0.75rem; font-size: 0.7rem; text-align: center; color: var(--text-dim); min-height: 32px;"></div>
                 </div>
             </div>
 
-            <!-- QUICK ACTIONS -->
+            <!-- Quick Actions -->
             <div class="card">
                 <div class="card-header">
                     <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
@@ -1604,26 +2011,18 @@
                 <div class="card-body">
                     <div class="actions-grid">
                         {% if request.user.is_superuser %}
-                        <a href="{% url 'register-staff' %}" class="action-card"><i
-                                class="fas fa-user-shield"></i><span>Add Staff</span></a>
-                        <a href="{% url 'register-student' %}" class="action-card"><i
-                                class="fas fa-user-graduate"></i><span>Add Student</span></a>
-                        <a href="{% url 'student-directory' %}" class="action-card"><i
-                                class="fas fa-users"></i><span>Student Directory</span></a>
-                        <a href="{% url 'staff-directory' %}" class="action-card"><i
-                                class="fas fa-users"></i><span>Staff Directory</span></a>
-                        <a href="{% url 'system-logs' %}" class="action-card"><i class="fas fa-history"></i><span>System
-                                Logs</span></a>
-                        <a href="{% url 'system_configuration' %}" class="action-card"><i
-                                class="fas fa-cog"></i><span>Configuration</span></a> {% else %}
-                        <a href="#" class="action-card" id="launchCameraBtn"><i class="fas fa-video"></i><span>Launch
-                                Camera</span></a>
-                        <a href="{% url 'student-directory' %}" class="action-card"><i
-                                class="fas fa-clipboard-list"></i><span>Student Directory</span></a>
-                        <a href="#" class="action-card" id="generateReportBtn"><i
-                                class="fas fa-file-invoice"></i><span>Generate Report</span></a>
-                        <a href="{% url 'routine_management' %}" class="action-card"><i
-                                class="fas fa-calendar-alt"></i><span>Routine Manager</span></a> {% endif %}
+                        <a href="{% url 'register-staff' %}" class="action-card"><i class="fas fa-user-shield"></i><span>Add Staff</span></a>
+                        <a href="{% url 'register-student' %}" class="action-card"><i class="fas fa-user-graduate"></i><span>Add Student</span></a>
+                        <a href="{% url 'student-directory' %}" class="action-card"><i class="fas fa-users"></i><span>Student Directory</span></a>
+                        <a href="{% url 'staff-directory' %}" class="action-card"><i class="fas fa-users"></i><span>Staff Directory</span></a>
+                        <a href="{% url 'system-logs' %}" class="action-card"><i class="fas fa-history"></i><span>System Logs</span></a>
+                        <a href="{% url 'system_configuration' %}" class="action-card"><i class="fas fa-cog"></i><span>Configuration</span></a>
+                        {% else %}
+                        <a href="#" class="action-card" id="launchCameraBtn"><i class="fas fa-video"></i><span>Launch Camera</span></a>
+                        <a href="{% url 'student-directory' %}" class="action-card"><i class="fas fa-clipboard-list"></i><span>Student Directory</span></a>
+                        <a href="#" class="action-card" id="generateReportBtn"><i class="fas fa-file-invoice"></i><span>Generate Report</span></a>
+                        <a href="{% url 'routine_management' %}" class="action-card"><i class="fas fa-calendar-alt"></i><span>Routine Manager</span></a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -1662,7 +2061,7 @@
                 </div>
                 <div class="card-body">
                     <div class="chart-container">
-                        <canvas id="attendanceTrendChart" style="width: 100%; height: 220px;"></canvas>
+                        <canvas id="attendanceTrendChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -1672,102 +2071,102 @@
         <div class="card">
             <div class="card-header">
                 <h3><i class="fas fa-table-list"></i> {% if request.user.is_superuser %}Recent Attendance Logs{% else %}Today's Attendance Feed{% endif %}</h3>
-                <div style="display: flex; gap: 0.75rem;">
-                        <span class="badge-info"><i class="fas fa-database"></i> <span id="faceDataCount2">{{ total_students_with_face|default:"0" }}</span> with Face Data</span>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+                    <span class="badge-info"><i class="fas fa-database"></i> <span id="faceDataCount2">{{ total_students_with_face|default:"0" }}</span> with Face Data</span>
                     <button class="refresh-btn" id="refreshTableBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
                 </div>
             </div>
             <div class="card-body">
                 <div class="search-bar">
                     <input type="text" id="searchLogs" placeholder="Search by name or roll number..." class="search-input">
-            <select id="statusFilter" class="search-input" style="width: auto; min-width: 130px;">
-                <option value="">All Status</option>
-                <option value="PRESENT">Present</option>
-                <option value="ABSENT">Absent</option>
-                <option value="LATE">Late</option>
-                <option value="LEAVE">Leave</option>
-            </select>
-            <button class="filter-btn" id="filterBtn"><i class="fas fa-filter"></i> Filter</button>
-            <button class="filter-btn" id="exportAllBtn"><i class="fas fa-download"></i> Export All</button>
+                    <select id="statusFilter" class="search-input" style="width: auto; min-width: 130px;">
+                        <option value="">All Status</option>
+                        <option value="PRESENT">Present</option>
+                        <option value="ABSENT">Absent</option>
+                        <option value="LATE">Late</option>
+                        <option value="LEAVE">Leave</option>
+                    </select>
+                    <button class="filter-btn" id="filterBtn"><i class="fas fa-filter"></i> Filter</button>
+                    <button class="filter-btn" id="exportAllBtn"><i class="fas fa-download"></i> Export All</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table" id="logsTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 30px;"><input type="checkbox" id="selectAll"></th>
+                                <th>Student</th>
+                                <th>Roll No.</th>
+                                <th>Department</th>
+                                <th>Session</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                                <th>Face Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            {% for item in recent_logs %}
+                            <tr data-student-id="{{ item.student_id }}" data-status="{{ item.log.status }}">
+                                <td><input type="checkbox" class="row-selector" value="{{ item.log.id }}"></td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-user-graduate" style="color: var(--primary);"></i>
+                                        <span>{{ item.student_full_name }}</span>
+                                    </div>
+                                </td>
+                                <td><span class="roll-number">{{ item.student_roll }}</span></td>
+                                <td>{{ item.student_department }}</td>
+                                <td>{{ item.log.session.subject_name|default:"General" }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if item.log.status == 'PRESENT' %}badge-success
+                                        {% elif item.log.status == 'ABSENT' %}badge-danger
+                                        {% else %}badge-warning{% endif %}">
+                                        <i class="fas 
+                                            {% if item.log.status == 'PRESENT' %}fa-check-circle
+                                            {% elif item.log.status == 'ABSENT' %}fa-times-circle
+                                            {% else %}fa-clock{% endif %}"></i>
+                                        {{ item.log.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="time-display">{{ item.log.first_seen|time:"g:i:s A" }}</span>
+                                </td>
+                                <td>
+                                    {% if item.has_face_encoding %}
+                                    <span class="badge badge-success"><i class="fas fa-face-smile"></i> Enrolled</span>
+                                    {% else %}
+                                    <span class="badge badge-danger"><i class="fas fa-face-frown"></i> Missing</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-buttons-cell">
+                                        <button class="view-details" data-student-id="{{ item.student_id }}" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="view-face" data-student-id="{{ item.student_id }}" title="View Face Data" {% if not item.has_face_encoding %}disabled{% endif %}>
+                                            <i class="fas fa-face-smile"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="empty-state">
+                                    <i class="fas fa-inbox empty-icon"></i>
+                                    <p>No attendance logs found</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div><span id="selectedCount">0</span> items selected <button class="filter-btn" id="exportSelectedBtn" style="padding: 0.3rem 1rem; font-size: 0.7rem;">Export Selected</button></div>
+                    <a href="{% url 'student-directory' %}" class="view-more">View All Students <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
         </div>
-        <div class="table-wrapper">
-            <table class="data-table" id="logsTable">
-                <thead>
-                    <tr>
-                        <th style="width: 30px;"><input type="checkbox" id="selectAll"></th>
-                        <th>Student</th>
-                        <th>Roll No.</th>
-                        <th>Department</th>
-                        <th>Session</th>
-                        <th>Status</th>
-                        <th>Time</th>
-                        <th>Face Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="logsTableBody">
-                    {% for item in recent_logs %}
-                    <tr data-student-id="{{ item.student_id }}" data-status="{{ item.log.status }}">
-                        <td><input type="checkbox" class="row-selector" value="{{ item.log.id }}"></td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-user-graduate" style="color: var(--primary);"></i>
-                                <span>{{ item.student_full_name }}</span>
-                            </div>
-                        </td>
-                        <td><span class="roll-number">{{ item.student_roll }}</span></td>
-                        <td>{{ item.student_department }}</div></td>
-                        <td>{{ item.log.session.subject_name|default:"General" }}</div></td>
-                        <td>
-                            <span class="badge 
-                                {% if item.log.status == 'PRESENT' %}badge-success
-                                {% elif item.log.status == 'ABSENT' %}badge-danger
-                                {% else %}badge-warning{% endif %}">
-                                <i class="fas 
-                                    {% if item.log.status == 'PRESENT' %}fa-check-circle
-                                    {% elif item.log.status == 'ABSENT' %}fa-times-circle
-                                    {% else %}fa-clock{% endif %}"></i>
-                                {{ item.log.get_status_display }}
-                            </span>
-                        </div>
-                        <td>
-                            <span class="time-display">{{ item.log.first_seen|time:"g:i:s A" }}</span>
-                        </div>
-                        <td>
-                            {% if item.has_face_encoding %}
-                            <span class="badge badge-success"><i class="fas fa-face-smile"></i> Enrolled</span>
-                            {% else %}
-                            <span class="badge badge-danger"><i class="fas fa-face-frown"></i> Missing</span>
-                            {% endif %}
-                        </div>
-                        <td>
-                            <div class="action-buttons-cell">
-                                <button class="view-details" data-student-id="{{ item.student_id }}" title="View Details">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="view-face" data-student-id="{{ item.student_id }}" title="View Face Data" {% if not item.has_face_encoding %}disabled{% endif %}>
-                                    <i class="fas fa-face-smile"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="9" class="empty-state">
-                            <i class="fas fa-inbox empty-icon"></i>
-                            <p>No attendance logs found</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-            <div><span id="selectedCount">0</span> items selected <button class="action-btn" id="exportSelectedBtn">Export Selected</button></div>
-            <a href="{% url 'student-directory' %}" class="view-more">View All Students <i class="fas fa-arrow-right"></i></a>
-        </div>
-    </div>
-</div>
 
         <!-- Row 4: System Status & Activity -->
         <div class="row-two-column">
@@ -1781,8 +2180,7 @@
                     <div class="status-list">
                         <div class="status-item">
                             <span>Face Recognition Engine</span>
-                            <span class="status-active health-status">
-                                Active</span>
+                            <span class="status-active health-status">Active</span>
                         </div>
                         <div class="status-item">
                             <span>Database Connection</span>
@@ -1804,8 +2202,7 @@
                             <span>Face Registration</span>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <div class="progress-container">
-                                    <div class="progress-fill" id="faceProgressBar"
-                                        style="width: {{ face_registration_percentage|default:0 }}%"></div>
+                                    <div class="progress-fill" id="faceProgressBar" style="width: {{ face_registration_percentage|default:0 }}%"></div>
                                 </div>
                                 <span class="status-value">{{ face_registration_percentage|default:0 }}%</span>
                             </div>
@@ -1827,8 +2224,7 @@
                     <div class="activity-feed" id="activityFeed">
                         {% for activity in recent_activities|default:"" %}
                         <div class="activity-item">
-                            <div class="activity-icon"
-                                style="background: rgba(39, 174, 96, 0.1); color: var(--success);">
+                            <div class="activity-icon" style="background: rgba(39, 174, 96, 0.1); color: var(--success);">
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="activity-details">
@@ -1838,8 +2234,7 @@
                         </div>
                         {% empty %}
                         <div class="activity-item">
-                            <div class="activity-icon"
-                                style="background: rgba(39, 174, 96, 0.1); color: var(--success);">
+                            <div class="activity-icon" style="background: rgba(39, 174, 96, 0.1); color: var(--success);">
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="activity-details">
@@ -1849,8 +2244,7 @@
                         </div>
                         {% endfor %}
                     </div>
-                    <button class="view-more" id="viewAllActivitiesBtn">View All <i
-                            class="fas fa-arrow-right"></i></button>
+                    <button class="view-more" id="viewAllActivitiesBtn">View All <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>
@@ -1865,11 +2259,9 @@
                     {% for session in staff_sessions %}
                     <div class="status-item">
                         <div><strong>{{ session.subject_name }}</strong>
-                            <div style="font-size: 0.6rem; color: var(--text-dim);">{{ session.date|date:"M d, Y" }}
-                            </div>
+                            <div style="font-size: 0.6rem; color: var(--text-dim);">{{ session.date|date:"M d, Y" }}</div>
                         </div>
-                        <span class="{% if session.is_active %}status-active{% else %}status-value{% endif %}">{{
-                            session.start_time|time:"g:i A" }}</span>
+                        <span class="{% if session.is_active %}status-active{% else %}status-value{% endif %}">{{ session.start_time|time:"g:i A" }}</span>
                     </div>
                     {% endfor %}
                 </div>
@@ -1879,7 +2271,9 @@
     </div>
 </div>
 
-<!-- MODALS -->
+<!-- ============================================
+MODALS
+============================================ -->
 <div id="studentProfileModal" class="modal-overlay">
     <div class="modal-container">
         <span class="modal-close" id="closeProfileModal">&times;</span>
@@ -1898,20 +2292,17 @@
         <span class="modal-close" id="closeFaceModal">&times;</span>
         <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Face Encoding Data</h3>
         <p id="faceEncodingStudentName" style="color: var(--text-dim); font-size: 0.85rem;"></p>
-        <div style="display: flex; gap: 1rem; margin: 1rem 0;">
-            <div
-                style="flex: 1; background: rgba(26,86,148,0.1); padding: 0.8rem; border-radius: 12px; text-align: center;">
+        <div style="display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap;">
+            <div style="flex: 1; background: rgba(99,102,241,0.1); padding: 0.8rem; border-radius: 12px; text-align: center; min-width: 100px;">
                 <span style="font-size: 0.65rem;">Vector Length</span>
-                <span id="faceVectorLength"
-                    style="font-size: 1.2rem; font-weight: 800; color: var(--primary); display: block;"></span>
+                <span id="faceVectorLength" style="font-size: 1.2rem; font-weight: 800; color: var(--primary); display: block;"></span>
             </div>
-            <div
-                style="flex: 1; background: rgba(26,86,148,0.1); padding: 0.8rem; border-radius: 12px; text-align: center;">
+            <div style="flex: 1; background: rgba(99,102,241,0.1); padding: 0.8rem; border-radius: 12px; text-align: center; min-width: 100px;">
                 <span style="font-size: 0.65rem;">Dimensions</span>
                 <span style="font-size: 1.2rem; font-weight: 800; color: var(--primary); display: block;">128-d</span>
             </div>
         </div>
-        <div style="display: flex; gap: 0.75rem; margin: 1rem 0; justify-content: center;">
+        <div style="display: flex; gap: 0.75rem; margin: 1rem 0; justify-content: center; flex-wrap: wrap;">
             <button class="filter-btn" id="copyFaceBtn"><i class="fas fa-copy"></i> Copy</button>
             <button class="filter-btn" id="downloadFaceBtn"><i class="fas fa-download"></i> Download JSON</button>
         </div>
@@ -1922,7 +2313,9 @@
     </div>
 </div>
 
-
+<!-- ============================================
+SCRIPTS
+============================================ -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Global variables
@@ -1992,7 +2385,7 @@
             div.className = 'msg ' + type;
             div.innerHTML = '<i class="fas fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i><span>' + msg + '</span>';
             container.appendChild(div);
-            setTimeout(function () { div.remove(); }, 3000);
+            setTimeout(function () { if (div.parentNode) div.remove(); }, 4000);
         }
     }
 
@@ -2006,7 +2399,7 @@
         while (activityFeed.children.length > 15) activityFeed.removeChild(activityFeed.lastChild);
     }
 
-    // ========== NOTIFICATION SYSTEM ==========
+    // ========== NOTIFICATION SYSTEM - FIXED ==========
     function loadNotifications() {
         fetch('/dashboard/api/notifications/')
             .then(function (response) { return response.json(); })
@@ -2054,69 +2447,149 @@
                 '<div class="notification-message">' + escapeHtml(notif.message) + '</div>' +
                 '<div class="notification-time"><i class="fas fa-clock"></i> ' + notif.time_ago + ' ago</div>' +
                 '</div>' +
-                '<button class="notification-delete" data-id="' + notif.id + '"><i class="fas fa-times"></i></button>' +
+                '<button class="notification-delete" data-id="' + notif.id + '" title="Delete notification"><i class="fas fa-times"></i></button>' +
                 '</div>';
         }
         container.innerHTML = html;
+        attachNotificationEventListeners();
     }
 
-    function handleNotificationClick(notificationId, link) {
-        fetch('/dashboard/api/notifications/mark-read/' + notificationId + '/', {
-            method: 'POST',
-            headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' }
-        }).then(function () {
-            loadNotifications();
-            if (link && link !== '#') { window.location.href = link; }
-        }).catch(function (error) { console.error('Error:', error); });
-    }
+    // ========== ATTACH NOTIFICATION EVENT LISTENERS ==========
+    function attachNotificationEventListeners() {
+        // Delete button listeners
+        var deleteBtns = document.querySelectorAll('.notification-delete');
+        for (var i = 0; i < deleteBtns.length; i++) {
+            deleteBtns[i].addEventListener('click', function(e) {
+                e.stopPropagation();
+                var notificationId = this.getAttribute('data-id');
+                if (notificationId) {
+                    deleteNotification(notificationId);
+                }
+            });
+        }
 
-    function markAllNotificationsRead() {
-        fetch('/dashboard/api/notifications/mark-all-read/', {
-            method: 'POST',
-            headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' }
-        }).then(function () {
-            loadNotifications();
-            document.getElementById('notificationCount').style.display = 'none';
-        }).catch(function (error) { console.error('Error:', error); });
-    }
-
-    function deleteNotification(notificationId) {
-        fetch('/dashboard/api/notifications/delete/' + notificationId + '/', {
-            method: 'DELETE',
-            headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' }
-        }).then(function () { loadNotifications(); }).catch(function (error) { console.error('Error:', error); });
-    }
-
-    function toggleNotificationDropdown() {
-        var dropdown = document.getElementById('notificationDropdown');
-        var bell = document.getElementById('notificationBell');
-        if (!dropdown) return;
-        dropdownOpen = !dropdownOpen;
-        if (dropdownOpen) {
-            dropdown.classList.add('show');
-            bell.classList.add('active');
-            loadNotifications();
-            var overlay = document.querySelector('.notification-overlay');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.className = 'notification-overlay';
-                overlay.onclick = closeNotificationDropdown;
-                document.body.appendChild(overlay);
-            }
-            overlay.style.display = 'block';
-        } else {
-            closeNotificationDropdown();
+        // Notification item click listeners
+        var items = document.querySelectorAll('.notification-item');
+        for (var i = 0; i < items.length; i++) {
+            items[i].addEventListener('click', function(e) {
+                if (e.target.closest('.notification-delete')) return;
+                var notificationId = this.getAttribute('data-id');
+                var link = this.getAttribute('data-link');
+                if (notificationId) {
+                    handleNotificationClick(notificationId, link);
+                }
+            });
         }
     }
 
-    function closeNotificationDropdown() {
-        var dropdown = document.getElementById('notificationDropdown');
-        var bell = document.getElementById('notificationBell');
-        if (dropdown) dropdown.classList.remove('show');
-        if (bell) bell.classList.remove('active');
-        var overlay = document.querySelector('.notification-overlay');
-        if (overlay) overlay.remove();
-        dropdownOpen = false;
+    // ========== DELETE NOTIFICATION - FIXED ==========
+    function deleteNotification(notificationId) {
+        if (!notificationId) return;
+
+        var btn = document.querySelector('.notification-delete[data-id="' + notificationId + '"]');
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+        }
+
+        fetch('/dashboard/api/notifications/delete/' + notificationId + '/', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success) {
+                var item = document.querySelector('.notification-item[data-id="' + notificationId + '"]');
+                if (item) {
+                    item.style.transition = 'all 0.3s ease';
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateX(20px)';
+                    setTimeout(function() {
+                        item.remove();
+                        var remaining = document.querySelectorAll('.notification-item');
+                        if (remaining.length === 0) {
+                            var container = document.getElementById('notificationList');
+                            container.innerHTML = '<div class="empty-notifications"><i class="fas fa-bell-slash"></i><p>No notifications</p></div>';
+                        }
+                        loadNotifications();
+                    }, 300);
+                }
+                showMessage('Notification deleted', 'success');
+            } else {
+                showMessage(data.message || 'Failed to delete notification', 'error');
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-times"></i>';
+                    btn.disabled = false;
+                }
+            }
+        })
+        .catch(function(error) {
+            console.error('Error deleting notification:', error);
+            showMessage('Error deleting notification', 'error');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-times"></i>';
+                btn.disabled = false;
+            }
+        });
+    }
+
+    // ========== HANDLE NOTIFICATION CLICK ==========
+    function handleNotificationClick(notificationId, link) {
+        if (!notificationId) return;
+
+        fetch('/dashboard/api/notifications/mark-read/' + notificationId + '/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success) {
+                var item = document.querySelector('.notification-item[data-id="' + notificationId + '"]');
+                if (item) {
+                    item.classList.remove('unread');
+                }
+                loadNotifications();
+                if (link && link !== '#') {
+                    window.location.href = link;
+                }
+            }
+        })
+        .catch(function(error) {
+            console.error('Error marking notification as read:', error);
+        });
+    }
+
+    // ========== MARK ALL NOTIFICATIONS READ ==========
+    function markAllNotificationsRead() {
+        fetch('/dashboard/api/notifications/mark-all-read/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success) {
+                var items = document.querySelectorAll('.notification-item');
+                for (var i = 0; i < items.length; i++) {
+                    items[i].classList.remove('unread');
+                }
+                document.getElementById('notificationCount').style.display = 'none';
+                showMessage('All notifications marked as read', 'success');
+                loadNotifications();
+            }
+        })
+        .catch(function(error) {
+            console.error('Error marking all as read:', error);
+            showMessage('Error marking all as read', 'error');
+        });
     }
 
     // ========== CAMERA FUNCTIONS ==========
@@ -2208,8 +2681,8 @@
         if (!ctx) return;
         attendanceChart = new Chart(ctx, {
             type: 'line',
-            data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'Attendance %', data: [0, 0, 0, 0, 0, 0, 0], borderColor: '#1a5694', backgroundColor: 'rgba(26,86,148,0.1)', tension: 0.4, fill: true }] },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, color: '#64748b' } } }, scales: { y: { beginAtZero: true, max: 100, grid: { color: '#e2e8f0' } }, x: { ticks: { color: '#64748b', font: { size: 10 } } } } }
+            data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'Attendance %', data: [0, 0, 0, 0, 0, 0, 0], borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', tension: 0.4, fill: true }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, color: '#64748b' } } }, scales: { y: { beginAtZero: true, max: 100, grid: { color: '#e2e8f0' } }, x: { ticks: { color: '#64748b', font: { size: 10 } } } } }
         });
         loadChartData();
     }
@@ -2236,7 +2709,7 @@
     function changeChartPeriod(period) {
         var buttons = document.querySelectorAll('.period-btn');
         for (var i = 0; i < buttons.length; i++) { buttons[i].classList.remove('active'); }
-        event.target.classList.add('active');
+        if (event && event.target) event.target.classList.add('active');
         loadChartData();
     }
 
@@ -2379,10 +2852,8 @@
             }).catch(function () { });
     }
 
-    // STUDENT PROFILE FUNCTIONS 
+    // ========== STUDENT PROFILE FUNCTIONS ==========
     function showStudentProfile(studentId) {
-        console.log('showStudentProfile called with ID:', studentId);
-
         var modal = document.getElementById('studentProfileModal');
         var loading = document.getElementById('profileModalLoading');
         var content = document.getElementById('profileModalContent');
@@ -2393,26 +2864,11 @@
             return;
         }
 
-        // Clear previous content
         container.innerHTML = '';
-
-        // Show the student profile modal
         modal.style.display = 'flex';
-        modal.style.position = 'fixed';
-        modal.style.top = '0';
-        modal.style.left = '0';
-        modal.style.right = '0';
-        modal.style.bottom = '0';
-        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-        modal.style.zIndex = '100000';
-        modal.style.overflow = 'auto';
-        modal.style.alignItems = 'center';
-        modal.style.justifyContent = 'center';
-
         loading.style.display = 'block';
         content.style.display = 'none';
 
-        // Fetch the student profile HTML
         fetch('/dashboard/student-profile/' + studentId + '/', {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
@@ -2421,15 +2877,7 @@
                 return response.text();
             })
             .then(function (html) {
-                console.log('Profile HTML loaded, length:', html.length);
                 container.innerHTML = html;
-                container.style.maxWidth = '900px';
-                container.style.margin = '0 auto';
-                container.style.backgroundColor = 'var(--surface)';
-                container.style.borderRadius = '16px';
-                container.style.padding = '0';
-                container.style.position = 'relative';
-                container.style.zIndex = '100001';
                 loading.style.display = 'none';
                 content.style.display = 'block';
             })
@@ -2441,15 +2889,14 @@
             });
     }
 
-    // SINGLE close function
     function closeStudentProfileModal() {
         var modal = document.getElementById('studentProfileModal');
         if (modal) { modal.style.display = 'none'; }
         document.body.style.overflow = 'auto';
     }
 
+    // ========== FACE ENCODING FUNCTIONS ==========
     function showFaceEncodingModal(studentId) {
-        console.log('showFaceEncodingModal called for student ID:', studentId);
         if (!studentId) { showMessage('Invalid student ID', 'error'); return; }
 
         var modal = document.getElementById('faceEncodingModal');
@@ -2475,7 +2922,7 @@
                     if (data.face_encoding.preview && data.face_encoding.preview.length > 0) {
                         var previewHtml = '<div style="display: flex; flex-wrap: wrap; gap: 8px;">';
                         for (var i = 0; i < data.face_encoding.preview.length; i++) {
-                            previewHtml += '<span style="background: rgba(26,86,148,0.1); padding: 4px 8px; border-radius: 6px; font-family: monospace; font-size: 0.7rem;">' + data.face_encoding.preview[i] + '</span>';
+                            previewHtml += '<span style="background: rgba(99,102,241,0.1); padding: 4px 8px; border-radius: 6px; font-family: monospace; font-size: 0.7rem;">' + data.face_encoding.preview[i] + '</span>';
                         }
                         previewHtml += '</div>';
                         document.getElementById('facePreview').innerHTML = previewHtml;
@@ -2484,7 +2931,7 @@
                         var fullHtml = '<div style="display: flex; flex-wrap: wrap; gap: 4px; max-height: 200px; overflow-y: auto; padding: 10px; background: var(--bg); border-radius: 8px;">';
                         var displayCount = Math.min(data.face_encoding.full_data.length, 50);
                         for (var i = 0; i < displayCount; i++) {
-                            fullHtml += '<span style="background: rgba(26,86,148,0.05); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.65rem;">' + data.face_encoding.full_data[i] + '</span>';
+                            fullHtml += '<span style="background: rgba(99,102,241,0.05); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.65rem;">' + data.face_encoding.full_data[i] + '</span>';
                         }
                         if (data.face_encoding.full_data.length > 50) {
                             fullHtml += '<span style="width: 100%; text-align: center; margin-top: 8px; font-size: 0.7rem; color: var(--text-dim);">... and ' + (data.face_encoding.full_data.length - 50) + ' more values</span>';
@@ -2539,26 +2986,26 @@
         } else { showMessage('No face data to download', 'error'); }
     }
 
-    // GENERIC FUNCTIONS 
+    // ========== GENERIC FUNCTIONS ==========
     function generateReport() { window.location.href = '/dashboard/attendance-report/'; }
     function showAttendanceDetails() { showMessage('Attendance details feature coming soon', 'info'); }
     function showScanDetails() { showMessage('Scan details feature coming soon', 'info'); }
     function showProxyDetails() { showMessage('Proxy alerts feature coming soon', 'info'); }
     function viewAllActivities() { window.location.href = '/dashboard/activity-logs/'; }
 
-    // ATTACH EVENT LISTENERS 
+    // ========== ATTACH EVENT LISTENERS ==========
     function attachTableEventListeners() {
         var viewDetailsBtns = document.querySelectorAll('.view-details');
         for (var i = 0; i < viewDetailsBtns.length; i++) {
             viewDetailsBtns[i].addEventListener('click', function (event) {
-                event.stopPropagation();  // Add this line
+                event.stopPropagation();
                 showStudentProfile(this.getAttribute('data-student-id'));
             });
         }
         var viewFaceBtns = document.querySelectorAll('.view-face');
         for (var i = 0; i < viewFaceBtns.length; i++) {
             viewFaceBtns[i].addEventListener('click', function (event) {
-                event.stopPropagation();  // Add this line
+                event.stopPropagation();
                 if (!this.disabled) showFaceEncodingModal(this.getAttribute('data-student-id'));
             });
         }
@@ -2569,7 +3016,7 @@
         }
     }
 
-    // INITIALIZATION 
+    // ========== INITIALIZATION ==========
     document.addEventListener('DOMContentLoaded', function () {
         initAttendanceChart();
         loadNotifications();
@@ -2579,8 +3026,37 @@
         setInterval(loadNotifications, 30000);
         setInterval(refreshDashboardData, 30000);
 
-        document.getElementById('notificationBell').addEventListener('click', toggleNotificationDropdown);
-        document.getElementById('markAllReadBtn').addEventListener('click', markAllNotificationsRead);
+        // Notification bell click - fixed
+        document.getElementById('notificationBell').addEventListener('click', function(e) {
+            e.stopPropagation();
+            var dropdown = document.getElementById('notificationDropdown');
+            var isOpen = dropdown.classList.contains('show');
+
+            if (isOpen) {
+                dropdown.classList.remove('show');
+                this.classList.remove('active');
+            } else {
+                dropdown.classList.add('show');
+                this.classList.add('active');
+                loadNotifications();
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            var dropdown = document.getElementById('notificationDropdown');
+            var bell = document.getElementById('notificationBell');
+            if (dropdown && bell && !dropdown.contains(e.target) && !bell.contains(e.target)) {
+                dropdown.classList.remove('show');
+                bell.classList.remove('active');
+            }
+        });
+
+        document.getElementById('markAllReadBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            markAllNotificationsRead();
+        });
+
         document.getElementById('startCameraBtn').addEventListener('click', startCameraFeed);
         document.getElementById('stopCameraBtn').addEventListener('click', stopCameraFeed);
         document.getElementById('selectAll').addEventListener('change', toggleSelectAll);
@@ -2615,7 +3091,7 @@
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 document.querySelectorAll('.modal-overlay').forEach(function (modal) { modal.style.display = 'none'; });
-                closeNotificationDropdown();
+                document.getElementById('notificationDropdown').classList.remove('show');
             }
         });
 

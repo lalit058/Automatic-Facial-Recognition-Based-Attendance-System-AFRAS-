@@ -1,4 +1,5 @@
 /* Sidebar Styles - Target only the main sidebar */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 #sidebar {
     width: var(--sidebar-width);
@@ -442,8 +443,11 @@
 }
 
 .nav-link.active {
-    background: transparent;
-    color: var(--primary);
+    background: transparent !important;
+    color: var(--primary) !important;
+    font-weight: 600;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: 0.3px;
 }
 
 

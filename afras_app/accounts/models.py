@@ -225,13 +225,16 @@ class SystemConfiguration(models.Model):
 
     # Attendance Settings
     min_retention_required = models.IntegerField(
-        default=80, help_text="Percentage to be marked PRESENT"
+        default=80, 
+        help_text="Minimum retention percentage to be marked PRESENT"
     )
-    default_duration = models.IntegerField(
-        default=60, help_text="Default session duration in minutes"
+    partial_retention_threshold = models.IntegerField(
+        default=50,
+        help_text="Minimum retention percentage for PARTIAL status"
     )
-    auto_stop_minutes = models.IntegerField(
-        default=5, help_text="Auto-stop after N minutes of no detection"
+    max_gap_seconds = models.IntegerField(
+        default=30,
+        help_text="Maximum seconds gap before counting as out of frame"
     )
 
     # Performance Settings

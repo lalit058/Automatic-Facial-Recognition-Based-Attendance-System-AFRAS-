@@ -1,17 +1,602 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Mark Attendance</title>
-</head>
-<body>
-    <h1>Attendance Marked</h1>
-    <p>The following students were recognized and attendance marked:</p>
-    <ul>
-        {% for student in students %}
-            <li>{{ student.name }}</li>
-        {% endfor %}
-    </ul>
-    <p><a href="/dashboard/">Go to Dashboard</a></p>
-</body>
-</html>
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Mark Attendance - {{ session.subject_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mark-wrapper {
+        padding: 20px;
+        background: #f8fafc;
+        min-height: calc(100vh - 70px);
+    }
+    
+    .video-container {
+        position: relative;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        aspect-ratio: 16/9;
+        max-height: 600px;
+    }
+    
+    #video-feed {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    
+    .recognition-overlay {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: rgba(0,0,0,0.75);
+        backdrop-filter: blur(10px);
+        padding: 8px 14px;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .recognition-overlay .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+    }
+    
+    .recognition-overlay .label {
+        color: #94a3b8;
+        font-weight: 500;
+    }
+    
+    .recognition-overlay .value {
+        color: #f8fafc;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+    
+    .student-list {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .student-list::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    .student-list::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    
+    .student-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.3s;
+        border-radius: 4px;
+    }
+    
+    .student-item:hover {
+        background: #f8fafc;
+    }
+    
+    .student-item.present {
+        background: #dcfce7;
+        border-left: 3px solid #16a34a;
+    }
+    
+    .student-item.absent {
+        background: #fee2e2;
+        border-left: 3px solid #dc2626;
+    }
+    
+    .student-item.partial {
+        background: #fef3c7;
+        border-left: 3px solid #d97706;
+    }
+    
+    .student-item.late {
+        background: #dbeafe;
+        border-left: 3px solid #2563eb;
+    }
+    
+    .status-badge {
+        padding: 2px 12px;
+        border-radius: 100px;
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    .status-badge.present { background: #16a34a; color: #fff; }
+    .status-badge.absent { background: #dc2626; color: #fff; }
+    .status-badge.partial { background: #d97706; color: #fff; }
+    .status-badge.late { background: #2563eb; color: #fff; }
+    .status-badge.leave { background: #7c3aed; color: #fff; }
+    
+    .controls-bar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        padding: 12px 16px;
+        background: #fff;
+        border-radius: 10px;
+        border: 1px solid #f1f5f9;
+        align-items: center;
+    }
+    
+    .controls-bar .time-display {
+        font-weight: 600;
+        color: #0f172a;
+        font-variant-numeric: tabular-nums;
+        margin-left: auto;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin: 16px 0;
+    }
+    
+    .stat-card {
+        background: #fff;
+        padding: 14px 16px;
+        border-radius: 10px;
+        border: 1px solid #f1f5f9;
+        text-align: center;
+        transition: all 0.2s;
+    }
+    
+    .stat-card:hover {
+        border-color: #e2e8f0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    
+    .stat-card .number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    
+    .stat-card .number.green { color: #16a34a; }
+    .stat-card .number.red { color: #dc2626; }
+    .stat-card .number.orange { color: #d97706; }
+    .stat-card .number.blue { color: #3b82f6; }
+    
+    .stat-card .label {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        font-weight: 600;
+    }
+    
+    .recording-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background: #ef4444;
+        border-radius: 50%;
+        animation: pulse-dot 1.2s infinite;
+        margin-right: 6px;
+    }
+    
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.3; transform: scale(0.7); }
+    }
+    
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .controls-bar {
+            flex-wrap: wrap;
+        }
+        
+        .controls-bar .time-display {
+            margin-left: 0;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .student-item {
+            padding: 8px 10px;
+            font-size: 0.85rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .mark-wrapper {
+            padding: 12px;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .stat-card {
+            padding: 10px 12px;
+        }
+        
+        .stat-card .number {
+            font-size: 1.2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mark-wrapper">
+    <div class="row g-4">
+        <!-- Video Column -->
+        <div class="col-lg-8">
+            <!-- Session Header -->
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                    <h4 class="mb-0">
+                        <span class="recording-indicator"></span>
+                        {{ session.subject_name }}
+                    </h4>
+                    <small class="text-muted">
+                        <i class="fas fa-hashtag"></i> Session #{{ session.id }} |
+                        <i class="fas fa-calendar"></i> {{ session.date|date:"M d, Y" }} |
+                        <i class="fas fa-clock"></i> {{ session.start_time|time:"h:i A" }}
+                    </small>
+                </div>
+                <button class="btn btn-danger" id="endSessionBtn">
+                    <i class="fas fa-stop"></i> End Session
+                </button>
+            </div>
+            
+            <!-- Video Feed -->
+            <div class="video-container">
+                {% if hybrid_available %}
+                    <img id="video-feed" 
+                         src="{% url 'attendance:video_feed' session.id %}" 
+                         alt="Camera Feed">
+                {% else %}
+                    <img id="video-feed" 
+                         src="{% url 'attendance:video_feed_basic' %}" 
+                         alt="Camera Feed">
+                {% endif %}
+                
+                <div class="recognition-overlay">
+                    <div class="row">
+                        <span class="label">FPS</span>
+                        <span class="value" id="fpsValue">0</span>
+                    </div>
+                    <div class="row">
+                        <span class="label">Faces</span>
+                        <span class="value" id="faceCount">0</span>
+                    </div>
+                    <div class="row">
+                        <span class="label">Logged</span>
+                        <span class="value" id="loggedCount">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="controls-bar">
+                <button class="btn btn-outline-secondary btn-sm" id="pauseBtn">
+                    <i class="fas fa-pause"></i> Pause
+                </button>
+                <button class="btn btn-outline-primary btn-sm" id="manualBtn">
+                    <i class="fas fa-user-plus"></i> Manual
+                </button>
+                <button class="btn btn-outline-info btn-sm" id="refreshBtn">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+                <span class="time-display">
+                    <i class="fas fa-clock text-muted"></i> 
+                    <span id="sessionTime">00:00</span>
+                </span>
+            </div>
+            
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number blue" id="totalStudents">0</div>
+                    <div class="label">Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number green" id="presentCount">0</div>
+                    <div class="label">Present</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number red" id="absentCount">0</div>
+                    <div class="label">Absent</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number orange" id="partialCount">0</div>
+                    <div class="label">Partial</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Student List Column -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-users"></i> Students</h6>
+                    <span class="badge bg-secondary" id="studentCount">0</span>
+                </div>
+                <div class="card-body student-list" id="studentList">
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p class="mt-2">Loading students...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manual Entry Modal -->
+<div class="modal fade" id="manualModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-user-plus"></i> Manual Attendance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="manualForm">
+                    <div class="mb-3">
+                        <label class="form-label">Student</label>
+                        <select class="form-select" id="manualStudent" required>
+                            <option value="">Select student...</option>
+                            {% for student in students %}
+                            <option value="{{ student.id }}">
+                                {{ student.roll_number }} - {{ student.full_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="manualStatus" required>
+                            <option value="PRESENT">Present</option>
+                            <option value="ABSENT">Absent</option>
+                            <option value="LATE">Late</option>
+                            <option value="LEAVE">Authorized Leave</option>
+                            <option value="PARTIAL">Partial Presence</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveManualBtn">
+                    <i class="fas fa-save"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="sessionId" value="{{ session.id }}">
+
+{% block extra_scripts %}
+<script>
+    let sessionId = document.getElementById('sessionId').value;
+    let updateInterval;
+    let isPaused = false;
+    
+    $(document).ready(function() {
+        loadStudentList();
+        startRealtimeUpdates();
+        
+        // Pause/Resume
+        $('#pauseBtn').click(function() {
+            isPaused = !isPaused;
+            $(this).html(isPaused ? 
+                '<i class="fas fa-play"></i> Resume' : 
+                '<i class="fas fa-pause"></i> Pause');
+            
+            const img = document.getElementById('video-feed');
+            if (isPaused) {
+                img.src = '';
+            } else {
+                img.src = "{% url 'attendance:video_feed' session.id %}";
+            }
+        });
+        
+        // Manual Entry
+        $('#manualBtn').click(function() {
+            $('#manualModal').modal('show');
+        });
+        
+        // Save Manual Entry
+        $('#saveManualBtn').click(function() {
+            const studentId = $('#manualStudent').val();
+            const status = $('#manualStatus').val();
+            
+            if (!studentId) {
+                alert('Please select a student');
+                return;
+            }
+            
+            $.ajax({
+                url: "{% url 'attendance:manual_attendance' %}",
+                method: 'POST',
+                data: {
+                    session_id: sessionId,
+                    student_id: studentId,
+                    status: status,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#manualModal').modal('hide');
+                        loadStudentList();
+                        updateStats();
+                        $('#manualStudent').val('');
+                        showToast('Attendance marked successfully', 'success');
+                    } else {
+                        alert(response.message || 'Error marking attendance');
+                    }
+                },
+                error: function() {
+                    alert('An error occurred');
+                }
+            });
+        });
+        
+        // End Session
+        $('#endSessionBtn').click(function() {
+            if (confirm('Are you sure you want to end this attendance session?')) {
+                $.ajax({
+                    url: "{% url 'attendance:end_session' session.id %}",
+                    method: 'POST',
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showToast('Session ended successfully', 'success');
+                            window.location.href = "{% url 'attendance:session_summary' session.id %}";
+                        } else {
+                            alert(response.message || 'Error ending session');
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred');
+                    }
+                });
+            }
+        });
+        
+        // Refresh
+        $('#refreshBtn').click(function() {
+            loadStudentList();
+            updateStats();
+            showToast('Refreshed successfully', 'info');
+        });
+    });
+    
+    function startRealtimeUpdates() {
+        updateInterval = setInterval(function() {
+            if (!isPaused) {
+                updateStats();
+                loadStudentList();
+            }
+        }, 3000);
+    }
+    
+    function loadStudentList() {
+        $.ajax({
+            url: "{% url 'attendance:get_student_status' session.id %}",
+            method: 'GET',
+            success: function(data) {
+                const list = $('#studentList');
+                const count = $('#studentCount');
+                
+                if (data.students && data.students.length > 0) {
+                    let html = '';
+                    data.students.forEach(function(student) {
+                        const statusClass = student.status.toLowerCase();
+                        const statusBadge = statusClass;
+                        
+                        html += `
+                            <div class="student-item ${statusClass}">
+                                <div>
+                                    <strong>${student.full_name}</strong>
+                                    <small class="text-muted d-block">${student.roll_number}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="status-badge ${statusBadge}">${student.status}</span>
+                                    ${student.confidence ? `<br><small class="text-muted">${student.confidence}%</small>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    list.html(html);
+                    count.text(data.students.length);
+                } else {
+                    list.html(`
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-user-slash fa-2x"></i>
+                            <p class="mt-2">No students found</p>
+                        </div>
+                    `);
+                    count.text('0');
+                }
+            },
+            error: function() {
+                $('#studentList').html(`
+                    <div class="text-center text-danger py-5">
+                        <i class="fas fa-exclamation-circle fa-2x"></i>
+                        <p class="mt-2">Error loading students</p>
+                    </div>
+                `);
+            }
+        });
+    }
+    
+    function updateStats() {
+        $.ajax({
+            url: "{% url 'attendance:get_attendance_stats' session.id %}",
+            method: 'GET',
+            success: function(data) {
+                $('#totalStudents').text(data.total || 0);
+                $('#presentCount').text(data.present || 0);
+                $('#absentCount').text(data.absent || 0);
+                $('#partialCount').text(data.partial || 0);
+                $('#sessionTime').text(data.elapsed_time || '00:00');
+                $('#fpsValue').text(data.fps || 0);
+                $('#faceCount').text(data.face_count || 0);
+                $('#loggedCount').text(data.present || 0);
+            },
+            error: function() {
+                // Silent fail for stats
+            }
+        });
+    }
+    
+    function showToast(message, type) {
+        // Simple toast implementation
+        const colors = {
+            success: '#16a34a',
+            info: '#3b82f6',
+            warning: '#d97706',
+            danger: '#dc2626'
+        };
+        
+        const toast = $(`
+            <div style="position:fixed; bottom:20px; right:20px; background:${colors[type] || '#0f172a'}; 
+                 color:#fff; padding:12px 24px; border-radius:10px; z-index:9999; 
+                 box-shadow:0 4px 16px rgba(0,0,0,0.2); font-weight:500; max-width:400px;
+                 animation: slideIn 0.3s ease-out;">
+                ${message}
+            </div>
+        `);
+        
+        $('body').append(toast);
+        setTimeout(() => {
+            toast.fadeOut(300, function() { $(this).remove(); });
+        }, 3000);
+    }
+    
+    // Clean up on page unload
+    $(window).on('beforeunload', function() {
+        if (updateInterval) {
+            clearInterval(updateInterval);
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,1069 @@
+<!-- templates/attendance/session_summary.html -->
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Session Summary - {{ session.subject_name }}{% endblock %}
+
+{% block content %}
+<style>
+    /* ============================================
+       PREMIUM SESSION SUMMARY
+       Matching start_session.html Theme
+    ============================================ */
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .summary-container {
+        max-width: 1400px;
+        padding: 0.5rem;
+    }
+
+    /* ============================================
+       PAGE HEADER - Matching start_session
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        display: flex;
+        padding: 1rem 1.5rem;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        color: #ffffff;
+        margin-bottom: 1rem;
+    }
+
+    .page-header .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+    }
+
+    .page-header .header-left p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0;
+    }
+
+    .page-header .header-left .breadcrumb {
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header .header-left .breadcrumb a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .page-header .header-left .breadcrumb a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .page-header .header-left .breadcrumb .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .page-header .header-left .breadcrumb .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .page-header .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        padding: 0.6rem 1.5rem;
+        background: #16a34a;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-outline {
+        padding: 0.6rem 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-outline:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    .btn-details {
+        padding: 0.6rem 1.5rem;
+        background: rgba(99, 102, 241, 0.15);
+        color: #c7d2fe;
+        border: 1.5px solid rgba(99, 102, 241, 0.2);
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-details:hover {
+        background: rgba(99, 102, 241, 0.25);
+        border-color: rgba(99, 102, 241, 0.4);
+        transform: translateY(-2px);
+    }
+
+    /* ============================================
+       BADGES
+    ============================================ */
+    .dept-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: #eef2ff;
+        color: #4f46e5;
+    }
+
+    .sem-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .year-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .section-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: #fce7f3;
+        color: #db2777;
+    }
+
+    /* ============================================
+       STATS ROW
+    ============================================ */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-item {
+        background: #ffffff;
+        padding: 1.25rem 1.5rem;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .stat-item:hover {
+        border-color: #e2e8f0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        transform: translateY(-2px);
+    }
+
+    .stat-item .icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .stat-item .icon.blue { background: #eef2ff; color: #4f46e5; }
+    .stat-item .icon.green { background: #dcfce7; color: #16a34a; }
+    .stat-item .icon.red { background: #fef2f2; color: #dc2626; }
+    .stat-item .icon.orange { background: #fef3c7; color: #d97706; }
+    .stat-item .icon.purple { background: #f3e8ff; color: #7c3aed; }
+
+    .stat-item .info .label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+    }
+
+    .stat-item .info .value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+
+    .stat-item .info .value .small {
+        font-size: 0.85rem;
+        font-weight: 400;
+        color: #94a3b8;
+        margin-left: 4px;
+    }
+
+    /* ============================================
+       SESSION INFO - Enhanced with all details
+    ============================================ */
+    .session-info {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 1rem 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .session-info .item {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+    }
+
+    .session-info .item .label {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+    }
+
+    .session-info .item .value {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #1e293b;
+    }
+
+    .session-info .item .value strong {
+        color: #0f172a;
+    }
+
+    /* ============================================
+       TABLE - Matching start_session table
+    ============================================ */
+    .table-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .table-card .table-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #f8fafc;
+    }
+
+    .table-card .table-header h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .table-card .table-header .count {
+        background: #e2e8f0;
+        padding: 2px 12px;
+        border-radius: 100px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .table-scroll {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    thead {
+        background: #f8fafc;
+    }
+
+    thead th {
+        padding: 0.6rem 1.5rem;
+        text-align: left;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    thead th:last-child {
+        text-align: right;
+    }
+
+    tbody td {
+        padding: 0.6rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+        vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    tbody tr:hover td {
+        background: #f8fafc;
+    }
+
+    .student-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .student-cell .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #eef2ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: #4f46e5;
+        flex-shrink: 0;
+    }
+
+    .student-cell .name {
+        font-weight: 500;
+        color: #0f172a;
+    }
+
+    .student-cell .roll {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        display: block;
+    }
+
+    .status-dot {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .status-dot .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .status-dot .dot.present { background: #16a34a; }
+    .status-dot .dot.absent { background: #dc2626; }
+    .status-dot .dot.late { background: #d97706; }
+    .status-dot .dot.leave { background: #7c3aed; }
+    .status-dot .dot.partial { background: #f59e0b; }
+
+    .status-dot .text.present { color: #16a34a; }
+    .status-dot .text.absent { color: #dc2626; }
+    .status-dot .text.late { color: #d97706; }
+    .status-dot .text.leave { color: #7c3aed; }
+    .status-dot .text.partial { color: #f59e0b; }
+
+    .conf-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .conf-bar .track {
+        width: 80px;
+        height: 4px;
+        border-radius: 10px;
+        background: #e2e8f0;
+        overflow: hidden;
+    }
+
+    .conf-bar .track .fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.6s;
+    }
+
+    .conf-bar .track .fill.high { background: #16a34a; }
+    .conf-bar .track .fill.medium { background: #d97706; }
+    .conf-bar .track .fill.low { background: #dc2626; }
+
+    .conf-bar .percent {
+        font-size: 0.7rem;
+        font-weight: 500;
+        color: #64748b;
+        min-width: 32px;
+    }
+
+    .retention-value {
+        text-align: right;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .retention-value .good { color: #16a34a; }
+    .retention-value .average { color: #d97706; }
+    .retention-value .poor { color: #dc2626; }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 0;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        margin: 0;
+    }
+
+    .empty-state .sub {
+        font-size: 0.8rem;
+        color: #cbd5e1;
+    }
+
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+        body * {
+            visibility: hidden !important;
+        }
+
+        .summary-container,
+        .summary-container * {
+            visibility: visible !important;
+        }
+
+        .summary-container {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            padding: 0 !important;
+            background: #fff !important;
+        }
+
+        .page-header .header-actions,
+        .btn-outline,
+        .btn-primary,
+        .btn-details {
+            display: none !important;
+        }
+
+        .page-header {
+            background: #0f172a !important;
+            border-radius: 0 !important;
+        }
+
+        .stat-item:hover,
+        tbody tr:hover {
+            background: transparent !important;
+            transform: none !important;
+        }
+
+        .stat-item,
+        .session-info,
+        .table-card {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .stats-row {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        table {
+            font-size: 0.75rem !important;
+        }
+
+        .status-dot .dot,
+        .conf-bar .track .fill {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .student-cell .avatar {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .print-header {
+            display: block !important;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #0f172a;
+        }
+
+        .print-header h2 {
+            font-size: 1.5rem;
+            margin: 0;
+            color: #0f172a;
+        }
+
+        .print-header p {
+            margin: 0.25rem 0 0;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+    }
+
+    .print-header {
+        display: none;
+    }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 992px) {
+        .stats-row {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 640px) {
+        .summary-container {
+            padding: 0.25rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1rem 1.25rem;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1.25rem;
+        }
+
+        .page-header .header-actions {
+            width: 100%;
+        }
+
+        .page-header .header-actions .btn-outline,
+        .page-header .header-actions .btn-primary,
+        .page-header .header-actions .btn-details {
+            flex: 1;
+            justify-content: center;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .stat-item {
+            padding: 0.75rem 1rem;
+        }
+
+        .stat-item .info .value {
+            font-size: 1.2rem;
+        }
+
+        .stat-item .icon {
+            width: 36px;
+            height: 36px;
+            font-size: 1rem;
+        }
+
+        .session-info {
+            gap: 0.75rem 1.5rem;
+            padding: 0.75rem 1rem;
+        }
+
+        .table-card .table-header {
+            padding: 0.75rem 1rem;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .conf-bar .track {
+            width: 50px;
+        }
+
+        .student-cell .avatar {
+            width: 24px;
+            height: 24px;
+            font-size: 0.55rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .stat-item {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .stat-item .info .value {
+            font-size: 1rem;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1.1rem;
+        }
+
+        .page-header .header-left .breadcrumb {
+            font-size: 0.65rem;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.3rem 0.5rem;
+            font-size: 0.65rem;
+        }
+
+        .student-cell .avatar {
+            width: 20px;
+            height: 20px;
+            font-size: 0.45rem;
+        }
+    }
+</style>
+
+<div class="summary-container">
+    <!-- Print Header -->
+    <div class="print-header">
+        <h2>Session Attendance Summary</h2>
+        <p>{{ session.subject_name }} | {{ session.date|date:"F d, Y" }}</p>
+    </div>
+
+    <!-- ============================================
+    PAGE HEADER
+    ============================================ -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="breadcrumb">
+                <a href="{% url 'dashboard_home' %}">Dashboard</a>
+                <span class="separator">/</span>
+                <a href="{% url 'attendance:all_sessions' %}">Sessions</a>
+                <span class="separator">/</span>
+                <span class="current">Summary</span>
+            </div>
+            <h1>{{ session.subject_name }}</h1>
+            <p>
+                <span><i class="fas fa-hashtag"></i> Session #{{ session.id }}</span>
+                <span style="margin: 0 8px;">•</span>
+                <span><i class="fas fa-calendar"></i> {{ session.date|date:"M d, Y" }}</span>
+                <span style="margin: 0 8px;">•</span>
+                <span class="badge {% if session.is_active %}badge-active{% else %}badge-ended{% endif %}"
+                      style="padding: 2px 14px; border-radius: 100px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+                      {% if session.is_active %}background: #dcfce7; color: #16a34a;{% else %}background: #f1f5f9; color: #94a3b8;{% endif %}">
+                    {% if session.is_active %}● Active{% else %}Ended{% endif %}
+                </span>
+            </p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'attendance:session_details' session.id %}" class="btn-details">
+                <i class="fas fa-chart-line"></i> View Details
+            </a>
+            <a href="{% url 'attendance:start_session' %}" class="btn-outline">
+                <i class="fas fa-plus"></i> New
+            </a>
+            <button class="btn-outline" onclick="window.print()">
+                <i class="fas fa-print"></i> Print
+            </button>
+            <button class="btn-primary" onclick="exportCSV()">
+                <i class="fas fa-file-export"></i> Export
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================
+    STATS ROW - 5 Stats
+    ============================================ -->
+    <div class="stats-row">
+        <div class="stat-item">
+            <div class="icon blue"><i class="fas fa-users"></i></div>
+            <div class="info">
+                <div class="label">Total Students</div>
+                <div class="value">{{ total_students }}</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="info">
+                <div class="label">Present</div>
+                <div class="value">{{ present_count }}</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon orange"><i class="fas fa-clock"></i></div>
+            <div class="info">
+                <div class="label">Partial/Late</div>
+                <div class="value">{{ partial_count|default:0|add:late_count|default:0 }}</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon red"><i class="fas fa-times-circle"></i></div>
+            <div class="info">
+                <div class="label">Absent</div>
+                <div class="value">{{ absent_count }}</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon purple"><i class="fas fa-percentage"></i></div>
+            <div class="info">
+                <div class="label">Attendance Rate</div>
+                <div class="value">
+                    {% if total_students > 0 %}
+                        {{ present_count|floatformat:0 }}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                    <span class="small">rate</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    SESSION INFO - Enhanced with Department, Year, Semester, Section
+    ============================================ -->
+    <div class="session-info">
+        <div class="item">
+            <span class="label">Session ID</span>
+            <span class="value"><strong>#{{ session.id }}</strong></span>
+        </div>
+        <div class="item">
+            <span class="label">Subject</span>
+            <span class="value">{{ session.subject_name }}</span>
+        </div>
+        <div class="item">
+            <span class="label">Department</span>
+            <span class="value">
+                <span class="dept-badge">{{ session.department|default:'N/A' }}</span>
+            </span>
+        </div>
+        <div class="item">
+            <span class="label">Year</span>
+            <span class="value">
+                <span class="year-badge">{{ session.year|default:'N/A' }}</span>
+            </span>
+        </div>
+        <div class="item">
+            <span class="label">Semester</span>
+            <span class="value">
+                <span class="sem-badge">{{ session.semester|default:'N/A' }}</span>
+            </span>
+        </div>
+        <div class="item">
+            <span class="label">Section</span>
+            <span class="value">
+                <span class="section-badge">{{ session.section|default:'N/A' }}</span>
+            </span>
+        </div>
+        <div class="item">
+            <span class="label">Date</span>
+            <span class="value">{{ session.date|date:"F d, Y" }}</span>
+        </div>
+        <div class="item">
+            <span class="label">Time</span>
+            <span class="value">{{ session.start_time|date:"h:i A" }}</span>
+        </div>
+        <div class="item">
+            <span class="label">Duration</span>
+            <span class="value">{{ session.expected_duration }} min</span>
+        </div>
+        <div class="item">
+            <span class="label">Records</span>
+            <span class="value"><strong>{{ logs|length }}</strong> logs</span>
+        </div>
+        <div class="item">
+            <span class="label">Created By</span>
+            <span class="value">{{ session.created_by.full_name|default:'System' }}</span>
+        </div>
+    </div>
+
+    <!-- ============================================
+    TABLE
+    ============================================ -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3><i class="fas fa-list-ul" style="color: #6366f1;"></i> Attendance Log</h3>
+            <span class="count">{{ logs|length }} records</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Roll No.</th>
+                        <th>Status</th>
+                        <th>Confidence</th>
+                        <th>First Seen</th>
+                        <th>Last Seen</th>
+                        <th style="text-align: right;">Retention</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if logs %}
+                        {% for log in logs %}
+                            <tr>
+                                <td>
+                                    <div class="student-cell">
+                                        <div class="avatar">{{ log.student.full_name|make_list|first|upper }}</div>
+                                        <span class="name">{{ log.student.full_name }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ log.student.roll_number }}</td>
+                                <td>
+                                    <span class="status-dot">
+                                        <span class="dot {{ log.status|lower }}"></span>
+                                        <span class="text {{ log.status|lower }}">{{ log.status }}</span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="conf-bar">
+                                        <div class="track">
+                                            <div class="fill 
+                                                {% if log.confidence > 70 %}high
+                                                {% elif log.confidence > 50 %}medium
+                                                {% else %}low{% endif %}" 
+                                                style="width: {{ log.confidence|default:0 }}%;">
+                                            </div>
+                                        </div>
+                                        <span class="percent">{{ log.confidence|default:0 }}%</span>
+                                    </div>
+                                </td>
+                                <td>{{ log.first_seen|date:"h:i A" }}</td>
+                                <td>{{ log.last_seen|date:"h:i A" }}</td>
+                                <td>
+                                    <div class="retention-value">
+                                        {% if session.expected_duration %}
+                                            {% with retention=log.retention_percentage %}
+                                                <span class="
+                                                    {% if retention > 75 %}good
+                                                    {% elif retention > 50 %}average
+                                                    {% else %}poor{% endif %}">
+                                                    {{ retention|floatformat:0 }}%
+                                                </span>
+                                            {% endwith %}
+                                        {% else %}
+                                            <span>N/A</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    <p>No attendance records found</p>
+                                    <div class="sub">This session has no logs yet</div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportCSV() {
+    const rows = document.querySelectorAll('table tbody tr');
+    
+    if (rows.length === 1 && rows[0].querySelector('.empty-state')) {
+        showMessage('No data to export', 'warning');
+        return;
+    }
+    
+    let csv = 'Student,Roll Number,Status,Confidence (%),First Seen,Last Seen,Retention (%)\n';
+    let hasData = false;
+    
+    rows.forEach(row => {
+        if (row.querySelector('.empty-state')) return;
+        
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 7) {
+            const nameCell = cells[0];
+            const nameEl = nameCell.querySelector('.name');
+            const studentName = nameEl ? nameEl.textContent.trim() : nameCell.textContent.trim();
+            
+            const rollNo = cells[1].textContent.trim();
+            
+            const statusEl = cells[2].querySelector('.text');
+            const status = statusEl ? statusEl.textContent.trim() : cells[2].textContent.trim();
+            
+            const percentEl = cells[3].querySelector('.percent');
+            const confidence = percentEl ? percentEl.textContent.trim().replace('%', '') : cells[3].textContent.trim().replace('%', '');
+            
+            const firstSeen = cells[4].textContent.trim();
+            const lastSeen = cells[5].textContent.trim();
+            
+            const retentionEl = cells[6].querySelector('.retention-value span');
+            const retention = retentionEl ? retentionEl.textContent.trim().replace('%', '') : cells[6].textContent.trim().replace('%', '');
+            
+            csv += `"${studentName}","${rollNo}","${status}",${confidence},"${firstSeen}","${lastSeen}",${retention}\n`;
+            hasData = true;
+        }
+    });
+    
+    if (!hasData) {
+        showMessage('No data to export', 'warning');
+        return;
+    }
+    
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'attendance_summary_{{ session.id }}_{{ session.date|date:"Y-m-d" }}.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+    
+    showMessage('Export completed successfully', 'success');
+}
+
+// ============================================
+// SHOW MESSAGE USING BASE TEMPLATE FORMAT
+// ============================================
+function showMessage(message, type = 'success') {
+    let container = document.getElementById('django-messages');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'django-messages';
+        container.className = 'msg-container';
+        document.body.appendChild(container);
+    }
+    
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `msg ${type}`;
+    msgDiv.setAttribute('data-auto-dismiss', 'true');
+    
+    let iconClass = 'fa-info-circle';
+    if (type === 'success') iconClass = 'fa-check-circle';
+    else if (type === 'error' || type === 'warning') iconClass = 'fa-exclamation-circle';
+    
+    msgDiv.innerHTML = `
+        <i class="fas ${iconClass}"></i>
+        <span>${message}</span>
+    `;
+    
+    container.appendChild(msgDiv);
+    
+    setTimeout(() => {
+        if (msgDiv.parentNode) {
+            msgDiv.style.animation = 'slideUp 0.4s ease-in forwards';
+            setTimeout(() => {
+                if (msgDiv.parentNode) {
+                    msgDiv.remove();
+                }
+            }, 400);
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}
