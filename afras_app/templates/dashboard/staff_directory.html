@@ -3,119 +3,247 @@
 
 {% block title %}Staff Directory{% endblock %}
 
-{% block extra_head %}
+{% block content %}
 <style>
-    .top-intro {
+    .page-container {
+        padding: 0.5rem;
+        max-width: 1400px;
+    }
+
+    /* ============================================
+       PAGE HEADER
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        display: flex;
+        padding: 1rem 1.5rem;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        color: var(--primary-text);
+        margin-bottom: 1rem;
+    }
+
+    .page-header .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+    }
+
+    .page-header .header-left p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0;
+    }
+
+    .page-header .header-left .breadcrumb {
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .page-header .header-left .breadcrumb a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .page-header .header-left .breadcrumb a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .page-header .header-left .breadcrumb .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .page-header .header-left .breadcrumb .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .page-header .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        padding: 0.6rem 1.5rem;
+        background: #16a34a;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-secondary {
+        padding: 0.6rem 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    /* ============================================
+       FILTER CONTAINER
+    ============================================ */
+    .filter-container {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 1rem 1.5rem;
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 0.5rem;
-        gap: 20px;
-        flex-wrap: wrap;
-    }
-
-    .top-intro p {
-        color: var(--text-dim);
-        font-size: 0.9rem;
-        margin-top: 5px;
-    }
-
-    .staff-enroll {
-        display: flex;
-        align-items: center;
-    }
-
-    .filter-container {
-        display: flex;
-        gap: 15px;
         align-items: center;
         flex-wrap: wrap;
-        border-radius: 16px;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
     }
 
-    .search-box {
-        position: relative;
-        width: 300px;
-        flex: 0;
-        min-width: 300px;
+    .filter-container .search-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8fafc;
+        padding: 0.3rem 0.8rem;
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        transition: all 0.2s;
+        flex: 1;
+        min-width: 200px;
+        max-width: 350px;
     }
 
-    .search-box input {
+    .filter-container .search-box:focus-within {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06);
+        background: #fff;
+    }
+
+    .filter-container .search-box i {
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+
+    .filter-container .search-box input {
+        border: none;
+        background: transparent;
+        padding: 0.2rem 0;
+        font-size: 0.85rem;
+        color: #1e293b;
         width: 100%;
-        background: var(--bg);
-        border: 1px solid var(--border);
-        color: var(--main-text);
-        padding: 12px 15px 12px 45px;
-        border-radius: 12px;
-        font-size: 0.9rem;
-        transition: all 0.3s;
-    }
-
-    .search-box input:focus {
         outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 2px rgba(0, 98, 255, 0.2);
     }
 
-    .search-box i {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-dim);
-        font-size: 1rem;
+    .filter-container .search-box input::placeholder {
+        color: #94a3b8;
     }
 
-    .filter-dropdown {
-        position: relative;
-        min-width: 180px;
-        flex: 0;
-        min-width: 150px;
+    .filter-container .filter-group {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
     }
 
-    .filter-select {
-        width: 100%;
-        background: var(--primary);
-        border: 1px solid var(--border);
-        color: white;
-        padding: 12px 40px 12px 15px;
-        border-radius: 12px;
-        font-size: 0.9rem;
+    .filter-container .filter-group select {
+        padding: 0.4rem 0.8rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        background: #fafbfc;
+        color: #1e293b;
+        outline: none;
         cursor: pointer;
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        transition: all 0.3s;
+        min-width: 120px;
     }
 
-    .filter-select:focus {
-        outline: none;
-        border-color: var(--primary);
+    .filter-container .filter-group select:focus {
+        border-color: #6366f1;
     }
 
-    .filter-dropdown i {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--primary-text);
-        pointer-events: none;
+    .filter-container .filter-group .clear-btn {
+        padding: 0.3rem 1rem;
+        border: none;
+        background: #f1f5f9;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
     }
 
+    .filter-container .filter-group .clear-btn:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+    .filter-container .results-count {
+        font-size: 0.8rem;
+        color: #64748b;
+        white-space: nowrap;
+    }
+
+    .filter-container .results-count strong {
+        color: #0f172a;
+    }
+
+    /* ============================================
+       FILTER TAGS
+    ============================================ */
     .filter-tags {
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
-        margin-top: 10px;
+        margin-bottom: 1rem;
     }
 
     .filter-tag {
-        background: var(--surface-light);
-        border: 1px solid var(--border);
-        color: var(--text-main);
-        padding: 6px 12px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #1e293b;
+        padding: 4px 12px;
         border-radius: 20px;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         display: flex;
         align-items: center;
         gap: 6px;
@@ -124,45 +252,29 @@
     }
 
     .filter-tag:hover {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
+        background: #e2e8f0;
     }
 
-    .filter-tag.active {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
+    .filter-tag i {
+        font-size: 0.6rem;
+        color: #94a3b8;
     }
 
-    .clear-filters {
-        background: transparent;
-        border: 1px solid var(--warning);
-        color: var(--warning);
-        padding: 12px 20px;
+    .filter-tag:hover i {
+        color: #dc2626;
+    }
+
+    /* ============================================
+       TABLE CARD
+    ============================================ */
+    .table-card {
+        background: #fff;
         border-radius: 12px;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        white-space: nowrap;
-    }
-
-    .clear-filters:hover {
-        background: rgba(245, 158, 11, 0.1);
-    }
-
-    .directory-panel {
-        background: var(--surface);
-        border-radius: 8px;
-        border: 1px solid var(--border);
+        border: 1px solid #f1f5f9;
         overflow: hidden;
-        margin-top: 0.5rem;
     }
 
-    .table-wrapper {
+    .table-scroll {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
@@ -170,42 +282,48 @@
     table {
         width: 100%;
         border-collapse: collapse;
-        text-align: left;
+        font-size: 0.85rem;
         min-width: 800px;
     }
 
     thead {
-        background: rgba(255, 255, 255, 0.02);
-        position: sticky;
-        top: 0;
-        z-index: 10;
+        background: #f8fafc;
     }
 
-    th {
-        padding: 18px 20px;
-        font-size: 0.75rem;
+    thead th {
+        padding: 0.75rem 1.5rem;
+        text-align: left;
+        font-size: 0.7rem;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--text-dim);
-        border-bottom: 1px solid var(--border);
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        border-bottom: 2px solid #f1f5f9;
         white-space: nowrap;
     }
 
-    td {
-        padding: 8px 10px;
-        border-bottom: 1px solid var(--border);
-        font-size: 0.9rem;
+    thead th:last-child {
+        text-align: right;
+    }
+
+    tbody td {
+        padding: 0.6rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
         vertical-align: middle;
     }
 
-    tr:last-child td {
+    tbody tr:last-child td {
         border-bottom: none;
     }
 
-    tr:hover {
-        background: rgba(255, 255, 255, 0.02);
+    tbody tr:hover {
+        background: #f8fafc;
     }
 
+    /* ============================================
+       STAFF PROFILE
+    ============================================ */
     .staff-profile {
         display: flex;
         align-items: center;
@@ -214,12 +332,11 @@
     }
 
     .staff-avatar {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
         object-fit: cover;
-        background: var(--surface-light);
-        border: 2px solid var(--border);
+        border: 2px solid #e2e8f0;
         cursor: pointer;
         transition: all 0.3s ease;
         flex-shrink: 0;
@@ -227,206 +344,241 @@
 
     .staff-avatar:hover {
         transform: scale(1.05);
-        box-shadow: 0 0 15px rgba(0, 98, 255, 0.3);
-        border-color: var(--primary);
+        border-color: #6366f1;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
     }
 
-    .staff-info {
-        min-width: 100px;
+    .staff-info .staff-name {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        word-break: break-word;
     }
 
-    .staff-info strong {
-        display: block;
-        font-size: 0.9rem;
-        color: var(--text-main);
-    }
-
-    .staff-info span {
-        display: block;
-        font-size: 0.75rem;
-        color: var(--text-dim);
-        margin-top: 2px;
-    }
-
-    .admin-badge {
-        color: var(--primary);
+    .staff-info .staff-meta {
         font-size: 0.7rem;
+        color: #94a3b8;
     }
 
-    .member-badge {
-        color: var(--success);
-        font-size: 0.7rem;
+    /* ============================================
+       BADGES
+    ============================================ */
+    .role-badge {
+        font-size: 0.55rem;
+        font-weight: 600;
+        padding: 2px 10px;
+        border-radius: 100px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+    }
+
+    .role-badge.admin {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .role-badge.staff {
+        background: #e0e7ff;
+        color: #4f46e5;
     }
 
     .dept-tag {
-        padding: 4px 10px;
-        background: rgba(0, 98, 255, 0.1);
-        color: var(--primary);
+        padding: 3px 10px;
+        background: #eef2ff;
+        color: #4f46e5;
         border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 700;
+        font-size: 0.7rem;
+        font-weight: 600;
         display: inline-block;
+        white-space: nowrap;
     }
 
     .id-badge {
         font-family: 'JetBrains Mono', monospace;
-        background: transparent;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        color: var(--text-main);
+        font-size: 0.75rem;
+        color: #64748b;
+        word-break: break-all;
     }
 
-    .btn-add {
-        background: var(--primary);
-        color: white;
-        text-decoration: none;
-        padding: 12px 20px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        transition: 0.3s;
-        white-space: nowrap;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .btn-add:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 98, 255, 0.4);
-    }
-
+    /* ============================================
+       ACTION BUTTONS
+    ============================================ */
     .action-buttons {
         display: flex;
-        gap: 8px;
+        gap: 6px;
+        justify-content: flex-end;
         flex-wrap: wrap;
     }
 
-    .btn-edit,
-    .btn-view,
-    .btn-delete {
-        width: 30px;
-        height: 30px;
-        padding: 0;
-        border-radius: 10px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
         border: none;
-        transition: all 0.2s;
-    }
-
-    .btn-view {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success);
-        border: 1px solid var(--success);
-        text-decoration: none;
-    }
-
-    .btn-view:hover {
-        background: var(--success);
-        color: white;
-    }
-
-    .btn-edit {
-        background: rgba(59, 130, 246, 0.1);
-        color: var(--primary);
-        border: 1px solid var(--primary);
-    }
-
-    .btn-edit:hover {
-        background: var(--primary);
-        color: white;
-    }
-
-    .btn-delete {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
-        border: 1px solid var(--danger);
-    }
-
-    .btn-delete:hover {
-        background: var(--danger);
-        color: white;
-    }
-
-    /* ===== PAGINATION - Same as System Logs ===== */
-    .pagination-wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 0.4rem;
-        margin-top: 0.5rem;
-        flex-wrap: wrap;
-        padding: 0.5rem 0;
-    }
-
-    .page-btn {
-        min-width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        background: var(--surface);
-        color: var(--text-main);
         cursor: pointer;
-        transition: all 0.2s ease;
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 500;
-        font-size: 0.85rem;
-        font-family: inherit;
+        transition: all 0.2s;
+        font-size: 0.8rem;
+        text-decoration: none;
+        flex-shrink: 0;
     }
 
-    .page-btn:hover:not(:disabled):not(.active) {
-        background: var(--bg-light);
-        border-color: var(--primary);
+    .action-btn.view {
+        background: rgba(16, 185, 129, 0.1);
+        color: #16a34a;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .action-btn.view:hover {
+        background: #16a34a;
+        color: #fff;
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 
-    .page-btn.active {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
-        box-shadow: 0 2px 12px rgba(26, 86, 148, 0.25);
+    .action-btn.edit {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        border: 1px solid rgba(99, 102, 241, 0.2);
     }
 
-    .page-btn:disabled {
+    .action-btn.edit:hover {
+        background: #6366f1;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .action-btn.delete {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .action-btn.delete:hover {
+        background: #dc2626;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    /* ============================================
+       PAGINATION
+    ============================================ */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.75rem;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .pagination-container .info {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .pagination-container .info strong {
+        color: #0f172a;
+    }
+
+    .pagination-controls {
+        display: flex;
+        gap: 0.3rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .pagination-controls button {
+        padding: 0.3rem 0.8rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #fff;
+        color: #1e293b;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pagination-controls button:hover:not(:disabled):not(.active) {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+
+    .pagination-controls button:disabled {
         opacity: 0.4;
         cursor: not-allowed;
     }
 
-    .page-btn.ellipsis {
-        border: none;
-        cursor: default;
-        background: transparent;
-        color: var(--text-dim);
-        min-width: 30px;
+    .pagination-controls button.active {
+        background: #0f172a;
+        color: #fff;
+        border-color: #0f172a;
     }
 
-    .page-btn.ellipsis:hover {
-        transform: none;
-        background: transparent;
-        box-shadow: none;
+    .pagination-controls button.active:hover {
+        background: #1e293b;
     }
 
-    /* ===== PAGINATION INFO ===== */
-    .pagination-info {
+    .pagination-controls .page-numbers {
+        display: flex;
+        gap: 0.2rem;
+        flex-wrap: wrap;
+    }
+
+    .pagination-controls .page-numbers button {
+        min-width: 32px;
+        justify-content: center;
+    }
+
+    .pagination-controls .dots {
+        padding: 0 0.3rem;
+        color: #94a3b8;
+    }
+
+    /* ============================================
+       EMPTY STATE
+    ============================================ */
+    .empty-state {
         text-align: center;
-        color: var(--text-dim);
-        font-size: 0.85rem;
-        margin-top: 0.2rem;
-        margin-bottom: 0.2rem;
+        padding: 3rem 1rem;
+        color: #94a3b8;
     }
 
-    .pagination-info strong {
-        color: var(--text-main);
+    .empty-state i {
+        font-size: 3rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.75rem;
     }
 
-    /* Modal Styles */
+    .empty-state h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .empty-state p {
+        margin: 0;
+    }
+
+    /* ============================================
+       DELETE MODAL
+    ============================================ */
     .modal-overlay {
         display: none;
         position: fixed;
@@ -434,135 +586,184 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(8px);
-        z-index: 1000;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
         align-items: center;
         justify-content: center;
+        padding: 1rem;
     }
 
-    .confirmation-modal {
-        background: var(--surface);
-        width: 90%;
-        max-width: 500px;
-        border-radius: 24px;
-        padding: 2.5rem;
-        position: relative;
-        border: 1px solid var(--border);
+    .modal-overlay.active {
+        display: flex;
     }
 
-    .modal-header {
+    .delete-modal {
+        background: #fff;
+        border-radius: 16px;
+        max-width: 480px;
+        width: 100%;
+        padding: 2rem;
+        animation: modalSlideIn 0.3s ease-out;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-30px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .delete-modal .modal-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #fee2e2;
         display: flex;
         align-items: center;
-        gap: 15px;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 2rem;
+        color: #dc2626;
+        flex-shrink: 0;
+    }
+
+    .delete-modal h3 {
+        text-align: center;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 0.5rem 0;
+        word-break: break-word;
+    }
+
+    .delete-modal p {
+        text-align: center;
+        color: #64748b;
+        font-size: 0.9rem;
+        margin: 0 0 1.5rem 0;
+        line-height: 1.6;
+    }
+
+    .delete-modal .staff-details {
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 10px;
         margin-bottom: 1.5rem;
     }
 
-    .warning-icon {
-        color: var(--warning);
-        font-size: 2rem;
+    .delete-modal .staff-details p {
+        text-align: left;
+        font-size: 0.85rem;
+        margin: 4px 0;
+        color: #1e293b;
+        word-break: break-word;
     }
 
-    .modal-buttons {
+    .delete-modal .staff-details p strong {
+        color: #0f172a;
+    }
+
+    .delete-modal .modal-actions {
         display: flex;
-        gap: 15px;
-        margin-top: 2rem;
-        justify-content: flex-end;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 
-    .btn-cancel {
-        background: transparent;
-        border: 1px solid var(--border);
-        color: var(--text-main);
-        padding: 10px 20px;
+    .delete-modal .modal-actions button {
+        padding: 0.6rem 2rem;
         border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
         cursor: pointer;
-    }
-
-    .btn-confirm-delete {
-        background: var(--danger);
-        color: white;
+        transition: all 0.3s ease;
         border: none;
-        padding: 10px 20px;
-        border-radius: 10px;
-        cursor: pointer;
+        flex: 1;
+        min-width: 100px;
+        white-space: nowrap;
     }
 
-    .csrf-token {
-        display: none;
+    .delete-modal .modal-actions .btn-cancel {
+        background: #f1f5f9;
+        color: #64748b;
     }
 
-    /* ========== RESPONSIVE ========== */
-
-    @media (max-width: 1024px) {
-        .filter-container {
-            gap: 10px;
-        }
-
-        .search-box {
-            min-width: 180px;
-        }
-
-        .filter-dropdown {
-            min-width: 140px;
-        }
-
-        th,
-        td {
-            padding: 14px 16px;
-        }
+    .delete-modal .modal-actions .btn-cancel:hover {
+        background: #e2e8f0;
     }
 
-    @media (max-width: 768px) {
+    .delete-modal .modal-actions .btn-danger {
+        background: #dc2626;
+        color: #fff;
+    }
+
+    .delete-modal .modal-actions .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
+    }
+
+    .delete-modal .modal-actions .btn-danger:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ============================================
+       RESPONSIVE BREAKPOINTS
+    ============================================ */
+
+    /* Tablets and small laptops */
+    @media (max-width: 992px) {
         .filter-container {
             flex-direction: column;
             align-items: stretch;
-            gap: 10px;
+            padding: 1rem;
         }
 
-        .search-box {
-            width: 100%;
-            min-width: unset;
+        .filter-container .search-box {
+            max-width: 100%;
         }
 
-        .filter-dropdown {
-            min-width: unset;
-            width: 100%;
+        .filter-container .filter-group {
+            justify-content: stretch;
+            gap: 0.5rem;
         }
 
-        .clear-filters {
-            justify-content: center;
-            padding: 10px 16px;
-            font-size: 0.8rem;
+        .filter-container .filter-group select {
+            flex: 1;
+            min-width: 0;
         }
 
-        .top-intro {
-            flex-direction: column;
-            align-items: center;
+        .filter-container .results-count {
             text-align: center;
+            white-space: normal;
         }
 
-        .top-intro h2 {
-            font-size: 1.3rem;
+        .page-header .header-left h1 {
+            font-size: 1.5rem;
         }
 
-        .pagination-wrapper {
-            gap: 0.3rem;
+        .page-header .header-actions {
+            width: 100%;
         }
 
-        .page-btn {
-            min-width: 34px;
-            height: 34px;
-            font-size: 0.75rem;
+        .page-header .header-actions .btn-primary {
+            flex: 1;
+            justify-content: center;
         }
 
-        .pagination-info {
-            font-size: 0.8rem;
-        }
-
-        .table-wrapper {
-            margin: 0 -1rem;
-            padding: 0 1rem;
+        .table-scroll {
+            margin: 0 -0.5rem;
+            padding: 0 0.5rem;
         }
 
         table {
@@ -570,9 +771,9 @@
             min-width: 700px;
         }
 
-        th,
-        td {
-            padding: 10px 12px;
+        thead th,
+        tbody td {
+            padding: 0.5rem 1rem;
         }
 
         .staff-profile {
@@ -584,85 +785,98 @@
             height: 35px;
         }
 
-        .staff-info strong {
-            font-size: 0.8rem;
-        }
-
-        .staff-info span {
-            font-size: 0.65rem;
-        }
-
-        .action-buttons {
-            gap: 4px;
-        }
-
-        .btn-edit,
-        .btn-view,
-        .btn-delete {
-            width: 26px;
-            height: 26px;
-            font-size: 0.7rem;
-        }
-
-        .filter-tags {
-            justify-content: center;
-        }
-
-        .filter-tag {
-            font-size: 0.7rem;
-            padding: 4px 10px;
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            font-size: 0.75rem;
         }
     }
 
-    @media (max-width: 480px) {
-        .top-intro {
-            gap: 10px;
+    /* Mobile devices */
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 0.25rem;
         }
 
-        .top-intro h2 {
-            font-size: 1.1rem;
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0.75rem 1rem;
+            border-radius: 12px 12px 0 0;
         }
 
-        .top-intro p {
+        .page-header .header-left h1 {
+            font-size: 1.25rem;
+        }
+
+        .page-header .header-left p {
             font-size: 0.8rem;
         }
 
-        .staff-enroll {
-            width: 100%;
+        .page-header .header-left .breadcrumb {
+            font-size: 0.65rem;
         }
 
-        .btn-add {
+        .page-header .header-actions .btn-primary {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
             width: 100%;
             justify-content: center;
         }
 
         .filter-container {
-            gap: 8px;
+            padding: 0.75rem 1rem;
+            gap: 0.5rem;
         }
 
-        .search-box input {
-            padding: 10px 12px 10px 38px;
+        .filter-container .search-box {
+            padding: 0.2rem 0.6rem;
+        }
+
+        .filter-container .search-box input {
             font-size: 0.8rem;
         }
 
-        .search-box i {
-            left: 12px;
-            font-size: 0.8rem;
+        .filter-container .filter-group {
+            flex-direction: column;
+            width: 100%;
+            gap: 0.5rem;
         }
 
-        .filter-select {
-            padding: 10px 35px 10px 12px;
-            font-size: 0.8rem;
+        .filter-container .filter-group select {
+            width: 100%;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.7rem;
         }
 
-        .filter-dropdown i {
-            right: 12px;
-            font-size: 0.8rem;
+        .filter-container .filter-group .clear-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 0.4rem;
         }
 
-        .clear-filters {
-            padding: 8px 14px;
+        .filter-container .results-count {
             font-size: 0.75rem;
+            white-space: normal;
+            text-align: center;
+        }
+
+        .filter-tags {
+            gap: 4px;
+        }
+
+        .filter-tag {
+            font-size: 0.65rem;
+            padding: 3px 8px;
+        }
+
+        .table-card {
+            border-radius: 8px;
+        }
+
+        .table-scroll {
+            margin: 0 -0.75rem;
+            padding: 0 0.75rem;
         }
 
         table {
@@ -670,14 +884,13 @@
             min-width: 600px;
         }
 
-        th,
-        td {
-            padding: 8px 8px;
+        thead th,
+        tbody td {
+            padding: 0.4rem 0.6rem;
         }
 
-        th {
+        thead th {
             font-size: 0.6rem;
-            padding: 10px 8px;
         }
 
         .staff-profile {
@@ -686,17 +899,22 @@
         }
 
         .staff-avatar {
-            width: 28px;
-            height: 28px;
+            width: 30px;
+            height: 30px;
             border-radius: 8px;
         }
 
-        .staff-info strong {
-            font-size: 0.7rem;
+        .staff-info .staff-name {
+            font-size: 0.75rem;
         }
 
-        .staff-info span {
+        .staff-info .staff-meta {
             font-size: 0.6rem;
+        }
+
+        .role-badge {
+            font-size: 0.5rem;
+            padding: 1px 6px;
         }
 
         .id-badge {
@@ -708,55 +926,245 @@
             padding: 2px 6px;
         }
 
-        .action-buttons .btn-edit,
-        .action-buttons .btn-view,
-        .action-buttons .btn-delete {
-            width: 22px;
-            height: 22px;
-            font-size: 0.6rem;
+        .action-btn {
+            width: 26px;
+            height: 26px;
+            font-size: 0.65rem;
             border-radius: 6px;
         }
 
-        .pagination-wrapper {
+        .pagination-container {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0.75rem 1rem;
+            gap: 0.5rem;
+        }
+
+        .pagination-container .info {
+            font-size: 0.7rem;
+        }
+
+        .pagination-controls {
             gap: 0.2rem;
         }
 
-        .page-btn {
-            min-width: 30px;
-            height: 30px;
-            font-size: 0.65rem;
-            border-radius: 8px;
+        .pagination-controls button {
+            padding: 0.2rem 0.6rem;
+            font-size: 0.7rem;
         }
 
-        .pagination-info {
-            font-size: 0.7rem;
+        .pagination-controls .page-numbers button {
+            min-width: 28px;
+        }
+
+        .delete-modal {
+            padding: 1.5rem;
+            margin: 0.5rem;
+        }
+
+        .delete-modal .modal-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+        }
+
+        .delete-modal h3 {
+            font-size: 1.1rem;
+        }
+
+        .delete-modal p {
+            font-size: 0.8rem;
+        }
+
+        .delete-modal .modal-actions button {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            min-width: 80px;
         }
     }
 
-    @media (max-width: 360px) {
+    /* Small mobile devices */
+    @media (max-width: 480px) {
+        .page-header {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1rem;
+        }
+
+        .page-header .header-left p {
+            font-size: 0.7rem;
+        }
+
+        .page-header .header-actions .btn-primary {
+            font-size: 0.65rem;
+            padding: 0.3rem 0.6rem;
+        }
+
+        .filter-container {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .filter-container .search-box input {
+            font-size: 0.7rem;
+        }
+
+        .filter-container .results-count {
+            font-size: 0.65rem;
+        }
+
+        .table-scroll {
+            margin: 0 -0.5rem;
+            padding: 0 0.5rem;
+        }
+
         table {
+            font-size: 0.6rem;
             min-width: 500px;
         }
 
-        th,
-        td {
-            padding: 6px 6px;
+        thead th,
+        tbody td {
+            padding: 0.3rem 0.4rem;
+        }
+
+        .staff-profile {
+            min-width: 80px;
+            gap: 6px;
         }
 
         .staff-avatar {
             width: 24px;
             height: 24px;
+            border-radius: 6px;
         }
 
-        .staff-info strong {
+        .staff-info .staff-name {
             font-size: 0.65rem;
         }
 
-        .page-btn {
-            min-width: 26px;
-            height: 26px;
+        .staff-info .staff-meta {
+            font-size: 0.5rem;
+        }
+
+        .role-badge {
+            font-size: 0.45rem;
+            padding: 1px 4px;
+        }
+
+        .id-badge {
             font-size: 0.55rem;
-            border-radius: 6px;
+        }
+
+        .dept-tag {
+            font-size: 0.5rem;
+            padding: 1px 4px;
+        }
+
+        .action-btn {
+            width: 22px;
+            height: 22px;
+            font-size: 0.55rem;
+            border-radius: 4px;
+        }
+
+        .pagination-container .info {
+            font-size: 0.6rem;
+        }
+
+        .pagination-controls button {
+            padding: 0.15rem 0.4rem;
+            font-size: 0.6rem;
+        }
+
+        .pagination-controls .page-numbers button {
+            min-width: 24px;
+        }
+
+        .delete-modal {
+            padding: 1rem;
+        }
+
+        .delete-modal .modal-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+
+        .delete-modal h3 {
+            font-size: 1rem;
+        }
+
+        .delete-modal p {
+            font-size: 0.75rem;
+        }
+
+        .delete-modal .staff-details p {
+            font-size: 0.75rem;
+        }
+
+        .delete-modal .modal-actions {
+            flex-direction: column;
+        }
+
+        .delete-modal .modal-actions button {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .empty-state {
+            padding: 2rem 0.5rem;
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+        }
+
+        .empty-state h3 {
+            font-size: 0.9rem;
+        }
+
+        .empty-state p {
+            font-size: 0.8rem;
+        }
+    }
+
+    /* Extra small devices */
+    @media (max-width: 360px) {
+        table {
+            min-width: 400px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.2rem 0.3rem;
+        }
+
+        .staff-profile {
+            min-width: 60px;
+            gap: 4px;
+        }
+
+        .staff-avatar {
+            width: 20px;
+            height: 20px;
+        }
+
+        .staff-info .staff-name {
+            font-size: 0.55rem;
+        }
+
+        .action-btn {
+            width: 20px;
+            height: 20px;
+            font-size: 0.45rem;
+        }
+
+        .pagination-controls .page-numbers button {
+            min-width: 20px;
+            font-size: 0.5rem;
         }
     }
 
@@ -764,284 +1172,442 @@
     @media print {
         .filter-container,
         .filter-tags,
-        .pagination-wrapper,
-        .pagination-info,
-        .action-buttons {
+        .pagination-container,
+        .action-buttons,
+        .page-header .header-actions {
             display: none !important;
         }
 
-        .directory-panel {
-            border: 1px solid #ddd;
+        .page-header {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border: 1px solid #e2e8f0;
+        }
+
+        .page-header .header-left h1 {
+            color: #0f172a !important;
+        }
+
+        .page-header .header-left p {
+            color: #64748b !important;
+        }
+
+        .page-header .header-left .breadcrumb a,
+        .page-header .header-left .breadcrumb .current {
+            color: #0f172a !important;
+        }
+
+        .table-card {
+            border: 1px solid #e2e8f0;
             border-radius: 8px;
         }
 
-        th {
-            background: #f5f5f5;
-            color: #333;
+        thead {
+            background: #f1f5f9 !important;
         }
 
-        td {
-            border-bottom: 1px solid #eee;
+        thead th {
+            color: #0f172a !important;
+            border-bottom: 2px solid #e2e8f0 !important;
         }
-    }
 
-    /* Dark Mode Support */
-    @media (prefers-color-scheme: dark) {
+        tbody td {
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+
+        tbody tr:hover {
+            background: none !important;
+        }
+
         .staff-avatar {
-            border-color: #3a3a3a;
-        }
-
-        .staff-avatar:hover {
-            border-color: var(--primary);
-        }
-
-        .dept-tag {
-            background: rgba(0, 98, 255, 0.2);
+            border-color: #cbd5e1 !important;
         }
     }
 </style>
-{% endblock %}
 
-{% block content %}
-<header class="top-intro">
-    <div>
-        <h2>Staff Directory</h2>
-        <p>Authenticated personnel currently in the AFRAS ecosystem.</p>
+<div class="page-container">
+    <!-- ============================================
+    PAGE HEADER
+    ============================================ -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="breadcrumb">
+                <a href="{% url 'dashboard_home' %}">Dashboard</a>
+                <span class="separator">/</span>
+                <span class="current">Staff Directory</span>
+            </div>
+            <h1>Staff Directory</h1>
+            <p>Authenticated personnel currently in the AFRAS ecosystem</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'register-staff' %}" class="btn-primary">
+                <i class="fas fa-plus"></i> Enroll Staff
+            </a>
+        </div>
     </div>
 
-    <div class="staff-enroll">
-        <a href="{% url 'register-staff' %}" class="btn-add">
-            <i class="fas fa-plus"></i> Enroll Staff
-        </a>
+    <!-- ============================================
+    FILTER CONTAINER
+    ============================================ -->
+    <div class="filter-container">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="staffSearch" placeholder="Search by name, ID, department, or designation...">
+        </div>
+        <div class="filter-group">
+            <select id="roleFilter">
+                <option value="all">All Roles</option>
+                <option value="admin">Administrators</option>
+                <option value="staff">Staff Only</option>
+            </select>
+            <button class="clear-btn" id="clearFilters">
+                <i class="fas fa-times"></i> Clear
+            </button>
+        </div>
+        <div class="results-count">
+            Showing <strong id="visibleCount">{{ page_obj|length }}</strong> of <strong>{{ total_staff }}</strong> staff members
+        </div>
     </div>
-</header>
 
-<div class="filter-container">
-    <div class="search-box">
-        <i class="fas fa-search"></i>
-        <input type="text" id="staffSearch" placeholder="Search by name, ID, department, or designation...">
-    </div>
+    <!-- ============================================
+    FILTER TAGS
+    ============================================ -->
+    <div class="filter-tags" id="filterTags"></div>
 
-    <div class="filter-dropdown">
-        <i class="fas fa-user-tag"></i>
-        <select id="roleFilter" class="filter-select">
-            <option value="all">All Roles</option>
-            <option value="admin">Administrators</option>
-            <option value="staff">Staff Only</option>
-        </select>
-    </div>
-
-    <button id="clearFilters" class="clear-filters">
-        <i class="fas fa-times-circle"></i> Clear Filters
-    </button>
-
-    <div class="results-count">
-        Showing <strong id="visibleCount">{{ page_obj|length }}</strong> of <strong>{{ total_staff }}</strong> staff members
-    </div>
-</div>
-
-<div class="filter-tags" id="filterTags"></div>
-
-<div class="directory-panel">
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>Personnel</th>
-                    <th>Staff ID</th>
-                    <th>Department</th>
-                    <th>Degree & Designation</th>
-                    <th>Contact Info</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="staffTableBody">
-                {% for staff in page_obj %}
-                <tr data-staff-id="{{ staff.id }}" data-staff-name="{{ staff.full_name|lower }}"
-                    data-staff-username="{{ staff.user.username|lower }}"
-                    data-staff-department="{{ staff.department|lower|default:'' }}"
-                    data-staff-designation="{{ staff.designation|lower|default:'' }}"
-                    data-staff-role="{% if staff.user.is_superuser %}admin{% else %}staff{% endif %}">
-                    <td>
-                        <div class="staff-profile">
-                            {% if staff.photo %}
-                            <img src="{{ staff.photo.url }}" class="staff-avatar" alt="{{ staff.full_name }}"
-                                onclick="openStaffPhotoModal('{{ staff.photo.url }}', '{{ staff.full_name }}', '{{ staff.designation }}')"
-                                title="Click to view full size">
-                            {% else %}
-                            <img src="https://ui-avatars.com/api/?name={{ staff.full_name|urlencode }}&background=0062ff&color=fff&length=2&rounded=false&size=128&bold=true"
-                                class="staff-avatar" alt="{{ staff.full_name }}"
-                                onclick="openStaffPhotoModal('https://ui-avatars.com/api/?name={{ staff.full_name|urlencode }}&background=0062ff&color=fff&length=2&rounded=false&size=512&bold=true', '{{ staff.full_name }}', '{{ staff.designation }}')"
-                                title="Click to view full size">
-                            {% endif %}
-                            <div class="staff-info">
-                                <strong>
-                                    {{ staff.full_name }}
-                                    {% if staff.user.is_superuser %}
-                                    <span class="admin-badge">
-                                        <i class="fas fa-shield-alt"></i> Admin
-                                    </span>
-                                    {% else %}
-                                    <span class="member-badge">
-                                        <i class="fas fa-user-tie"></i> Staff
-                                    </span>
-                                    {% endif %}
-                                </strong>
-                                <span><strong>Joined:</strong> {{ staff.user.date_joined|date:"d M Y" }}</span>
+    <!-- ============================================
+    TABLE CARD
+    ============================================ -->
+    <div class="table-card">
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Personnel</th>
+                        <th>Staff ID</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Contact</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="staffTableBody">
+                    {% for staff in page_obj %}
+                    <tr data-staff-id="{{ staff.id }}" data-staff-name="{{ staff.full_name|lower }}"
+                        data-staff-username="{{ staff.user.username|lower }}"
+                        data-staff-department="{{ staff.department|lower|default:'' }}"
+                        data-staff-designation="{{ staff.designation|lower|default:'' }}"
+                        data-staff-role="{% if staff.user.is_superuser %}admin{% else %}staff{% endif %}">
+                        <td>
+                            <div class="staff-profile">
+                                {% if staff.photo %}
+                                <img src="{{ staff.photo.url }}" class="staff-avatar" alt="{{ staff.full_name }}"
+                                    onclick="openStaffPhotoModal('{{ staff.photo.url }}', '{{ staff.full_name }}', '{{ staff.designation }}')"
+                                    title="Click to view full size" loading="lazy">
+                                {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ staff.full_name|urlencode }}&background=6366f1&color=fff&length=2&rounded=false&size=128&bold=true"
+                                    class="staff-avatar" alt="{{ staff.full_name }}"
+                                    onclick="openStaffPhotoModal('https://ui-avatars.com/api/?name={{ staff.full_name|urlencode }}&background=6366f1&color=fff&length=2&rounded=false&size=512&bold=true', '{{ staff.full_name }}', '{{ staff.designation }}')"
+                                    title="Click to view full size" loading="lazy">
+                                {% endif %}
+                                <div class="staff-info">
+                                    <div class="staff-name">
+                                        {{ staff.full_name }}
+                                        {% if staff.user.is_superuser %}
+                                        <span class="role-badge admin">
+                                            <i class="fas fa-crown"></i> Admin
+                                        </span>
+                                        {% else %}
+                                        <span class="role-badge staff">
+                                            <i class="fas fa-user-tie"></i> Staff
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="staff-meta">
+                                        Joined: {{ staff.user.date_joined|date:"d M Y" }}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td><span class="id-badge">{{ staff.user.username }}</span></td>
-                    <td><span class="dept-tag">{{ staff.department|default:"Not Assigned" }}</span></td>
-                    <td>
-                        <strong>{{ staff.designation|default:"Staff" }}</strong>
-                        <span style="display: block; font-size: 0.75rem; color: var(--text-dim); margin-top: 5px;">
-                            {{ staff.degree|default:"" }}
-                        </span>
-                    </td>
-                    <td>
-                        <div style="font-size: 0.8rem;">
-                            <i class="fas fa-phone" style="width: 15px; color: var(--primary);"></i>
-                            {{ staff.phone_number|default:"-" }}<br>
-                            <i class="fas fa-envelope" style="width: 15px; color: var(--primary);"></i>
-                            {{ staff.user.email }}
-                        </div>
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-view" title="View Profile"
-                                onclick="window.location.href='{% url 'staff-profile' staff.id %}'">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            {% if request.user.is_superuser %}
-                            <button class="btn-edit" title="Edit Staff"
-                                onclick="window.location.href='{% url 'edit-staff' staff.id %}'">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-delete" title="Delete Staff"
-                                onclick="showDeleteConfirmation('{{ staff.id }}', '{{ staff.full_name }}')">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                            {% endif %}
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" style="text-align: center; padding: 4rem; color: var(--text-dim);">
-                        <i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.2;"></i>
-                        <p>No staff records found in the database.</p>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+                        </td>
+                        <td><span class="id-badge">{{ staff.user.username }}</span></td>
+                        <td><span class="dept-tag">{{ staff.department|default:"Not Assigned" }}</span></td>
+                        <td>
+                            <div style="font-weight: 500; font-size: 0.8rem;">{{ staff.designation|default:"Staff" }}</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8;">{{ staff.degree|default:"" }}</div>
+                        </td>
+                        <td>
+                            <div style="font-size: 0.75rem; line-height: 1.6;">
+                                <div><i class="fas fa-phone" style="color: #6366f1; width: 16px;"></i> {{ staff.phone_number|default:"-" }}</div>
+                                <div><i class="fas fa-envelope" style="color: #6366f1; width: 16px;"></i> {{ staff.user.email|truncatechars:20 }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'staff-profile' staff.id %}" class="action-btn view" title="View Profile">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if request.user.is_superuser %}
+                                <a href="{% url 'edit-staff' staff.id %}" class="action-btn edit" title="Edit Staff">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="action-btn delete" title="Delete Staff"
+                                    onclick="showDeleteConfirmation('{{ staff.id }}', '{{ staff.full_name }}', '{{ staff.user.email }}', '{{ staff.department|default:"Not Assigned" }}')">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <i class="fas fa-folder-open"></i>
+                                <h3>No staff records found</h3>
+                                <p>Start by enrolling your first staff member</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-<!-- ===== PAGINATION - Same as System Logs ===== -->
-<div class="pagination-wrapper" id="paginationContainer">
-    <!-- Previous Button -->
-    {% if page_obj.has_previous %}
-    <button class="page-btn" onclick="goToPage({{ page_obj.previous_page_number }})" title="Previous page">
-        <i class="fas fa-chevron-left"></i>
-    </button>
-    {% else %}
-    <button class="page-btn" disabled title="No previous page">
-        <i class="fas fa-chevron-left"></i>
-    </button>
-    {% endif %}
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <div class="info">
+                Showing <strong>{{ page_obj.start_index }}</strong> to <strong>{{ page_obj.end_index }}</strong> of <strong>{{ total_staff }}</strong> entries
+            </div>
+            <div class="pagination-controls">
+                {% if page_obj.has_previous %}
+                <button onclick="goToPage({{ page_obj.previous_page_number }})">
+                    <i class="fas fa-chevron-left"></i> Prev
+                </button>
+                {% else %}
+                <button disabled>
+                    <i class="fas fa-chevron-left"></i> Prev
+                </button>
+                {% endif %}
 
-    <!-- Page Numbers with Ellipsis -->
-    {% for num in page_obj.paginator.page_range %}
-        {% if num == page_obj.number %}
-        <button class="page-btn active" title="Current page {{ num }}">{{ num }}</button>
-        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-        <button class="page-btn" onclick="goToPage({{ num }})" title="Go to page {{ num }}">{{ num }}</button>
-        {% elif num == page_obj.number|add:'3' and num < page_obj.paginator.num_pages %}
-        <span class="page-btn ellipsis">…</span>
-        {% elif num == page_obj.number|add:'-3' and num > 1 %}
-        <span class="page-btn ellipsis">…</span>
-        {% elif num == page_obj.paginator.num_pages and num > page_obj.number|add:'2' %}
-        <button class="page-btn" onclick="goToPage({{ num }})" title="Go to last page">{{ num }}</button>
-        {% elif num == 1 and num < page_obj.number|add:'-2' %}
-        <button class="page-btn" onclick="goToPage(1)" title="Go to first page">1</button>
-        {% endif %}
-    {% endfor %}
+                <div class="page-numbers">
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                        <button class="active">{{ num }}</button>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <button onclick="goToPage({{ num }})">{{ num }}</button>
+                        {% elif num == page_obj.number|add:'3' and num < page_obj.paginator.num_pages %}
+                        <span class="dots">…</span>
+                        {% elif num == page_obj.number|add:'-3' and num > 1 %}
+                        <span class="dots">…</span>
+                        {% elif num == page_obj.paginator.num_pages and num > page_obj.number|add:'2' %}
+                        <button onclick="goToPage({{ num }})">{{ num }}</button>
+                        {% elif num == 1 and num < page_obj.number|add:'-2' %}
+                        <button onclick="goToPage(1)">1</button>
+                        {% endif %}
+                    {% endfor %}
+                </div>
 
-    <!-- Next Button -->
-    {% if page_obj.has_next %}
-    <button class="page-btn" onclick="goToPage({{ page_obj.next_page_number }})" title="Next page">
-        <i class="fas fa-chevron-right"></i>
-    </button>
-    {% else %}
-    <button class="page-btn" disabled title="No next page">
-        <i class="fas fa-chevron-right"></i>
-    </button>
-    {% endif %}
-</div>
-
-<!-- ===== PAGINATION INFO ===== -->
-<div class="pagination-info">
-    Showing <strong>{{ page_obj.start_index }}</strong> to <strong>{{ page_obj.end_index }}</strong> of <strong>{{ total_staff }}</strong> entries
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="modal-overlay" onclick="closeModal(event)">
-    <div class="confirmation-modal" onclick="event.stopPropagation()">
-        <i class="fas fa-times close-modal" onclick="closeModal()"></i>
-        <div class="modal-header">
-            <i class="fas fa-exclamation-triangle warning-icon"></i>
-            <div>
-                <h3>Confirm Deletion</h3>
-                <p style="color: var(--text-dim); font-size: 0.9rem;">Are you sure you want to delete this staff member?
-                </p>
+                {% if page_obj.has_next %}
+                <button onclick="goToPage({{ page_obj.next_page_number }})">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+                {% else %}
+                <button disabled>
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+                {% endif %}
             </div>
         </div>
-        <div id="staffDetails"></div>
-        <div class="modal-buttons">
-            <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-            <button class="btn-confirm-delete" onclick="deleteStaff()">
-                <i class="fas fa-trash-alt"></i> Delete Staff
+    </div>
+</div>
+
+<!-- ============================================
+DELETE CONFIRMATION MODAL
+============================================ -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="delete-modal">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Delete Staff Member?</h3>
+        <p>
+            Are you sure you want to delete <strong id="deleteStaffName">this staff member</strong>?
+            <br>
+            <span style="color: #dc2626; font-size: 0.8rem;">
+                This action cannot be undone. All associated data will be permanently removed.
+            </span>
+        </p>
+        <div class="staff-details" id="staffDetails"></div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <button class="btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">
+                <i class="fas fa-trash"></i> Delete Permanently
             </button>
         </div>
     </div>
 </div>
 
-<input type="hidden" id="csrf_token" value="{{ csrf_token }}" class="csrf-token">
-{% endblock %}
-
-{% block extra_scripts %}
-{{ block.super }}
 <script>
-    let currentPage = {{ page_obj.number }};
-    let totalPages = {{ page_obj.paginator.num_pages }};
+    // ============================================
+    // PERMISSIONS
+    // ============================================
+    const isSuperuser = {{ request.user.is_superuser| lower }};
 
-    // ========== PAGINATION FUNCTIONS ==========
+    // ============================================
+    // GLOBALS
+    // ============================================
+    let deleteStaffId = null;
+    let deleteStaffName = '';
+
+    // ============================================
+    // MESSAGE SYSTEM
+    // ============================================
+    function showMessage(message, type = 'success') {
+        let container = document.getElementById('django-messages');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'django-messages';
+            container.className = 'msg-container';
+            document.body.appendChild(container);
+        }
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg ${type}`;
+        msgDiv.setAttribute('data-auto-dismiss', 'true');
+
+        let iconClass = 'fa-info-circle';
+        if (type === 'success') iconClass = 'fa-check-circle';
+        else if (type === 'error' || type === 'warning') iconClass = 'fa-exclamation-circle';
+
+        msgDiv.innerHTML = `
+            <i class="fas ${iconClass}"></i>
+            <span>${message}</span>
+        `;
+
+        container.appendChild(msgDiv);
+
+        setTimeout(() => {
+            if (msgDiv.parentNode) {
+                msgDiv.style.animation = 'slideUp 0.4s ease-in forwards';
+                setTimeout(() => {
+                    if (msgDiv.parentNode) {
+                        msgDiv.remove();
+                    }
+                }, 400);
+            }
+        }, 5000);
+    }
+
+    // ============================================
+    // DELETE MODAL
+    // ============================================
+    function showDeleteConfirmation(staffId, staffName, staffEmail, staffDept) {
+        deleteStaffId = staffId;
+        deleteStaffName = staffName;
+
+        document.getElementById('deleteStaffName').textContent = staffName;
+        document.getElementById('staffDetails').innerHTML = `
+            <p><strong>Name:</strong> ${staffName}</p>
+            <p><strong>Email:</strong> ${staffEmail}</p>
+            <p><strong>Department:</strong> ${staffDept}</p>
+        `;
+
+        document.getElementById('deleteModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+        document.body.style.overflow = '';
+        deleteStaffId = null;
+    }
+
+    function confirmDelete() {
+        if (!deleteStaffId) return;
+
+        const btn = document.getElementById('confirmDeleteBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+
+        fetch(`/dashboard/staff/${deleteStaffId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(data.message || 'Staff member deleted successfully', 'success');
+                    
+                    // Remove row from table
+                    const row = document.querySelector(`tr[data-staff-id="${deleteStaffId}"]`);
+                    if (row) {
+                        row.style.transition = 'all 0.3s ease';
+                        row.style.opacity = '0';
+                        setTimeout(() => {
+                            row.remove();
+                            updateCounts();
+                        }, 300);
+                    }
+                    
+                    closeDeleteModal();
+                } else {
+                    showMessage(data.message || 'Failed to delete staff member', 'error');
+                }
+            })
+            .catch(() => {
+                showMessage('An error occurred while deleting the staff member', 'error');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-trash"></i> Delete Permanently';
+            });
+    }
+
+    function updateCounts() {
+        const visibleRows = document.querySelectorAll('#staffTableBody tr:not([style*="display: none"])').length;
+        const visibleCount = document.getElementById('visibleCount');
+        if (visibleCount) {
+            visibleCount.textContent = visibleRows;
+        }
+        
+        // Update total count
+        const totalSpan = document.querySelector('.results-count strong:last-child');
+        if (totalSpan) {
+            const currentTotal = parseInt(totalSpan.textContent) || 0;
+            totalSpan.textContent = currentTotal - 1;
+        }
+    }
+
+    // ============================================
+    // PAGINATION
+    // ============================================
     function goToPage(page) {
+        const totalPages = {{ page_obj.paginator.num_pages }};
         if (page < 1 || page > totalPages) return;
         const url = new URL(window.location.href);
         url.searchParams.set('page', page);
         window.location.href = url.toString();
     }
 
-    // ========== SEARCH & FILTER ==========
+    // ============================================
+    // SEARCH & FILTER
+    // ============================================
     const searchInput = document.getElementById('staffSearch');
     const roleFilter = document.getElementById('roleFilter');
     const clearFiltersBtn = document.getElementById('clearFilters');
     const filterTags = document.getElementById('filterTags');
     const visibleCount = document.getElementById('visibleCount');
 
-    // Get all rows
     const allRows = document.querySelectorAll('#staffTableBody tr');
 
-    // Filter state
     const filterState = {
         search: '',
         role: 'all'
     };
 
-    // ========== APPLY FILTERS ==========
     function applyFilters() {
         let visibleRows = 0;
 
@@ -1078,7 +1644,6 @@
         updateFilterTags();
     }
 
-    // ========== UPDATE FILTER TAGS ==========
     function updateFilterTags() {
         filterTags.innerHTML = '';
 
@@ -1094,15 +1659,13 @@
         filterTags.style.display = filterTags.children.length > 0 ? 'flex' : 'none';
     }
 
-    // ========== CREATE FILTER TAG ==========
     function createFilterTag(type, text) {
         const tag = document.createElement('div');
-        tag.className = 'filter-tag active';
+        tag.className = 'filter-tag';
         tag.innerHTML = `${text} <i class="fas fa-times" onclick="removeFilter('${type}')"></i>`;
         return tag;
     }
 
-    // ========== REMOVE FILTER ==========
     function removeFilter(type) {
         if (type === 'search') {
             searchInput.value = '';
@@ -1114,7 +1677,9 @@
         applyFilters();
     }
 
-    // ========== EVENT LISTENERS ==========
+    // ============================================
+    // EVENT LISTENERS
+    // ============================================
     let searchTimeout;
     searchInput.addEventListener('input', function() {
         clearTimeout(searchTimeout);
@@ -1137,149 +1702,64 @@
         applyFilters();
     });
 
-    // ========== DELETE FUNCTIONS ==========
-    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
-        document.getElementById('csrf_token')?.value;
-
-    let staffToDeleteId = null;
-
-    function showDeleteConfirmation(staffId, staffName) {
-        staffToDeleteId = staffId;
-        const staffRow = document.querySelector(`tr[data-staff-id="${staffId}"]`);
-        const staffEmail = staffRow?.querySelector('.fa-envelope')?.parentNode?.textContent.trim() || 'N/A';
-        const staffDept = staffRow?.querySelector('.dept-tag')?.textContent || 'N/A';
-
-        document.getElementById('staffDetails').innerHTML = `
-            <div style="background: rgba(239, 68, 68, 0.05); padding: 15px; border-radius: 10px; margin: 15px 0;">
-                <p><strong>Name:</strong> ${staffName}</p>
-                <p><strong>Email:</strong> ${staffEmail}</p>
-                <p><strong>Department:</strong> ${staffDept}</p>
-            </div>`;
-        document.getElementById('deleteModal').style.display = 'flex';
-    }
-
-    async function deleteStaff() {
-        if (!staffToDeleteId) return;
-        const deleteBtn = document.querySelector('.btn-confirm-delete');
-        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
-        deleteBtn.disabled = true;
-
-        try {
-            const response = await fetch(`/dashboard/staff/${staffToDeleteId}/delete/`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRFToken': csrftoken,
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            if (response.ok) {
-                const row = document.querySelector(`tr[data-staff-id="${staffToDeleteId}"]`);
-                if (row) {
-                    row.style.transition = 'all 0.3s ease';
-                    row.style.opacity = '0';
-
-                    setTimeout(() => {
-                        row.remove();
-                        // Update visible count
-                        const visibleRows = document.querySelectorAll('#staffTableBody tr:not([style*="display: none"])').length;
-                        visibleCount.textContent = visibleRows;
-                        // Update total count
-                        const totalCount = document.querySelector('.results-count strong:last-child');
-                        if (totalCount) {
-                            const currentTotal = parseInt(totalCount.textContent) || 0;
-                            totalCount.textContent = currentTotal - 1;
-                        }
-                        showMessage('Staff member deleted successfully!', 'success');
-                        closeModal();
-                    }, 300);
-                }
-            } else {
-                throw new Error('Deletion failed');
-            }
-        } catch (error) {
-            console.error(error);
-            showMessage('Error deleting staff member', 'error');
-        } finally {
-            deleteBtn.disabled = false;
-            deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Staff';
-        }
-    }
-
-    function showMessage(message, type = 'success') {
-        const container = document.getElementById('django-messages');
-        if (!container) return;
-
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `msg ${type}`;
-        msgDiv.setAttribute('data-auto-dismiss', 'true');
-
-        let iconClass = 'fa-info-circle';
-        if (type === 'success') iconClass = 'fa-check-circle';
-        else if (type === 'error') iconClass = 'fa-exclamation-circle';
-
-        msgDiv.innerHTML = `
-            <i class="fas ${iconClass}"></i>
-            <span>${message}</span>
-        `;
-
-        container.appendChild(msgDiv);
-        autoDismissMessages();
-    }
-
-    function autoDismissMessages() {
-        const messages = document.querySelectorAll('.msg[data-auto-dismiss="true"]');
-        messages.forEach((msg, index) => {
-            if (msg.dataset.timerSet) return;
-            msg.dataset.timerSet = 'true';
-
-            setTimeout(() => {
-                msg.style.animation = 'slideUp 0.4s ease-out forwards';
-                setTimeout(() => {
-                    if (msg.parentNode) msg.remove();
-                }, 400);
-            }, 5000 + (index * 300));
-        });
-    }
-
-    function closeModal(event = null) {
-        if (event && event.target.id !== 'deleteModal' && !event.target.classList.contains('close-modal')) return;
-        document.getElementById('deleteModal').style.display = 'none';
-        staffToDeleteId = null;
-    }
-
-    // ========== PHOTO MODAL FUNCTION ==========
+    // ============================================
+    // PHOTO MODAL
+    // ============================================
     function openStaffPhotoModal(photoUrl, staffName, staffDesignation) {
         if (window.photoModal && typeof window.photoModal.open === 'function') {
             window.photoModal.open(photoUrl, staffName, staffDesignation);
         } else {
-            // Fallback
-            const win = window.open();
-            win.document.write('<img src="' + photoUrl + '" style="max-width:100%; max-height:100vh;">');
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <html>
+                <head><title>${staffName}</title>
+                <style>
+                    body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #000; }
+                    img { max-width: 95vw; max-height: 95vh; object-fit: contain; }
+                </style>
+                </head>
+                <body><img src="${photoUrl}" alt="${staffName}"></body>
+                </html>
+            `);
+            win.document.close();
         }
     }
 
-    // ========== KEYBOARD SHORTCUTS ==========
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            closeModal();
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
             if (window.photoModal && typeof window.photoModal.close === 'function') {
                 window.photoModal.close();
             }
         }
     });
 
-    // ========== INITIALIZATION ==========
-    document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const pageParam = urlParams.get('page');
-
-        if (pageParam) {
-            currentPage = parseInt(pageParam);
+    // ============================================
+    // CLOSE MODAL ON CLICK OUTSIDE
+    // ============================================
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
         }
+    });
 
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
         applyFilters();
+    });
+
+    // Handle resize events for better responsiveness
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            // Any resize-specific logic if needed
+        }, 250);
     });
 </script>
 {% endblock %}

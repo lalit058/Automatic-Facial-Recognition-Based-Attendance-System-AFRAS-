@@ -3,152 +3,160 @@
 
 {% block title %}System Configuration{% endblock %}
 
-{% block extra_head %}
+{% block content %}
 <style>
-    /* SIDEBAR HANDLING  */
-    main {
-        transition: margin-left var(--transition-speed) ease;
-        width: calc(100% - var(--sidebar-width));
-    }
-
-    aside.collapsed~main {
-        margin-left: var(--sidebar-collapsed) !important;
-        width: calc(100% - var(--sidebar-collapsed)) !important;
-    }
-
-    /* CONFIGURATION PAGE STYLES */
-    .config-wrapper {
-        padding: 1rem;
+    .page-container {
+        padding: 0.5rem;
         max-width: 1400px;
         margin: 0 auto;
-        width: 100%;
-        transition: all var(--transition-speed) ease;
-        animation: fadeIn 0.3s ease;
     }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    /* ============================================
+       PAGE HEADER - SAME AS ALL_SESSION
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        display: flex;
+        padding: 1rem 1.5rem;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        color: var(--primary-text);
+        margin-bottom: 1rem;
     }
 
-    /* Header Section - Like Staff Directory */
-    .config-header {
+    .page-header .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+    }
+
+    .page-header .header-left p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0;
+    }
+
+    .page-header .header-left .breadcrumb {
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .page-header .header-left .breadcrumb a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .page-header .header-left .breadcrumb a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .page-header .header-left .breadcrumb .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .page-header .header-left .breadcrumb .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    /* ============================================
+       STATUS BAR - SAME AS FILTER CONTAINER
+    ============================================ */
+    .status-bar {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 0.75rem 1.5rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
         margin-bottom: 1.5rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .config-header h2 {
-        margin: 0;
-        font-size: 1.8rem;
-        background: linear-gradient(135deg, var(--primary), #2575fc);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .config-header h2 i {
-        background: var(--primary);
-        color: white;
-        padding: 10px;
-        border-radius: 12px;
-        font-size: 1.2rem;
-        -webkit-text-fill-color: white;
-    }
-
-    /* Status Bar - Like Staff Directory Filter Bar */
-    .status-bar {
-        display: flex;
-        gap: 2rem;
-        padding: 1rem 1.5rem;
-        background: var(--surface);
-        border-radius: 16px;
-        margin-bottom: 1rem;
-        border: 1px solid var(--border);
-        flex-wrap: wrap;
-        align-items: center;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-        width: 100%;
-        box-sizing: border-box;
     }
 
     .status-item {
         display: flex;
         align-items: center;
-        gap: 10px;
-        font-size: 0.9rem;
-        white-space: nowrap;
+        gap: 8px;
+        font-size: 0.8rem;
+        color: #64748b;
     }
 
-    .status-item.success {
-        color: #27ae60;
-    }
-
-    .status-dot {
-        width: 10px;
-        height: 10px;
-        background: #27ae60;
+    .status-item .status-dot {
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        position: relative;
+        display: inline-block;
+        flex-shrink: 0;
     }
 
-    .status-dot::after {
-        content: '';
-        position: absolute;
-        width: 14px;
-        height: 14px;
-        background: rgba(39, 174, 96, 0.3);
-        border-radius: 50%;
-        top: -2px;
-        left: -2px;
-        animation: pulse 2s infinite;
+    .status-item .status-dot.success {
+        background: #16a34a;
+        animation: pulse-dot 2s infinite;
     }
 
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-            opacity: 1;
-        }
-
-        50% {
-            transform: scale(1.5);
-            opacity: 0;
-        }
-
-        100% {
-            transform: scale(1);
-            opacity: 0;
-        }
+    .status-item .status-dot.warning {
+        background: #d97706;
+        animation: pulse-dot 2s infinite;
     }
 
-    /* Configuration Tabs - Like Filter Tags */
+    .status-item .status-dot.danger {
+        background: #dc2626;
+        animation: pulse-dot 2s infinite;
+    }
+
+    .status-item .status-dot.info {
+        background: #6366f1;
+        animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .status-item strong {
+        color: #0f172a;
+        font-weight: 600;
+    }
+
+    .status-item i {
+        color: #94a3b8;
+        width: 16px;
+        text-align: center;
+    }
+
+    /* ============================================
+       CONFIG TABS - SAME AS FILTER TAGS
+    ============================================ */
     .config-tabs {
         display: flex;
-        gap: 8px;
-        margin-bottom: 1rem;
+        gap: 6px;
         flex-wrap: wrap;
+        margin-bottom: 1.5rem;
     }
 
     .tab-btn {
-        padding: 10px 20px;
-        background: var(--primary-text);
-        border: 1px solid var(--border);
-        border-radius: 30px;
-        font-size: 0.85rem;
+        padding: 0.5rem 1.25rem;
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.8rem;
         font-weight: 600;
-        color: var(--text-dim);
+        color: #64748b;
         cursor: pointer;
         transition: all 0.2s;
         display: flex;
@@ -158,190 +166,209 @@
     }
 
     .tab-btn i {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
 
     .tab-btn:hover {
-        background: rgba(26, 86, 148, 0.1);
-        border-color: var(--primary);
-        color: var(--primary);
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+        color: #0f172a;
     }
 
     .tab-btn.active {
         background: var(--primary);
-        border-color: var(--primary);
-        color: white;
+        color: #ffffff;
     }
 
     .tab-btn.active i {
-        color: white;
+        color: #ffffff;
     }
 
-    /* Tab Content Animation */
+    /* ============================================
+       TAB CONTENT
+    ============================================ */
     .tab-content {
         display: none;
-        animation: slideIn 0.3s ease;
+        animation: fadeIn 0.3s ease;
     }
 
     .tab-content.active {
         display: block;
     }
 
-    @keyframes slideIn {
+    @keyframes fadeIn {
         from {
             opacity: 0;
-            transform: translateX(10px);
+            transform: translateY(10px);
         }
-
         to {
             opacity: 1;
-            transform: translateX(0);
+            transform: translateY(0);
         }
     }
 
-    /* Settings Card */
+    /* ============================================
+       SETTINGS CARD - SAME AS TABLE CARD
+    ============================================ */
     .settings-card {
-        background: var(--surface);
-        border-radius: 24px;
-        border: 1px solid var(--border);
-        padding: 1rem;
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 1.5rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-        transition: all 0.3s ease;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .settings-card:hover {
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
-        border-color: var(--primary);
     }
 
     .settings-card h3 {
-        margin-top: 0;
-        margin-bottom: 0.5rem;
-        color: var(--text-main);
-        font-size: 1.2rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 1.25rem 0;
         display: flex;
         align-items: center;
         gap: 10px;
         padding-bottom: 0.75rem;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid #f1f5f9;
     }
 
     .settings-card h3 i {
-        color: var(--primary);
-        font-size: 1.2rem;
+        color: #6366f1;
+        font-size: 1rem;
+        width: 20px;
+        text-align: center;
     }
 
-    /* Form Grid */
+    /* ============================================
+       FORM ELEMENTS
+    ============================================ */
     .form-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
+        gap: 1.25rem;
         margin-bottom: 0.5rem;
-    }
-
-    @media (max-width: 768px) {
-        .form-row {
-            grid-template-columns: 1fr;
-        }
     }
 
     .form-group {
-        margin-bottom: 0.5rem;
+        margin-bottom: 1.25rem;
     }
 
     .form-group label {
         display: block;
-        margin-bottom: 0.5rem;
+        font-size: 0.75rem;
         font-weight: 600;
-        color: var(--text-main);
-        font-size: 0.85rem;
+        color: #64748b;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        margin-bottom: 0.4rem;
     }
 
     .form-control {
         width: 100%;
-        padding: 7px 15px;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        background: var(--bg);
-        color: var(--text-main);
+        padding: 0.6rem 0.8rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #0f172a;
         transition: all 0.3s;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         box-sizing: border-box;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     .form-control:focus {
-        border-color: var(--primary);
+        border-color: #6366f1;
         outline: none;
-        box-shadow: 0 0 0 3px rgba(26, 86, 148, 0.1);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06);
+        background: #ffffff;
+    }
+
+    .form-control:disabled,
+    .form-control[readonly] {
+        background: #f1f5f9;
+        cursor: not-allowed;
     }
 
     .help-text {
         display: block;
-        margin-top: 0.5rem;
-        font-size: 0.75rem;
-        color: var(--text-dim);
+        margin-top: 0.4rem;
+        font-size: 0.7rem;
+        color: #94a3b8;
     }
 
-    /* Range Slider */
+    /* ============================================
+       RANGE SLIDER
+    ============================================ */
     .range-with-value {
         display: flex;
         gap: 15px;
         align-items: center;
     }
 
-    .range-with-value input {
+    .range-with-value input[type="range"] {
         flex: 1;
         height: 6px;
         -webkit-appearance: none;
-        background: linear-gradient(to right, var(--primary) 0%, var(--primary) 50%, var(--border) 50%, var(--border) 100%);
+        background: #e2e8f0;
         border-radius: 3px;
+        outline: none;
+        transition: background 0.3s;
     }
 
-    .range-with-value input::-webkit-slider-thumb {
+    .range-with-value input[type="range"]::-webkit-slider-thumb {
         -webkit-appearance: none;
-        width: 20px;
-        height: 20px;
-        background: var(--primary);
+        width: 18px;
+        height: 18px;
+        background: #6366f1;
         border-radius: 50%;
         cursor: pointer;
-        border: 3px solid white;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        margin-top: -7px;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+        transition: all 0.2s;
+    }
+
+    .range-with-value input[type="range"]::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+    }
+
+    .range-with-value input[type="range"]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: #6366f1;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
     }
 
     .range-value {
-        min-width: 60px;
+        min-width: 50px;
         text-align: center;
-        font-weight: bold;
-        color: var(--primary);
-        font-size: 0.95rem;
-        background: rgba(26, 86, 148, 0.1);
-        padding: 5px 10px;
+        font-weight: 700;
+        color: #6366f1;
+        font-size: 0.85rem;
+        background: rgba(99, 102, 241, 0.08);
+        padding: 4px 12px;
         border-radius: 20px;
     }
 
     .range-labels {
         display: flex;
         justify-content: space-between;
-        margin-top: 5px;
-        font-size: 0.7rem;
-        color: var(--text-dim);
+        margin-top: 4px;
+        font-size: 0.65rem;
+        color: #94a3b8;
     }
 
-    /* Checkbox Group */
+    /* ============================================
+       CHECKBOX GROUP
+    ============================================ */
     .checkbox-group {
         display: flex;
         flex-direction: column;
-        gap: 12px;
-        padding: 1rem;
-        background: var(--bg);
-        border-radius: 12px;
-        border: 1px solid var(--border);
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid #f1f5f9;
     }
 
     .checkbox-label {
@@ -349,126 +376,207 @@
         align-items: center;
         gap: 10px;
         cursor: pointer;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        color: #0f172a;
     }
 
     .checkbox-label input[type="checkbox"] {
         width: 18px;
         height: 18px;
         cursor: pointer;
-        accent-color: var(--primary);
+        accent-color: #6366f1;
+        flex-shrink: 0;
     }
 
-    /* Action Bar - Like Staff Directory Actions */
+    /* ============================================
+       ACTION BAR
+    ============================================ */
     .action-bar {
         display: flex;
-        gap: 12px;
+        gap: 0.75rem;
         justify-content: flex-end;
-        margin-top: 2rem;
+        margin-top: 1.5rem;
         flex-wrap: wrap;
     }
 
     .btn-save,
     .btn-test,
-    .btn-reset,
-    .btn-small {
-        padding: 12px 24px;
-        border-radius: 12px;
+    .btn-reset {
+        padding: 0.6rem 1.5rem;
+        border-radius: 10px;
         font-weight: 600;
         font-size: 0.85rem;
         display: inline-flex;
         align-items: center;
         gap: 8px;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
         border: none;
         white-space: nowrap;
     }
 
     .btn-save {
-        background: var(--primary);
-        color: white;
-        box-shadow: 0 4px 12px rgba(26, 86, 148, 0.3);
+        background: #16a34a;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
     }
 
     .btn-save:hover {
+        background: #15803d;
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(26, 86, 148, 0.4);
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
     }
 
-    .btn-test {
-        background: #27ae60;
-        color: white;
-    }
-
-    .btn-test:hover {
-        background: #219a52;
-        transform: translateY(-2px);
-    }
-
-    .btn-reset {
-        background: #e74c3c;
-        color: white;
-    }
-
-    .btn-reset:hover {
-        background: #c0392b;
-        transform: translateY(-2px);
-    }
-
-    .btn-small {
-        background: var(--surface);
-        color: var(--text-main);
-        border: 1px solid var(--border);
-        padding: 8px 16px;
-        font-size: 0.8rem;
-    }
-
-    .btn-small:hover {
-        border-color: var(--primary);
-        color: var(--primary);
-        background: rgba(26, 86, 148, 0.05);
-    }
-
-    /* Loading state */
-    .btn-save:disabled,
-    .btn-test:disabled,
-    .btn-reset:disabled {
+    .btn-save:disabled {
         opacity: 0.6;
         cursor: not-allowed;
         transform: none;
     }
 
-    /* Responsive Design */
-    @media (max-width: 1200px) {
-        .status-item {
-            white-space: normal;
+    .btn-test {
+        background: #6366f1;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-test:hover {
+        background: #4f46e5;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-test:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-reset {
+        background: transparent;
+        color: #64748b;
+        border: 1.5px solid #e2e8f0;
+    }
+
+    .btn-reset:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .btn-small {
+        padding: 0.4rem 1rem;
+        background: transparent;
+        color: #6366f1;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .btn-small:hover {
+        background: rgba(99, 102, 241, 0.05);
+        border-color: #6366f1;
+    }
+
+    .api-key-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .api-key-group .form-control {
+        flex: 1;
+    }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 992px) {
+        .form-row {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .status-bar {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
         }
     }
 
     @media (max-width: 768px) {
-
-        main,
-        aside.collapsed~main {
-            margin-left: 0 !important;
-            width: 100% !important;
+        .page-container {
+            padding: 0.25rem;
         }
 
-        .config-wrapper {
-            padding: 1rem;
-        }
-
-        .config-header {
+        .page-header {
             flex-direction: column;
             align-items: flex-start;
+            padding: 0.75rem 1rem;
+            border-radius: 12px 12px 0 0;
         }
 
-        
+        .page-header .header-left h1 {
+            font-size: 1.25rem;
+        }
+
+        .page-header .header-left p {
+            font-size: 0.8rem;
+        }
+
+        .page-header .header-left .breadcrumb {
+            font-size: 0.65rem;
+        }
 
         .status-bar {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .status-item {
+            font-size: 0.75rem;
+        }
+
+        .config-tabs {
+            gap: 4px;
+        }
+
+        .tab-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.7rem;
+            border-radius: 8px;
+        }
+
+        .tab-btn i {
+            font-size: 0.7rem;
+        }
+
+        .settings-card {
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .settings-card h3 {
+            font-size: 0.9rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 0.75rem;
+        }
+
+        .form-control {
+            padding: 0.5rem 0.6rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
         }
 
         .action-bar {
@@ -481,29 +589,153 @@
             width: 100%;
             justify-content: center;
         }
+
+        .range-with-value {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .range-value {
+            align-self: center;
+        }
+
+        .checkbox-group {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .api-key-group {
+            flex-direction: column;
+        }
+
+        .api-key-group .btn-small {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-header {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1rem;
+        }
+
+        .page-header .header-left p {
+            font-size: 0.7rem;
+        }
+
+        .tab-btn {
+            font-size: 0.6rem;
+            padding: 0.3rem 0.6rem;
+        }
+
+        .tab-btn i {
+            font-size: 0.6rem;
+        }
+
+        .settings-card {
+            padding: 0.75rem;
+        }
+
+        .settings-card h3 {
+            font-size: 0.8rem;
+        }
+
+        .form-control {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.5rem;
+        }
+
+        .checkbox-label {
+            font-size: 0.75rem;
+        }
+
+        .range-value {
+            font-size: 0.75rem;
+            min-width: 40px;
+        }
+
+        .btn-save,
+        .btn-test,
+        .btn-reset {
+            font-size: 0.75rem;
+            padding: 0.5rem 1rem;
+        }
+    }
+
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+        .config-tabs,
+        .action-bar,
+        .btn-small {
+            display: none !important;
+        }
+
+        .tab-content {
+            display: block !important;
+        }
+
+        .settings-card {
+            border: 1px solid #e2e8f0;
+            page-break-inside: avoid;
+        }
+
+        .page-header {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border: 1px solid #e2e8f0;
+        }
+
+        .page-header .header-left h1 {
+            color: #0f172a !important;
+        }
+
+        .page-header .header-left p {
+            color: #64748b !important;
+        }
+
+        .page-header .header-left .breadcrumb a,
+        .page-header .header-left .breadcrumb .current {
+            color: #0f172a !important;
+        }
+
+        .status-bar {
+            border: 1px solid #e2e8f0;
+        }
     }
 </style>
-{% endblock %}
 
-{% block content %}
-<div class="config-wrapper">
-    <!-- Header -->
-    <div class="config-header">
-        <h2>
-            <i class="fas fa-cog"></i>
-            System Configuration
-        </h2>
+<div class="page-container">
+    <!-- ============================================
+    PAGE HEADER
+    ============================================ -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="breadcrumb">
+                <a href="{% url 'dashboard_home' %}">Dashboard</a>
+                <span class="separator">/</span>
+                <span class="current">System Configuration</span>
+            </div>
+            <h1>System Configuration</h1>
+            <p>Manage system settings and preferences</p>
+        </div>
     </div>
 
-    <!-- System Status -->
+    <!-- ============================================
+    STATUS BAR
+    ============================================ -->
     <div class="status-bar">
-        <div class="status-item success">
-            <span class="status-dot"></span>
+        <div class="status-item">
+            <span class="status-dot success"></span>
             <span>Face Recognition:</span>
             <strong id="faceStatus">Loading...</strong>
         </div>
-        <div class="status-item success">
-            <i class="fas fa-database"></i>
+        <div class="status-item">
+            <span class="status-dot success"></span>
             <span>Database:</span>
             <strong id="dbStatus">Loading...</strong>
         </div>
@@ -519,7 +751,9 @@
         </div>
     </div>
 
-    <!-- Configuration Tabs -->
+    <!-- ============================================
+    CONFIG TABS
+    ============================================ -->
     <div class="config-tabs">
         <button class="tab-btn active" data-tab="general">
             <i class="fas fa-building"></i> General
@@ -538,6 +772,9 @@
         </button>
     </div>
 
+    <!-- ============================================
+    FORM
+    ============================================ -->
     <form method="POST" id="configForm">
         {% csrf_token %}
 
@@ -562,19 +799,19 @@
                     </div>
                 </div>
 
-                <h3><i class="fas fa-clock"></i> Session Defaults</h3>
+                <h3 style="margin-top: 1.25rem;"><i class="fas fa-clock"></i> Session Defaults</h3>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Default Duration (minutes)</label>
                         <input type="number" name="default_duration" value="{{ config.default_duration|default:'60' }}"
                             min="15" max="180" class="form-control">
-                        <small class="help-text">How long sessions last by default</small>
+                        <span class="help-text">How long sessions last by default</span>
                     </div>
                     <div class="form-group">
                         <label>Auto-stop after (minutes)</label>
                         <input type="number" name="auto_stop" value="{{ config.auto_stop_minutes|default:'5' }}" min="1"
                             max="30" class="form-control">
-                        <small class="help-text">No detection for X minutes = auto stop</small>
+                        <span class="help-text">No detection for X minutes = auto stop</span>
                     </div>
                 </div>
             </div>
@@ -598,7 +835,7 @@
                         <span>Balanced (0.65)</span>
                         <span>Looser (0.9)</span>
                     </div>
-                    <small class="help-text">Lower values = more accurate but may miss some faces</small>
+                    <span class="help-text">Lower values = more accurate but may miss some faces</span>
                 </div>
 
                 <div class="form-row">
@@ -666,7 +903,7 @@
                     <label>Student Cache Size</label>
                     <input type="number" name="cache_size" value="{{ config.cache_size|default:'100' }}" min="10"
                         max="1000" class="form-control">
-                    <small class="help-text">Number of face encodings to keep in RAM</small>
+                    <span class="help-text">Number of face encodings to keep in RAM</span>
                 </div>
 
                 <div class="form-group">
@@ -682,7 +919,7 @@
                     <label>Log Retention (days)</label>
                     <input type="number" name="log_retention" value="{{ config.log_retention_days|default:'30' }}"
                         min="1" max="365" class="form-control">
-                    <small class="help-text">How long to keep attendance logs</small>
+                    <span class="help-text">How long to keep attendance logs</span>
                 </div>
             </div>
         </div>
@@ -747,9 +984,9 @@
 
                 <div class="form-group">
                     <label>API Key</label>
-                    <div style="display: flex; gap: 10px;">
+                    <div class="api-key-group">
                         <input type="text" name="api_key" value="{{ config.api_key|default:'sk_live_xxxxxxxxxxxx' }}"
-                            class="form-control" readonly style="flex: 1;">
+                            class="form-control" readonly>
                         <button type="button" class="btn-small" onclick="generateApiKey()">
                             <i class="fas fa-key"></i> Generate New
                         </button>
@@ -775,10 +1012,10 @@
 
         <!-- Action Bar -->
         <div class="action-bar">
-            <button type="button" class="btn-test" onclick="window.testConfiguration()">
+            <button type="button" class="btn-test" onclick="testConfiguration()">
                 <i class="fas fa-play"></i> Test Configuration
             </button>
-            <button type="button" class="btn-reset" onclick="window.resetDefaults()">
+            <button type="button" class="btn-reset" onclick="resetDefaults()">
                 <i class="fas fa-undo"></i> Reset to Defaults
             </button>
             <button type="submit" class="btn-save">
@@ -789,25 +1026,24 @@
 </div>
 
 <script>
-    (function () {
+    (function() {
         'use strict';
 
-        // TAB SWITCHING FUNCTIONALITY
+        // ============================================
+        // TABS
+        // ============================================
         function initTabs() {
             const tabs = document.querySelectorAll('.tab-btn');
 
             tabs.forEach(tab => {
-                tab.addEventListener('click', function (e) {
+                tab.addEventListener('click', function(e) {
                     e.preventDefault();
 
-                    // Get tab name from data attribute
                     const tabName = this.dataset.tab;
 
-                    // Remove active class from all tabs and contents
                     document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
                     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-                    // Add active class to current tab and content
                     this.classList.add('active');
                     const content = document.getElementById(`tab-${tabName}`);
                     if (content) {
@@ -817,35 +1053,39 @@
             });
         }
 
+        // ============================================
         // THRESHOLD SLIDER
+        // ============================================
         function initSlider() {
             const range = document.getElementById('thresholdRange');
             const value = document.getElementById('thresholdValue');
 
             if (range && value) {
-                // Set initial value
                 value.textContent = parseFloat(range.value).toFixed(2);
 
-                // Update on input
-                range.addEventListener('input', function () {
+                range.addEventListener('input', function() {
                     value.textContent = parseFloat(this.value).toFixed(2);
                 });
             }
         }
 
-        // CAMERA SOURCE TOGGLE
+        // ============================================
+        // CAMERA TOGGLE
+        // ============================================
         function initCameraToggle() {
             const cameraSelect = document.getElementById('cameraSelect');
             const rtspGroup = document.getElementById('rtspGroup');
 
             if (cameraSelect && rtspGroup) {
-                cameraSelect.addEventListener('change', function () {
+                cameraSelect.addEventListener('change', function() {
                     rtspGroup.style.display = this.value === 'rtsp' ? 'block' : 'none';
                 });
             }
         }
 
-        // REAL SYSTEM STATUS FROM API
+        // ============================================
+        // SYSTEM STATUS
+        // ============================================
         function updateSystemStatus() {
             fetch('/dashboard/api/system-status/')
                 .then(response => response.json())
@@ -865,9 +1105,11 @@
             setInterval(updateSystemStatus, 5000);
         }
 
-        // TEST CONFIGURATION WITH REAL API
-        window.testConfiguration = function () {
-            const btn = event.target.closest('button');
+        // ============================================
+        // TEST CONFIGURATION
+        // ============================================
+        window.testConfiguration = function() {
+            const btn = document.querySelector('.btn-test');
             const originalText = btn.innerHTML;
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
@@ -880,7 +1122,6 @@
                     data.results.forEach(result => {
                         message += `${result.test}: ${result.message}\n`;
                     });
-
                     alert(message);
                 })
                 .catch(error => {
@@ -892,16 +1133,20 @@
                 });
         };
 
-        // RESET TO SAVED VALUES (reload from server)
-        window.resetDefaults = function () {
+        // ============================================
+        // RESET DEFAULTS
+        // ============================================
+        window.resetDefaults = function() {
             if (confirm('Reset all settings to saved values? This will reload the page.')) {
                 window.location.reload();
             }
         };
 
-        // GENERATE API KEY - REAL
-        window.generateApiKey = function () {
-            const btn = event.target;
+        // ============================================
+        // GENERATE API KEY
+        // ============================================
+        window.generateApiKey = function() {
+            const btn = event.target.closest('button');
             const originalText = btn.innerHTML;
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
@@ -916,6 +1161,8 @@
                             apiKeyInput.value = data.api_key;
                         }
                         alert('New API key generated successfully!');
+                    } else {
+                        alert('Failed to generate API key');
                     }
                 })
                 .catch(error => {
@@ -927,11 +1174,13 @@
                 });
         };
 
+        // ============================================
         // FORM VALIDATION
+        // ============================================
         function initFormValidation() {
             const form = document.getElementById('configForm');
 
-            form.addEventListener('submit', function (e) {
+            form.addEventListener('submit', function(e) {
                 const institution = document.querySelector('input[name="institution_name"]');
                 if (!institution.value.trim()) {
                     e.preventDefault();
@@ -952,19 +1201,19 @@
             });
         }
 
+        // ============================================
         // SIDEBAR HANDLING
+        // ============================================
         function initSidebarHandling() {
             const sidebar = document.querySelector('aside');
             const main = document.querySelector('main');
 
             if (!sidebar || !main) return;
 
-            // Watch for class changes on sidebar
-            const observer = new MutationObserver(function (mutations) {
-                mutations.forEach(function (mutation) {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
                     if (mutation.attributeName === 'class') {
                         const isCollapsed = sidebar.classList.contains('collapsed');
-
                         if (isCollapsed) {
                             main.style.marginLeft = 'var(--sidebar-collapsed)';
                             main.style.width = 'calc(100% - var(--sidebar-collapsed))';
@@ -978,15 +1227,16 @@
 
             observer.observe(sidebar, { attributes: true });
 
-            // Initial check
             if (sidebar.classList.contains('collapsed')) {
                 main.style.marginLeft = 'var(--sidebar-collapsed)';
                 main.style.width = 'calc(100% - var(--sidebar-collapsed))';
             }
         }
 
-        // INITIALIZE ALL
-        document.addEventListener('DOMContentLoaded', function () {
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
             initTabs();
             initSlider();
             initCameraToggle();

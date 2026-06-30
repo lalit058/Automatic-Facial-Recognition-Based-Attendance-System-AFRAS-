@@ -3,232 +3,616 @@
 
 {% block title %}AFRAS | Routine Management{% endblock %}
 
-{% block extra_head %}
+{% block content %}
 <style>
+    .page-container {
+        padding: 0.5rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* ============================================
+       PAGE HEADER
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        display: flex;
+        padding: 1rem 1.5rem;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        color: var(--primary-text);
+        margin-bottom: 1rem;
+    }
+
+    .page-header .header-left {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .page-header .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+        word-break: break-word;
+    }
+
+    .page-header .header-left p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0;
+        word-break: break-word;
+    }
+
+    .page-header .header-left .breadcrumb {
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .page-header .header-left .breadcrumb a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .page-header .header-left .breadcrumb a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .page-header .header-left .breadcrumb .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .page-header .header-left .breadcrumb .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .page-header .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .status-badge {
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 4px 16px;
+        border-radius: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        white-space: nowrap;
+    }
+
+    .status-badge.active {
+        background: rgba(16, 185, 129, 0.2);
+        border-color: rgba(16, 185, 129, 0.3);
+        color: #34d399;
+    }
+
+    .status-badge.idle {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+    }
+
+    /* ============================================
+       STATS ROW
+    ============================================ */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+        background: #fff;
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.2s;
+    }
+
+    .stat-item:hover {
+        border-color: #e2e8f0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .stat-item .icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .stat-item .icon.blue {
+        background: #eef2ff;
+        color: #4f46e5;
+    }
+
+    .stat-item .icon.green {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .stat-item .icon.orange {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .stat-item .info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .stat-item .info .label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+    }
+
+    .stat-item .info .value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+
+    /* ============================================
+       MAIN GRID
+    ============================================ */
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
     .viz-container {
-        background: var(--surface);
-        border-radius: 24px;
-        padding: 2rem;
-        border: 1px solid var(--border);
-        transition: 0.3s;
-        height: 100%;
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 1.5rem;
+        transition: all 0.2s;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .viz-container:hover {
-        border-color: var(--primary);
-        box-shadow: 0 8px 20px rgba(0, 98, 255, 0.1);
+        border-color: #e2e8f0;
     }
 
-    .btn {
-        padding: 12px 24px;
-        border-radius: 12px;
+    .viz-container h4 {
+        font-size: 1rem;
         font-weight: 700;
-        font-size: 0.9rem;
-        display: inline-flex;
+        color: #0f172a;
+        margin: 0 0 1rem 0;
+        display: flex;
         align-items: center;
-        gap: 10px;
-        transition: 0.3s;
-        border: none;
-        cursor: pointer;
+        gap: 8px;
+        flex-wrap: wrap;
     }
 
-    .btn-primary {
-        background: var(--primary);
-        color: white;
-        box-shadow: 0 10px 20px var(--primary-glow);
+    .viz-container h4 i {
+        color: #6366f1;
     }
 
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 15px 25px var(--primary-glow);
+    .viz-container .help-text {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        margin-bottom: 1.25rem;
     }
 
-    .btn-outline {
-        background: transparent;
-        border: 1px solid var(--border);
-        color: var(--text-main);
-    }
-
-    .btn-outline:hover {
-        border-color: var(--primary);
-        color: var(--primary);
-    }
-
-    .btn-success {
-        background: var(--success);
-        color: white;
-    }
-
-    .btn-success:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
-    }
-
+    /* ============================================
+       FORM ELEMENTS
+    ============================================ */
     .input-group {
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        margin-bottom: 20px;
+        gap: 6px;
+        margin-bottom: 1rem;
     }
 
     .input-group label {
         font-size: 0.7rem;
-        color: var(--text-dim);
-        font-weight: 800;
+        font-weight: 600;
+        color: #64748b;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .input-group label i {
+        color: #94a3b8;
+        font-size: 0.8rem;
     }
 
     .input-group input,
     .input-group select {
-        background: var(--bg);
-        border: 1px solid var(--border);
-        padding: 14px;
-        border-radius: 12px;
-        color: var(--text-main);
-        font-family: 'JetBrains Mono';
-        outline: none;
-        transition: all 0.3s;
-        font-size: 0.9rem;
+        background: #f8fafc !important;
+        border: 1.5px solid #e2e8f0 !important;
+        color: #0f172a !important;
+        padding: 10px 14px !important;
+        border-radius: 10px !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-size: 0.85rem !important;
+        transition: all 0.3s ease !important;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .input-group input:focus,
     .input-group select:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(0, 98, 255, 0.1);
+        outline: none !important;
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06) !important;
+        background: #ffffff !important;
     }
 
-    .status-badge {
-        font-family: 'JetBrains Mono';
-        font-size: 0.7rem;
-        background: rgba(0, 98, 255, 0.1);
-        color: var(--primary);
-        padding: 6px 16px;
-        border-radius: 30px;
-        border: 1px solid rgba(0, 98, 255, 0.2);
+    /* ============================================
+       BUTTONS
+    ============================================ */
+    .btn {
+        padding: 0.7rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
     }
 
-    .session-active {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success);
-        padding: 4px 12px;
-        border-radius: 20px;
+    .btn-primary {
+        background: #6366f1;
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background: #4f46e5;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    .btn-success {
+        background: #16a34a;
+        color: #fff;
+    }
+
+    .btn-success:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: #64748b;
+        border: 1.5px solid #e2e8f0;
+    }
+
+    .btn-outline:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .btn-danger-outline {
+        background: transparent;
+        color: #dc2626;
+        border: 1.5px solid #e2e8f0;
+    }
+
+    .btn-danger-outline:hover {
+        background: #fee2e2;
+        border-color: #dc2626;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    .btn-block {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* ============================================
+       FILE UPLOAD ZONE
+    ============================================ */
+    .upload-zone {
+        border: 2px dashed #e2e8f0;
+        padding: 2.5rem 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: #fafbfc;
+        cursor: pointer;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .upload-zone:hover {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.02);
+    }
+
+    .upload-zone.dragover {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.05);
+    }
+
+    .upload-zone i {
+        font-size: 2.5rem;
+        color: #94a3b8;
+        display: block;
+        margin-bottom: 0.75rem;
+    }
+
+    .upload-zone p {
+        font-size: 0.85rem;
+        color: #94a3b8;
+        margin: 0;
+    }
+
+    .upload-zone .file-name {
+        font-size: 0.75rem;
+        font-family: 'JetBrains Mono', monospace;
+        color: #6366f1;
+        margin-top: 0.75rem;
+        word-break: break-all;
+    }
+
+    .upload-zone .file-label-container {
+        transition: opacity 0.3s ease;
+    }
+
+    /* ============================================
+       TABLE CARD
+    ============================================ */
+    .table-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        margin-top: 1.5rem;
+        width: 100%;
+    }
+
+    .table-card .table-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .table-card .table-header h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .table-card .table-header h3 i {
+        color: #6366f1;
+    }
+
+    .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        min-width: 600px;
+    }
+
+    thead {
+        background: #f8fafc;
+    }
+
+    thead th {
+        padding: 0.75rem 1.5rem;
+        text-align: left;
         font-size: 0.7rem;
         font-weight: 600;
-        display: inline-block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        border-bottom: 2px solid #f1f5f9;
+        white-space: nowrap;
+    }
+
+    thead th:last-child {
+        text-align: right;
+    }
+
+    tbody td {
+        padding: 0.75rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+        vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    /* ============================================
+       BADGES
+    ============================================ */
+    .session-active {
+        background: #dcfce7;
+        color: #16a34a;
+        padding: 3px 12px;
+        border-radius: 100px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+    }
+
+    .session-active i {
+        font-size: 0.5rem;
     }
 
     .session-inactive {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.7rem;
+        background: #f1f5f9;
+        color: #94a3b8;
+        padding: 3px 12px;
+        border-radius: 100px;
+        font-size: 0.65rem;
         font-weight: 600;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
     }
 
-    .stats-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-bottom: 1rem;
+    .session-created {
+        background: #dcfce7;
+        color: #16a34a;
+        padding: 3px 12px;
+        border-radius: 100px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
     }
 
-    .stat-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.5rem;
-        transition: 0.3s;
+    .session-exists {
+        background: #fef3c7;
+        color: #d97706;
+        padding: 3px 12px;
+        border-radius: 100px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
     }
 
-    .stat-card:hover {
-        border-color: var(--primary);
+    .table-badge-count {
+        font-size: 0.65rem;
+        background: #16a34a;
+        color: #fff;
+        padding: 2px 10px;
+        border-radius: 100px;
+        margin-left: 8px;
     }
 
-    .stat-label {
-        font-size: 0.8rem;
-        color: var(--text-dim);
-        margin-bottom: 8px;
+    /* ============================================
+       EXTRACTED ROUTINES SECTION
+    ============================================ */
+    .extracted-section {
+        margin-top: 1.5rem;
     }
 
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
+    .extracted-section .actions-row {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
     }
 
-    .stat-value.primary {
-        color: var(--primary);
-    }
-
-    .stat-value.success {
-        color: var(--success);
-    }
-
-    .stat-value.warning {
-        color: var(--warning);
-    }
-
-    /* Extracted Routines Table */
-    .extracted-table-wrapper {
-        overflow-x: auto;
-        margin-top: 0.5rem;
-    }
-
-    .extracted-table-wrapper table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .extracted-table-wrapper th {
-        text-align: left;
-        padding: 12px;
-        color: var(--text-dim);
-        border-bottom: 1px solid var(--border);
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .extracted-table-wrapper td {
-        padding: 12px;
-        border-bottom: 1px solid var(--border);
-        font-size: 0.9rem;
-    }
-
-    .extracted-table-wrapper tr:hover {
-        background: rgba(0, 0, 0, 0.02);
-    }
-
-    /* File upload zone styles */
-    #upload-zone {
-        transition: all 0.3s ease;
-    }
-
-    #upload-zone:hover {
-        border-color: var(--primary) !important;
-        background: rgba(0, 98, 255, 0.02);
-    }
-
-    #upload-zone.dragover {
-        border-color: var(--primary) !important;
-        background: rgba(0, 98, 255, 0.05);
-    }
-
-    /* Notification styles */
-    .notification {
+    /* ============================================
+       NOTIFICATION
+    ============================================ */
+    .notification-container {
         position: fixed;
         top: 20px;
         right: 20px;
-        padding: 15px 20px;
-        border-radius: 12px;
-        color: white;
         z-index: 9999;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
         max-width: 400px;
-        white-space: pre-line;
+        width: calc(100% - 40px);
+    }
+
+    .notification {
+        padding: 0.75rem 1.25rem;
+        border-radius: 10px;
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 500;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
         animation: slideIn 0.3s ease;
+        margin-bottom: 0.5rem;
+        word-break: break-word;
+    }
+
+    .notification.success {
+        background: #16a34a;
+    }
+
+    .notification.error {
+        background: #dc2626;
+    }
+
+    .notification.warning {
+        background: #d97706;
+    }
+
+    .notification.info {
+        background: #6366f1;
     }
 
     @keyframes slideIn {
@@ -236,135 +620,566 @@
             transform: translateX(100%);
             opacity: 0;
         }
-
         to {
             transform: translateX(0);
             opacity: 1;
         }
     }
 
-    .notification.success {
-        background: var(--success);
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
     }
 
-    .notification.error {
-        background: var(--danger);
+    /* ============================================
+       FULLY RESPONSIVE BREAKPOINTS
+    ============================================ */
+
+    /* Laptops */
+    @media (max-width: 1200px) {
+        .stats-row {
+            grid-template-columns: repeat(3, 1fr);
+        }
     }
 
-    .notification.warning {
-        background: var(--warning);
-    }
-
-    .notification.info {
-        background: var(--primary);
-    }
-
-    @media (max-width: 768px) {
-        .stats-cards {
-            grid-template-columns: 1fr;
+    /* Tablets */
+    @media (max-width: 992px) {
+        .main-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
 
-        div[style*="grid-template-columns: 1fr 1fr"] {
-            grid-template-columns: 1fr !important;
+        .page-header .header-left h1 {
+            font-size: 1.5rem;
         }
 
-        .extracted-table-wrapper table {
+        .page-header .header-left p {
             font-size: 0.8rem;
         }
 
-        .extracted-table-wrapper th,
-        .extracted-table-wrapper td {
-            padding: 8px 6px;
+        .stat-item {
+            padding: 0.75rem 1rem;
+        }
+
+        .stat-item .info .value {
+            font-size: 1.1rem;
+        }
+
+        table {
+            font-size: 0.8rem;
+            min-width: 550px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.6rem 1rem;
+        }
+    }
+
+    /* Mobile Large */
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 0.25rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0.75rem 1rem;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1.25rem;
+        }
+
+        .page-header .header-left p {
+            font-size: 0.75rem;
+        }
+
+        .page-header .header-left .breadcrumb {
+            font-size: 0.65rem;
+        }
+
+        .page-header .header-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .page-header .header-actions .status-badge {
+            font-size: 0.6rem;
+            padding: 3px 12px;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .stat-item {
+            padding: 0.6rem 0.8rem;
+            gap: 0.75rem;
+        }
+
+        .stat-item .icon {
+            width: 32px;
+            height: 32px;
+            font-size: 0.9rem;
+        }
+
+        .stat-item .info .label {
+            font-size: 0.6rem;
+        }
+
+        .stat-item .info .value {
+            font-size: 1rem;
+        }
+
+        .main-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .viz-container {
+            padding: 1rem;
+        }
+
+        .viz-container h4 {
+            font-size: 0.9rem;
+        }
+
+        .viz-container .help-text {
+            font-size: 0.75rem;
+        }
+
+        .input-group input,
+        .input-group select {
+            padding: 8px 12px !important;
+            font-size: 0.8rem !important;
         }
 
         .btn {
-            padding: 10px 16px;
-            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
         }
-    }
 
-    @media (max-width: 480px) {
-        .extracted-table-wrapper table {
+        .btn-sm {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.65rem;
+        }
+
+        .upload-zone {
+            padding: 1.5rem 1rem;
+        }
+
+        .upload-zone i {
+            font-size: 2rem;
+        }
+
+        .upload-zone p {
+            font-size: 0.75rem;
+        }
+
+        .table-card .table-header {
+            padding: 0.75rem 1rem;
+        }
+
+        .table-card .table-header h3 {
+            font-size: 0.9rem;
+        }
+
+        .table-scroll {
+            margin: 0 -0.5rem;
+            padding: 0 0.5rem;
+        }
+
+        table {
             font-size: 0.7rem;
             min-width: 500px;
         }
 
-        .extracted-table-wrapper th,
-        .extracted-table-wrapper td {
-            padding: 6px 4px;
+        thead th,
+        tbody td {
+            padding: 0.4rem 0.6rem;
+        }
+
+        thead th {
+            font-size: 0.6rem;
+        }
+
+        .extracted-section .actions-row {
+            flex-direction: column;
+            padding: 0.75rem 1rem;
+        }
+
+        .extracted-section .actions-row .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .notification-container {
+            top: 10px;
+            right: 10px;
+            max-width: calc(100% - 20px);
+        }
+
+        .notification {
+            font-size: 0.75rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .session-active,
+        .session-inactive,
+        .session-created,
+        .session-exists {
+            font-size: 0.55rem;
+            padding: 2px 8px;
+        }
+
+        .table-badge-count {
+            font-size: 0.55rem;
+            padding: 1px 6px;
+        }
+    }
+
+    /* Mobile Small */
+    @media (max-width: 480px) {
+        .page-header {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1rem;
+        }
+
+        .page-header .header-left p {
+            font-size: 0.65rem;
+        }
+
+        .page-header .header-left .breadcrumb {
+            font-size: 0.55rem;
+            gap: 4px;
+        }
+
+        .page-header .header-actions .status-badge {
+            font-size: 0.5rem;
+            padding: 2px 10px;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .stat-item {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .stat-item .icon {
+            width: 28px;
+            height: 28px;
+            font-size: 0.8rem;
+        }
+
+        .stat-item .info .value {
+            font-size: 0.9rem;
+        }
+
+        .viz-container {
+            padding: 0.75rem;
+        }
+
+        .viz-container h4 {
+            font-size: 0.8rem;
+        }
+
+        .input-group {
+            margin-bottom: 0.75rem;
+        }
+
+        .input-group label {
+            font-size: 0.6rem;
+        }
+
+        .input-group input,
+        .input-group select {
+            padding: 6px 10px !important;
+            font-size: 0.7rem !important;
+            border-radius: 8px !important;
+        }
+
+        .btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.65rem;
+            border-radius: 8px;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.6rem;
+            font-size: 0.6rem;
+        }
+
+        .upload-zone {
+            padding: 1rem 0.75rem;
+        }
+
+        .upload-zone i {
+            font-size: 1.5rem;
+        }
+
+        .upload-zone p {
+            font-size: 0.65rem;
+        }
+
+        .upload-zone .file-name {
+            font-size: 0.6rem;
+        }
+
+        .table-card .table-header {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .table-card .table-header h3 {
+            font-size: 0.75rem;
+        }
+
+        .table-scroll {
+            margin: 0 -0.3rem;
+            padding: 0 0.3rem;
+        }
+
+        table {
+            font-size: 0.6rem;
+            min-width: 400px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.3rem 0.4rem;
+        }
+
+        thead th {
+            font-size: 0.5rem;
+        }
+
+        .extracted-section .actions-row {
+            padding: 0.5rem 0.75rem;
+            gap: 0.5rem;
+        }
+
+        .session-active,
+        .session-inactive,
+        .session-created,
+        .session-exists {
+            font-size: 0.45rem;
+            padding: 1px 6px;
+        }
+
+        .table-badge-count {
+            font-size: 0.45rem;
+            padding: 1px 4px;
+        }
+
+        .notification-container {
+            top: 5px;
+            right: 5px;
+            max-width: calc(100% - 10px);
+        }
+
+        .notification {
+            font-size: 0.65rem;
+            padding: 0.4rem 0.75rem;
+        }
+    }
+
+    /* Extra Small */
+    @media (max-width: 360px) {
+        table {
+            font-size: 0.5rem;
+            min-width: 350px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.2rem 0.3rem;
+        }
+
+        .viz-container {
+            padding: 0.5rem;
+        }
+
+        .btn {
+            font-size: 0.55rem;
+            padding: 0.3rem 0.6rem;
+        }
+
+        .input-group input,
+        .input-group select {
+            font-size: 0.6rem !important;
+            padding: 4px 8px !important;
+        }
+
+        .stat-item .info .value {
+            font-size: 0.8rem;
+        }
+    }
+
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+        .page-header .header-actions,
+        .btn,
+        .upload-zone,
+        .extracted-section .actions-row {
+            display: none !important;
+        }
+
+        .page-header {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px !important;
+        }
+
+        .page-header .header-left h1 {
+            color: #0f172a !important;
+        }
+
+        .page-header .header-left p {
+            color: #64748b !important;
+        }
+
+        .page-header .header-left .breadcrumb a,
+        .page-header .header-left .breadcrumb .current {
+            color: #0f172a !important;
+        }
+
+        .stats-row {
+            break-inside: avoid;
+        }
+
+        .table-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            break-inside: avoid;
+        }
+
+        thead {
+            background: #f1f5f9 !important;
+        }
+
+        thead th {
+            color: #0f172a !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+
+        tbody td {
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+
+        tbody tr:hover {
+            background: none !important;
+        }
+
+        .viz-container {
+            border: 1px solid #e2e8f0;
+            break-inside: avoid;
         }
     }
 </style>
-{% endblock %}
 
-{% block content %}
-
-<div style="flex: 1; padding: 1rem;">
-    <div
-        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 20px;">
-        <div>
-            <h2 style="display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-calendar-check" style="color: var(--primary);"></i>
-                Routine Management
-            </h2>
-            <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 5px;">Synchronize institutional
-                schedules with ResNet-101 Identity Core.</p>
+<div class="page-container">
+    <!-- ============================================
+    PAGE HEADER
+    ============================================ -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="breadcrumb">
+                <a href="{% url 'dashboard_home' %}">Dashboard</a>
+                <span class="separator">/</span>
+                <span class="current">Routine Management</span>
+            </div>
+            <h1>Routine Management</h1>
+            <p>Synchronize institutional schedules with ResNet-101 Identity Core</p>
         </div>
-        <span class="status-badge" id="system-status">SYSTEM_IDLE</span>
-    </div>
-
-    <!-- Stats Cards -->
-    <div class="stats-cards">
-        <div class="stat-card">
-            <div class="stat-label">Total Sessions</div>
-            <div class="stat-value primary" id="total-sessions">0</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Active Sessions</div>
-            <div class="stat-value success" id="active-sessions">0</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Today's Sessions</div>
-            <div class="stat-value warning" id="today-sessions">0</div>
+        <div class="header-actions">
+            <span class="status-badge idle" id="system-status">
+                <i class="fas fa-circle" style="font-size: 0.5rem; margin-right: 4px;"></i>
+                SYSTEM_IDLE
+            </span>
         </div>
     </div>
 
-    <!-- Main Grid -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+    <!-- ============================================
+    STATS ROW
+    ============================================ -->
+    <div class="stats-row">
+        <div class="stat-item">
+            <div class="icon blue"><i class="fas fa-calendar-alt"></i></div>
+            <div class="info">
+                <div class="label">Total Sessions</div>
+                <div class="value" id="total-sessions">0</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon green"><i class="fas fa-play-circle"></i></div>
+            <div class="info">
+                <div class="label">Active Sessions</div>
+                <div class="value" id="active-sessions">0</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon orange"><i class="fas fa-clock"></i></div>
+            <div class="info">
+                <div class="label">Today's Sessions</div>
+                <div class="value" id="today-sessions">0</div>
+            </div>
+        </div>
+    </div>
 
+    <!-- ============================================
+    MAIN GRID
+    ============================================ -->
+    <div class="main-grid">
         <!-- Manual Session Entry -->
         <div class="viz-container">
-            <h4 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-hand-pointer" style="color: var(--success);"></i>
+            <h4>
+                <i class="fas fa-hand-pointer" style="color: #16a34a;"></i>
                 Manual Session Entry
             </h4>
             <form id="manual-routine-form">
                 {% csrf_token %}
                 <div class="input-group">
-                    <label>Subject / Module</label>
+                    <label><i class="fas fa-book"></i> Subject / Module</label>
                     <input type="text" name="subject" id="manual-name" placeholder="e.g., Computer Graphics" required>
                 </div>
                 <div class="input-group">
-                    <label>Start Time</label>
+                    <label><i class="fas fa-clock"></i> Start Time</label>
                     <input type="time" name="start_time" id="manual-start-time" value="09:00" required>
                 </div>
                 <div class="input-group">
-                    <label>Duration (minutes)</label>
+                    <label><i class="fas fa-hourglass-half"></i> Duration (minutes)</label>
                     <input type="number" name="duration" id="manual-duration" min="15" max="180" value="60" required>
                 </div>
                 <div class="input-group">
-                    <label>Department</label>
+                    <label><i class="fas fa-building"></i> Department</label>
                     <select name="department" id="manual-dept">
                         <option value="Engineering">School of Engineering</option>
                         <option value="CSIT">Department of CSIT</option>
                     </select>
                 </div>
                 <div class="input-group">
-                    <label>Target Semester</label>
+                    <label><i class="fas fa-graduation-cap"></i> Target Semester</label>
                     <input type="number" name="semester" id="manual-semester" min="1" max="8" value="1">
                 </div>
-                <button type="button" onclick="handleManualSubmit()" class="btn btn-primary"
-                    style="width: 100%; justify-content: center;">
+                <button type="button" onclick="handleManualSubmit()" class="btn btn-primary btn-block">
                     <i class="fas fa-play"></i> Start Session Now
                 </button>
             </form>
@@ -372,75 +1187,61 @@
 
         <!-- AI Document Extraction -->
         <div class="viz-container">
-            <h4 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-file-invoice" style="color: var(--primary);"></i>
+            <h4>
+                <i class="fas fa-file-invoice" style="color: #6366f1;"></i>
                 AI Document Extraction
             </h4>
-            <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1.5rem;">Upload a PDF routine to
-                automatically extract schedule vectors and automate attendance sessions.</p>
+            <p class="help-text">Upload a PDF routine to automatically extract schedule vectors and automate attendance sessions.</p>
 
             <form id="extraction-form" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div style="border: 2px dashed var(--border); padding: 40px; border-radius: 16px; text-align: center; position: relative;"
-                    id="upload-zone">
+                <div class="upload-zone" id="upload-zone">
                     <input type="file" name="routine_file" id="routine-file" hidden onchange="updateFileLabel(this)"
                         accept=".pdf,.xlsx,.xls,.csv">
                     <div id="file-label-container">
-                        <i class="fas fa-cloud-upload-alt"
-                            style="font-size: 2.5rem; color: var(--text-dim); margin-bottom: 15px;"></i>
-                        <p style="font-size: 0.9rem; color: var(--text-dim);">Drag & Drop or</p>
-                        <button type="button" onclick="document.getElementById('routine-file').click()"
-                            class="btn btn-outline" style="margin-top: 10px;">Select PDF/XLSX</button>
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & Drop or</p>
+                        <button type="button" onclick="document.getElementById('routine-file').click()" class="btn btn-outline btn-sm" style="margin-top: 0.5rem;">
+                            <i class="fas fa-folder-open"></i> Select PDF/XLSX
+                        </button>
                     </div>
-                    <p id="file-name"
-                        style="font-size: 0.75rem; font-family: 'JetBrains Mono'; margin-top: 15px; color: var(--primary);">
-                    </p>
+                    <p id="file-name" class="file-name"></p>
                 </div>
 
-                <div id="extraction-actions" style="display: none; margin-top: 20px;">
-                    <button type="button" onclick="handleExtractionSubmit()" class="btn btn-primary"
-                        style="width: 100%; justify-content: center;">
+                <div id="extraction-actions" style="display: none; margin-top: 1rem;">
+                    <button type="button" onclick="handleExtractionSubmit()" class="btn btn-primary btn-block">
                         <i class="fas fa-brain"></i> Extract & Automate
                     </button>
                 </div>
             </form>
         </div>
-
     </div>
 
-    <!-- Recent Sessions Section -->
-    <div
-        style="margin-top: 0.5rem; background: var(--surface); border-radius: 24px; border: 1px solid var(--border); padding: 1.5rem;">
-        <h3 style="display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-history" style="color: var(--primary);"></i>
-            Recent Sessions
-        </h3>
-        <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse;">
+    <!-- ============================================
+    RECENT SESSIONS TABLE
+    ============================================ -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3>
+                <i class="fas fa-history"></i>
+                Recent Sessions
+            </h3>
+        </div>
+        <div class="table-scroll">
+            <table>
                 <thead>
                     <tr>
-                        <th
-                            style="text-align: left; padding: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border);">
-                            Subject</th>
-                        <th
-                            style="text-align: left; padding: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border);">
-                            Date</th>
-                        <th
-                            style="text-align: left; padding: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border);">
-                            Time</th>
-                        <th
-                            style="text-align: left; padding: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border);">
-                            Status</th>
-                        <th
-                            style="text-align: left; padding: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border);">
-                            Actions</th>
+                        <th>Subject</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="recent-sessions-table">
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-dim);">
-                            <i class="fas fa-spinner fa-spin"
-                                style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                        <td colspan="5" style="text-align: center; padding: 2.5rem 0; color: #94a3b8;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
                             Loading sessions...
                         </td>
                     </tr>
@@ -449,68 +1250,69 @@
         </div>
     </div>
 
-    <!-- ===== EXTRACTED ROUTINES SECTION ===== -->
+    <!-- ============================================
+    EXTRACTED ROUTINES SECTION
+    ============================================ -->
     {% if extracted_routines %}
-    <div id="extracted-routines-section"
-        style="margin-top: 40px; background: var(--surface); border-radius: 24px; border: 1px solid var(--border); padding: 1.5rem;">
-        <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
-            <i class="fas fa-robot" style="color: var(--primary);"></i>
-            AI Extracted Routines
-            <span
-                style="font-size: 0.7rem; background: var(--success); color: white; padding: 2px 12px; border-radius: 20px; margin-left: 10px;">
-                {{ extracted_routines|length }} sessions
-            </span>
-        </h3>
-        <div class="extracted-table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Subject</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Duration</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for routine in extracted_routines %}
-                    <tr>
-                        <td style="font-weight: 500;">{{ routine.subject }}</td>
-                        <td>{{ routine.date }}</td>
-                        <td style="font-family: 'JetBrains Mono';">{{ routine.time }}</td>
-                        <td>{{ routine.duration }} mins</td>
-                        <td>
-                            <span
-                                class="{% if routine.status == 'created' %}session-active{% else %}session-inactive{% endif %}">
-                                {% if routine.status == 'created' %}
-                                <i class="fas fa-check-circle"></i> Created
-                                {% else %}
-                                <i class="fas fa-clock"></i> Already Exists
-                                {% endif %}
-                            </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div style="margin-top: 1.5rem; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
-            <button onclick="clearExtractedRoutines()" class="btn btn-outline"
-                style="padding: 8px 20px; font-size: 0.8rem;">
-                <i class="fas fa-times"></i> Clear All
-            </button>
-            <button onclick="applyExtractedRoutines()" class="btn btn-success"
-                style="padding: 8px 20px; font-size: 0.8rem;">
-                <i class="fas fa-play"></i> Apply All Sessions
-            </button>
+    <div id="extracted-routines-section" class="extracted-section">
+        <div class="table-card">
+            <div class="table-header">
+                <h3>
+                    <i class="fas fa-robot"></i>
+                    AI Extracted Routines
+                    <span class="table-badge-count">{{ extracted_routines|length }} sessions</span>
+                </h3>
+            </div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for routine in extracted_routines %}
+                        <tr>
+                            <td style="font-weight: 500;">{{ routine.subject }}</td>
+                            <td>{{ routine.date }}</td>
+                            <td style="font-family: 'JetBrains Mono', monospace;">{{ routine.time }}</td>
+                            <td>{{ routine.duration }} mins</td>
+                            <td>
+                                <span class="{% if routine.status == 'created' %}session-created{% else %}session-exists{% endif %}">
+                                    <i class="fas fa-{% if routine.status == 'created' %}check-circle{% else %}clock{% endif %}"></i>
+                                    {% if routine.status == 'created' %}
+                                    Created
+                                    {% else %}
+                                    Already Exists
+                                    {% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="actions-row">
+                <button onclick="clearExtractedRoutines()" class="btn btn-danger-outline btn-sm">
+                    <i class="fas fa-times"></i> Clear All
+                </button>
+                <button onclick="applyExtractedRoutines()" class="btn btn-success btn-sm">
+                    <i class="fas fa-play"></i> Apply All Sessions
+                </button>
+            </div>
         </div>
     </div>
     {% endif %}
-
 </div>
 
-<!-- Notification container -->
-<div id="notification-container"></div>
+<!-- ============================================
+NOTIFICATION CONTAINER
+============================================ -->
+<div id="notification-container" class="notification-container"></div>
 
 <script>
     // ============================================
@@ -525,7 +1327,40 @@
 
         // Check for active session every 10 seconds
         setInterval(checkActiveSession, 10000);
+
+        // Setup drag and drop
+        setupDragDrop();
     });
+
+    // ============================================
+    // DRAG & DROP SETUP
+    // ============================================
+    function setupDragDrop() {
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('routine-file');
+
+        if (uploadZone) {
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            });
+
+            uploadZone.addEventListener('dragleave', () => {
+                uploadZone.classList.remove('dragover');
+            });
+
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    updateFileLabel(fileInput);
+                }
+            });
+        }
+    }
 
     // ============================================
     // ACTIVE SESSION CHECK
@@ -538,52 +1373,16 @@
             const statusBadge = document.getElementById('system-status');
 
             if (data.active > 0) {
-                statusBadge.innerText = 'SESSION_ACTIVE';
-                statusBadge.style.color = 'var(--success)';
+                statusBadge.className = 'status-badge active';
+                statusBadge.innerHTML = '<i class="fas fa-circle" style="font-size: 0.5rem; margin-right: 4px;"></i> SESSION_ACTIVE';
             } else {
-                statusBadge.innerText = 'SYSTEM_IDLE';
-                statusBadge.style.color = 'var(--primary)';
+                statusBadge.className = 'status-badge idle';
+                statusBadge.innerHTML = '<i class="fas fa-circle" style="font-size: 0.5rem; margin-right: 4px;"></i> SYSTEM_IDLE';
             }
         } catch (err) {
             console.error('Error checking active session:', err);
         }
     }
-
-    // ============================================
-    // DRAG & DROP FUNCTIONALITY
-    // ============================================
-    const uploadZone = document.getElementById('upload-zone');
-    const fileInput = document.getElementById('routine-file');
-
-    if (uploadZone) {
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone.classList.add('dragover');
-        });
-
-        uploadZone.addEventListener('dragleave', () => {
-            uploadZone.classList.remove('dragover');
-        });
-
-        uploadZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadZone.classList.remove('dragover');
-
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                fileInput.files = files;
-                updateFileLabel(fileInput);
-            }
-        });
-    }
-
-    window.updateFileLabel = function (input) {
-        if (input.files && input.files[0]) {
-            document.getElementById('file-name').innerText = `📎 ${input.files[0].name}`;
-            document.getElementById('extraction-actions').style.display = 'block';
-            document.getElementById('file-label-container').style.opacity = '0.3';
-        }
-    };
 
     // ============================================
     // SESSION STATISTICS
@@ -621,20 +1420,20 @@
                 data.sessions.forEach((session) => {
                     tableHTML += `
                     <tr>
-                        <td style="padding: 12px; border-bottom: 1px solid var(--border); font-weight: 500;">${session.subject || 'N/A'}</td>
-                        <td style="padding: 12px; border-bottom: 1px solid var(--border);">${session.date || 'N/A'}</td>
-                        <td style="padding: 12px; border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono';">${session.time || 'N/A'}</td>
-                        <td style="padding: 12px; border-bottom: 1px solid var(--border);">
+                        <td style="font-weight: 500;">${session.subject || 'N/A'}</td>
+                        <td>${session.date || 'N/A'}</td>
+                        <td style="font-family: 'JetBrains Mono', monospace;">${session.time || 'N/A'}</td>
+                        <td>
                             <span class="${session.is_active ? 'session-active' : 'session-inactive'}">
-                                ${session.is_active ? 'ACTIVE' : 'INACTIVE'}
+                                ${session.is_active ? '<i class="fas fa-circle"></i> ACTIVE' : '<i class="fas fa-circle"></i> INACTIVE'}
                             </span>
                         </td>
-                        <td style="padding: 12px; border-bottom: 1px solid var(--border);">
+                        <td style="text-align: right;">
                             ${session.is_active ?
-                            `<a href="/attendance/live/${session.id}/" class="btn" style="background: var(--primary); color: white; padding: 6px 16px; border-radius: 20px; text-decoration: none; font-size: 0.7rem; font-weight: 600;">
+                            `<a href="/attendance/live/${session.id}/" class="btn btn-primary btn-sm" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;">
                                     <i class="fas fa-video"></i> Monitor
                                 </a>` :
-                            `<span style="color: var(--text-dim); font-size: 0.7rem;">Completed</span>`
+                            `<span style="color: #94a3b8; font-size: 0.75rem;">Completed</span>`
                         }
                         </td>
                     </tr>
@@ -643,21 +1442,41 @@
 
                 tbody.innerHTML = tableHTML;
             } else {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-dim);">No sessions found</td></tr>';
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2.5rem 0; color: #94a3b8;">
+                            <i class="fas fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+                            No sessions found
+                        </td>
+                    </tr>
+                `;
             }
         } catch (err) {
             console.error('Error loading sessions:', err);
             tbody.innerHTML = `
-            <tr>
-                <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-dim);">
-                    <i class="fas fa-exclamation-triangle" style="color: var(--danger); font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
-                    Error loading sessions: ${err.message}
-                    <button onclick="loadRecentSessions()" class="btn btn-outline" style="margin-top: 1rem;">Retry</button>
-                </td>
-            </tr>
-        `;
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2.5rem 0; color: #dc2626;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+                        Error loading sessions
+                        <button onclick="loadRecentSessions()" class="btn btn-outline btn-sm" style="margin-top: 0.5rem;">
+                            <i class="fas fa-sync-alt"></i> Retry
+                        </button>
+                    </td>
+                </tr>
+            `;
         }
     }
+
+    // ============================================
+    // FILE LABEL UPDATE
+    // ============================================
+    window.updateFileLabel = function (input) {
+        if (input.files && input.files[0]) {
+            document.getElementById('file-name').innerText = `📎 ${input.files[0].name}`;
+            document.getElementById('extraction-actions').style.display = 'block';
+            document.getElementById('file-label-container').style.opacity = '0.3';
+        }
+    };
 
     // ============================================
     // MANUAL SESSION SUBMISSION
@@ -685,8 +1504,9 @@
 
         const formData = new FormData(form);
 
-        statusBadge.innerText = 'INITIALIZING_SESSION...';
-        statusBadge.style.color = 'var(--warning)';
+        statusBadge.className = 'status-badge';
+        statusBadge.innerHTML = '<i class="fas fa-circle" style="font-size: 0.5rem; margin-right: 4px;"></i> INITIALIZING...';
+        statusBadge.style.color = '#f59e0b';
 
         fetch('/dashboard/routine-start-manual/', {
             method: 'POST',
@@ -697,28 +1517,18 @@
         })
             .then(response => {
                 if (response.redirected) {
-                    statusBadge.innerText = 'SESSION_ACTIVE';
-                    statusBadge.style.color = 'var(--success)';
-
                     showNotification('Session started successfully!', 'success');
-
-                    return Promise.all([
-                        loadRecentSessions(),
-                        loadSessionStats()
-                    ]).then(() => {
-                        setTimeout(() => {
-                            window.location.href = response.url;
-                        }, 1500);
-                    });
+                    loadRecentSessions();
+                    loadSessionStats();
+                    setTimeout(() => {
+                        window.location.href = response.url;
+                    }, 1500);
+                    return;
                 }
 
                 return response.json().then(data => {
                     if (data.success) {
-                        statusBadge.innerText = 'SESSION_ACTIVE';
-                        statusBadge.style.color = 'var(--success)';
-
                         showNotification('Session started successfully!', 'success');
-
                         loadRecentSessions();
                         loadSessionStats();
 
@@ -728,35 +1538,22 @@
                             }, 1500);
                         }
                     } else {
-                        statusBadge.innerText = 'ERROR';
-                        statusBadge.style.color = 'var(--danger)';
                         showNotification('Error: ' + (data.message || 'Unknown error'), 'error');
                     }
                 });
             })
             .catch(err => {
                 console.error('Submission error:', err);
+                showNotification('Error starting session. Please try again.', 'error');
                 loadRecentSessions();
                 loadSessionStats();
-
-                statusBadge.innerText = 'CHECKING_STATUS...';
-                statusBadge.style.color = 'var(--warning)';
-
-                setTimeout(() => {
-                    checkActiveSession();
-                    const activeElement = document.getElementById('active-sessions');
-                    if (activeElement && parseInt(activeElement.textContent) > 0) {
-                        showNotification('Session started! Refreshing data...', 'success');
-                    } else {
-                        showNotification('Session may not have started. Please check the table.', 'warning');
-                    }
-                }, 2000);
             })
             .finally(() => {
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
                 }
+                checkActiveSession();
             });
     };
 
@@ -791,16 +1588,11 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Extracting...';
         }
 
-        statusBadge.innerText = 'AI_EXTRACTING_DATA...';
-        statusBadge.style.color = 'var(--warning)';
+        statusBadge.className = 'status-badge';
+        statusBadge.innerHTML = '<i class="fas fa-circle" style="font-size: 0.5rem; margin-right: 4px;"></i> AI_EXTRACTING...';
+        statusBadge.style.color = '#f59e0b';
 
-        // Log for debugging
-        console.log('📤 Sending file:', fileInput.files[0].name);
-        console.log('📦 File size:', fileInput.files[0].size, 'bytes');
-
-        // Get CSRF token
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
-            document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
 
         fetch('/dashboard/routine-extract-ai/', {
             method: 'POST',
@@ -811,10 +1603,7 @@
             }
         })
             .then(async response => {
-                console.log('📥 Response status:', response.status);
                 const text = await response.text();
-                console.log('📄 Response text:', text);
-
                 try {
                     const data = JSON.parse(text);
                     return { response, data };
@@ -825,9 +1614,6 @@
             })
             .then(({ response, data }) => {
                 if (response.ok && data.success) {
-                    statusBadge.innerText = 'AUTOMATION_SYNCED';
-                    statusBadge.style.color = 'var(--success)';
-
                     let message = `✅ Extraction Complete! Found ${data.classes_count || 0} scheduled sessions.`;
                     if (data.created_count) {
                         message += ` Created ${data.created_count} new sessions.`;
@@ -845,16 +1631,12 @@
                     }, 1500);
                 } else {
                     const errorMsg = data?.message || 'Extraction failed';
-                    statusBadge.innerText = 'ERROR';
-                    statusBadge.style.color = 'var(--danger)';
                     showNotification('❌ Extraction Failed: ' + errorMsg, 'error');
                     console.error('❌ Server error:', data);
                 }
             })
             .catch(err => {
                 console.error('❌ Error:', err);
-                statusBadge.innerText = 'ERROR';
-                statusBadge.style.color = 'var(--danger)';
                 showNotification('❌ Error: ' + err.message, 'error');
             })
             .finally(() => {
@@ -862,6 +1644,7 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
                 }
+                checkActiveSession();
             });
     };
 
@@ -882,7 +1665,8 @@
             .then(data => {
                 if (data.success) {
                     showNotification('Extracted routines cleared', 'success');
-                    document.getElementById('extracted-routines-section').remove();
+                    const section = document.getElementById('extracted-routines-section');
+                    if (section) section.remove();
                 } else {
                     showNotification('Error clearing routines', 'error');
                 }
@@ -917,7 +1701,6 @@
                     showNotification(`${data.created} sessions created successfully!`, 'success');
                     loadRecentSessions();
                     loadSessionStats();
-                    // Remove the extracted routines section
                     const section = document.getElementById('extracted-routines-section');
                     if (section) section.remove();
                     setTimeout(() => {
@@ -945,41 +1728,9 @@
     function showNotification(message, type = 'info') {
         const container = document.getElementById('notification-container');
 
-        const existingNotifications = container.querySelectorAll('.notification');
-        existingNotifications.forEach(n => n.remove());
-
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
-        notification.innerHTML = message;
-
-        let bgColor;
-        switch (type) {
-            case 'success':
-                bgColor = 'var(--success)';
-                break;
-            case 'error':
-                bgColor = 'var(--danger)';
-                break;
-            case 'warning':
-                bgColor = 'var(--warning)';
-                break;
-            default:
-                bgColor = 'var(--primary)';
-        }
-
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 12px;
-            color: white;
-            z-index: 9999;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            max-width: 400px;
-            animation: slideIn 0.3s ease;
-            background: ${bgColor};
-        `;
+        notification.textContent = message;
 
         container.appendChild(notification);
 
@@ -990,24 +1741,6 @@
             }, 300);
         }, 5000);
     }
-
-    // ============================================
-    // ANIMATIONS
-    // ============================================
-    const styleElement = document.createElement('style');
-    styleElement.textContent = `
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-    `;
-    document.head.appendChild(styleElement);
 
     // ============================================
     // AUTO-REFRESH (every 30 seconds)

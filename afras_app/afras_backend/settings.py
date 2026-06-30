@@ -4,6 +4,14 @@ import pytz
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'lalitnegi2058@gmail.com'  
+EMAIL_HOST_PASSWORD = 'smevauphghfajojw'  # App Password (NOT your regular password)
+DEFAULT_FROM_EMAIL = 'AFRAS System <lalitnegi2058@gmail.com>'
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Kathmandu'  
 USE_TZ = True 

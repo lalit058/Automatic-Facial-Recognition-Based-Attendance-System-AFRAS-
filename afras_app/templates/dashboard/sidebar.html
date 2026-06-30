@@ -227,8 +227,7 @@
                 {% if request.user.is_superuser %}
                 <i class="fas fa-crown" style="font-size: 0.6rem; margin-right: 4px;"></i> ADMIN
                 {% else %}
-                <i class="fas fa-user-tie" style="font-size: 0.6rem; margin-right: 4px;"></i> {{
-                request.user.staff_profile.designation|upper|default:"STAFF" }}
+                <i class="fas fa-user-tie" style="font-size: 0.6rem; margin-right: 4px;"></i> {{ request.user.staff_profile.designation|upper|default:"STAFF" }}
                 {% endif %}
             </div>
         </div>
@@ -256,10 +255,10 @@
         <li class="nav-item">
             <a href="{% url 'dashboard_home' %}"
                 class="nav-link {% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}">
-                <i class="fas fa-th-large nav-icon"></i>
+                <i class="fas fa-th-large nav-icon" style="color: #3b82f6;"></i>
                 <span class="nav-text">Dashboard</span>
                 <div class="nav-tooltip">
-                    <i class="fas fa-th-large" style="margin-right: 8px;"></i> Dashboard
+                    <i class="fas fa-th-large" style="margin-right: 8px; color: #3b82f6;"></i> Dashboard
                     <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Overview &
                         Analytics</span>
                 </div>
@@ -298,10 +297,10 @@
         <li class="nav-item">
             <a href="{% url 'attendance:all_sessions' %}"
                 class="nav-link {% if request.resolver_match.url_name == 'all_sessions' %}active{% endif %}">
-                <i class="fas fa-history nav-icon"></i>
+                <i class="fas fa-history nav-icon" style="color: #6366f1;"></i>
                 <span class="nav-text">All Sessions</span>
                 <div class="nav-tooltip">
-                    <i class="fas fa-history" style="margin-right: 8px;"></i> All Sessions
+                    <i class="fas fa-history" style="margin-right: 8px; color: #6366f1;"></i> All Sessions
                     <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">View all attendance
                         records</span>
                 </div>
@@ -328,10 +327,10 @@
         <li class="nav-item">
             <a href="{% url 'staff-directory' %}"
                 class="nav-link {% if request.resolver_match.url_name == 'staff-directory' %}active{% endif %}">
-                <i class="fas fa-user-shield nav-icon"></i>
+                <i class="fas fa-user-shield nav-icon" style="color: #ef4444;"></i>
                 <span class="nav-text">Staff Directory</span>
                 <div class="nav-tooltip">
-                    <i class="fas fa-user-shield" style="margin-right: 8px;"></i> Staff Directory
+                    <i class="fas fa-user-shield" style="margin-right: 8px; color: #ef4444;"></i> Staff Directory
                     <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Manage
                         personnel</span>
                 </div>
@@ -340,10 +339,10 @@
         <li class="nav-item">
             <a href="{% url 'student-directory' %}"
                 class="nav-link {% if request.resolver_match.url_name == 'student-directory' %}active{% endif %}">
-                <i class="fas fa-address-book nav-icon"></i>
+                <i class="fas fa-address-book nav-icon" style="color: #06b6d4;"></i>
                 <span class="nav-text">Student Directory</span>
                 <div class="nav-tooltip">
-                    <i class="fas fa-address-book" style="margin-right: 8px;"></i> Student Directory
+                    <i class="fas fa-address-book" style="margin-right: 8px; color: #06b6d4;"></i> Student Directory
                     <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">View all
                         students</span>
                 </div>
@@ -352,10 +351,10 @@
         <li class="nav-item">
             <a href="{% url 'system-logs' %}"
                 class="nav-link {% if request.resolver_match.url_name == 'system-logs' %}active{% endif %}">
-                <i class="fas fa-database nav-icon"></i>
+                <i class="fas fa-database nav-icon" style="color: #f97316;"></i>
                 <span class="nav-text">System Logs</span>
                 <div class="nav-tooltip">
-                    <i class="fas fa-database" style="margin-right: 8px;"></i> System Logs
+                    <i class="fas fa-database" style="margin-right: 8px; color: #f97316;"></i> System Logs
                     <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Audit trail</span>
                 </div>
             </a>
@@ -363,10 +362,10 @@
         <li class="nav-item">
             <a href="{% url 'routine_management' %}"
                 class="nav-link {% if request.resolver_match.url_name == 'routine_management' %}active{% endif %}">
-                <i class="fas fa-calendar-alt nav-icon"></i>
+                <i class="fas fa-calendar-alt nav-icon" style="color: #14b8a6;"></i>
                 <span class="nav-text">Routine Management</span>
                 <div class="nav-tooltip">
-                    <i class="fas fa-calendar-alt" style="margin-right: 8px;"></i> Routine Management
+                    <i class="fas fa-calendar-alt" style="margin-right: 8px; color: #14b8a6;"></i> Routine Management
                     <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Schedule
                         classes</span>
                 </div>
@@ -375,10 +374,10 @@
         <li class="nav-item">
             <a href="{% url 'system_configuration' %}"
                 class="nav-link {% if request.resolver_match.url_name == 'system_configuration' %}active{% endif %}">
-                <i class="fas fa-cog nav-icon"></i>
+                <i class="fas fa-cog nav-icon" style="color: #6b7280;"></i>
                 <span class="nav-text">Configuration</span>
                 <div class="nav-tooltip">
-                    <i class="fas fa-cog" style="margin-right: 8px;"></i> Configuration
+                    <i class="fas fa-cog" style="margin-right: 8px; color: #6b7280;"></i> Configuration
                     <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">System
                         settings</span>
                 </div>
@@ -390,10 +389,10 @@
         <li class="nav-item">
             <a href="{% url 'student-directory' %}"
                 class="nav-link {% if request.resolver_match.url_name == 'student-directory' %}active{% endif %}">
-                <i class="fas fa-address-book nav-icon"></i>
+                <i class="fas fa-address-book nav-icon" style="color: #06b6d4;"></i>
                 <span class="nav-text">My Students</span>
                 <div class="nav-tooltip">
-                    <i class="fas fa-address-book" style="margin-right: 8px;"></i> My Students
+                    <i class="fas fa-address-book" style="margin-right: 8px; color: #06b6d4;"></i> My Students
                     <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Your class
                         students</span>
                 </div>
@@ -404,10 +403,10 @@
         <!-- Export Reports (Common) -->
         <li class="nav-item">
             <a href="#" class="nav-link">
-                <i class="fas fa-file-export nav-icon"></i>
+                <i class="fas fa-file-export nav-icon" style="color: #22c55e;"></i>
                 <span class="nav-text">Export Reports</span>
                 <div class="nav-tooltip">
-                    <i class="fas fa-file-export" style="margin-right: 8px;"></i> Export Reports
+                    <i class="fas fa-file-export" style="margin-right: 8px; color: #22c55e;"></i> Export Reports
                     <span style="display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px;">Generate
                         PDF/Excel</span>
                 </div>

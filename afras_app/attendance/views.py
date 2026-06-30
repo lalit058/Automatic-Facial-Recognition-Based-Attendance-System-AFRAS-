@@ -545,7 +545,7 @@ def recent_sessions_api(request):
 
 def gen_frames():
     """Basic video feed generator (fallback)"""
-    camera = cv2.VideoCapture("http://192.168.80.66:8080/video")
+    camera = cv2.VideoCapture("http://192.168.0.6:8080/video")
     while True:
         success, frame = camera.read()
         if not success:
@@ -673,7 +673,7 @@ def generate_frames_hybrid(session_id):
         return
     
     # Initialize camera
-    camera = cv2.VideoCapture("http://192.168.80.66:8080/video")
+    camera = cv2.VideoCapture("http://192.168.0.6:8080/video")
     if not camera.isOpened():
         yield (b"--frame\r\n"
                b"Content-Type: text/plain\r\n\r\n"

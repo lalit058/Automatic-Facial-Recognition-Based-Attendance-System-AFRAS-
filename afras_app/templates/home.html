@@ -5,10 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AFRAS | Automatic Facial Recognition Attendance System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-         :root {
+        :root {
             --primary: #1a5694;
             --primary-glow: rgba(26, 86, 148, 0.2);
             --bg: #f0f2f5;
@@ -23,13 +25,13 @@
             --grid-color: #93b3dd;
             --gradient: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             background-color: var(--bg);
             color: var(--text-main);
@@ -39,7 +41,7 @@
             position: relative;
             min-height: 100vh;
         }
-        
+
         body.modal-open nav {
             opacity: 0;
             visibility: hidden;
@@ -47,7 +49,6 @@
             transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
         }
 
-        /* Background grids */
         .site-grid {
             position: fixed;
             top: 0;
@@ -60,7 +61,7 @@
             opacity: 0.08;
             pointer-events: none;
         }
-        
+
         .hero-grid {
             position: absolute;
             top: 0;
@@ -73,7 +74,7 @@
             opacity: 0.1;
             pointer-events: none;
         }
-        
+
         .hero-scan-effect {
             position: absolute;
             top: 0;
@@ -87,16 +88,12 @@
             z-index: 1;
             mix-blend-mode: overlay;
         }
-        
+
         @keyframes scan {
-            0% {
-                background-position: -100% 0;
-            }
-            100% {
-                background-position: 200% 0;
-            }
+            0% { background-position: -100% 0; }
+            100% { background-position: 200% 0; }
         }
-        
+
         .noise-texture {
             position: fixed;
             top: 0;
@@ -109,17 +106,12 @@
             pointer-events: none;
             z-index: 0;
         }
-        /* layout */
-        
-        nav,
-        main,
-        section,
-        footer {
+
+        nav, main, section, footer {
             position: relative;
             z-index: 2;
         }
-        /* Navigation */
-        
+
         nav {
             position: sticky;
             top: 0;
@@ -134,12 +126,12 @@
             transition: all 0.3s ease;
             z-index: 1000;
         }
-        
+
         nav.scrolled {
             backdrop-filter: blur(12px) saturate(160%);
             border-bottom: transparent;
         }
-        
+
         .logo {
             font-weight: 800;
             font-size: 1.6rem;
@@ -148,21 +140,14 @@
             align-items: center;
             gap: 10px;
         }
-        
-        .logo i {
-            color: var(--primary);
-        }
-        
-        .logo span {
-            font-weight: 300;
-            opacity: 0.5;
-        }
-        
+        .logo i { color: var(--primary); }
+        .logo span { font-weight: 300; opacity: 0.5; }
+
         .nav-links {
             display: flex;
             gap: 20px;
         }
-        
+
         .nav-link {
             color: var(--text-dim);
             text-decoration: none;
@@ -171,12 +156,8 @@
             transition: 0.3s;
             cursor: pointer;
         }
-        
-        .nav-link:hover {
-            color: var(--primary);
-        }
-        /* Hero section */
-        
+        .nav-link:hover { color: var(--primary); }
+
         .hero {
             max-width: 1300px;
             margin: 0 auto;
@@ -187,14 +168,14 @@
             align-items: center;
             position: relative;
         }
-        
+
         .hero-badges {
             display: flex;
             gap: 8px;
             margin-bottom: 10px;
             flex-wrap: wrap;
         }
-        
+
         .hero-content h1 {
             font-size: clamp(2.2rem, 5vw, 3.8rem);
             font-weight: 800;
@@ -202,25 +183,21 @@
             letter-spacing: -2px;
             margin-bottom: 1.5rem;
         }
-        
-        .hero-content h1 span {
-            color: var(--primary);
-        }
-        
+        .hero-content h1 span { color: var(--primary); }
+
         .description {
             color: var(--text-dim);
             font-size: 1.05rem;
             margin-bottom: 1.5rem;
             max-width: 600px;
             text-align: justify;
-            text-justify: inter-word;
         }
-        
+
         .hero-buttons {
             display: flex;
             margin-left: 1.4rem;
         }
-        
+
         .btn {
             padding: 14px 24px;
             border-radius: 10px;
@@ -234,25 +211,24 @@
             border: none;
             cursor: pointer;
         }
-        
+
         .btn-primary {
             background: var(--primary);
             color: white;
             box-shadow: 0 10px 20px var(--primary-glow);
         }
-        
+
         .btn-outline {
             background: transparent;
             border: 1px solid var(--primary);
             color: var(--primary);
         }
-        
+
         .btn:hover {
             transform: translateY(-2px);
             filter: brightness(1.1);
         }
-        /* viz container */
-        
+
         .viz-container {
             background: transparent;
             border-radius: 24px;
@@ -261,7 +237,7 @@
             align-items: center;
             position: relative;
         }
-        
+
         .face-outline {
             width: 200px;
             height: 200px;
@@ -273,13 +249,13 @@
             position: relative;
             background: rgba(0, 98, 255, 0.03);
         }
-        
+
         .face-outline i {
             font-size: 60px;
             color: var(--primary);
             opacity: 0.8;
         }
-        
+
         .scan-line {
             position: absolute;
             width: 100%;
@@ -288,37 +264,30 @@
             box-shadow: 0 0 15px var(--primary);
             animation: scanMove 3s infinite ease-in-out;
         }
-        
+
         @keyframes scanMove {
-            0%,
-            100% {
-                top: 0%;
-            }
-            50% {
-                top: 100%;
-            }
+            0%, 100% { top: 0%; }
+            50% { top: 100%; }
         }
-        
+
         .viz-stats {
             display: flex;
             gap: 15px;
             margin-top: 1rem;
         }
-        
         .viz-stats span {
             font-family: 'JetBrains Mono';
             font-size: 0.7rem;
             color: var(--success);
         }
-        
+
         .viz-status {
             font-family: 'JetBrains Mono';
             font-size: 0.75rem;
             color: var(--primary);
             margin-top: 1rem;
         }
-        /* workflow card */
-        
+
         .workflow-card {
             margin: 0 auto;
             padding: 1rem 2rem;
@@ -331,16 +300,15 @@
             position: relative;
             z-index: 3;
         }
-        
+
         .workflow-card h4 {
             margin-bottom: 1rem;
         }
-        
         .workflow-card h4 i {
             color: var(--primary);
             margin-right: 10px;
         }
-        
+
         .workflow-steps {
             display: flex;
             justify-content: space-around;
@@ -349,13 +317,13 @@
             gap: 20px;
             margin-top: 1rem;
         }
-        
+
         .workflow-step {
             flex: 1;
             text-align: center;
             min-width: 120px;
         }
-        
+
         .workflow-icon {
             width: 50px;
             height: 50px;
@@ -366,73 +334,47 @@
             justify-content: center;
             margin: 0 auto 1rem;
         }
-        
         .workflow-icon i {
             color: var(--primary-text);
             font-size: 1.3rem;
         }
-        
+
         .workflow-step h5 {
             font-size: 0.85rem;
             font-weight: 700;
             margin-bottom: 0.25rem;
         }
-        
         .workflow-step p {
             font-size: 0.8rem;
             color: var(--text-dim);
         }
-        
+
         .workflow-arrow {
             color: var(--primary);
             font-size: 20px;
             display: inline-block;
             flex-shrink: 0;
-            transition: all 0.3s ease;
-        }
-        
-        @keyframes arrowPulseHorizontal {
-            0%,
-            100% {
-                opacity: 0.3;
-                transform: translateX(0);
-            }
-            50% {
-                opacity: 1;
-                transform: translateX(5px);
-            }
-        }
-        
-        @keyframes arrowPulseVertical {
-            0%,
-            100% {
-                opacity: 0.3;
-                transform: rotate(90deg) translateY(0);
-            }
-            50% {
-                opacity: 1;
-                transform: rotate(90deg) translateX(3px);
-            }
-        }
-        
-        .workflow-arrow {
             animation: arrowPulseHorizontal 2s infinite;
         }
-        /* Info sections */
-        
+
+        @keyframes arrowPulseHorizontal {
+            0%, 100% { opacity: 0.3; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(5px); }
+        }
+
         .info-section {
             max-width: 1300px;
             margin: 1rem auto;
             padding: 0 3rem;
         }
-        
+
         .info-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
             margin: 1rem 0;
         }
-        
+
         .info-card {
             background: var(--surface);
             padding: 1rem;
@@ -441,29 +383,22 @@
             transition: transform 0.3s ease;
             cursor: pointer;
         }
-        
         .info-card:hover {
             transform: translateY(-5px);
             border: 1px solid var(--border);
             box-shadow: 0 10px 30px rgba(26, 86, 148, 0.1);
         }
-        
         .info-card i {
             font-size: 2rem;
             color: var(--primary);
             margin-bottom: 0.5rem;
         }
-        
-        .info-card h3 {
-            font-size: 1.1rem;
-        }
-        
+        .info-card h3 { font-size: 1.1rem; }
         .info-card p {
             font-size: 0.85rem;
             color: var(--text-dim);
         }
-        /* Expand button */
-        
+
         .expand-btn {
             background: transparent;
             border: 1px solid var(--primary);
@@ -477,21 +412,13 @@
             align-items: center;
             gap: 10px;
         }
-        
         .expand-btn:hover {
             background: var(--primary);
             color: white;
         }
-        
-        .expand-btn i {
-            transition: transform 0.3s ease;
-        }
-        
-        .expand-btn.active i {
-            transform: rotate(180deg);
-        }
-        /* Collapse content */
-        
+        .expand-btn i { transition: transform 0.3s ease; }
+        .expand-btn.active i { transform: rotate(180deg); }
+
         .collapsible-content {
             max-height: 0;
             opacity: 0;
@@ -501,16 +428,14 @@
             margin: 0;
             padding: 0;
         }
-        
+
         .collapsible-content.expanded {
             max-height: 2000px;
             opacity: 1;
             visibility: visible;
             margin: 1rem 0;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        /* Detail section */
-        
+
         .detail-section {
             background: var(--surface);
             border-radius: 24px;
@@ -518,7 +443,7 @@
             margin-bottom: 1rem;
             border: 1px solid var(--border);
         }
-        
+
         .detail-title {
             font-size: 1.5rem;
             font-weight: 800;
@@ -527,74 +452,53 @@
             justify-content: center;
             gap: 15px;
         }
-        
-        .detail-title i {
-            color: var(--primary);
-        }
-        /* proble & objectives grid */
-        
-        .problem-grid,
-        .objectives-grid {
+        .detail-title i { color: var(--primary); }
+
+        .problem-grid, .objectives-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 1rem;
             margin: 1rem 1rem;
         }
-        
-        .problem-card,
-        .objective-card {
+
+        .problem-card, .objective-card {
             background: var(--bg);
             padding: 1rem;
             border-radius: 16px;
         }
-        
-        .problem-card:hover,
-        .objective-card:hover {
+        .problem-card:hover, .objective-card:hover {
             background: var(--primary-text);
             border: 1px solid var(--border);
         }
-        
-        .problem-card i,
-        .objective-card i {
+        .problem-card i, .objective-card i {
             font-size: 1.5rem;
             color: var(--primary);
             margin-bottom: 0.6rem;
             justify-content: center;
             display: flex;
-            align-items: center;
         }
-        
-        .problem-card h3,
-        .objective-card h3 {
-            text-align: center;
-        }
-        
-        .problem-card p,
-        .objective-card p {
+        .problem-card h3, .objective-card h3 { text-align: center; }
+        .problem-card p, .objective-card p {
             text-align: justify;
             font-size: 14px;
             line-height: 1.3;
         }
-        /* Performance section */
-        
+
         .performance-section {
             padding: 1.5rem;
             background: var(--bg);
             border-radius: 1.5rem;
         }
-        
         .performance-section h3 {
             margin-bottom: 1rem;
             font-size: 1.2rem;
         }
-        
         .performance-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
         }
-        /* Tech stack cards */
-        
+
         .tech-top {
             display: grid;
             grid-template-columns: 1fr 1fr 1.5fr;
@@ -602,46 +506,19 @@
             align-items: stretch;
             margin-top: 1.5rem;
         }
-        
-        .tech-stack {
+
+        .tech-stack, .methodology, .hardware-requirement {
             background: linear-gradient(145deg, var(--surface) 0%, var(--bg) 100%);
             border-radius: 20px;
             padding: 1.5rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
-        .tech-stack:hover {
+        .tech-stack:hover, .methodology:hover, .hardware-requirement:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(26, 86, 148, 0.15);
         }
-        
-        .methodology {
-            background: linear-gradient(145deg, var(--surface) 0%, var(--bg) 100%);
-            border-radius: 20px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .methodology:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(26, 86, 148, 0.15);
-        }
-        
-        .hardware-requirement {
-            background: linear-gradient(145deg, var(--surface) 0%, var(--bg) 100%);
-            border-radius: 20px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .hardware-requirement:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(26, 86, 148, 0.15);
-        }
-        
+
         .card-header {
             display: flex;
             align-items: center;
@@ -650,27 +527,24 @@
             border-bottom: 2px solid var(--primary);
             padding-bottom: 0.75rem;
         }
-        
         .card-header i {
             color: var(--primary);
             font-size: 1.25rem;
         }
-        
         .card-header h3 {
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--text-main);
             margin: 0;
         }
-        
+
         .tech-badges {
             display: flex;
             flex-wrap: wrap;
             gap: 0.75rem;
             justify-content: center;
         }
-        /* Metrics badge */
-        
+
         .metrics-badge {
             display: inline-flex;
             align-items: center;
@@ -683,48 +557,24 @@
             border: 1px solid var(--border);
             transition: all 0.3s ease;
         }
-        /* Add to your existing CSS */
-        
-        .metrics-badge[onclick*="window.open"] {
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .metrics-badge[onclick*="window.open"]:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(26, 86, 148, 0.3);
-        }
-        
-        .metrics-badge[onclick*="window.open"]:active {
-            transform: translateY(0);
-        }
-        
         .metrics-badge:hover {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
         }
-        
-        .metrics-badge i {
-            margin-right: 6px;
-        }
+        .metrics-badge i { margin-right: 6px; }
 
-        /* Methodology items */
         .methodology-item {
             background: rgba(26, 86, 148, 0.05);
             border-radius: 12px;
             padding: 1.25rem;
         }
-        
         .methodology-header {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-bottom: 0.75rem;
         }
-        
         .methodology-number {
             background: var(--primary);
             color: white;
@@ -737,20 +587,14 @@
             font-size: 0.8rem;
             font-weight: bold;
         }
-        
-        .methodology-header h4 {
-            font-weight: 600;
-            color: var(--text-main);
-        }
-        
+        .methodology-header h4 { font-weight: 600; color: var(--text-main); }
         .methodology-item p {
             color: var(--text-dim);
             font-size: 0.9rem;
             line-height: 1.5;
             margin-left: 34px;
         }
-        /* Hardware table */
-        
+
         .hardware-table {
             border-collapse: collapse;
             margin: 1.5rem 0;
@@ -759,67 +603,48 @@
             overflow: hidden;
             width: 100%;
         }
-        
-        .hardware-table th,
-        .hardware-table td {
+        .hardware-table th, .hardware-table td {
             padding: 1rem;
             text-align: left;
             border-bottom: 1px solid var(--border);
         }
-        
         .hardware-table th {
             background: var(--primary);
             color: white;
             font-weight: 600;
             font-size: 0.85rem;
         }
-        
-        .hardware-table td {
-            font-weight: 500;
-        }
-        
-        .hardware-table tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .hardware-table tr:hover td {
-            background: rgba(26, 86, 148, 0.05);
-        }
-        
+        .hardware-table td { font-weight: 500; }
+        .hardware-table tr:last-child td { border-bottom: none; }
+        .hardware-table tr:hover td { background: rgba(26, 86, 148, 0.05); }
         .hardware-table .total-row {
             background: rgba(26, 86, 148, 0.1);
             font-weight: 800;
         }
-        
-        .hardware-table .total-row td {
-            color: var(--primary);
-        }
-        
+        .hardware-table .total-row td { color: var(--primary); }
+
         .hardware-note {
             padding: 0.5rem;
             background: rgba(26, 86, 148, 0.05);
             border-radius: 8px;
             text-align: center;
         }
-        
         .hardware-note span {
             font-size: 0.8rem;
             color: var(--text-dim);
         }
-        
         .hardware-note i {
             color: var(--primary);
             margin-right: 4px;
         }
-        /* Team grid */
-        
+
         .team-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 1.5rem;
             margin: 0.5rem 0;
         }
-        
+
         .team-member {
             text-align: center;
             padding: 1rem;
@@ -828,37 +653,25 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
         .team-member:hover {
             transform: translateY(-5px);
             border: 1px solid var(--border);
             border-color: var(--primary);
             box-shadow: 0 10px 30px rgba(26, 86, 148, 0.15);
         }
-        
         .team-member i {
             font-size: 2.5rem;
             color: var(--primary);
             margin-bottom: 1rem;
         }
-        
-        .team-member h4 {
-            margin-bottom: 0.25rem;
-        }
-        
+        .team-member h4 { margin-bottom: 0.25rem; }
         .team-member h5 {
             font-size: 0.8rem;
             color: var(--primary);
         }
-        
-        .team-member p {
-            font-size: 0.8rem;
-        }
-        
-        .team-member p:hover {
-            color: var(--primary);
-        }
-        
+        .team-member p { font-size: 0.8rem; }
+        .team-member p:hover { color: var(--primary); }
+
         .team-member img {
             width: 80px;
             height: 80px;
@@ -867,18 +680,16 @@
             border: 2px solid var(--border);
             transition: transform 0.3s ease;
         }
-        
         .team-member:hover img {
             transform: scale(1.05);
             border-color: var(--primary);
         }
-        
+
         .team-footer {
             text-align: center;
             margin-top: 2rem;
         }
-        /* Team modal */
-        
+
         .team-modal-overlay {
             position: fixed;
             top: 0;
@@ -892,7 +703,7 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         .team-modal-content {
             background: var(--surface);
             width: 90%;
@@ -906,12 +717,11 @@
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
             z-index: 2001;
         }
-        
         .team-modal-content.show {
             transform: translateY(0);
             opacity: 1;
         }
-        
+
         .team-modal-close {
             position: absolute;
             top: 20px;
@@ -922,12 +732,11 @@
             transition: color 0.3s ease, transform 0.3s ease;
             z-index: 2002;
         }
-        
         .team-modal-close:hover {
             color: var(--primary);
             transform: rotate(90deg);
         }
-        
+
         .team-avatar {
             width: 100px;
             height: 100px;
@@ -938,18 +747,16 @@
             justify-content: center;
             margin: 0 auto;
         }
-        
         .team-avatar i {
             font-size: 3rem;
             color: white;
         }
-        
+
         .team-detail-name {
             font-size: 2rem;
             font-weight: 800;
             text-align: center;
         }
-        
         .team-detail-role {
             text-align: center;
             color: var(--primary);
@@ -957,43 +764,38 @@
             margin-bottom: 0.5rem;
             font-family: 'JetBrains Mono';
         }
-        
+
         .team-detail-info {
             margin: 1rem;
             border-top: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
         }
-        
         .team-detail-item {
             display: flex;
             align-items: center;
             gap: 1rem;
             margin-bottom: 0.5rem;
         }
-        
         .team-detail-item i {
             width: 24px;
             color: var(--primary);
         }
-        
         .team-detail-item span {
             color: var(--text-dim);
             font-size: 15px;
         }
-        
+
         .team-detail-bio {
             color: var(--text-main);
             line-height: 1.8;
         }
-        
         .team-detail-bio p {
             line-height: 1.2;
             text-align: justify;
             font-size: 14px;
             margin: 1rem;
         }
-        /* Modal action types */
-        
+
         .modal-action-type {
             font-size: 0.7rem;
             padding: 4px 12px;
@@ -1003,32 +805,27 @@
             text-align: center;
             width: fit-content;
         }
-        
         .action-dashboard {
             background: rgba(16, 185, 129, 0.1);
             color: var(--success);
             border: 1px solid var(--success);
         }
-        
         .action-routine {
             background: rgba(245, 158, 11, 0.1);
             color: var(--warning);
             border: 1px solid var(--warning);
         }
-        
         .action-admin {
             background: rgba(239, 68, 68, 0.1);
             color: var(--danger);
             border: 1px solid var(--danger);
         }
-        
         .action-login {
             background: rgba(0, 98, 255, 0.1);
             color: var(--primary);
             border: 1px solid var(--primary);
         }
-        /* Login Modal */
-        
+
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -1042,7 +839,7 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         .modal-content {
             background: var(--surface);
             width: 90%;
@@ -1056,12 +853,11 @@
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
             z-index: 2001;
         }
-        
         .modal-content.show {
             transform: translateY(0);
             opacity: 1;
         }
-        
+
         .close-modal {
             position: absolute;
             top: 20px;
@@ -1072,44 +868,41 @@
             transition: color 0.3s ease, transform 0.3s ease;
             z-index: 2002;
         }
-        
         .close-modal:hover {
             color: var(--primary);
             transform: rotate(90deg);
         }
-        
+
         .modal-title {
             display: flex;
             justify-content: center;
             align-items: center;
             margin-bottom: 8px;
         }
-        
         .modal-title i {
             color: var(--primary);
             margin-right: 5px;
         }
-        
+
         .modal-description {
             color: var(--text-dim);
             font-size: 0.8rem;
             margin-top: 5px;
             text-align: center;
         }
-        /* Login Form */
-        
+
         .login-form {
             display: flex;
             flex-direction: column;
             gap: 15px;
             margin-top: 15px;
         }
-        
+
         .select-wrapper {
             position: relative;
             margin-bottom: 5px;
         }
-        
+
         .select-trigger {
             width: 100%;
             background: var(--bg);
@@ -1129,11 +922,7 @@
             position: relative;
             z-index: 2;
         }
-        
-        .select-trigger:hover {
-            border-color: var(--primary);
-        }
-        
+        .select-trigger:hover { border-color: var(--primary); }
         .select-trigger.active {
             background: rgba(0, 98, 255, 0.1);
             border-bottom-left-radius: 0;
@@ -1142,18 +931,17 @@
             border-right: 1px solid var(--primary);
             border-left: 1px solid var(--primary);
         }
-        
         .select-trigger i:first-child {
             margin-right: 8px;
             color: var(--primary);
         }
-        
+
         #selected-role {
             flex: 1;
             text-align: left;
             color: var(--text-main);
         }
-        
+
         .dropdown-options {
             background: var(--surface);
             border: 1px solid var(--primary);
@@ -1169,14 +957,13 @@
             width: 100%;
             margin-top: 0;
         }
-        
         .dropdown-options.show {
             opacity: 1;
             visibility: visible;
             max-height: 200px;
             margin-top: 2px;
         }
-        
+
         .dropdown-option {
             padding: 14px 16px;
             color: var(--text-dim);
@@ -1189,23 +976,17 @@
             font-family: 'JetBrains Mono';
             font-size: 0.9rem;
         }
-        
-        .dropdown-option:last-child {
-            border-bottom: none;
-        }
-        
+        .dropdown-option:last-child { border-bottom: none; }
         .dropdown-option:hover {
             background: rgba(0, 98, 255, 0.1);
             color: var(--primary);
             padding-left: 20px;
         }
-        
         .dropdown-option.selected {
             background: rgba(0, 98, 255, 0.15);
             color: var(--primary);
             font-weight: 500;
         }
-        
         .dropdown-option i {
             width: 20px;
             text-align: center;
@@ -1213,13 +994,12 @@
             color: var(--primary);
             opacity: 0.8;
         }
-        
+
         .input-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-        
         .input-group label {
             font-size: 0.75rem;
             color: var(--text-main);
@@ -1228,11 +1008,10 @@
             letter-spacing: 0.5px;
             margin: 0px 7px;
         }
-        
+
         .input-wrapper {
             position: relative;
         }
-        
         .input-wrapper i {
             position: absolute;
             left: 15px;
@@ -1242,7 +1021,7 @@
             font-size: 0.9rem;
             transition: color 0.3s ease;
         }
-        
+
         input {
             width: 100%;
             background: var(--bg);
@@ -1256,30 +1035,24 @@
             transition: all 0.3s ease;
             font-size: 0.9rem;
         }
-        
         input:focus {
             border-color: var(--primary);
             background: rgba(255, 255, 255, 0.05);
             box-shadow: 0 0 0 2px rgba(0, 98, 255, 0.2);
         }
-        
-        input:focus+i {
-            color: var(--primary);
-        }
-        
+        input:focus + i { color: var(--primary); }
+
         .modal-footer {
             display: flex;
             justify-content: space-between;
             margin-top: 15px;
             align-items: center;
         }
-        
         .modal-footer span {
             font-size: 0.65rem;
             color: var(--text-dim);
             font-family: 'JetBrains Mono';
         }
-        
         .modal-footer a {
             font-size: 0.65rem;
             color: var(--primary);
@@ -1288,25 +1061,14 @@
             align-items: center;
             gap: 4px;
         }
-        /* Pulse Animation */
-        
+
         @keyframes pulse {
-            0% {
-                box-shadow: 0 10px 20px var(--primary-glow);
-            }
-            50% {
-                box-shadow: 0 10px 25px rgba(0, 98, 255, 0.6);
-            }
-            100% {
-                box-shadow: 0 10px 20px var(--primary-glow);
-            }
+            0% { box-shadow: 0 10px 20px var(--primary-glow); }
+            50% { box-shadow: 0 10px 25px rgba(0, 98, 255, 0.6); }
+            100% { box-shadow: 0 10px 20px var(--primary-glow); }
         }
-        
-        .submit-pulse {
-            animation: pulse 2s infinite;
-        }
-        /* Footer */
-        
+        .submit-pulse { animation: pulse 2s infinite; }
+
         footer {
             text-align: center;
             border-top: 1px solid var(--border);
@@ -1317,12 +1079,12 @@
             position: relative;
             z-index: 3;
         }
-        
+
         .footer-container {
             max-width: 1300px;
             margin: 0 auto;
         }
-        
+
         .footer-top {
             display: flex;
             justify-content: space-between;
@@ -1331,43 +1093,33 @@
             gap: 20px;
             margin-bottom: 10px;
         }
-        
+
         .footer-brand {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-        
         .footer-logo {
             font-size: 1.5rem;
             font-weight: 800;
         }
-        
-        .footer-logo i {
-            color: var(--primary);
-        }
-        
+        .footer-logo i { color: var(--primary); }
         .footer-divider {
             height: 30px;
             width: 1px;
             background: var(--border);
         }
-        
         .footer-address p {
             font-size: 0.8rem;
             color: var(--text-dim);
         }
-        
-        .footer-address p:last-child {
-            font-size: 0.7rem;
-        }
-        
+        .footer-address p:last-child { font-size: 0.7rem; }
+
         .footer-date p {
             font-size: 0.7rem;
             color: var(--text-dim);
         }
 
-        /* Social Icons */
         .social-links {
             display: flex;
             gap: 16px;
@@ -1376,7 +1128,6 @@
         }
         .social-link {
             width: auto;
-            height: auto;
             min-width: 40px;
             background: transparent !important;
             border-radius: 0;
@@ -1391,23 +1142,10 @@
             border: none;
             opacity: 0.85;
         }
-
-        .social-link[title="GitHub"] {
-            color: #24292e;
-        }
-
-        .social-link[title="Research Paper"] {
-            color: #8B4513;
-        }
-
-        .social-link[title="LinkedIn"] {
-            color: #0077b5;
-        }
-
-        .social-link[title="Documentation"] {
-            color: #2c3e50;
-        }
-
+        .social-link[title="GitHub"] { color: #24292e; }
+        .social-link[title="Research Paper"] { color: #8B4513; }
+        .social-link[title="LinkedIn"] { color: #0077b5; }
+        .social-link[title="Documentation"] { color: #2c3e50; }
         .social-link i {
             transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
             display: inline-block;
@@ -1430,11 +1168,7 @@
             opacity: 1;
             background: transparent !important;
         }
-
-        .social-link:hover::after {
-            width: 70%;
-        }
-
+        .social-link:hover::after { width: 70%; }
         .social-link:hover i {
             transform: scale(1.1);
             text-shadow: 0 2px 10px currentColor;
@@ -1463,902 +1197,51 @@
             visibility: visible;
             transform: translateX(-50%) translateY(0);
         }
+
         .footer-bottom {
             border-top: 1px solid var(--border);
             padding-top: 20px;
         }
-        
         .footer-bottom p {
             font-size: 0.7rem;
             color: var(--text-dim);
         }
 
-        /* ========== COMPLETE RESPONSIVE DESIGN ========== */
-
-        /* Extra Large Devices (1200px and up) */
-        @media (min-width: 1200px) {
-            .hero {
-                max-width: 1300px;
-                padding: 2rem 2rem;
-            }
-
-            .info-section,
-            footer,
-            .workflow-card {
-                max-width: 1226px;
-            }
-        }
-
-        /* Large Devices (992px to 1199px) */
-        @media (max-width: 1199px) {
-            .hero {
-                max-width: 1100px;
-                gap: 1.5rem;
-            }
-
-            .hero-content h1 {
-                font-size: clamp(2rem, 4.5vw, 3.2rem);
-            }
-
-            .description {
-                max-width: 550px;
-                font-size: 1rem;
-            }
-            .face-outline {
-                width: 180px;
-                height: 180px;
-            }
-
-            .face-outline i {
-                font-size: 55px;
-            }
-
-            .info-grid {
-                gap: 0.8rem;
-            }
-
-            .tech-top {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 1rem;
-            }
-        }
-
-        /* Medium Devices (Tablets, 768px to 991px) */
         @media (max-width: 991px) {
-            nav {
-                padding: 0.5rem 1.5rem;
-                flex-wrap: wrap;
-                justify-content: space-between;
-            }
-
-            .logo {
-                font-size: 1.4rem;
-            }
-
-            .nav-links {
-                gap: 1.5rem;
-            }
-
             .hero {
                 grid-template-columns: 1fr;
                 text-align: center;
                 padding: 1.5rem;
                 gap: 2rem;
             }
-
-            .hero-content {
-                order: 1;
-            }
-
-            .hero-content h1 {
-                font-size: clamp(2rem, 5vw, 3rem);
-                letter-spacing: -1px;
-            }
-            .description {
-                max-width: 100%;
-                text-align: center;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            .hero-buttons {
-                justify-content: center;
-                margin-left: 0;
-            }
-
-            .hero-badges {
-                justify-content: center;
-            }
-
-            .viz-container {
-                order: 2;
-                margin-top: 1rem;
-            }
-            .face-outline {
-                width: 200px;
-                height: 200px;
-            }
-
-            .info-section {
-                padding: 0 1.5rem;
-            }
-
-            .info-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
-            }
-
-            .info-card {
-                padding: 1rem;
-            }
-
-            .info-card i {
-                font-size: 1.8rem;
-            }
-
-            .info-card h3 {
-                font-size: 1rem;
-            }
-
-            .info-card p {
-                font-size: 0.8rem;
-            }
-
-            .workflow-card {
-                margin: 0 1.5rem;
-                padding: 1.5rem;
-            }
-
-            .workflow-steps {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .workflow-arrow {
-                transform: rotate(90deg);
-                margin: -0.5rem 0;
-            }
-
-            .workflow-step {
-                width: 100%;
-                max-width: 250px;
-                margin: 0 auto;
-            }
-            .tech-top {
-                grid-template-columns: 1fr;
-                gap: 1.2rem;
-            }
-            .tech-stack,
-            .methodology,
-            .hardware-requirement {
-                padding: 1.2rem;
-            }
-
-            .tech-badges {
-                justify-content: center;
-            }
-
-            .performance-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.8rem;
-            }
-            .problem-grid,
-            .objectives-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 0.8rem;
-                margin: 1rem 0;
-            }
-
-            .detail-section {
-                padding: 1.2rem;
-            }
-
-            .detail-title {
-                font-size: 1.3rem;
-                gap: 10px;
-            }
-            .team-grid {
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: 1rem;
-            }
-            .team-member {
-                padding: 0.8rem;
-                display: block;
-                text-align: center;
-            }
-            .team-member i {
-                font-size: 2rem;
-                margin-bottom: 0.8rem;
-                display: block;
-            }
-            .team-member img {
-                width: 70px;
-                height: 70px;
-                margin: 0 auto 0.8rem;
-                display: block;
-            }
-
-            .team-member h4 {
-                font-size: 0.9rem;
-            }
-
-            .hardware-table th,
-            .hardware-table td {
-                padding: 0.8rem;
-                font-size: 0.85rem;
-            }
-
-            .hardware-requirement {
-                overflow-x: auto;
-            }
-
-            .hardware-table {
-                min-width: 100%;
-                display: table;
-            }
-            .footer-top {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-            }
-            .footer-brand {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .footer-divider {
-                display: none;
-            }
-
-            .footer-address p {
-                font-size: 0.75rem;
-            }
-
-            .footer-date {
-                text-align: center;
-            }
-
-            .social-links {
-                justify-content: center;
-            }
-
-            .modal-content,
-            .team-modal-content {
-                width: 90%;
-                max-width: 400px;
-                padding: 2rem;
-            }
-
-            .team-detail-name {
-                font-size: 1.5rem;
-            }
-
-            .team-detail-item span {
-                font-size: 0.85rem;
-            }
-
-            .team-detail-bio p {
-                font-size: 0.85rem;
-            }
+            .info-grid { grid-template-columns: repeat(2, 1fr); }
+            .tech-top { grid-template-columns: 1fr; }
+            .performance-grid { grid-template-columns: repeat(2, 1fr); }
+            .workflow-steps { flex-direction: column; }
+            .workflow-arrow { transform: rotate(90deg); margin: -0.5rem 0; }
         }
 
-        /* Small Devices (Mobile Phones, 576px to 767px) */
         @media (max-width: 767px) {
-            nav {
-                flex-direction: column;
-                padding: 0.8rem;
-                gap: 0.8rem;
-            }
-
-            .logo {
-                font-size: 1.3rem;
-            }
-
-            .nav-links {
-                width: 100%;
-                justify-content: center;
-                gap: 1.2rem;
-                flex-wrap: wrap;
-            }
-
-            .nav-link {
-                font-size: 0.8rem;
-            }
-
-            .hero {
-                padding: 1rem;
-            }
-
-            .hero-badges {
-                gap: 0.5rem;
-            }
-
-            .hero-badges .metrics-badge {
-                padding: 0.3rem 0.8rem;
-                font-size: 0.7rem;
-            }
-            .hero-content h1 {
-                font-size: clamp(1.8rem, 6vw, 2.5rem);
-                margin-bottom: 1rem;
-            }
-            .description {
-                font-size: 0.9rem;
-                margin-bottom: 1.2rem;
-            }
-            .btn {
-                padding: 10px 18px;
-                font-size: 0.8rem;
-            }
-            .face-outline {
-                width: 160px;
-                height: 160px;
-            }
-
-            .face-outline i {
-                font-size: 45px;
-            }
-
-            .viz-stats {
-                gap: 10px;
-            }
-
-            .viz-stats span {
-                font-size: 0.6rem;
-            }
-
-            .viz-status {
-                font-size: 0.65rem;
-            }
-
-            .info-section {
-                padding: 0 1rem;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-                gap: 0.8rem;
-            }
-            .info-card {
-                display: flex;
-                align-items: center;
-                text-align: left;
-                gap: 1rem;
-                padding: 0.8rem;
-            }
-            .info-card i {
-                font-size: 1.5rem;
-                margin-bottom: 0;
-                flex-shrink: 0;
-            }
-            .info-card h3 {
-                font-size: 0.95rem;
-                margin-bottom: 0.2rem;
-            }
-
-            .info-card p {
-                font-size: 0.75rem;
-            }
-
-            .workflow-card {
-                margin: 1rem;
-                padding: 1rem;
-            }
-
-            .workflow-card h4 {
-                font-size: 1rem;
-            }
-
-            .workflow-step {
-                min-width: 100%;
-            }
-
-            .workflow-icon {
-                width: 40px;
-                height: 40px;
-            }
-
-            .workflow-step h5 {
-                font-size: 0.85rem;
-            }
-
-            .workflow-step p {
-                font-size: 0.7rem;
-            }
-
-            .expand-btn {
-                padding: 0.6rem 1rem;
-                font-size: 0.85rem;
-            }
-            .collapsible-content.expanded {
-                max-height: none;
-                overflow-y: visible;
-            }
-            .detail-section {
-                padding: 1rem;
-                margin-bottom: 1rem;
-                overflow: visible;
-            }
-            .detail-title {
-                font-size: 1.2rem;
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .detail-title i {
-                font-size: 1.3rem;
-            }
-
-            .problem-grid,
-            .objectives-grid {
-                grid-template-columns: 1fr;
-                gap: 0.8rem;
-            }
-            .problem-card,
-            .objective-card {
-                padding: 0.8rem;
-                display: block;
-                text-align: center;
-            }
-            .problem-card i,
-            .objective-card i {
-                font-size: 1.3rem;
-            }
-            .problem-card h3,
-            .objective-card h3 {
-                font-size: 1rem;
-            }
-            .problem-card p,
-            .objective-card p {
-                font-size: 0.8rem;
-                text-align: center;
-            }
-            .performance-section {
-                padding: 1rem;
-                margin-top: 1rem;
-            }
-
-            .performance-section h3 {
-                font-size: 1rem;
-            }
-
-            .performance-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.6rem;
-            }
-
-            .performance-grid div {
-                font-size: 0.75rem;
-            }
-
-            .metrics-badge {
-                padding: 0.3rem 0.7rem;
-                font-size: 0.7rem;
-            }
-            .tech-stack,
-            .methodology,
-            .hardware-requirement {
-                padding: 1rem;
-                overflow-x: visible;
-            }
-
-            .card-header {
-                margin-bottom: 1rem;
-            }
-
-            .card-header h3 {
-                font-size: 1rem;
-            }
-
-            .tech-badges {
-                gap: 0.5rem;
-                flex-wrap: wrap;
-            }
-
-            .methodology-item {
-                padding: 0.8rem;
-            }
-
-            .methodology-header h4 {
-                font-size: 0.9rem;
-            }
-
-            .methodology-item p {
-                font-size: 0.8rem;
-                margin-left: 30px;
-            }
-            .hardware-requirement {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            .hardware-table {
-                display: table;
-                min-width: 500px;
-                width: 100%;
-            }
-            .hardware-table th,
-            .hardware-table td {
-                padding: 0.6rem;
-                font-size: 0.75rem;
-                white-space: nowrap;
-            }
-            .hardware-table td div {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                white-space: nowrap;
-            }
-            .hardware-note span {
-                font-size: 0.7rem;
-                word-break: break-word;
-            }
-            .team-grid {
-                grid-template-columns: 1fr;
-                gap: 0.8rem;
-            }
-            .team-member {
-                display: flex !important;
-                align-items: center;
-                text-align: left;
-                gap: 1rem;
-                padding: 0.8rem;
-            }
-            .team-member i {
-                margin: 0 !important;
-                flex-shrink: 0;
-                font-size: 2rem;
-                width: 50px;
-                text-align: center;
-            }
-            .team-member img {
-                margin: 0 !important;
-                flex-shrink: 0;
-                width: 60px;
-                height: 60px;
-            }
-
-            .team-member>div {
-                flex: 1;
-            }
-
-            .team-member h4 {
-                margin-bottom: 0.2rem;
-                font-size: 1rem;
-            }
-            .team-member p,
-            .team-member h5 {
-                font-size: 0.75rem;
-                margin: 0;
-            }
-
-            .team-footer {
-                margin-top: 1rem;
-            }
-
-            .team-footer .metrics-badge {
-                font-size: 0.7rem;
-            }
-
-            footer {
-                padding: 1rem;
-            }
-
-            .footer-logo {
-                font-size: 1.2rem;
-            }
-
-            .footer-bottom p {
-                font-size: 0.65rem;
-            }
-
-            .social-link {
-                font-size: 1.2rem;
-                padding: 5px;
-                min-width: 35px;
-            }
-            .modal-content,
-            .team-modal-content {
-                padding: 1.5rem;
-                width: 95%;
-                max-width: 350px;
-            }
-
-            .modal-title {
-                font-size: 1.2rem;
-            }
-
-            .select-trigger,
-            .dropdown-option,
-            input {
-                padding: 10px 12px;
-                font-size: 0.85rem;
-            }
-
-            .input-wrapper i {
-                left: 12px;
-            }
-
-            input {
-                padding: 10px 12px 10px 38px;
-            }
-
-            .btn {
-                padding: 10px 16px;
-            }
-
-            .team-detail-name {
-                font-size: 1.3rem;
-            }
-
-            .team-detail-role {
-                font-size: 0.8rem;
-            }
-
-            .team-detail-item {
-                gap: 0.5rem;
-                margin-bottom: 0.3rem;
-            }
-            .team-detail-item i {
-                width: 20px;
-                font-size: 0.9rem;
-            }
-
-            .team-detail-item span {
-                font-size: 0.75rem;
-            }
-
-            .team-detail-bio p {
-                font-size: 0.75rem;
-                margin: 0.5rem;
-            }
+            nav { flex-direction: column; padding: 0.8rem; gap: 0.8rem; }
+            .nav-links { width: 100%; justify-content: center; gap: 1.2rem; flex-wrap: wrap; }
+            .info-grid { grid-template-columns: 1fr; }
+            .info-card { display: flex; align-items: center; text-align: left; gap: 1rem; padding: 0.8rem; }
+            .info-card i { font-size: 1.5rem; margin-bottom: 0; flex-shrink: 0; }
+            .team-member { display: flex !important; align-items: center; text-align: left; gap: 1rem; padding: 0.8rem; }
+            .team-member i { margin: 0 !important; flex-shrink: 0; font-size: 2rem; width: 50px; text-align: center; }
+            .team-member img { margin: 0 !important; flex-shrink: 0; width: 60px; height: 60px; }
+            .team-member > div { flex: 1; }
+            .modal-content, .team-modal-content { padding: 1.5rem; width: 95%; max-width: 350px; }
+            .hardware-table { min-width: 500px; }
+            .hardware-requirement { overflow-x: auto; }
         }
 
-        /* Extra Small Devices (480px and below) */
         @media (max-width: 480px) {
-            .logo {
-                font-size: 1.1rem;
-            }
-
-            .nav-links {
-                gap: 0.8rem;
-            }
-
-            .nav-link {
-                font-size: 0.7rem;
-            }
-
-            .hero-badges .metrics-badge {
-                padding: 0.2rem 0.6rem;
-                font-size: 0.6rem;
-            }
-
-            .hero-content h1 {
-                font-size: clamp(1.5rem, 5vw, 2rem);
-            }
-
-            .description {
-                font-size: 0.8rem;
-            }
-
-            .btn {
-                padding: 8px 14px;
-                font-size: 0.75rem;
-                gap: 8px;
-            }
-            .face-outline {
-                width: 140px;
-                height: 140px;
-            }
-
-            .face-outline i {
-                font-size: 40px;
-            }
-
-            .viz-stats span {
-                font-size: 0.55rem;
-            }
-
-            .info-card {
-                padding: 0.6rem;
-            }
-
-            .info-card i {
-                font-size: 1.3rem;
-            }
-
-            .info-card h3 {
-                font-size: 0.85rem;
-            }
-
-            .info-card p {
-                font-size: 0.7rem;
-            }
-
-            .workflow-card h4 {
-                font-size: 0.9rem;
-            }
-
-            .workflow-step h5 {
-                font-size: 0.8rem;
-            }
-
-            .detail-title {
-                font-size: 1rem;
-            }
-
-            .performance-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .performance-grid div {
-                text-align: center;
-            }
-
-            .team-member {
-                padding: 0.7rem;
-                gap: 0.8rem;
-            }
-            .team-member i {
-                font-size: 1.6rem;
-                width: 40px;
-            }
-            .team-member img {
-                width: 50px;
-                height: 50px;
-            }
-
-            .team-member h4 {
-                font-size: 0.9rem;
-            }
-
-            .hardware-table {
-                min-width: 450px;
-            }
-
-            .hardware-table th,
-            .hardware-table td {
-                padding: 0.5rem;
-                font-size: 0.7rem;
-            }
-
-            .hardware-table td div {
-                gap: 4px;
-            }
-
-            .footer-logo {
-                font-size: 1rem;
-            }
-
-            .footer-address p {
-                font-size: 0.65rem;
-            }
-
-            .footer-date p {
-                font-size: 0.6rem;
-            }
-
-            .social-link {
-                font-size: 1rem;
-                padding: 4px;
-            }
-            .modal-content,
-            .team-modal-content {
-                padding: 1.2rem;
-            }
-
-            .modal-title {
-                font-size: 1rem;
-            }
-
-            .modal-description {
-                font-size: 0.7rem;
-            }
-
-            .select-trigger {
-                padding: 8px 10px;
-                font-size: 0.8rem;
-            }
-            .dropdown-option {
-                padding: 8px 10px;
-                font-size: 0.8rem;
-            }
-            input {
-                padding: 8px 10px 8px 35px;
-                font-size: 0.8rem;
-            }
-            .input-wrapper i {
-                left: 10px;
-                font-size: 0.8rem;
-            }
-            .modal-footer span,
-            .modal-footer a {
-                font-size: 0.55rem;
-            }
-
-            .team-detail-name {
-                font-size: 1.1rem;
-            }
-
-            .team-detail-role {
-                font-size: 0.7rem;
-            }
-        }
-
-        /* Landscape Orientation */
-        @media (max-width: 768px) and (orientation: landscape) {
-            .hero {
-                gap: 1rem;
-            }
-            .face-outline {
-                width: 130px;
-                height: 130px;
-            }
-            .info-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .workflow-steps {
-                flex-direction: row;
-                flex-wrap: wrap;
-            }
-
-            .workflow-arrow {
-                transform: none;
-            }
-
-            .team-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .team-member {
-                display: block !important;
-                text-align: center;
-                padding: 0.8rem;
-            }
-            .team-member i,
-            .team-member img {
-                margin: 0 auto 0.5rem !important;
-            }
-
-            .hardware-table {
-                min-width: 100%;
-            }
-
-            .hardware-table th,
-            .hardware-table td {
-                white-space: normal;
-            }
-        }
-
-        /* Print Styles */
-        @media print {
-
-            .modal-overlay,
-            .team-modal-overlay,
-            .hero-scan-effect,
-            .site-grid,
-            .noise-texture,
-            .hero-grid,
-            .expand-btn,
-            .nav-links a:not(.nav-link) {
-                display: none;
-            }
-            body {
-                background: white;
-                color: black;
-            }
-
-            .hero {
-                break-inside: avoid;
-            }
-
-            .collapsible-content {
-                max-height: none;
-                opacity: 1;
-                visibility: visible;
-                overflow: visible;
-            }
-            .btn,
-            .expand-btn {
-                display: none;
-            }
+            .hero-content h1 { font-size: clamp(1.5rem, 5vw, 2rem); }
+            .description { font-size: 0.8rem; }
+            .face-outline { width: 140px; height: 140px; }
+            .btn { padding: 8px 14px; font-size: 0.75rem; }
+            .modal-content { padding: 1.2rem; }
         }
     </style>
 </head>
@@ -2404,7 +1287,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label>Personnel ID</label>
+                    <label>Staff ID</label>
                     <div class="input-wrapper">
                         <i class="fas fa-id-card"></i>
                         <input type="text" name="username" placeholder="STF-2026-001" required autocomplete="off">
@@ -2412,10 +1295,11 @@
                 </div>
 
                 <div class="input-group">
-                    <label>Access Key</label>
+                    <label>Password</label>
                     <div class="input-wrapper">
                         <i class="fas fa-key"></i>
-                        <input type="password" name="password" placeholder="••••••••" required autocomplete="new-password">
+                        <input type="password" name="password" placeholder="••••••••" required
+                            autocomplete="new-password">
                     </div>
                 </div>
 
@@ -2427,7 +1311,7 @@
                     <span>
                         <i class="fas fa-shield-alt"></i> AES_256_ACTIVE
                     </span>
-                    <a href="#">
+                    <a href="#" onclick="openForgotModal(); return false;">
                         <i class="fas fa-question-circle"></i> Forgot Key?
                     </a>
                 </div>
@@ -2468,7 +1352,8 @@
             <h1>Automatic <span>Facial Recognition</span> Based Attendance System</h1>
             <p class="description">
                 AFRAS is a modern, intelligent, and contactless solution that automates institutional logging using
-                <strong>ResNet-101</strong> and computer vision. Eliminate manual entry and proxy attendance with our biometric intelligence system.
+                <strong>ResNet-101</strong> and computer vision. Eliminate manual entry and proxy attendance with our
+                biometric intelligence system.
             </p>
 
             <div class="hero-buttons">
@@ -2502,7 +1387,7 @@
             <div class="info-card" onclick="scrollToSection('solution')">
                 <i class="fas fa-lightbulb"></i>
                 <h3>Our Solution</h3>
-                <p>Contactless facial recognition with 98% accuracy</p>
+                <p>Contactless facial recognition with (80 to 90)% accuracy</p>
             </div>
             <div class="info-card" onclick="scrollToSection('tech')">
                 <i class="fas fa-microchip"></i>
@@ -2574,8 +1459,7 @@
                     <div class="problem-card">
                         <i class="fas fa-clock"></i>
                         <h3>Time Wastage</h3>
-                        <p>Traditional manual roll calls consume 5-10 minutes per lecture, reducing valuable teaching time.
-                        </p>
+                        <p>Traditional manual roll calls consume 5-10 minutes per lecture, reducing valuable teaching time.</p>
                     </div>
                     <div class="problem-card">
                         <i class="fas fa-id-card"></i>
@@ -2604,7 +1488,7 @@
                     <div class="objective-card">
                         <i class="fas fa-video"></i>
                         <h3>Real-Time Recognition</h3>
-                        <p>≥15 FPS processing with &lt;3s response time</p>
+                        <p>30 FPS processing with &lt;3s response time</p>
                     </div>
                     <div class="objective-card">
                         <i class="fas fa-clock"></i>
@@ -2621,9 +1505,9 @@
                 <div class="performance-section">
                     <h3>Performance Requirements</h3>
                     <div class="performance-grid">
-                        <div><span class="metrics-badge">≥15 FPS</span> Processing</div>
+                        <div><span class="metrics-badge">30 FPS</span> Processing</div>
                         <div><span class="metrics-badge">&lt;3s</span> Response</div>
-                        <div><span class="metrics-badge">>90%</span> Accuracy</div>
+                        <div><span class="metrics-badge">>80%</span> Accuracy</div>
                         <div><span class="metrics-badge">&lt;1%</span> FAR</div>
                     </div>
                 </div>
@@ -2636,7 +1520,6 @@
                 </h2>
 
                 <div class="tech-top">
-                    <!-- Tech Stack Card -->
                     <div class="tech-stack">
                         <div class="card-header">
                             <i class="fas fa-layer-group"></i>
@@ -2651,7 +1534,6 @@
                         </div>
                     </div>
 
-                    <!-- Methodology Card -->
                     <div class="methodology">
                         <div class="card-header">
                             <i class="fas fa-project-diagram"></i>
@@ -2675,7 +1557,6 @@
                         </div>
                     </div>
 
-                    <!-- Hardware Requirements Card -->
                     <div class="hardware-requirement">
                         <div class="card-header">
                             <i class="fas fa-microchip"></i>
@@ -2743,13 +1624,15 @@
                     </div>
 
                     <div class="team-member" onclick="showTeamMember('Dhanesh Badal')">
-                        <img src="/media/team_member/dhanesh_badal.jpeg" alt="Lalit Negi" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML = '<i class=\'fas fa-user-graduate\' style=\'font-size:2.5rem; color:var(--primary); margin-bottom:1rem;\'></i>' + this.parentElement.innerHTML.split('<h4')[1];">
+                        <img src="/media/team_member/dhanesh_badal.jpeg" alt="Dhanesh Badal"
+                            onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML = '<i class=\'fas fa-user-graduate\' style=\'font-size:2.5rem; color:var(--primary); margin-bottom:1rem;\'></i>' + this.parentElement.innerHTML.split('<h4')[1];">
                         <h4>Dhanesh Badal</h4>
                         <h5>Backend Developer</h5>
                     </div>
 
                     <div class="team-member" onclick="showTeamMember('Lalit Negi')">
-                        <img src="/media/team_member/lalit_negi.jpeg" alt="Lalit Negi" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML = '<i class=\'fas fa-user-graduate\' style=\'font-size:2.5rem; color:var(--primary); margin-bottom:1rem;\'></i>' + this.parentElement.innerHTML.split('<h4')[1];">
+                        <img src="/media/team_member/lalit_negi.jpeg" alt="Lalit Negi"
+                            onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML = '<i class=\'fas fa-user-graduate\' style=\'font-size:2.5rem; color:var(--primary); margin-bottom:1rem;\'></i>' + this.parentElement.innerHTML.split('<h4')[1];">
                         <h4>Lalit Negi</h4>
                         <h5>Frontend Developer</h5>
                     </div>
@@ -2761,7 +1644,8 @@
                     </div>
 
                     <div class="team-member" onclick="showTeamMember('Mukul Bhatt')">
-                        <img src="/media/team_member/mukul_bhatta.jpeg" alt="Lalit Negi" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML = '<i class=\'fas fa-user-graduate\' style=\'font-size:2.5rem; color:var(--primary); margin-bottom:1rem;\'></i>' + this.parentElement.innerHTML.split('<h4')[1];">
+                        <img src="/media/team_member/mukul_bhatta.jpeg" alt="Mukul Bhatt"
+                            onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML = '<i class=\'fas fa-user-graduate\' style=\'font-size:2.5rem; color:var(--primary); margin-bottom:1rem;\'></i>' + this.parentElement.innerHTML.split('<h4')[1];">
                         <h4>Mukul Bhatt</h4>
                         <h5>QA Engineer</h5>
                     </div>
@@ -2814,8 +1698,121 @@
         </div>
     </div>
 
+    <!-- Forgot Password Modal -->
+    <div id="modal-forgot" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeForgotModal()">&times;</span>
+            <h3 class="modal-title">
+                <i class="fas fa-key" style="color: var(--primary); margin-right: 5px;"></i> Reset Password
+            </h3>
+            <div id="forgot-action-badge" class="modal-action-type action-login">PASSWORD-RESET</div>
+            <p class="modal-description">
+                Enter your registered email address and we'll send you a link to reset your password.
+            </p>
+
+            <form id="forgot-form" class="login-form" method="POST" action="{% url 'password_reset' %}">
+                {% csrf_token %}
+
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" name="email" placeholder="your@email.com" required autocomplete="email">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary submit-pulse">
+                    <i class="fas fa-paper-plane"></i> Send Reset Link
+                </button>
+
+                <div class="modal-footer">
+                    <span>
+                        <i class="fas fa-shield-alt"></i> SECURE_CHANNEL
+                    </span>
+                    <a href="#" onclick="closeForgotModal(); openAuth('Staff Login', 'staff', 'login'); return false;">
+                        <i class="fas fa-arrow-left"></i> Back to Login
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Message Modal -->
+    <div id="modal-success" class="modal-overlay">
+        <div class="modal-content" style="text-align: center;">
+            <span class="close-modal" onclick="closeSuccessModal()">&times;</span>
+            <div style="font-size: 4rem; color: var(--success); margin: 1rem 0;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="modal-title" style="justify-content: center;">
+                <i class="fas fa-envelope" style="color: var(--success); margin-right: 5px;"></i> Check Your Email
+            </h3>
+            <p class="modal-description" style="font-size: 0.9rem; margin: 1rem 0;">
+                We've sent a password reset link to your email address. Please check your inbox and follow the instructions.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+                <button onclick="closeSuccessModal(); closeForgotModal(); openAuth('Staff Login', 'staff', 'login')"
+                    class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id="modal-reset" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeResetModal()">&times;</span>
+            <h3 class="modal-title">
+                <i class="fas fa-lock" style="color: var(--primary); margin-right: 5px;"></i> Create New Password
+            </h3>
+            <div id="reset-action-badge" class="modal-action-type action-admin">PASSWORD-UPDATE</div>
+            <p class="modal-description">
+                Enter your new password below. Make sure it's at least 8 characters long.
+            </p>
+
+            <form id="reset-form" class="login-form" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="uidb64" id="uidb64">
+                <input type="hidden" name="token" id="token">
+
+                <div class="input-group">
+                    <label>New Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-key"></i>
+                        <input type="password" name="new_password1" placeholder="••••••••" required minlength="8"
+                            autocomplete="new-password">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Confirm Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-check-circle"></i>
+                        <input type="password" name="new_password2" placeholder="••••••••" required minlength="8"
+                            autocomplete="new-password">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary submit-pulse">
+                    <i class="fas fa-save"></i> Update Password
+                </button>
+
+                <div class="modal-footer">
+                    <span>
+                        <i class="fas fa-shield-alt"></i> AES_256_ACTIVE
+                    </span>
+                    <a href="#" onclick="closeResetModal(); openAuth('Staff Login', 'staff', 'login'); return false;">
+                        <i class="fas fa-arrow-left"></i> Back to Login
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== ALL SCRIPT AT THE BOTTOM ===== -->
     <script>
-        // Team member data (unchanged)
+        // Team member data
         const teamMembers = {
             'Dammara Thagunna': {
                 name: 'Dammara Thagunna',
@@ -2823,7 +1820,7 @@
                 email: 'dammara.t@afras.edu.np',
                 studentId: '076BCT001',
                 expertise: 'Computer Vision, Deep Learning, ResNet architectures',
-                bio: 'Leading the development of face recognition algorithms and model training. Specializes in optimizing ResNet architectures for real-time face embedding generation. Responsible for achieving 98.5% recognition accuracy.'
+                bio: 'Leading the development of face recognition algorithms and model training.'
             },
             'Dhanesh Badal': {
                 name: 'Dhanesh Badal',
@@ -2831,7 +1828,7 @@
                 email: 'dhanesh.b@afras.edu.np',
                 studentId: '076BCT002',
                 expertise: 'Django, PostgreSQL, API Design, Security',
-                bio: 'Designing the system architecture and database schemas. Implements secure APIs for attendance logging and user management. Ensures AES-256 encryption for all stored facial data.',
+                bio: 'Designing the system architecture and database schemas.',
                 image: '/media/team_member/dhanesh_badal.jpeg'
             },
             'Lalit Negi': {
@@ -2839,8 +1836,8 @@
                 role: 'Frontend Developer & UI/UX Designer',
                 email: '56.negilalit@gmail.com',
                 studentId: '076BCT003',
-                expertise: 'React, HTML/CSS, Dashboard Design, Data Visualization',
-                bio: 'Creating intuitive user interfaces and dashboard designs. Focuses on user experience and responsive design for the admin and teacher portals. Implements real-time attendance visualization.',
+                expertise: 'React, HTML/CSS, Dashboard Design',
+                bio: 'Creating intuitive user interfaces and dashboard designs.',
                 image: '/media/team_member/lalit_negi.jpeg',
                 github: 'https://github.com/lalit058',
                 linkedin: 'https://www.linkedin.com/in/lalit-negi-73571b338/'
@@ -2850,82 +1847,169 @@
                 role: 'Computer Vision Engineer',
                 email: 'manish.c@afras.edu.np',
                 studentId: '076BCT004',
-                expertise: 'OpenCV, MTCNN, Image Processing, Real-time Video',
-                bio: 'Implementing face detection algorithms and preprocessing pipelines. Works on optimizing MTCNN for real-time video processing at 15+ FPS. Handles liveness detection to prevent spoofing.'
+                expertise: 'OpenCV, MTCNN, Image Processing',
+                bio: 'Implementing face detection algorithms and preprocessing pipelines.'
             },
             'Mukul Bhatt': {
                 name: 'Mukul Bhatt',
                 role: 'Testing & Quality Assurance Engineer',
                 email: 'mukul.b@afras.edu.np',
                 studentId: '076BCT005',
-                expertise: 'Testing Automation, Documentation, Deployment',
-                bio: 'Ensuring system reliability through comprehensive testing. Manages documentation and deployment processes. Tests system performance across different lighting conditions and hardware configurations.',
+                expertise: 'Testing Automation, Documentation',
+                bio: 'Ensuring system reliability through comprehensive testing.',
                 image: '/media/team_member/mukul_bhatta.jpeg'
             }
         };
 
-        // Function to show team member details (unchanged)
+        // Global variables
+        let triggerIcon = null;
+        let dropdownOptions = [];
+
+        // ===== PASSWORD RESET FUNCTIONS =====
+        function openResetModal(uidb64, token) {
+            console.log('🔐 openResetModal called with:', uidb64, token);
+            
+            const uidb64Input = document.getElementById('uidb64');
+            const tokenInput = document.getElementById('token');
+            
+            if (uidb64Input) uidb64Input.value = uidb64;
+            if (tokenInput) tokenInput.value = token;
+
+            const modal = document.getElementById('modal-reset');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                document.body.classList.add('modal-open');
+
+                setTimeout(() => {
+                    const content = document.querySelector('#modal-reset .modal-content');
+                    if (content) content.classList.add('show');
+                    console.log('✅ Reset modal opened');
+                }, 100);
+            } else {
+                console.error('❌ Modal element #modal-reset not found');
+            }
+        }
+
+        function closeResetModal() {
+            const modalContent = document.querySelector('#modal-reset .modal-content');
+            if (modalContent) modalContent.classList.remove('show');
+
+            setTimeout(() => {
+                const modal = document.getElementById('modal-reset');
+                if (modal) modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                document.body.classList.remove('modal-open');
+                const form = document.getElementById('reset-form');
+                if (form) form.reset();
+            }, 300);
+        }
+
+        // ===== PASSWORD RESET AUTO-DETECTION =====
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== 🔍 Password Reset Auto-Detection Started ===');
+            console.log('📍 Current URL:', window.location.href);
+            
+            const path = window.location.pathname;
+            const resetMatch = path.match(/\/password-reset-confirm\/([^\/]+)\/([^\/]+)\//);
+            
+            if (resetMatch) {
+                const uidb64 = resetMatch[1];
+                const token = resetMatch[2];
+                console.log('✅ Found reset parameters:', { uidb64, token });
+                
+                document.getElementById('uidb64').value = uidb64;
+                document.getElementById('token').value = token;
+                
+                setTimeout(function() {
+                    openResetModal(uidb64, token);
+                }, 500);
+            }
+            
+            if (path.includes('password-reset-complete')) {
+                console.log('✅ Password reset complete');
+                setTimeout(function() {
+                    alert('✅ Password reset successful! You can now login with your new password.');
+                    openAuth('Staff Login', 'staff', 'login');
+                }, 500);
+            }
+            
+            {% if uidb64 and token %}
+                console.log('✅ Django context variables found');
+                setTimeout(function() {
+                    const uidb64Input = document.getElementById('uidb64');
+                    if (uidb64Input && !uidb64Input.value) {
+                        openResetModal('{{ uidb64 }}', '{{ token }}');
+                    }
+                }, 600);
+            {% endif %}
+            
+            {% if password_reset_complete %}
+                console.log('✅ Django context: password_reset_complete');
+                setTimeout(function() {
+                    alert('✅ Password reset successful! You can now login with your new password.');
+                    openAuth('Staff Login', 'staff', 'login');
+                }, 500);
+            {% endif %}
+        });
+
+        // Function to show team member details
         function showTeamMember(name) {
             const member = teamMembers[name];
             if (!member) return;
 
             let avatarHtml = '';
-
-            // Check if member has an image
             if (member.image) {
                 avatarHtml = `
-            <div style="width: 120px; height: 120px; margin: 0 auto; border-radius: 50%; overflow: hidden; border: 3px solid var(--primary);">
-                <img src="${member.image}" alt="${member.name}" 
-                     style="width: 100%; height: 100%; object-fit: cover;"
-                     onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user-graduate\' style=\'font-size:4rem; color:var(--primary); line-height:120px;\'></i>';">
-            </div>
-        `;
+                    <div style="width: 120px; height: 120px; margin: 0 auto; border-radius: 50%; overflow: hidden; border: 3px solid var(--primary);">
+                        <img src="${member.image}" alt="${member.name}" 
+                             style="width: 100%; height: 100%; object-fit: cover;"
+                             onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\\'fas fa-user-graduate\\' style=\\'font-size:4rem; color:var(--primary); line-height:120px;\\'></i>';">
+                    </div>
+                `;
             } else {
                 avatarHtml = `
-            <div style="width: 120px; height: 120px; margin: 0 auto; background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-user-graduate" style="font-size: 4rem; color: white;"></i>
-            </div>
-        `;
+                    <div style="width: 120px; height: 120px; margin: 0 auto; background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-user-graduate" style="font-size: 4rem; color: white;"></i>
+                    </div>
+                `;
             }
 
             const content = document.getElementById('teamDetailContent');
             content.innerHTML = `
-        ${avatarHtml}
-        <h2 class="team-detail-name">${member.name}</h2>
-        <div class="team-detail-role">${member.role}</div>
-        
-        <div class="team-detail-info">
-            <div class="team-detail-item">
-                <i class="fas fa-envelope"></i>
-                <span>${member.email}</span>
-            </div>
-            <div class="team-detail-item">
-                <i class="fas fa-id-card"></i>
-                <span>Student ID: ${member.studentId}</span>
-            </div>
-            <div class="team-detail-item">
-                <i class="fas fa-code"></i>
-                <span>Expertise: ${member.expertise}</span>
-            </div>
-        </div>
-        
-        <div class="team-detail-bio">
-            <p>${member.bio}</p>
-        </div>
-        
-        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
-            ${member.github ? `
-                <span class="metrics-badge" style="cursor: pointer; transition: all 0.3s ease;" onclick="window.open('${member.github}', '_blank')">
-                    <i class="fab fa-github"></i> GitHub
-                </span>
-            ` : ''}
-            ${member.linkedin ? `
-                <span class="metrics-badge" style="cursor: pointer; transition: all 0.3s ease;" onclick="window.open('${member.linkedin}', '_blank')">
-                    <i class="fab fa-linkedin"></i> LinkedIn
-                </span>
-            ` : ''}
-        </div>
-    `;
+                ${avatarHtml}
+                <h2 class="team-detail-name">${member.name}</h2>
+                <div class="team-detail-role">${member.role}</div>
+                <div class="team-detail-info">
+                    <div class="team-detail-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>${member.email}</span>
+                    </div>
+                    <div class="team-detail-item">
+                        <i class="fas fa-id-card"></i>
+                        <span>Student ID: ${member.studentId}</span>
+                    </div>
+                    <div class="team-detail-item">
+                        <i class="fas fa-code"></i>
+                        <span>Expertise: ${member.expertise}</span>
+                    </div>
+                </div>
+                <div class="team-detail-bio">
+                    <p>${member.bio}</p>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+                    ${member.github ? `
+                        <span class="metrics-badge" style="cursor: pointer; transition: all 0.3s ease;" onclick="window.open('${member.github}', '_blank')">
+                            <i class="fab fa-github"></i> GitHub
+                        </span>
+                    ` : ''}
+                    ${member.linkedin ? `
+                        <span class="metrics-badge" style="cursor: pointer; transition: all 0.3s ease;" onclick="window.open('${member.linkedin}', '_blank')">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </span>
+                    ` : ''}
+                </div>
+            `;
 
             document.getElementById('teamModal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -2939,7 +2023,6 @@
         function closeTeamModal() {
             const modalContent = document.querySelector('#teamModal .team-modal-content');
             modalContent.classList.remove('show');
-
             setTimeout(() => {
                 document.getElementById('teamModal').style.display = 'none';
                 document.body.style.overflow = 'auto';
@@ -2947,145 +2030,54 @@
             }, 300);
         }
 
-        document.getElementById('teamModal').addEventListener('click', function (e) {
-            if (e.target === this) {
-                closeTeamModal();
+        function openForgotModal() {
+            const loginModal = document.getElementById('modal-auth');
+            if (loginModal.style.display === 'flex') {
+                loginModal.querySelector('.modal-content').classList.remove('show');
+                setTimeout(() => {
+                    loginModal.style.display = 'none';
+                }, 300);
             }
-        });
 
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && document.getElementById('teamModal').style.display === 'flex') {
-                closeTeamModal();
-            }
-        });
+            document.getElementById('modal-forgot').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            document.body.classList.add('modal-open');
 
-        // Enhanced smooth text-like effects for social icons
-        document.addEventListener('DOMContentLoaded', function () {
-            const socialLinks = document.querySelectorAll('.social-link');
-
-            socialLinks.forEach(link => {
-                // Store original color for transitions
-                const originalColor = getComputedStyle(link).color;
-
-                // Create minimal tooltip
-                const tooltip = document.createElement('span');
-                tooltip.className = 'tooltip';
-                tooltip.textContent = link.getAttribute('title');
-                link.appendChild(tooltip);
-
-                // Smooth hover with text-like effects
-                link.addEventListener('mouseenter', function () {
-                    const icon = this.querySelector('i');
-
-                    // Gentle rotation for some icons
-                    if (this.getAttribute('title') === 'GitHub') {
-                        icon.style.transform = 'rotate(360deg) scale(1.15)';
-                    } else {
-                        icon.style.transform = 'scale(1.15)';
-                    }
-
-                    // Add smooth transition for transform
-                    setTimeout(() => {
-                        if (icon) {
-                            icon.style.transform = 'scale(1.1)';
-                        }
-                    }, 300);
-                });
-
-                // Smooth leave
-                link.addEventListener('mouseleave', function () {
-                    const icon = this.querySelector('i');
-                    icon.style.transform = 'scale(1)';
-                });
-
-                // Smooth click with wave effect
-                link.addEventListener('click', function (e) {
-                    e.preventDefault();
-
-                    // Create wave effect
-                    const icon = this.querySelector('i');
-                    icon.style.transform = 'scale(0.9)';
-
-                    setTimeout(() => {
-                        icon.style.transform = 'scale(1.1)';
-
-                        setTimeout(() => {
-                            icon.style.transform = 'scale(1)';
-
-                            // Open link after visual feedback
-                            const title = this.getAttribute('title');
-                            const urls = {
-                                'GitHub': 'https://github.com',
-                                'Research Paper': '#',
-                                'LinkedIn': 'https://linkedin.com',
-                                'Documentation': '#'
-                            };
-
-                            if (urls[title] && urls[title] !== '#') {
-                                window.open(urls[title], '_blank');
-                            }
-                        }, 150);
-                    }, 150);
-                });
-            });
-        });
-
-        // Add smooth entrance animation
-        const style = document.createElement('style');
-        style.textContent = `
-    @keyframes fadeInText {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-            filter: blur(2px);
+            setTimeout(() => {
+                document.querySelector('#modal-forgot .modal-content').classList.add('show');
+            }, 10);
         }
-        to {
-            opacity: 0.85;
-            transform: translateY(0);
-            filter: blur(0);
+
+        function closeForgotModal() {
+            const modalContent = document.querySelector('#modal-forgot .modal-content');
+            modalContent.classList.remove('show');
+            setTimeout(() => {
+                document.getElementById('modal-forgot').style.display = 'none';
+                document.body.style.overflow = 'auto';
+                document.body.classList.remove('modal-open');
+                const form = document.getElementById('forgot-form');
+                if (form) form.reset();
+            }, 300);
         }
-    }
-    
-    .social-link {
-        animation: fadeInText 0.5s ease forwards;
-        opacity: 0;
-    }
-    
-    .social-link:nth-child(1) { animation-delay: 0.1s; }
-    .social-link:nth-child(2) { animation-delay: 0.2s; }
-    .social-link:nth-child(3) { animation-delay: 0.3s; }
-    .social-link:nth-child(4) { animation-delay: 0.4s; }
-    
-    /* Smooth color transition on hover */
-    .social-link {
-        transition: all 0.3s cubic-bezier(0.2, 0, 0, 1),
-                    color 0.2s ease,
-                    filter 0.3s ease;
-    }
-`;
-        document.head.appendChild(style);
 
-        // Add subtle parallax effect on mouse move (optional)
-        document.querySelectorAll('.social-link').forEach(link => {
-            link.addEventListener('mousemove', function (e) {
-                const rect = this.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
+        function openSuccessModal() {
+            document.getElementById('modal-success').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            document.body.classList.add('modal-open');
+            setTimeout(() => {
+                document.querySelector('#modal-success .modal-content').classList.add('show');
+            }, 10);
+        }
 
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-
-                const deltaX = (x - centerX) / 10;
-                const deltaY = (y - centerY) / 10;
-
-                this.querySelector('i').style.transform =
-                    `translate(${deltaX}px, ${deltaY}px) scale(1.1)`;
-            });
-
-            link.addEventListener('mouseleave', function () {
-                this.querySelector('i').style.transform = 'translate(0, 0) scale(1)';
-            });
-        });
+        function closeSuccessModal() {
+            const modalContent = document.querySelector('#modal-success .modal-content');
+            modalContent.classList.remove('show');
+            setTimeout(() => {
+                document.getElementById('modal-success').style.display = 'none';
+                document.body.style.overflow = 'auto';
+                document.body.classList.remove('modal-open');
+            }, 300);
+        }
 
         const nav = document.querySelector("nav");
         window.addEventListener("scroll", () => {
@@ -3108,17 +2100,12 @@
             if (content.classList.contains('expanded')) {
                 text.textContent = 'Hide Detailed Information';
                 icon.style.transform = 'rotate(180deg)';
-
-                // Optional: Smooth scroll to content when opening
                 setTimeout(() => {
                     content.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
             } else {
                 text.textContent = 'Show Detailed Information';
                 icon.style.transform = 'rotate(0deg)';
-
-                // No auto-scroll when closing - this was causing the jumping issue
-                // The page stays at the user's current scroll position
             }
         }
 
@@ -3134,50 +2121,6 @@
             }
         }
 
-        const roleTrigger = document.getElementById('role-trigger');
-        const roleOptions = document.getElementById('role-options');
-        const selectedRole = document.getElementById('selected-role');
-        const roleInput = document.getElementById('role-input');
-        const dropdownOptions = document.querySelectorAll('.dropdown-option');
-
-        const triggerIcon = document.createElement('i');
-        triggerIcon.className = 'fas fa-user-tie';
-        triggerIcon.style.marginRight = '8px';
-        triggerIcon.style.color = 'var(--primary)';
-        roleTrigger.insertBefore(triggerIcon, selectedRole);
-
-        roleTrigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            roleTrigger.classList.toggle('active');
-            roleOptions.classList.toggle('show');
-        });
-
-        dropdownOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                const value = option.getAttribute('data-value');
-                const text = option.querySelector('span').textContent;
-                const iconClass = option.querySelector('i').className;
-
-                triggerIcon.className = iconClass;
-                triggerIcon.style.color = 'var(--primary)';
-                selectedRole.textContent = text;
-                roleInput.value = value;
-
-                dropdownOptions.forEach(opt => opt.classList.remove('selected'));
-                option.classList.add('selected');
-
-                roleTrigger.classList.remove('active');
-                roleOptions.classList.remove('show');
-            });
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!roleTrigger.contains(e.target) && !roleOptions.contains(e.target)) {
-                roleTrigger.classList.remove('active');
-                roleOptions.classList.remove('show');
-            }
-        });
-
         function openAuth(portalName, roleValue, actionType = 'login') {
             const iconMap = {
                 'Staff Login': 'fa-user-tie',
@@ -3189,7 +2132,6 @@
 
             document.body.classList.add('modal-open');
 
-            // Fix: Update the existing modal-title element instead of looking for auth-title
             const modalTitle = document.querySelector('.modal-title');
             if (modalTitle) {
                 modalTitle.innerHTML = `<i class="fas ${icon}" style="color: var(--primary); margin-right: 5px;"></i> ${portalName}`;
@@ -3217,7 +2159,7 @@
             }
             document.getElementById('auth-desc').innerText = description;
 
-            if (roleValue) {
+            if (roleValue && triggerIcon) {
                 const option = document.querySelector(`.dropdown-option[data-value="${roleValue}"]`);
                 if (option) {
                     const iconClass = option.querySelector('i').className;
@@ -3225,8 +2167,8 @@
 
                     triggerIcon.className = iconClass;
                     triggerIcon.style.color = 'var(--primary)';
-                    selectedRole.textContent = text;
-                    roleInput.value = roleValue;
+                    document.getElementById('selected-role').textContent = text;
+                    document.getElementById('role-input').value = roleValue;
 
                     dropdownOptions.forEach(opt => opt.classList.remove('selected'));
                     option.classList.add('selected');
@@ -3249,18 +2191,20 @@
                 document.body.style.overflow = 'auto';
                 document.body.classList.remove('modal-open');
 
-                roleTrigger.classList.remove('active');
-                roleOptions.classList.remove('show');
+                const roleTrigger = document.getElementById('role-trigger');
+                const roleOptions = document.getElementById('role-options');
+                if (roleTrigger) roleTrigger.classList.remove('active');
+                if (roleOptions) roleOptions.classList.remove('show');
 
                 const defaultOption = document.querySelector('.dropdown-option[data-value="staff"]');
-                if (defaultOption) {
+                if (defaultOption && triggerIcon) {
                     const iconClass = defaultOption.querySelector('i').className;
                     const text = defaultOption.querySelector('span').textContent;
 
                     triggerIcon.className = iconClass;
                     triggerIcon.style.color = 'var(--primary)';
-                    selectedRole.textContent = text;
-                    roleInput.value = 'staff';
+                    document.getElementById('selected-role').textContent = text;
+                    document.getElementById('role-input').value = 'staff';
 
                     dropdownOptions.forEach(opt => opt.classList.remove('selected'));
                     defaultOption.classList.add('selected');
@@ -3270,13 +2214,231 @@
             }, 300);
         }
 
-        window.onclick = function (event) {
+        // ===== FORM HANDLERS =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Forgot Password Form
+            const forgotForm = document.getElementById('forgot-form');
+            if (forgotForm) {
+                forgotForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                    submitBtn.disabled = true;
+
+                    const formData = new FormData(this);
+
+                    fetch('/password-reset/', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        }
+                    })
+                    .then(response => {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+
+                        if (response.redirected || response.ok) {
+                            closeForgotModal();
+                            setTimeout(() => {
+                                openSuccessModal();
+                            }, 300);
+                        } else {
+                            alert('Something went wrong. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                        alert('Network error. Please check your connection and try again.');
+                        console.error('Password reset error:', error);
+                    });
+                });
+            }
+
+            // Reset Password Form
+            const resetForm = document.getElementById('reset-form');
+            if (resetForm) {
+                resetForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const password1 = this.querySelector('[name="new_password1"]').value;
+                    const password2 = this.querySelector('[name="new_password2"]').value;
+
+                    if (password1 !== password2) {
+                        alert('Passwords do not match!');
+                        return;
+                    }
+
+                    if (password1.length < 8) {
+                        alert('Password must be at least 8 characters long!');
+                        return;
+                    }
+
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                    submitBtn.disabled = true;
+
+                    const uidb64 = document.getElementById('uidb64').value;
+                    const token = document.getElementById('token').value;
+                    const resetUrl = `/password-reset-confirm/${uidb64}/${token}/`;
+
+                    console.log('🔄 Submitting reset to:', resetUrl);
+
+                    fetch(resetUrl, {
+                        method: 'POST',
+                        body: new FormData(this),
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    })
+                    .then(response => {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+
+                        if (response.ok || response.redirected) {
+                            alert('✅ Password updated successfully!');
+                            closeResetModal();
+                            setTimeout(() => {
+                                openAuth('Staff Login', 'staff', 'login');
+                            }, 300);
+                        } else {
+                            alert('Invalid or expired reset link. Please request a new one.');
+                        }
+                    })
+                    .catch(error => {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                        alert('Network error. Please try again.');
+                        console.error('Reset error:', error);
+                    });
+                });
+            }
+        });
+
+        window.onclick = function(event) {
             if (event.target.className === 'modal-overlay') {
-                closeModals();
+                if (event.target.id === 'modal-auth') closeModals();
+                if (event.target.id === 'modal-forgot') closeForgotModal();
+                if (event.target.id === 'modal-success') closeSuccessModal();
+                if (event.target.id === 'modal-reset') closeResetModal();
+                if (event.target.id === 'teamModal') closeTeamModal();
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (document.getElementById('modal-forgot').style.display === 'flex') closeForgotModal();
+                if (document.getElementById('modal-success').style.display === 'flex') closeSuccessModal();
+                if (document.getElementById('modal-reset').style.display === 'flex') closeResetModal();
+                if (document.getElementById('modal-auth').style.display === 'flex') closeModals();
+                if (document.getElementById('teamModal').style.display === 'flex') closeTeamModal();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleTrigger = document.getElementById('role-trigger');
+            const roleOptions = document.getElementById('role-options');
+            const selectedRole = document.getElementById('selected-role');
+            const roleInput = document.getElementById('role-input');
+            dropdownOptions = document.querySelectorAll('.dropdown-option');
+
+            triggerIcon = document.createElement('i');
+            triggerIcon.className = 'fas fa-user-tie';
+            triggerIcon.style.marginRight = '8px';
+            triggerIcon.style.color = 'var(--primary)';
+            roleTrigger.insertBefore(triggerIcon, selectedRole);
+
+            roleTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                roleTrigger.classList.toggle('active');
+                roleOptions.classList.toggle('show');
+            });
+
+            dropdownOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const value = option.getAttribute('data-value');
+                    const text = option.querySelector('span').textContent;
+                    const iconClass = option.querySelector('i').className;
+
+                    triggerIcon.className = iconClass;
+                    triggerIcon.style.color = 'var(--primary)';
+                    selectedRole.textContent = text;
+                    roleInput.value = value;
+
+                    dropdownOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+
+                    roleTrigger.classList.remove('active');
+                    roleOptions.classList.remove('show');
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!roleTrigger.contains(e.target) && !roleOptions.contains(e.target)) {
+                    roleTrigger.classList.remove('active');
+                    roleOptions.classList.remove('show');
+                }
+            });
+
+            document.getElementById('teamModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeTeamModal();
+                }
+            });
+
+            const socialLinks = document.querySelectorAll('.social-link');
+            socialLinks.forEach(link => {
+                const tooltip = document.createElement('span');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = link.getAttribute('title');
+                link.appendChild(tooltip);
+
+                link.addEventListener('mouseenter', function() {
+                    const icon = this.querySelector('i');
+                    if (this.getAttribute('title') === 'GitHub') {
+                        icon.style.transform = 'rotate(360deg) scale(1.15)';
+                    } else {
+                        icon.style.transform = 'scale(1.15)';
+                    }
+                    setTimeout(() => {
+                        if (icon) {
+                            icon.style.transform = 'scale(1.1)';
+                        }
+                    }, 300);
+                });
+
+                link.addEventListener('mouseleave', function() {
+                    const icon = this.querySelector('i');
+                    icon.style.transform = 'scale(1)';
+                });
+
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const icon = this.querySelector('i');
+                    icon.style.transform = 'scale(0.9)';
+                    setTimeout(() => {
+                        icon.style.transform = 'scale(1.1)';
+                        setTimeout(() => {
+                            icon.style.transform = 'scale(1)';
+                            const title = this.getAttribute('title');
+                            const urls = {
+                                'GitHub': 'https://github.com',
+                                'Research Paper': '#',
+                                'LinkedIn': 'https://linkedin.com',
+                                'Documentation': '#'
+                            };
+                            if (urls[title] && urls[title] !== '#') {
+                                window.open(urls[title], '_blank');
+                            }
+                        }, 150);
+                    }, 150);
+                });
+            });
+
             document.body.classList.remove('modal-open');
             document.querySelectorAll('.modal-overlay').forEach(m => {
                 m.style.display = 'none';
@@ -3287,7 +2449,7 @@
             document.body.style.overflow = 'auto';
         });
 
-        window.addEventListener('pageshow', function (event) {
+        window.addEventListener('pageshow', function(event) {
             if (event.persisted) {
                 closeModals();
             }
