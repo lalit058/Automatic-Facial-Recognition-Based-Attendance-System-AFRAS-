@@ -1,42 +1,3 @@
-# import cv2
-# from django.http import StreamingHttpResponse
-# from django.shortcuts import render
-# from django.utils import timezone
-# from attendance.models import AttendanceSession, AttendanceLog
-
-# # from .utils import recognize_faces  # Comment this out until utils.py is ready
-
-
-# def gen_frames():
-#     camera = cv2.VideoCapture(0)
-#     while True:
-#         success, frame = camera.read()
-#         if not success:
-#             break
-#         else:
-#             # Placeholder for processing logic
-#             ret, buffer = cv2.imencode(".jpg", frame)
-#             frame = buffer.tobytes()
-#             yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
-
-
-# def video_feed(request):
-#     """This is the view that the dashboard <img> tag calls"""
-#     return StreamingHttpResponse(
-#         gen_frames(), content_type="multipart/x-mixed-replace; boundary=frame"
-#     )
-
-
-# def scan_face(request):
-#     """This matches your recognition/urls.py 'scan/' path"""
-#     return render(request, "recognition/scan.html")
-
-
-
-
-
-
-
 # recognition/views.py
 import cv2
 import numpy as np
@@ -51,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from attendance.models import AttendanceSession, AttendanceLog
 from accounts.models import Student, SystemConfiguration, Notification
-from .hybrid_recognizer import HybridFaceRecognizer  # Correct import name
+from .hybrid_recognizer import HybridFaceRecognizer
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +63,7 @@ def get_recognizer_for_semester(semester, session_id=None):
                     recognizer.add_student(
                         encoding=encoding,
                         name=student.full_name,
-                        student_id=student.id
+                        student_id=student.roll_number  # Store roll number instead of ID
                     )
             except Exception as e:
                 logger.warning(f"Error loading encoding for student {student.id}: {e}")
@@ -160,18 +121,19 @@ def gen_frames_with_recognition(session_id, semester):
                 
                 for result in results:
                     if result['name'] != 'Unknown' and result['student_id']:
-                        student_id = result['student_id']
+                        roll_number = result['student_id']  # This is now the roll number
                         confidence = result['confidence']
                         
                         # Check cooldown
                         current_time = timezone.now()
-                        if student_id in last_recognized:
-                            time_diff = (current_time - last_recognized[student_id]).total_seconds()
+                        if roll_number in last_recognized:
+                            time_diff = (current_time - last_recognized[roll_number]).total_seconds()
                             if time_diff < recognition_cooldown:
                                 continue
                         
                         try:
-                            student = Student.objects.get(id=student_id)
+                            # Look up student by roll_number
+                            student = Student.objects.get(roll_number=roll_number)
                             
                             # Double-check semester
                             if student.semester != semester:
@@ -212,20 +174,20 @@ def gen_frames_with_recognition(session_id, semester):
                                 except Exception as e:
                                     logger.warning(f"Could not send notification: {e}")
                                 
-                                logger.info(f"✅ Marked attendance for {student.full_name} (Semester {student.semester})")
+                                logger.info(f"✅ Marked attendance for {student.full_name} (Roll: {student.roll_number}, Semester {student.semester})")
                             
                             # Update last recognized time
-                            last_recognized[student_id] = current_time
+                            last_recognized[roll_number] = current_time
                             
-                            # Draw label on frame
+                            # Draw label on frame with roll number
                             top, right, bottom, left = result['location']
                             cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
-                            cv2.putText(frame, f"{student.full_name} ✓", 
+                            cv2.putText(frame, f"{student.full_name} ({student.roll_number}) ✓", 
                                       (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 
                                       0.6, (0, 255, 0), 2)
                             
                         except Student.DoesNotExist:
-                            logger.warning(f"Student {student_id} not found")
+                            logger.warning(f"Student with roll number {roll_number} not found")
                             continue
                 
             except Exception as e:
@@ -377,10 +339,11 @@ def mark_attendance_with_semester_filter(request, session_id):
                 break
         
         if recognized_student:
-            student_id = recognized_student['student_id']
+            roll_number = recognized_student['student_id']  # This is now the roll number
             confidence = recognized_student['confidence']
             
-            student = Student.objects.get(id=student_id)
+            # Look up student by roll_number
+            student = Student.objects.get(roll_number=roll_number)
             
             # Double-check semester
             if student.semester != semester:

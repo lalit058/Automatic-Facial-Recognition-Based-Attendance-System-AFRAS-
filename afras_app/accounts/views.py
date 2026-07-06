@@ -336,10 +336,23 @@ def register_staff(request):
     return render(request, "accounts/register_staff.html")
 
 
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
+@csrf_protect
+@csrf_exempt
 def login_user(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
+        
+        # Check if username and password are provided
+        if not username or not password:
+            messages.error(request, "Please enter both username and password.")
+            return render(request, "accounts/login.html")
+        
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
@@ -372,6 +385,7 @@ def login_user(request):
             )
 
             messages.error(request, "Invalid username or password.")
+            return render(request, "accounts/login.html")
 
     return render(request, "accounts/login.html")
 

@@ -22,7 +22,7 @@
         --text-main: #0f172a;
         --text-dim: #64748b;
         --text-light: #94a3b8;
-        --shadow: 0 1px 3px rgba(0,0,0,0.06);
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
         --radius: 12px;
         --transition: 0.3s ease;
         --stat-staff: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
@@ -59,9 +59,7 @@
         width: calc(100% - var(--sidebar-collapsed)) !important;
     }
 
-    /* ============================================
-       HEADER - FIXED ALIGNMENT
-    ============================================ */
+    /*  HEADER  */
     .dashboard-header {
         display: flex;
         justify-content: space-between;
@@ -69,8 +67,6 @@
         flex-wrap: wrap;
         gap: 1rem;
         padding: 0.5rem 0 1rem 0;
-        border-bottom: 1px solid var(--border);
-        margin-bottom: 1.5rem;
         width: 100%;
     }
 
@@ -276,8 +272,15 @@
     }
 
     @keyframes fadeInDown {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .dropdown-header {
@@ -459,9 +462,9 @@
     }
 
     .notification-delete:hover {
-        background: rgba(220, 38, 38, 0.1);
+        background: transparent;
         color: var(--danger);
-        transform: translateY(-50%) scale(1.1);
+        transform: translateY(-50%) scale(1.4);
     }
 
     .notification-delete:disabled {
@@ -541,12 +544,29 @@
         box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
     }
 
-    .stat-staff { background: var(--stat-staff); }
-    .stat-students { background: var(--stat-students); }
-    .stat-attendance { background: var(--stat-attendance); }
-    .stat-scans { background: var(--stat-scans); }
-    .stat-dept { background: var(--stat-dept); }
-    .stat-proxy { background: var(--stat-proxy); }
+    .stat-staff {
+        background: var(--stat-staff);
+    }
+
+    .stat-students {
+        background: var(--stat-students);
+    }
+
+    .stat-attendance {
+        background: var(--stat-attendance);
+    }
+
+    .stat-scans {
+        background: var(--stat-scans);
+    }
+
+    .stat-dept {
+        background: var(--stat-dept);
+    }
+
+    .stat-proxy {
+        background: var(--stat-proxy);
+    }
 
     .stat-content {
         position: relative;
@@ -575,9 +595,17 @@
         font-family: 'JetBrains Mono', monospace;
     }
 
-    .dept-val { color: #ffd966 !important; }
-    .attendance-val { color: #a8e6cf !important; }
-    .proxy-val { color: #ffb347 !important; }
+    .dept-val {
+        color: #ffd966 !important;
+    }
+
+    .attendance-val {
+        color: #a8e6cf !important;
+    }
+
+    .proxy-val {
+        color: #ffb347 !important;
+    }
 
     .stat-footer {
         opacity: 0.7;
@@ -633,14 +661,29 @@
     }
 
     @keyframes scan-line {
-        0% { left: -100%; }
-        20% { left: 100%; }
-        100% { left: 100%; }
+        0% {
+            left: -100%;
+        }
+
+        20% {
+            left: 100%;
+        }
+
+        100% {
+            left: 100%;
+        }
     }
 
     @keyframes pulse-dot {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.3;
+        }
     }
 
     /* ============================================
@@ -1069,8 +1112,8 @@
     }
 
     /* ============================================
-       ACTION BUTTONS
-    ============================================ */
+   ACTION BUTTONS - UPDATED
+============================================ */
     .action-buttons-cell {
         display: flex;
         gap: 6px;
@@ -1080,9 +1123,10 @@
     }
 
     .view-details,
+    .view-attendance,
     .view-face {
-        width: 30px;
-        height: 30px;
+        width: 32px;
+        height: 32px;
         padding: 0;
         border-radius: 8px;
         font-size: 0.75rem;
@@ -1091,32 +1135,60 @@
         align-items: center;
         justify-content: center;
         transition: all var(--transition);
-        background: rgba(99, 102, 241, 0.1);
-        color: var(--primary);
-        border: 1px solid rgba(99, 102, 241, 0.2);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-dim);
         flex-shrink: 0;
     }
 
-    .view-details:hover {
-        background: var(--success);
-        color: white;
-        border-color: var(--success);
-        transform: translateY(-2px);
+    .view-details {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary);
+        border-color: rgba(99, 102, 241, 0.2);
     }
 
-    .view-face:hover:not(:disabled) {
+    .view-details:hover {
         background: var(--primary);
         color: white;
         border-color: var(--primary);
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .view-attendance {
+        background: rgba(22, 163, 74, 0.1);
+        color: var(--success);
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+
+    .view-attendance:hover {
+        background: var(--success);
+        color: white;
+        border-color: var(--success);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    }
+
+    .view-face {
+        background: rgba(217, 119, 6, 0.1);
+        color: var(--warning);
+        border-color: rgba(217, 119, 6, 0.2);
+    }
+
+    .view-face:hover:not(:disabled) {
+        background: var(--warning);
+        color: white;
+        border-color: var(--warning);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
     }
 
     .view-face:disabled {
         opacity: 0.4;
         cursor: not-allowed;
-        background: rgba(128, 128, 128, 0.1);
-        border-color: #999;
-        color: #999;
+        background: var(--bg);
+        border-color: var(--border);
+        color: var(--text-light);
     }
 
     /* ============================================
@@ -1315,8 +1387,15 @@
     }
 
     @keyframes modalSlideIn {
-        from { opacity: 0; transform: translateY(-30px) scale(0.95); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
+        from {
+            opacity: 0;
+            transform: translateY(-30px) scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
     }
 
     .modal-close {
@@ -1410,7 +1489,6 @@
             flex-wrap: wrap;
             gap: 0.75rem;
             padding-top: 0.5rem;
-            border-top: 1px solid var(--border);
         }
 
         .datetime-group {
@@ -1455,7 +1533,6 @@
             flex-wrap: wrap;
             gap: 0.5rem;
             padding-top: 0.5rem;
-            border-top: 1px solid var(--border);
             margin-left: 0;
         }
 
@@ -1785,6 +1862,7 @@
        PRINT STYLES
     ============================================ */
     @media print {
+
         .header-right,
         .notification-wrapper,
         .btn-group,
@@ -1833,32 +1911,35 @@
                 <div class="welcome-text">
                     Welcome Back, <strong>
                         {% if request.user.is_superuser %}
-                            {% if request.user.staffProfile and request.user.staffProfile.full_name %}
-                                {{ request.user.staffProfile.full_name }}
-                            {% elif request.user.get_full_name %}
-                                {{ request.user.get_full_name }}
-                            {% else %}
-                                Administrator
-                            {% endif %}
-                        {% elif request.user.staffProfile and request.user.staffProfile.full_name %}
-                            {{ request.user.staffProfile.full_name }}
+                        {% if request.user.staffProfile and request.user.staffProfile.full_name %}
+                        {{ request.user.staffProfile.full_name }}
                         {% elif request.user.get_full_name %}
-                            {{ request.user.get_full_name }}
+                        {{ request.user.get_full_name }}
                         {% else %}
-                            {{ request.user.username|title }}
+                        Administrator
+                        {% endif %}
+                        {% elif request.user.staffProfile and request.user.staffProfile.full_name %}
+                        {{ request.user.staffProfile.full_name }}
+                        {% elif request.user.get_full_name %}
+                        {{ request.user.get_full_name }}
+                        {% else %}
+                        {{ request.user.username|title }}
                         {% endif %}
                     </strong>
                 </div>
                 <div class="badge {% if request.user.is_superuser %}admin-badge{% else %}staff-badge{% endif %}">
-                    <i class="fas {% if request.user.is_superuser %}fa-crown{% else %}fa-chalkboard-teacher{% endif %}"></i>
+                    <i
+                        class="fas {% if request.user.is_superuser %}fa-crown{% else %}fa-chalkboard-teacher{% endif %}"></i>
                     {% if request.user.is_superuser %}ADMINISTRATOR{% else %}VERIFIED STAFF{% endif %}
                 </div>
             </div>
             <div class="quick-stats">
                 <span class="stat-chip"><i class="fas fa-users"></i> {{ total_staff|default:"0" }} Staff</span>
-                <span class="stat-chip"><i class="fas fa-user-graduate"></i> {{ total_students|default:"0" }} Students</span>
+                <span class="stat-chip"><i class="fas fa-user-graduate"></i> {{ total_students|default:"0" }}
+                    Students</span>
                 {% if not request.user.is_superuser %}
-                <span class="stat-chip"><i class="fas fa-chart-line"></i> {{ attendance_rate|default:"0" }}% Today</span>
+                <span class="stat-chip"><i class="fas fa-chart-line"></i> {{ attendance_rate|default:"0" }}%
+                    Today</span>
                 {% endif %}
             </div>
         </div>
@@ -1945,7 +2026,8 @@
                 <h4><i class="fas fa-chart-line"></i> Today's Attendance</h4>
                 <div class="val attendance-val" id="attendanceRate">{{ attendance_rate|default:"0" }}%</div>
                 <div class="stat-footer">
-                    <button class="view-details-btn" onclick="showAttendanceDetails()">View Details <i class="fas fa-arrow-right"></i></button>
+                    <button class="view-details-btn" onclick="showAttendanceDetails()">View Details <i
+                            class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>
@@ -1957,7 +2039,8 @@
                 <h4><i class="fas fa-fingerprint"></i> Today's Scans</h4>
                 <div class="val" id="dailyScans">{{ daily_scans|default:"0" }}</div>
                 <div class="stat-footer">
-                    <button class="view-details-btn" onclick="showScanDetails()">View Details <i class="fas fa-arrow-right"></i></button>
+                    <button class="view-details-btn" onclick="showScanDetails()">View Details <i
+                            class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>
@@ -1968,7 +2051,8 @@
                 <h4><i class="fas fa-shield-alt"></i> Proxy Alerts</h4>
                 <div class="val proxy-val" id="proxyAlerts">{{ proxy_alerts|default:"0" }}</div>
                 <div class="stat-footer">
-                    <button class="view-details-btn" onclick="showProxyDetails()">View Details <i class="fas fa-arrow-right"></i></button>
+                    <button class="view-details-btn" onclick="showProxyDetails()">View Details <i
+                            class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>
@@ -1985,7 +2069,8 @@
             <div class="card">
                 <div class="card-header">
                     <h3><i class="fas fa-video"></i> Live Recognition Feed</h3>
-                    <span class="badge-info" id="cameraStatus"><i class="fas fa-circle" style="color: var(--success); font-size: 0.6rem;"></i> Ready</span>
+                    <span class="badge-info" id="cameraStatus"><i class="fas fa-circle"
+                            style="color: var(--success); font-size: 0.6rem;"></i> Ready</span>
                 </div>
                 <div class="card-body">
                     <div class="camera-container">
@@ -1996,10 +2081,14 @@
                         </div>
                     </div>
                     <div class="btn-group">
-                        <button id="startCameraBtn" class="btn btn-primary"><i class="fas fa-play"></i> Start Recognition</button>
-                        <button id="stopCameraBtn" class="btn btn-danger" disabled><i class="fas fa-stop"></i> Stop</button>
+                        <button id="startCameraBtn" class="btn btn-primary"><i class="fas fa-play"></i> Start
+                            Recognition</button>
+                        <button id="stopCameraBtn" class="btn btn-danger" disabled><i class="fas fa-stop"></i>
+                            Stop</button>
                     </div>
-                    <div id="lastRecognized" style="margin-top: 0.75rem; font-size: 0.7rem; text-align: center; color: var(--text-dim); min-height: 32px;"></div>
+                    <div id="lastRecognized"
+                        style="margin-top: 0.75rem; font-size: 0.7rem; text-align: center; color: var(--text-dim); min-height: 32px;">
+                    </div>
                 </div>
             </div>
 
@@ -2011,17 +2100,27 @@
                 <div class="card-body">
                     <div class="actions-grid">
                         {% if request.user.is_superuser %}
-                        <a href="{% url 'register-staff' %}" class="action-card"><i class="fas fa-user-shield"></i><span>Add Staff</span></a>
-                        <a href="{% url 'register-student' %}" class="action-card"><i class="fas fa-user-graduate"></i><span>Add Student</span></a>
-                        <a href="{% url 'student-directory' %}" class="action-card"><i class="fas fa-users"></i><span>Student Directory</span></a>
-                        <a href="{% url 'staff-directory' %}" class="action-card"><i class="fas fa-users"></i><span>Staff Directory</span></a>
-                        <a href="{% url 'system-logs' %}" class="action-card"><i class="fas fa-history"></i><span>System Logs</span></a>
-                        <a href="{% url 'system_configuration' %}" class="action-card"><i class="fas fa-cog"></i><span>Configuration</span></a>
+                        <a href="{% url 'register-staff' %}" class="action-card"><i
+                                class="fas fa-user-shield"></i><span>Add Staff</span></a>
+                        <a href="{% url 'register-student' %}" class="action-card"><i
+                                class="fas fa-user-graduate"></i><span>Add Student</span></a>
+                        <a href="{% url 'student-directory' %}" class="action-card"><i
+                                class="fas fa-users"></i><span>Student Directory</span></a>
+                        <a href="{% url 'staff-directory' %}" class="action-card"><i
+                                class="fas fa-users"></i><span>Staff Directory</span></a>
+                        <a href="{% url 'system-logs' %}" class="action-card"><i class="fas fa-history"></i><span>System
+                                Logs</span></a>
+                        <a href="{% url 'system_configuration' %}" class="action-card"><i
+                                class="fas fa-cog"></i><span>Configuration</span></a>
                         {% else %}
-                        <a href="#" class="action-card" id="launchCameraBtn"><i class="fas fa-video"></i><span>Launch Camera</span></a>
-                        <a href="{% url 'student-directory' %}" class="action-card"><i class="fas fa-clipboard-list"></i><span>Student Directory</span></a>
-                        <a href="#" class="action-card" id="generateReportBtn"><i class="fas fa-file-invoice"></i><span>Generate Report</span></a>
-                        <a href="{% url 'routine_management' %}" class="action-card"><i class="fas fa-calendar-alt"></i><span>Routine Manager</span></a>
+                        <a href="#" class="action-card" id="launchCameraBtn"><i class="fas fa-video"></i><span>Launch
+                                Camera</span></a>
+                        <a href="{% url 'student-directory' %}" class="action-card"><i
+                                class="fas fa-clipboard-list"></i><span>Student Directory</span></a>
+                        <a href="#" class="action-card" id="generateReportBtn"><i
+                                class="fas fa-file-invoice"></i><span>Generate Report</span></a>
+                        <a href="{% url 'routine_management' %}" class="action-card"><i
+                                class="fas fa-calendar-alt"></i><span>Routine Manager</span></a>
                         {% endif %}
                     </div>
                 </div>
@@ -2070,15 +2169,18 @@
         <!-- Row 3: Attendance Table -->
         <div class="card">
             <div class="card-header">
-                <h3><i class="fas fa-table-list"></i> {% if request.user.is_superuser %}Recent Attendance Logs{% else %}Today's Attendance Feed{% endif %}</h3>
+                <h3><i class="fas fa-table-list"></i> {% if request.user.is_superuser %}Recent Attendance Logs{% else
+                    %}Today's Attendance Feed{% endif %}</h3>
                 <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-                    <span class="badge-info"><i class="fas fa-database"></i> <span id="faceDataCount2">{{ total_students_with_face|default:"0" }}</span> with Face Data</span>
+                    <span class="badge-info"><i class="fas fa-database"></i> <span id="faceDataCount2">{{
+                            total_students_with_face|default:"0" }}</span> with Face Data</span>
                     <button class="refresh-btn" id="refreshTableBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
                 </div>
             </div>
             <div class="card-body">
                 <div class="search-bar">
-                    <input type="text" id="searchLogs" placeholder="Search by name or roll number..." class="search-input">
+                    <input type="text" id="searchLogs" placeholder="Search by name or roll number..."
+                        class="search-input">
                     <select id="statusFilter" class="search-input" style="width: auto; min-width: 130px;">
                         <option value="">All Status</option>
                         <option value="PRESENT">Present</option>
@@ -2141,16 +2243,23 @@
                                 </td>
                                 <td>
                                     <div class="action-buttons-cell">
-                                        <button class="view-details" data-student-id="{{ item.student_id }}" title="View Details">
-                                            <i class="fas fa-eye"></i>
+                                        <button class="view-details" data-student-id="{{ item.student_id }}"
+                                            title="View Profile">
+                                            <i class="fas fa-user"></i>
                                         </button>
-                                        <button class="view-face" data-student-id="{{ item.student_id }}" title="View Face Data" {% if not item.has_face_encoding %}disabled{% endif %}>
+                                        <button class="view-attendance" data-student-id="{{ item.student_id }}"
+                                            title="View Attendance Records">
+                                            <i class="fas fa-calendar-check"></i>
+                                        </button>
+                                        <button class="view-face" data-student-id="{{ item.student_id }}"
+                                            title="View Face Data" {% if not item.has_face_encoding %}disabled{% endif
+                                            %}>
                                             <i class="fas fa-face-smile"></i>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
-                            {% empty %}
+                            {% endif %}
                             <tr>
                                 <td colspan="9" class="empty-state">
                                     <i class="fas fa-inbox empty-icon"></i>
@@ -2161,9 +2270,13 @@
                         </tbody>
                     </table>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-                    <div><span id="selectedCount">0</span> items selected <button class="filter-btn" id="exportSelectedBtn" style="padding: 0.3rem 1rem; font-size: 0.7rem;">Export Selected</button></div>
-                    <a href="{% url 'student-directory' %}" class="view-more">View All Students <i class="fas fa-arrow-right"></i></a>
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div><span id="selectedCount">0</span> items selected <button class="filter-btn"
+                            id="exportSelectedBtn" style="padding: 0.3rem 1rem; font-size: 0.7rem;">Export
+                            Selected</button></div>
+                    <a href="{% url 'student-directory' %}" class="view-more">View All Students <i
+                            class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
@@ -2202,7 +2315,8 @@
                             <span>Face Registration</span>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <div class="progress-container">
-                                    <div class="progress-fill" id="faceProgressBar" style="width: {{ face_registration_percentage|default:0 }}%"></div>
+                                    <div class="progress-fill" id="faceProgressBar"
+                                        style="width: {{ face_registration_percentage|default:0 }}%"></div>
                                 </div>
                                 <span class="status-value">{{ face_registration_percentage|default:0 }}%</span>
                             </div>
@@ -2224,7 +2338,8 @@
                     <div class="activity-feed" id="activityFeed">
                         {% for activity in recent_activities|default:"" %}
                         <div class="activity-item">
-                            <div class="activity-icon" style="background: rgba(39, 174, 96, 0.1); color: var(--success);">
+                            <div class="activity-icon"
+                                style="background: rgba(39, 174, 96, 0.1); color: var(--success);">
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="activity-details">
@@ -2234,7 +2349,8 @@
                         </div>
                         {% empty %}
                         <div class="activity-item">
-                            <div class="activity-icon" style="background: rgba(39, 174, 96, 0.1); color: var(--success);">
+                            <div class="activity-icon"
+                                style="background: rgba(39, 174, 96, 0.1); color: var(--success);">
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="activity-details">
@@ -2244,7 +2360,8 @@
                         </div>
                         {% endfor %}
                     </div>
-                    <button class="view-more" id="viewAllActivitiesBtn">View All <i class="fas fa-arrow-right"></i></button>
+                    <button class="view-more" id="viewAllActivitiesBtn">View All <i
+                            class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>
@@ -2259,9 +2376,11 @@
                     {% for session in staff_sessions %}
                     <div class="status-item">
                         <div><strong>{{ session.subject_name }}</strong>
-                            <div style="font-size: 0.6rem; color: var(--text-dim);">{{ session.date|date:"M d, Y" }}</div>
+                            <div style="font-size: 0.6rem; color: var(--text-dim);">{{ session.date|date:"M d, Y" }}
+                            </div>
                         </div>
-                        <span class="{% if session.is_active %}status-active{% else %}status-value{% endif %}">{{ session.start_time|time:"g:i A" }}</span>
+                        <span class="{% if session.is_active %}status-active{% else %}status-value{% endif %}">{{
+                            session.start_time|time:"g:i A" }}</span>
                     </div>
                     {% endfor %}
                 </div>
@@ -2293,11 +2412,14 @@ MODALS
         <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Face Encoding Data</h3>
         <p id="faceEncodingStudentName" style="color: var(--text-dim); font-size: 0.85rem;"></p>
         <div style="display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap;">
-            <div style="flex: 1; background: rgba(99,102,241,0.1); padding: 0.8rem; border-radius: 12px; text-align: center; min-width: 100px;">
+            <div
+                style="flex: 1; background: rgba(99,102,241,0.1); padding: 0.8rem; border-radius: 12px; text-align: center; min-width: 100px;">
                 <span style="font-size: 0.65rem;">Vector Length</span>
-                <span id="faceVectorLength" style="font-size: 1.2rem; font-weight: 800; color: var(--primary); display: block;"></span>
+                <span id="faceVectorLength"
+                    style="font-size: 1.2rem; font-weight: 800; color: var(--primary); display: block;"></span>
             </div>
-            <div style="flex: 1; background: rgba(99,102,241,0.1); padding: 0.8rem; border-radius: 12px; text-align: center; min-width: 100px;">
+            <div
+                style="flex: 1; background: rgba(99,102,241,0.1); padding: 0.8rem; border-radius: 12px; text-align: center; min-width: 100px;">
                 <span style="font-size: 0.65rem;">Dimensions</span>
                 <span style="font-size: 1.2rem; font-weight: 800; color: var(--primary); display: block;">128-d</span>
             </div>
@@ -2318,6 +2440,8 @@ SCRIPTS
 ============================================ -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    console.log('showStudentProfile function:', typeof showStudentProfile);
+    console.log('showFaceEncodingModal function:', typeof showFaceEncodingModal);
     // Global variables
     var currentFaceEncodingData = null;
     var currentStudentName = '';
@@ -2459,7 +2583,7 @@ SCRIPTS
         // Delete button listeners
         var deleteBtns = document.querySelectorAll('.notification-delete');
         for (var i = 0; i < deleteBtns.length; i++) {
-            deleteBtns[i].addEventListener('click', function(e) {
+            deleteBtns[i].addEventListener('click', function (e) {
                 e.stopPropagation();
                 var notificationId = this.getAttribute('data-id');
                 if (notificationId) {
@@ -2471,7 +2595,7 @@ SCRIPTS
         // Notification item click listeners
         var items = document.querySelectorAll('.notification-item');
         for (var i = 0; i < items.length; i++) {
-            items[i].addEventListener('click', function(e) {
+            items[i].addEventListener('click', function (e) {
                 if (e.target.closest('.notification-delete')) return;
                 var notificationId = this.getAttribute('data-id');
                 var link = this.getAttribute('data-link');
@@ -2499,41 +2623,41 @@ SCRIPTS
                 'Content-Type': 'application/json'
             }
         })
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            if (data.success) {
-                var item = document.querySelector('.notification-item[data-id="' + notificationId + '"]');
-                if (item) {
-                    item.style.transition = 'all 0.3s ease';
-                    item.style.opacity = '0';
-                    item.style.transform = 'translateX(20px)';
-                    setTimeout(function() {
-                        item.remove();
-                        var remaining = document.querySelectorAll('.notification-item');
-                        if (remaining.length === 0) {
-                            var container = document.getElementById('notificationList');
-                            container.innerHTML = '<div class="empty-notifications"><i class="fas fa-bell-slash"></i><p>No notifications</p></div>';
-                        }
-                        loadNotifications();
-                    }, 300);
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    var item = document.querySelector('.notification-item[data-id="' + notificationId + '"]');
+                    if (item) {
+                        item.style.transition = 'all 0.3s ease';
+                        item.style.opacity = '0';
+                        item.style.transform = 'translateX(20px)';
+                        setTimeout(function () {
+                            item.remove();
+                            var remaining = document.querySelectorAll('.notification-item');
+                            if (remaining.length === 0) {
+                                var container = document.getElementById('notificationList');
+                                container.innerHTML = '<div class="empty-notifications"><i class="fas fa-bell-slash"></i><p>No notifications</p></div>';
+                            }
+                            loadNotifications();
+                        }, 300);
+                    }
+                    showMessage('Notification deleted', 'success');
+                } else {
+                    showMessage(data.message || 'Failed to delete notification', 'error');
+                    if (btn) {
+                        btn.innerHTML = '<i class="fas fa-times"></i>';
+                        btn.disabled = false;
+                    }
                 }
-                showMessage('Notification deleted', 'success');
-            } else {
-                showMessage(data.message || 'Failed to delete notification', 'error');
+            })
+            .catch(function (error) {
+                console.error('Error deleting notification:', error);
+                showMessage('Error deleting notification', 'error');
                 if (btn) {
                     btn.innerHTML = '<i class="fas fa-times"></i>';
                     btn.disabled = false;
                 }
-            }
-        })
-        .catch(function(error) {
-            console.error('Error deleting notification:', error);
-            showMessage('Error deleting notification', 'error');
-            if (btn) {
-                btn.innerHTML = '<i class="fas fa-times"></i>';
-                btn.disabled = false;
-            }
-        });
+            });
     }
 
     // ========== HANDLE NOTIFICATION CLICK ==========
@@ -2547,22 +2671,22 @@ SCRIPTS
                 'Content-Type': 'application/json'
             }
         })
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            if (data.success) {
-                var item = document.querySelector('.notification-item[data-id="' + notificationId + '"]');
-                if (item) {
-                    item.classList.remove('unread');
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    var item = document.querySelector('.notification-item[data-id="' + notificationId + '"]');
+                    if (item) {
+                        item.classList.remove('unread');
+                    }
+                    loadNotifications();
+                    if (link && link !== '#') {
+                        window.location.href = link;
+                    }
                 }
-                loadNotifications();
-                if (link && link !== '#') {
-                    window.location.href = link;
-                }
-            }
-        })
-        .catch(function(error) {
-            console.error('Error marking notification as read:', error);
-        });
+            })
+            .catch(function (error) {
+                console.error('Error marking notification as read:', error);
+            });
     }
 
     // ========== MARK ALL NOTIFICATIONS READ ==========
@@ -2574,22 +2698,22 @@ SCRIPTS
                 'Content-Type': 'application/json'
             }
         })
-        .then(function(response) { return response.json(); })
-        .then(function(data) {
-            if (data.success) {
-                var items = document.querySelectorAll('.notification-item');
-                for (var i = 0; i < items.length; i++) {
-                    items[i].classList.remove('unread');
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    var items = document.querySelectorAll('.notification-item');
+                    for (var i = 0; i < items.length; i++) {
+                        items[i].classList.remove('unread');
+                    }
+                    document.getElementById('notificationCount').style.display = 'none';
+                    showMessage('All notifications marked as read', 'success');
+                    loadNotifications();
                 }
-                document.getElementById('notificationCount').style.display = 'none';
-                showMessage('All notifications marked as read', 'success');
-                loadNotifications();
-            }
-        })
-        .catch(function(error) {
-            console.error('Error marking all as read:', error);
-            showMessage('Error marking all as read', 'error');
-        });
+            })
+            .catch(function (error) {
+                console.error('Error marking all as read:', error);
+                showMessage('Error marking all as read', 'error');
+            });
     }
 
     // ========== CAMERA FUNCTIONS ==========
@@ -2811,7 +2935,8 @@ SCRIPTS
                         for (var i = 0; i < data.attendance.length; i++) {
                             var att = data.attendance[i];
                             var row = tbody.insertRow();
-                            row.innerHTML = '<td><input type="checkbox" class="row-selector" value="' + att.id + '"></td>' +
+                            row.innerHTML =
+                                '<td><input type="checkbox" class="row-selector" value="' + att.id + '"></td>' +
                                 '<td><div style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-user-graduate" style="color: var(--primary);"></i><span>' + escapeHtml(att.student_name) + '</span></div></td>' +
                                 '<td><span class="roll-number">' + escapeHtml(att.student_roll) + '</span></td>' +
                                 '<td>' + escapeHtml(att.student_dept) + '</td>' +
@@ -2820,7 +2945,8 @@ SCRIPTS
                                 '<td><span class="time-display">' + att.time + '</span></td>' +
                                 '<td>' + (att.has_face ? '<span class="badge badge-success"><i class="fas fa-face-smile"></i> Enrolled</span>' : '<span class="badge badge-danger"><i class="fas fa-face-frown"></i> Missing</span>') + '</td>' +
                                 '<td><div class="action-buttons-cell">' +
-                                '<button class="view-details" data-student-id="' + att.student_id + '" title="View Details"><i class="fas fa-eye"></i></button>' +
+                                '<button class="view-details" data-student-id="' + att.student_id + '" title="View Profile"><i class="fas fa-user"></i></button>' +
+                                '<button class="view-attendance" data-student-id="' + att.student_id + '" title="View Attendance Records"><i class="fas fa-calendar-check"></i></button>' +
                                 '<button class="view-face" data-student-id="' + att.student_id + '" title="View Face Data"' + (att.has_face ? '' : ' disabled') + '><i class="fas fa-face-smile"></i></button>' +
                                 '</div></td>';
                         }
@@ -2854,46 +2980,126 @@ SCRIPTS
 
     // ========== STUDENT PROFILE FUNCTIONS ==========
     function showStudentProfile(studentId) {
-        var modal = document.getElementById('studentProfileModal');
-        var loading = document.getElementById('profileModalLoading');
-        var content = document.getElementById('profileModalContent');
-        var container = document.getElementById('studentProfileContainer');
+        console.log('showStudentProfile called with ID:', studentId);
+
+        if (!studentId) {
+            if (typeof showMessage === 'function') {
+                showMessage('Invalid student ID', 'error');
+            }
+            return;
+        }
+
+        const modal = document.getElementById('studentProfileModal');
+        const loading = document.getElementById('profileModalLoading');
+        const content = document.getElementById('profileModalContent');
+        const container = document.getElementById('studentProfileContainer');
 
         if (!modal || !loading || !content || !container) {
             console.error('Modal elements not found!');
             return;
         }
 
-        container.innerHTML = '';
+        // Show modal with loading state
         modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
         loading.style.display = 'block';
         content.style.display = 'none';
+        container.innerHTML = '';
 
-        fetch('/dashboard/student-profile/' + studentId + '/', {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        // Fetch student profile
+        const url = `/dashboard/student-profile/${studentId}/`;
+        console.log('Fetching URL:', url);
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
         })
-            .then(function (response) {
-                if (!response.ok) { throw new Error('HTTP ' + response.status); }
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
                 return response.text();
             })
-            .then(function (html) {
-                container.innerHTML = html;
+            .then(html => {
+                console.log('Response received, length:', html.length);
+
+                if (!html || html.trim().length === 0) {
+                    throw new Error('Empty response from server');
+                }
+
+                // Extract the modal content from the response
+                // The response is the full modal HTML with styles
+                // We need to extract just the content inside the modal-profile-container
+
+                // Try to find the modal container
+                let modalContent = html;
+
+                // If the HTML contains the modal-profile-container class, extract it
+                const containerMatch = html.match(/<div[^>]*class="[^"]*modal-profile-container[^"]*"[^>]*>([\s\S]*?)<\/div>\s*(?:<\/div>\s*)?(?:<\/div>\s*)?(?:<\/div>\s*)?$/i);
+                if (containerMatch) {
+                    modalContent = containerMatch[0];
+                } else {
+                    // Try to find any div with modal class
+                    const divMatch = html.match(/<div[^>]*class="[^"]*modal[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
+                    if (divMatch) {
+                        modalContent = divMatch[0];
+                    }
+                }
+
+                // Set the content
+                container.innerHTML = modalContent;
+
+                // Hide loading, show content
                 loading.style.display = 'none';
                 content.style.display = 'block';
+
+                // Re-initialize any scripts in the modal
+                const scriptTags = container.querySelectorAll('script');
+                scriptTags.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    newScript.textContent = oldScript.textContent;
+                    document.body.appendChild(newScript);
+                });
+
+                console.log('Profile modal displayed successfully');
             })
-            .catch(function (error) {
+            .catch(error => {
                 console.error('Error loading profile:', error);
-                loading.innerHTML = '<p style="color: var(--danger); padding: 20px;">Error loading profile: ' + error.message + '</p>';
+                loading.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: var(--danger);">
+                <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                <p><strong>Error loading student profile</strong></p>
+                <p style="font-size: 0.85rem; color: var(--text-dim);">${error.message}</p>
+                <button onclick="closeStudentProfileModal()" 
+                        style="margin-top: 1rem; padding: 0.5rem 1.5rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    Close
+                </button>
+            </div>
+        `;
                 loading.style.display = 'block';
                 content.style.display = 'none';
             });
     }
 
     function closeStudentProfileModal() {
+        console.log('Closing student profile modal');
         var modal = document.getElementById('studentProfileModal');
-        if (modal) { modal.style.display = 'none'; }
-        document.body.style.overflow = 'auto';
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+
+            // Reset the content
+            var loading = document.getElementById('profileModalLoading');
+            var content = document.getElementById('profileModalContent');
+            var container = document.getElementById('studentProfileContainer');
+            if (loading) loading.style.display = 'block';
+            if (content) content.style.display = 'none';
+            if (container) container.innerHTML = '';
+        }
     }
+
 
     // ========== FACE ENCODING FUNCTIONS ==========
     function showFaceEncodingModal(studentId) {
@@ -2993,26 +3199,61 @@ SCRIPTS
     function showProxyDetails() { showMessage('Proxy alerts feature coming soon', 'info'); }
     function viewAllActivities() { window.location.href = '/dashboard/activity-logs/'; }
 
-    // ========== ATTACH EVENT LISTENERS ==========
+
+    // ========== ATTACH TABLE EVENT LISTENERS ==========
     function attachTableEventListeners() {
-        var viewDetailsBtns = document.querySelectorAll('.view-details');
-        for (var i = 0; i < viewDetailsBtns.length; i++) {
-            viewDetailsBtns[i].addEventListener('click', function (event) {
-                event.stopPropagation();
-                showStudentProfile(this.getAttribute('data-student-id'));
-            });
+        // View Details - Redirect to Student Profile Page
+        document.querySelectorAll('.view-details').forEach(btn => {
+            btn.removeEventListener('click', handleViewDetails);
+            btn.addEventListener('click', handleViewDetails);
+        });
+
+        // View Attendance - Redirect to attendance records
+        document.querySelectorAll('.view-attendance').forEach(btn => {
+            btn.removeEventListener('click', handleViewAttendance);
+            btn.addEventListener('click', handleViewAttendance);
+        });
+
+        // View Face Data - Face Encoding Modal
+        document.querySelectorAll('.view-face').forEach(btn => {
+            btn.removeEventListener('click', handleViewFace);
+            btn.addEventListener('click', handleViewFace);
+        });
+
+        // Row selectors
+        document.querySelectorAll('.row-selector').forEach(btn => {
+            btn.removeEventListener('change', updateSelectedCount);
+            btn.addEventListener('change', updateSelectedCount);
+        });
+    }
+
+    // Handler functions
+    function handleViewDetails(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const studentId = this.getAttribute('data-student-id');
+        if (studentId) {
+            // Redirect to the full student profile page
+            window.location.href = `/dashboard/student-profile/${studentId}/`;
         }
-        var viewFaceBtns = document.querySelectorAll('.view-face');
-        for (var i = 0; i < viewFaceBtns.length; i++) {
-            viewFaceBtns[i].addEventListener('click', function (event) {
-                event.stopPropagation();
-                if (!this.disabled) showFaceEncodingModal(this.getAttribute('data-student-id'));
-            });
+    }
+
+    function handleViewAttendance(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const studentId = this.getAttribute('data-student-id');
+        if (studentId) {
+            // Redirect to attendance records page
+            window.location.href = `/attendance/student-attendance/${studentId}/`;
         }
-        var rowSelectors = document.querySelectorAll('.row-selector');
-        for (var i = 0; i < rowSelectors.length; i++) {
-            rowSelectors[i].removeEventListener('change', updateSelectedCount);
-            rowSelectors[i].addEventListener('change', updateSelectedCount);
+    }
+
+    function handleViewFace(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const studentId = this.getAttribute('data-student-id');
+        if (studentId && !this.disabled) {
+            showFaceEncodingModal(studentId);
         }
     }
 
@@ -3027,7 +3268,7 @@ SCRIPTS
         setInterval(refreshDashboardData, 30000);
 
         // Notification bell click - fixed
-        document.getElementById('notificationBell').addEventListener('click', function(e) {
+        document.getElementById('notificationBell').addEventListener('click', function (e) {
             e.stopPropagation();
             var dropdown = document.getElementById('notificationDropdown');
             var isOpen = dropdown.classList.contains('show');
@@ -3043,7 +3284,7 @@ SCRIPTS
         });
 
         // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             var dropdown = document.getElementById('notificationDropdown');
             var bell = document.getElementById('notificationBell');
             if (dropdown && bell && !dropdown.contains(e.target) && !bell.contains(e.target)) {
@@ -3052,7 +3293,7 @@ SCRIPTS
             }
         });
 
-        document.getElementById('markAllReadBtn').addEventListener('click', function(e) {
+        document.getElementById('markAllReadBtn').addEventListener('click', function (e) {
             e.stopPropagation();
             markAllNotificationsRead();
         });
@@ -3098,5 +3339,6 @@ SCRIPTS
         addActivityItem('Dashboard initialized', 'check');
         console.log('AFRAS Dashboard Fully Initialized');
     });
+
 </script>
 {% endblock %}

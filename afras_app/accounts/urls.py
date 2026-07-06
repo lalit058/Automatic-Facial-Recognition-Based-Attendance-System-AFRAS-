@@ -3,12 +3,18 @@ from . import views
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    # Student Registration
     path('register-student/', views.register_student, name='register-student'),
+    path('register-staff/', views.register_staff, name='register-staff'),
+    
+    # Authentication
     path('login/', views.login_user, name='login'),
     path('logout/', views.logout_user, name='logout'),
-    path('register-staff/', views.register_staff, name='register-staff'),
+    
+    # Face Processing API
     path('process-face/', views.process_face_api, name='process_face_api'),
     
+    # Password Reset
     path('password-reset/', 
          auth_views.PasswordResetView.as_view(
              template_name='registration/password_reset_form.html',
@@ -25,7 +31,6 @@ urlpatterns = [
          ),
          name='password_reset_done'),
     
-    # FIX: Use the same pattern as Django's default
     path('password-reset-confirm/<uidb64>/<token>/',
          auth_views.PasswordResetConfirmView.as_view(
              template_name='home.html',

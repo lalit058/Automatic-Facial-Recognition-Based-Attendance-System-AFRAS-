@@ -1,8 +1,7 @@
-# afras_app/attendance/models.py
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
-from accounts.models import StaffProfile, Student, SystemConfiguration
+from django.core.exceptions import ValidationError
+from accounts.models import Student, StaffProfile, SystemConfiguration
 from dashboard.models import Routine
 
 
@@ -20,11 +19,78 @@ class AttendanceSession(models.Model):
     created_by = models.ForeignKey(StaffProfile, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True, blank=True)
+    
+    # Session identifier for tracking
+    session_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
 
     def __str__(self):
         dept_info = f"{self.department} - " if self.department else ""
         sem_info = f"Sem {self.semester}" if self.semester else ""
         return f"{self.subject_name} ({self.date}) - {dept_info}{sem_info}"
+    
+    def save(self, *args, **kwargs):
+        # Only generate session_id if it doesn't exist AND this is a new record
+        if not self.session_id and not self.pk:
+            self.session_id = f"S{timezone.now().strftime('%Y%m%d%H%M%S')}"
+        super().save(*args, **kwargs)
+    
+    def get_enrolled_students(self):
+        """Get all students enrolled in this semester and year"""
+        if self.semester and self.year:
+            students = Student.objects.filter(
+                semester=self.semester,
+                year=self.year
+            )
+            if self.department:
+                students = students.filter(department=self.department)
+            if self.section:
+                students = students.filter(section=self.section)
+            return students
+        return Student.objects.none()
+    
+    def is_student_enrolled(self, student_id):
+        """Check if a specific student is enrolled in this session"""
+        try:
+            student = Student.objects.get(id=student_id)
+            if self.semester and self.year:
+                if student.semester != self.semester or student.year != self.year:
+                    return False
+                if self.department and student.department != self.department:
+                    return False
+                if self.section and student.section != self.section:
+                    return False
+                return True
+            return False
+        except Student.DoesNotExist:
+            return False
+    
+    def get_attendance_summary(self):
+        """Get attendance summary for this session"""
+        total_students = self.get_enrolled_students().count()
+        present_count = self.logs.filter(status__in=['PRESENT', 'PARTIAL']).count()
+        
+        return {
+            'total_students': total_students,
+            'present': present_count,
+            'absent': total_students - present_count,
+            'percentage': (present_count / total_students * 100) if total_students > 0 else 0
+        }
+    
+    def end_session(self):
+        """End the current session"""
+        self.is_active = False
+        self.end_time = timezone.now()
+        self.save()
+    
+    class Meta:
+        ordering = ['-date', '-start_time']
+        indexes = [
+            models.Index(fields=['session_id']),
+            models.Index(fields=['semester', 'year']),
+            models.Index(fields=['is_active']),
+            models.Index(fields=['date']),
+            models.Index(fields=['department', 'semester', 'year']),
+        ]
 
 
 class AttendanceLog(models.Model):
@@ -57,16 +123,89 @@ class AttendanceLog(models.Model):
     detection_count = models.IntegerField(default=0)
     out_of_frame_count = models.IntegerField(default=0)
     
+    # Semester validation fields
+    student_semester = models.IntegerField(null=True, blank=True, help_text="Student's semester at time of attendance")
+    student_year = models.IntegerField(null=True, blank=True, help_text="Student's year at time of attendance")
+    session_semester = models.IntegerField(null=True, blank=True, help_text="Session semester")
+    session_year = models.IntegerField(null=True, blank=True, help_text="Session year")
+    is_validated = models.BooleanField(default=False, help_text="Whether student was validated for this semester")
+    validation_error = models.TextField(blank=True, null=True, help_text="Validation error message if any")
+    
+    class Meta:
+        unique_together = ("session", "student")
+        indexes = [
+            models.Index(fields=['session', 'student']),
+            models.Index(fields=['status', 'session']),
+            models.Index(fields=['is_validated']),
+            models.Index(fields=['student_semester', 'session_semester']),  # FIXED: Removed 'session__semester'
+            models.Index(fields=['student', 'session_semester']),  # FIXED: Simplified index
+        ]
+    
     @property
     def presence_duration_minutes(self):
         """Calculate presence duration in minutes"""
-        return self.total_presence_seconds / 60
+        return self.total_presence_seconds / 60 if self.total_presence_seconds else 0
 
     @property
     def retention_percentage(self):
         if self.session.expected_duration <= 0:
             return 0
         return (self.presence_duration_minutes / self.session.expected_duration) * 100
+    
+    def validate_student_semester(self):
+        """Validate that student belongs to the session's semester and year"""
+        if self.session and self.student:
+            self.student_semester = self.student.semester
+            self.student_year = self.student.year
+            self.session_semester = self.session.semester
+            self.session_year = self.session.year
+            
+            # Check semester match
+            if self.student.semester != self.session.semester:
+                self.is_validated = False
+                self.validation_error = (
+                    f"Student {self.student.full_name} (Roll: {self.student.roll_number}) "
+                    f"is from Semester {self.student.semester} but session is for "
+                    f"Semester {self.session.semester}"
+                )
+                return False
+            
+            # Check year match
+            if self.student.year != self.session.year:
+                self.is_validated = False
+                self.validation_error = (
+                    f"Student {self.student.full_name} (Roll: {self.student.roll_number}) "
+                    f"is from Year {self.student.year} but session is for "
+                    f"Year {self.session.year}"
+                )
+                return False
+            
+            # Check department match if specified
+            if self.session.department and self.student.department != self.session.department:
+                self.is_validated = False
+                self.validation_error = (
+                    f"Student {self.student.full_name} (Roll: {self.student.roll_number}) "
+                    f"is from {self.student.department} but session is for "
+                    f"{self.session.department}"
+                )
+                return False
+            
+            # Check section match if specified
+            if self.session.section and self.student.section != self.session.section:
+                self.is_validated = False
+                self.validation_error = (
+                    f"Student {self.student.full_name} (Roll: {self.student.roll_number}) "
+                    f"is from Section {self.student.section} but session is for "
+                    f"Section {self.session.section}"
+                )
+                return False
+            
+            # All validations passed
+            self.is_validated = True
+            self.validation_error = None
+            return True
+        
+        return False
     
     def reset_minute_tracking(self, session_duration):
         """Initialize minute tracking for the session"""
@@ -118,12 +257,24 @@ class AttendanceLog(models.Model):
             'pattern': self.get_attendance_pattern(),
             'status': self.status,
             'detection_count': self.detection_count,
-            'confidence': self.confidence
+            'confidence': self.confidence,
+            'is_validated': self.is_validated,
+            'validation_error': self.validation_error,
+            'student_semester': self.student_semester,
+            'session_semester': self.session_semester
         }
 
     def save(self, *args, **kwargs):
-        # Update last_seen if not manual
-        if not self.is_manual:
+        # Validate semester before saving
+        self.validate_student_semester()
+        
+        # If validation failed and not manual, set status to ABSENT
+        if not self.is_validated and not self.is_manual:
+            self.status = "ABSENT"
+            self.confidence = 0.0
+        
+        # Update last_seen if not manual and validated
+        if not self.is_manual and self.is_validated:
             self.last_seen = timezone.now()
             self.last_detected = timezone.now()
             self.detection_count += 1
@@ -140,17 +291,18 @@ class AttendanceLog(models.Model):
         else:
             retention = self.retention_percentage  # Fallback to old method
         
-        # Determine status based on retention percentage
-        if retention >= min_retention:
-            self.status = "PRESENT"
-        elif retention >= 50:  # Between 50% and 80%
-            self.status = "PARTIAL"
-        elif self.presence_duration_minutes > 2:  # Less than 2 minutes
-            self.status = "LATE"
+        # Determine status based on retention percentage (only if validated)
+        if self.is_validated:
+            if retention >= min_retention:
+                self.status = "PRESENT"
+            elif retention >= 50:  # Between 50% and 80%
+                self.status = "PARTIAL"
+            elif self.presence_duration_minutes > 2:  # Less than 2 minutes
+                self.status = "LATE"
+            else:
+                self.status = "ABSENT"
         else:
+            # If not validated, mark as absent with warning
             self.status = "ABSENT"
 
         super().save(*args, **kwargs)
-
-    class Meta:
-        unique_together = ("session", "student")

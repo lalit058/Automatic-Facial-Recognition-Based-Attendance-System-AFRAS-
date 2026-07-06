@@ -7,7 +7,6 @@
 {% block content %}
 <style>
     .page-container {
-        padding: 0.5rem;
         max-width: 1400px;
     }
 
@@ -72,12 +71,67 @@
         margin: 0;
     }
 
+    /* Action Buttons in Header */
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-report {
+        padding: 0.5rem 1.2rem;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-report:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-report i {
+        font-size: 0.9rem;
+    }
+
+    .btn-export-csv {
+        padding: 0.5rem 1.2rem;
+        background: #16a34a;
+        border: none;
+        border-radius: 8px;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-export-csv:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    }
+
     /* Stats Row */
     .stats-row {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
         gap: 1rem;
-        margin-bottom: 1.5rem;
     }
 
     .stat-item {
@@ -103,11 +157,25 @@
         line-height: 1.2;
     }
 
-    .stat-item .number.blue { color: #3b82f6; }
-    .stat-item .number.green { color: #16a34a; }
-    .stat-item .number.red { color: #dc2626; }
-    .stat-item .number.orange { color: #d97706; }
-    .stat-item .number.purple { color: #8b5cf6; }
+    .stat-item .number.blue {
+        color: #3b82f6;
+    }
+
+    .stat-item .number.green {
+        color: #16a34a;
+    }
+
+    .stat-item .number.red {
+        color: #dc2626;
+    }
+
+    .stat-item .number.orange {
+        color: #d97706;
+    }
+
+    .stat-item .number.purple {
+        color: #8b5cf6;
+    }
 
     .stat-item .label {
         font-size: 0.65rem;
@@ -119,19 +187,31 @@
 
     /* Filter Section */
     .filter-section {
-        background: #fff;
         border-radius: 12px;
-        border: 1px solid #f1f5f9;
-        padding: 1rem 1.5rem;
+        padding: 1rem 0;
         display: flex;
-        gap: 1rem;
+        gap: 0.75rem;
         flex-wrap: wrap;
         align-items: center;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
-    .filter-section select {
+    .filter-section .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-section .filter-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .filter-section select,
+    .filter-section input {
         padding: 0.4rem 0.8rem;
         border: 1.5px solid #e2e8f0;
         border-radius: 8px;
@@ -143,7 +223,8 @@
         min-width: 140px;
     }
 
-    .filter-section select:focus {
+    .filter-section select:focus,
+    .filter-section input:focus {
         border-color: #6366f1;
         box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06);
     }
@@ -189,12 +270,11 @@
         color: #1e293b;
     }
 
-    .filter-section .filter-label {
-        font-size: 0.7rem;
-        font-weight: 600;
-        color: #94a3b8;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    .filter-divider {
+        width: 1px;
+        height: 30px;
+        background: #e2e8f0;
+        margin: 0 0.25rem;
     }
 
     /* Table */
@@ -207,7 +287,7 @@
     }
 
     .table-card .table-header {
-        padding: 1rem 1.5rem;
+        padding: 0.5rem 1.5rem;
         border-bottom: 1px solid #f1f5f9;
         display: flex;
         justify-content: space-between;
@@ -295,11 +375,25 @@
         display: inline-block;
     }
 
-    .status-badge.PRESENT { background: #dcfce7; color: #16a34a; }
-    .status-badge.ABSENT { background: #fee2e2; color: #dc2626; }
-    .status-badge.PARTIAL { background: #fef3c7; color: #d97706; }
-    .status-badge.LATE { background: #fef3c7; color: #d97706; }
-    .status-badge.LEAVE { background: #e0e7ff; color: #4f46e5; }
+    .status-badge.PRESENT {
+        color: #16a34a;
+    }
+
+    .status-badge.ABSENT {
+        color: #dc2626;
+    }
+
+    .status-badge.PARTIAL {
+        color: #d97706;
+    }
+
+    .status-badge.LATE {
+        color: #d97706;
+    }
+
+    .status-badge.LEAVE {
+        color: #4f46e5;
+    }
 
     .student-link {
         color: #6366f1;
@@ -316,9 +410,29 @@
         font-weight: 600;
     }
 
-    .retention-text.good { color: #16a34a; }
-    .retention-text.medium { color: #d97706; }
-    .retention-text.poor { color: #dc2626; }
+    .retention-text.good {
+        color: #16a34a;
+    }
+
+    .retention-text.medium {
+        color: #d97706;
+    }
+
+    .retention-text.poor {
+        color: #dc2626;
+    }
+
+    .subject-badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+
+    .sem-badge {
+        display: inline-block;
+        font-weight: 500;
+    }
 
     /* Pagination */
     .pagination-container {
@@ -432,6 +546,18 @@
             font-size: 1.2rem;
         }
 
+        .header-actions {
+            width: 100%;
+        }
+
+        .header-actions .btn-report,
+        .header-actions .btn-export-csv {
+            flex: 1;
+            justify-content: center;
+            font-size: 0.7rem;
+            padding: 0.4rem 0.8rem;
+        }
+
         .stats-row {
             grid-template-columns: repeat(2, 1fr);
             gap: 0.75rem;
@@ -451,13 +577,26 @@
             padding: 0.75rem 1rem;
         }
 
-        .filter-section select {
+        .filter-section .filter-group {
+            flex-direction: column;
+            align-items: stretch;
             width: 100%;
+        }
+
+        .filter-section select,
+        .filter-section input {
+            width: 100%;
+            min-width: unset;
         }
 
         .filter-section .btn-filter,
         .filter-section .btn-clear {
             justify-content: center;
+            width: 100%;
+        }
+
+        .filter-divider {
+            display: none;
         }
 
         .pagination-container {
@@ -519,6 +658,7 @@
        PRINT STYLES
     ============================================ */
     @media print {
+
         .page-header .header-actions,
         .filter-section .btn-filter,
         .filter-section .btn-clear {
@@ -562,13 +702,22 @@
         <div class="header-content">
             <div class="header-left">
                 <h1><i class="fas fa-clipboard-list"></i> Attendance Records</h1>
-                <p>View all student attendance logs</p>
+                <p>View all student attendance logs with subject and semester filtering</p>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'attendance:attendance_report' %}" class="btn-report" title="View Attendance Report">
+                    <i class="fas fa-chart-bar"></i> View Report
+                </a>
+                <a href="{% url 'attendance:attendance_report' %}?export=csv" class="btn-export-csv"
+                    title="Export as CSV">
+                    <i class="fas fa-file-export"></i> Export CSV
+                </a>
             </div>
         </div>
     </div>
 
     <!-- ============================================
-    STATS ROW - Real backend data
+    STATS ROW
     ============================================ -->
     <div class="stats-row">
         <div class="stat-item">
@@ -594,54 +743,111 @@
     </div>
 
     <!-- ============================================
-    FILTER SECTION - Real backend data
-    ============================================ -->
+FILTER SECTION
+============================================ -->
     <div class="filter-section">
         <form method="GET" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; width: 100%;">
-            <span class="filter-label"><i class="fas fa-filter"></i> Filter:</span>
-            
-            <select name="status">
-                <option value="">All Status</option>
-                <option value="PRESENT" {% if status_filter == 'PRESENT' %}selected{% endif %}>Present</option>
-                <option value="ABSENT" {% if status_filter == 'ABSENT' %}selected{% endif %}>Absent</option>
-                <option value="PARTIAL" {% if status_filter == 'PARTIAL' %}selected{% endif %}>Partial</option>
-                <option value="LATE" {% if status_filter == 'LATE' %}selected{% endif %}>Late</option>
-                <option value="LEAVE" {% if status_filter == 'LEAVE' %}selected{% endif %}>Leave</option>
-            </select>
+            <!-- Year filter -->
+            <div class="filter-group">
+                <select name="year">
+                    <option value="">All Years</option>
+                    {% for year in years %}
+                    <option value="{{ year }}" {% if year_filter|add:'0' == year %}selected{% endif %}>
+                        Year {{ year }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-            <select name="department">
-                <option value="">All Departments</option>
-                {% for dept in departments %}
-                <option value="{{ dept }}" {% if department_filter == dept %}selected{% endif %}>{{ dept }}</option>
-                {% endfor %}
-            </select>
+            <!-- Semester filter (based on year) -->
+            <div class="filter-group">
+                <select name="semester">
+                    <option value="">All Semesters</option>
+                    {% for sem in semesters %}
+                    <option value="{{ sem }}" {% if semester_filter|add:'0' == sem %}selected{% endif %}>
+                        Semester {{ sem }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-            <select name="semester">
-                <option value="">All Semesters</option>
-                {% for sem in semesters %}
-                <option value="{{ sem }}" {% if semester_filter|add:'0' == sem %}selected{% endif %}>
-                    Semester {{ sem }}
-                </option>
-                {% endfor %}
-            </select>
+            <div class="filter-divider"></div>
 
-            <button type="submit" class="btn-filter">
-                <i class="fas fa-search"></i> Apply
-            </button>
-            <a href="{% url 'attendance:attendance_records' %}" class="btn-clear">
-                <i class="fas fa-times"></i> Clear
-            </a>
+            <!-- Subject filter -->
+            <div class="filter-group">
+                <select name="subject">
+                    <option value="">All Subjects</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject }}" {% if subject_filter == subject %}selected{% endif %}>
+                        {{ subject }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-divider"></div>
+
+            <!-- Session Semester & Status -->
+            <div class="filter-group">
+                <select name="session_semester">
+                    <option value="">All Session Semesters</option>
+                    {% for sem in session_semesters %}
+                    <option value="{{ sem }}" {% if session_semester_filter|add:'0' == sem %}selected{% endif %}>
+                        Semester {{ sem }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <select name="status">
+                    <option value="">All Status</option>
+                    <option value="PRESENT" {% if status_filter == 'PRESENT' %}selected{% endif %}>Present</option>
+                    <option value="ABSENT" {% if status_filter == 'ABSENT' %}selected{% endif %}>Absent</option>
+                    <option value="PARTIAL" {% if status_filter == 'PARTIAL' %}selected{% endif %}>Partial</option>
+                    <option value="LATE" {% if status_filter == 'LATE' %}selected{% endif %}>Late</option>
+                    <option value="LEAVE" {% if status_filter == 'LEAVE' %}selected{% endif %}>Leave</option>
+                </select>
+            </div>
+
+            <div class="filter-divider"></div>
+
+            <!-- Department -->
+            <div class="filter-group">
+                <select name="department">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept }}" {% if department_filter == dept %}selected{% endif %}>{{ dept }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="filter-group">
+                <button type="submit" class="btn-filter">
+                    <i class="fas fa-search"></i> Apply
+                </button>
+                <a href="{% url 'attendance:attendance_records' %}" class="btn-clear">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
         </form>
     </div>
 
     <!-- ============================================
-    TABLE - Real backend data
+    TABLE
     ============================================ -->
     <div class="table-card">
         <div class="table-header">
             <h3>
                 <i class="fas fa-list-ul"></i>
                 Attendance Logs
+                {% if subject_filter %}
+                <span class="subject-badge">{{ subject_filter }}</span>
+                {% endif %}
+                {% if session_semester_filter %}
+                <span class="subject-badge" style="background: #fef3c7; color: #d97706;">
+                    Sem {{ session_semester_filter }}
+                </span>
+                {% endif %}
             </h3>
             <span class="count">{{ logs|length }} records</span>
         </div>
@@ -652,25 +858,33 @@
                         <th>Student</th>
                         <th>Roll No.</th>
                         <th>Subject</th>
-                        <th>Department</th>
-                        <th>Sem</th>
+                        <th>Year</th>
+                        <th>Session Sem</th>
                         <th>Date</th>
                         <th>Status</th>
                         <th>Retention</th>
+                        <th>Validated</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for log in logs %}
                     <tr>
                         <td>
-                            <a href="{% url 'attendance:student_attendance_record' log.student.id %}" class="student-link">
+                            <a href="{% url 'attendance:student_attendance_record' log.student.id %}"
+                                class="student-link">
                                 {{ log.student.full_name }}
                             </a>
                         </td>
                         <td>{{ log.student.roll_number }}</td>
-                        <td>{{ log.session.subject_name }}</td>
-                        <td>{{ log.session.department|default:"N/A" }}</td>
-                        <td>{{ log.session.semester|default:"N/A" }}</td>
+                        <td>
+                            <span class="subject-badge">{{ log.session.subject_name }}</span>
+                        </td>
+                        <td>{{ log.session.year|default:"N/A" }}</td>
+                        <td>
+                            <span class="sem-badge">
+                                Sem {{ log.session.semester|default:"N/A" }}
+                            </span>
+                        </td>
                         <td>{{ log.session.date|date:"M d, Y" }}</td>
                         <td>
                             <span class="status-badge {{ log.status }}">
@@ -680,12 +894,23 @@
                         <td>
                             {% with retention=log.retention_percentage|floatformat:0 %}
                             <span class="retention-text 
-                                {% if retention|add:"0" >= 80 %}good
+                                {% if retention|add:" 0" >= 80 %}good
                                 {% elif retention|add:"0" >= 50 %}medium
                                 {% else %}poor{% endif %}">
                                 {{ retention }}%
                             </span>
                             {% endwith %}
+                        </td>
+                        <td>
+                            {% if log.is_validated %}
+                            <span style="color: #16a34a; font-size: 0.75rem;">
+                                <i class="fas fa-check-circle"></i> Yes
+                            </span>
+                            {% else %}
+                            <span style="color: #dc2626; font-size: 0.75rem;">
+                                <i class="fas fa-times-circle"></i> No
+                            </span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}
@@ -714,7 +939,8 @@
             </div>
             <div class="pagination-controls">
                 {% if logs.has_previous %}
-                <a href="?page={{ logs.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                <a
+                    href="?page={{ logs.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
                     <i class="fas fa-chevron-left"></i>
                 </a>
                 {% else %}
@@ -722,23 +948,52 @@
                 {% endif %}
 
                 {% for num in logs.paginator.page_range %}
-                    {% if num == logs.number %}
-                    <a class="active">{{ num }}</a>
-                    {% elif num > logs.number|add:'-3' and num < logs.number|add:'3' %}
-                    <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                {% if num == logs.number %}
+                <a class="active">{{ num }}</a>
+                {% elif num > logs.number|add:'-3' and num < logs.number|add:'3' %} <a
+                    href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    {{ num }}</a>
                     {% endif %}
-                {% endfor %}
+                    {% endfor %}
 
-                {% if logs.has_next %}
-                <a href="?page={{ logs.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-                {% else %}
-                <a class="disabled"><i class="fas fa-chevron-right"></i></a>
-                {% endif %}
+                    {% if logs.has_next %}
+                    <a
+                        href="?page={{ logs.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% else %}
+                    <a class="disabled"><i class="fas fa-chevron-right"></i></a>
+                    {% endif %}
             </div>
         </div>
         {% endif %}
     </div>
 </div>
+
 {% endblock %}
+// Add this to the bottom of your attendance_records.html
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const yearSelect = document.querySelector('select[name="year"]');
+        const semesterSelect = document.querySelector('select[name="semester"]');
+
+        // Store all semesters by year from Django context
+        const semestersByYear = {{ semesters_by_year|safe }};
+
+        yearSelect.addEventListener('change', function() {
+            const selectedYear = this.value;
+            const semesters = semestersByYear[selectedYear] || [];
+
+            // Clear current options
+            semesterSelect.innerHTML = '<option value="">All Semesters</option>';
+
+            // Add new options
+            semesters.forEach(function(sem) {
+                const option = document.createElement('option');
+                option.value = sem;
+                option.textContent = 'Semester ' + sem;
+                semesterSelect.appendChild(option);
+            });
+        });
+    });
+</script>

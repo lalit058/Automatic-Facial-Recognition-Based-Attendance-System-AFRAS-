@@ -388,36 +388,91 @@ def session_summary(request, session_id):
         session.save()
         print(f"⏰ Auto-stopped session in summary: {session.subject_name}")
     
+    # Get all enrolled students for this session
+    enrolled_students = session.get_enrolled_students()
+    
+    # Get attendance logs
     logs = AttendanceLog.objects.filter(session=session).select_related('student')
     
-    total_students = logs.count()
+    # Prepare attendance summary with three statuses
+    attendance_summary = []
+    valid_count = 0
+    not_seen_count = 0
+    invalid_count = 0
+    
+    # Get student IDs with logs
+    student_ids_with_logs = set(logs.values_list('student_id', flat=True))
+    enrolled_student_ids = set(enrolled_students.values_list('id', flat=True))
+    
+    for student in enrolled_students:
+        log = logs.filter(student=student).first()
+        if log:
+            # Student has a log - check if validated
+            if log.is_validated:
+                # Valid - enrolled and detected
+                attendance_summary.append({
+                    'student': student,
+                    'status': 'valid',
+                    'confidence': log.confidence,
+                    'retention': log.retention_percentage,
+                    'log': log,
+                })
+                valid_count += 1
+            else:
+                # Invalid - attempted but not enrolled in this semester
+                attendance_summary.append({
+                    'student': student,
+                    'status': 'invalid',
+                    'confidence': 0,
+                    'retention': 0,
+                    'log': log,
+                })
+                invalid_count += 1
+        else:
+            # Not Seen - enrolled but no log
+            attendance_summary.append({
+                'student': student,
+                'status': 'not_seen',
+                'confidence': 0,
+                'retention': 0,
+                'log': None,
+            })
+            not_seen_count += 1
+    
+    # Calculate statistics
+    total_students = enrolled_students.count()
     present_count = logs.filter(status='PRESENT').count()
     absent_count = logs.filter(status='ABSENT').count()
     leave_count = logs.filter(status='LEAVE').count()
-    late_count = logs.filter(status='LATE').count()  # ADD THIS
-    partial_count = logs.filter(status='PARTIAL').count()  # ADD THIS
+    late_count = logs.filter(status='LATE').count()
+    partial_count = logs.filter(status='PARTIAL').count()
     
-    # Calculate average retention
+    # Calculate average retention (only for valid students)
     total_retention = 0
-    for log in logs:
-        total_retention += log.retention_percentage
+    for item in attendance_summary:
+        if item['status'] == 'valid':
+            total_retention += item['retention']
     
-    avg_retention = total_retention / total_students if total_students > 0 else 0
+    avg_retention = total_retention / valid_count if valid_count > 0 else 0
     
-    # Calculate attendance rate
-    attendance_rate = (present_count / total_students * 100) if total_students > 0 else 0
+    # Calculate attendance rate (only valid students are considered present)
+    attendance_rate = (valid_count / total_students * 100) if total_students > 0 else 0
     
     context = {
         'session': session,
         'logs': logs,
+        'attendance_summary': attendance_summary,
         'total_students': total_students,
+        'valid_count': valid_count,
+        'not_seen_count': not_seen_count,
+        'invalid_count': invalid_count,
         'present_count': present_count,
         'absent_count': absent_count,
         'leave_count': leave_count,
-        'late_count': late_count,  # ADD THIS
-        'partial_count': partial_count,  # ADD THIS
+        'late_count': late_count,
+        'partial_count': partial_count,
         'avg_retention': round(avg_retention, 1),
-        'attendance_rate': round(attendance_rate, 1),  # ADD THIS
+        'attendance_rate': round(attendance_rate, 1),
         'start_time_local': get_local_time(session.start_time),
         'end_time_local': get_local_time(session.end_time),
     }
@@ -545,7 +600,7 @@ def recent_sessions_api(request):
 
 def gen_frames():
     """Basic video feed generator (fallback)"""
-    camera = cv2.VideoCapture("http://192.168.0.6:8080/video")
+    camera = cv2.VideoCapture(0)
     while True:
         success, frame = camera.read()
         if not success:
@@ -663,7 +718,7 @@ def hybrid_video_feed(request, session_id):
 
 
 def generate_frames_hybrid(session_id):
-    """Generate video frames with hybrid face recognition with auto-start/stop and minute-by-minute tracking"""
+    """Generate video frames with hybrid face recognition and semester validation"""
     recognizer = get_hybrid_recognizer()
     
     if not recognizer:
@@ -673,7 +728,7 @@ def generate_frames_hybrid(session_id):
         return
     
     # Initialize camera
-    camera = cv2.VideoCapture("http://192.168.0.6:8080/video")
+    camera = cv2.VideoCapture(0)
     if not camera.isOpened():
         yield (b"--frame\r\n"
                b"Content-Type: text/plain\r\n\r\n"
@@ -685,28 +740,24 @@ def generate_frames_hybrid(session_id):
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     
-    # Get FPS settings from config
+    # Get FPS settings
     fps_target = RECOGNITION_CONFIG.get('FPS_TARGET', 30)
     frame_skip = RECOGNITION_CONFIG.get('FRAME_SKIP', 1)
-    
-    # Try to set camera to target FPS
     camera.set(cv2.CAP_PROP_FPS, fps_target)
-    actual_fps = camera.get(cv2.CAP_PROP_FPS)
-    print(f"📷 Camera FPS: {actual_fps:.1f} | Target: {fps_target} | Frame Skip: {frame_skip}")
     
     session = get_object_or_404(AttendanceSession, id=session_id)
     print(f"\n🎥 Starting hybrid video feed for: {session.subject_name}")
+    print(f"📚 Session: Semester {session.semester}, Year {session.year}, Dept {session.department}")
     
-    # === FIX: Check session status but DON'T auto-start here ===
-    # The session should already be active if we're viewing it
+    # Check session status
     if not session.is_active:
         print(f"⚠️ Session {session.subject_name} is not active. Starting it now...")
         session.is_active = True
-        session.start_time = timezone.now()  # Set start time to NOW when video starts
+        session.start_time = timezone.now()
         session.save()
         print(f"✅ Session started at: {get_local_time(session.start_time)}")
     
-    # Calculate session end time (if not set, use start_time + duration)
+    # Calculate session end time
     if not session.end_time:
         session.end_time = session.start_time + timedelta(minutes=session.expected_duration)
         session.save()
@@ -714,6 +765,11 @@ def generate_frames_hybrid(session_id):
     session_end_time = session.end_time
     end_time_local = get_local_time(session_end_time)
     print(f"⏰ Session will auto-stop at: {end_time_local.strftime('%I:%M %p')}")
+    
+    # Get enrolled students for validation
+    enrolled_students = session.get_enrolled_students()
+    enrolled_ids = set(enrolled_students.values_list('id', flat=True))
+    print(f"📊 {len(enrolled_ids)} students enrolled in this session")
     
     # Tracking variables
     logged_students = set()
@@ -724,28 +780,26 @@ def generate_frames_hybrid(session_id):
     last_auto_check_time = timezone.now()
     last_minute_marked = {}
     
-    # FPS tracking for display
+    # FPS tracking
     fps_display = 0
     fps_counter = 0
     fps_timer = time.time()
     
-    # === FIX: Track session start time for minute calculation ===
     session_start_time = session.start_time
     session_duration = session.expected_duration
     
-    # === FIX: Initialize minute tracking for all students when they are first detected ===
-    student_first_detection = {}
+    # Track invalid attempts
+    invalid_attempts = set()
     
     while True:
         try:
             current_time = timezone.now()
             
-            # Check session status every 5 seconds (auto-stop only, no auto-start)
+            # Check session status every 5 seconds (auto-stop only)
             if (current_time - last_auto_check_time).seconds >= 5:
                 last_auto_check_time = current_time
                 session.refresh_from_db()
                 
-                # === FIX: Only auto-stop, don't auto-start ===
                 if session.is_active and current_time >= session_end_time:
                     print(f"⏰ Session duration completed. Auto-stopping...")
                     session.is_active = False
@@ -770,7 +824,7 @@ def generate_frames_hybrid(session_id):
             
             frame_count += 1
             
-            # Calculate FPS for display
+            # Calculate FPS
             current_time_float = time.time()
             if prev_frame_time > 0:
                 fps = 1 / (current_time_float - prev_frame_time)
@@ -778,7 +832,7 @@ def generate_frames_hybrid(session_id):
                 fps = 0
             prev_frame_time = current_time_float
             
-            # Update display FPS every second
+            # Update display FPS
             fps_counter += 1
             if current_time_float - fps_timer >= 1.0:
                 fps_display = fps_counter
@@ -797,25 +851,67 @@ def generate_frames_hybrid(session_id):
                     quality_score = result['quality_score']
                     is_quality_good = result['is_quality_good']
                     
+                    # Check if recognized student is enrolled
+                    is_enrolled = student_id in enrolled_ids if student_id else False
+                    
+                    # Determine color based on validation
+                    if name != "Unknown" and is_enrolled and confidence > 50:
+                        color = (0, 255, 0)  # Green - Valid
+                        status_text = "✓ ENROLLED"
+                    elif name != "Unknown" and not is_enrolled and confidence > 50:
+                        color = (0, 0, 255)  # Red - Not enrolled
+                        status_text = "✗ NOT ENROLLED"
+                        # Log invalid attempt
+                        if student_id and student_id not in invalid_attempts:
+                            invalid_attempts.add(student_id)
+                            try:
+                                student = Student.objects.get(id=student_id)
+                                error_msg = (
+                                    f"⚠️ {student.full_name} (Roll: {student.roll_number}) "
+                                    f"is from Semester {student.semester}, but session is for "
+                                    f"Semester {session.semester}"
+                                )
+                                print(error_msg)
+                                # Create failed log
+                                AttendanceLog.objects.get_or_create(
+                                    session=session,
+                                    student=student,
+                                    defaults={
+                                        'status': 'ABSENT',
+                                        'confidence': confidence,
+                                        'is_validated': False,
+                                        'validation_error': error_msg,
+                                        'student_semester': student.semester,
+                                        'session_semester': session.semester,
+                                        'first_seen': current_time,
+                                        'last_seen': current_time,
+                                    }
+                                )
+                            except Student.DoesNotExist:
+                                pass
+                    else:
+                        color = (0, 0, 255)  # Red - Unknown
+                        status_text = "UNKNOWN"
+                    
                     # Draw face box
-                    color = (0, 255, 0) if name != "Unknown" and confidence > 50 else (0, 0, 255)
                     FaceUtils.draw_face_box(frame, (top, right, bottom, left), 
                                            name, confidence, student_id, color)
+                    
+                    # Add enrollment status
+                    if name != "Unknown":
+                        cv2.putText(frame, status_text, (left, bottom + 20),
+                                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
                     
                     # Show quality info
                     if not is_quality_good and result.get('issues'):
                         FaceUtils.draw_quality_info(frame, (top, right, bottom, left), 
                                                    quality_score, result['issues'])
                     
-                    # Update attendance with detailed tracking
-                    if student_id is not None and confidence > 35:
+                    # Update attendance for ENROLLED students only
+                    if student_id is not None and is_enrolled and confidence > 35:
                         try:
                             student_obj = Student.objects.get(id=student_id)
                             logged_students.add(student_id)
-                            
-                            # === FIX: Track first detection time per student ===
-                            if student_id not in student_first_detection:
-                                student_first_detection[student_id] = current_time
                             
                             # Get or create log
                             log, created = AttendanceLog.objects.get_or_create(
@@ -833,38 +929,31 @@ def generate_frames_hybrid(session_id):
                                     'minute_presence': [],
                                     'minute_count': 0,
                                     'attended_minutes': 0,
+                                    'is_validated': True,
+                                    'student_semester': student_obj.semester,
+                                    'session_semester': session.semester,
                                 }
                             )
                             
                             # Initialize minute tracking if needed
                             if created or log.minute_count == 0:
                                 log.reset_minute_tracking(session_duration)
-                                print(f"📊 Initialized minute tracking for {name}")
                             
-                            # === FIX: Calculate minute from SESSION START, not first detection ===
+                            # Calculate minute from session start
                             elapsed_from_start = (current_time - session_start_time).total_seconds() / 60
                             minute_index = int(elapsed_from_start)
                             
-                            # Ensure minute index is within bounds
                             if minute_index >= session_duration:
                                 minute_index = session_duration - 1
                             
-                            # === FIX: Only mark minute if student was detected for at least 30 seconds in this minute ===
-                            # Track detection count per minute for this student
-                            minute_key = f"{student_id}_{minute_index}"
-                            
-                            # Check if this minute is already marked
+                            # Mark minute as present
                             if last_minute_marked.get(student_id) != minute_index:
                                 if 0 <= minute_index < session_duration:
-                                    # Mark the minute as present
                                     if log.mark_minute_present(minute_index):
                                         last_minute_marked[student_id] = minute_index
-                                        attended_pct = log.get_minute_attendance_percentage()
-                                        print(f"✅ {name}: Minute {minute_index + 1} marked ({attended_pct:.1f}%)")
                             
                             # Update log fields
                             if not created:
-                                # Calculate time since last detection
                                 if log.last_detected:
                                     time_diff = (current_time - log.last_detected).total_seconds()
                                     if time_diff <= 30 and time_diff > 0:
@@ -884,16 +973,20 @@ def generate_frames_hybrid(session_id):
                         except Exception as e:
                             print(f"⚠️ DB error: {e}")
             
-            # Info overlay with time remaining and FPS
+            # Info overlay
             fps_display_text = int(fps_display) if fps_display > 0 else int(fps)
             if minutes_remaining > 0 or seconds_remaining > 0:
                 time_remaining_display = f"{minutes_remaining}m {seconds_remaining}s"
-                info = f"30 FPS | FPS: {fps_display_text} | Time Left: {time_remaining_display} | Logged: {len(logged_students)}"
+                info = f"FPS: {fps_display_text} | Time Left: {time_remaining_display} | Logged: {len(logged_students)} | Invalid: {len(invalid_attempts)}"
             else:
-                info = f"30 FPS | FPS: {fps_display_text} | Session Ending... | Logged: {len(logged_students)}"
+                info = f"FPS: {fps_display_text} | Session Ending... | Logged: {len(logged_students)} | Invalid: {len(invalid_attempts)}"
             
             cv2.putText(frame, info, (10, 30), 
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            
+            # Add session info
+            cv2.putText(frame, f"Sem: {session.semester} | Year: {session.year} | {session.department}", 
+                       (10, 55), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
             
             # Stream frame
             ret, buffer = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
@@ -909,6 +1002,7 @@ def generate_frames_hybrid(session_id):
     
     camera.release()
     print("🎥 Video feed ended")
+    print(f"📊 Final stats: {len(logged_students)} validated, {len(invalid_attempts)} invalid attempts")
 
 
 @login_required
@@ -939,12 +1033,28 @@ def session_details(request, session_id):
         session.save()
         print(f"⏰ Auto-stopped session in details: {session.subject_name}")
     
+    # Get all students enrolled in this session's semester/year/department
+    enrolled_students = session.get_enrolled_students()
+    
+    # Get student IDs who have attendance logs
+    present_student_ids = logs.values_list('student_id', flat=True)
+    
+    # Find absent students (enrolled but no attendance log)
+    absent_students = enrolled_students.exclude(id__in=present_student_ids)
+    
     # Calculate statistics
-    total_students = logs.count()
+    total_students = enrolled_students.count()
     present_count = logs.filter(status='PRESENT').count()
     absent_count = logs.filter(status='ABSENT').count()
     partial_count = logs.filter(status='PARTIAL').count()
     late_count = logs.filter(status='LATE').count()
+    
+    # Calculate validated stats
+    validated_count = logs.filter(is_validated=True).count() if hasattr(AttendanceLog, 'is_validated') else 0
+    
+    # Get validation failed logs - students who attempted but failed validation
+    validation_failed_logs = logs.filter(is_validated=False) if hasattr(AttendanceLog, 'is_validated') else AttendanceLog.objects.none()
+    validation_failed_count = validation_failed_logs.count()
     
     # Calculate average retention
     total_retention = 0
@@ -953,24 +1063,59 @@ def session_details(request, session_id):
     
     avg_retention = total_retention / total_students if total_students > 0 else 0
     
-    # Get students not in attendance (absent)
-    all_students = Student.objects.all()
-    present_student_ids = logs.values_list('student_id', flat=True)
-    absent_students = all_students.exclude(id__in=present_student_ids)
+    # Calculate attendance rate
+    attendance_rate = (present_count / total_students * 100) if total_students > 0 else 0
+    
+    # Prepare attendance data for each student
+    attendance_data = []
+    for student in enrolled_students:
+        log = logs.filter(student=student).first()
+        if log:
+            attendance_data.append({
+                'student': student,
+                'log': log,
+                'status': log.status,
+                'confidence': log.confidence,
+                'retention': log.retention_percentage,
+                'first_seen': log.first_seen,
+                'last_seen': log.last_seen,
+                'attended_minutes': log.attended_minutes if hasattr(log, 'attended_minutes') else 0,
+                'is_validated': log.is_validated if hasattr(log, 'is_validated') else True,
+                'validation_error': log.validation_error if hasattr(log, 'validation_error') else None,
+            })
+        else:
+            # Student is enrolled but has no log (absent)
+            attendance_data.append({
+                'student': student,
+                'log': None,
+                'status': 'ABSENT',
+                'confidence': 0,
+                'retention': 0,
+                'first_seen': None,
+                'last_seen': None,
+                'attended_minutes': 0,
+                'is_validated': False,
+                'validation_error': None,
+            })
     
     context = {
         'session': session,
         'logs': logs,
+        'attendance_data': attendance_data,
         'total_students': total_students,
         'present_count': present_count,
         'absent_count': absent_count,
         'partial_count': partial_count,
         'late_count': late_count,
         'avg_retention': round(avg_retention, 1),
-        'absent_students': absent_students,
-        'min_retention_required': 80,
+        'attendance_rate': round(attendance_rate, 1),
+        'absent_students': absent_students,  # Students with no attendance log
+        'validated_count': validated_count,
+        'validation_failed_count': validation_failed_count,
+        'validation_failed_logs': validation_failed_logs,  # Pass the actual logs
         'start_time_local': get_local_time(session.start_time),
         'end_time_local': get_local_time(session.end_time),
+        'min_retention_required': 80,
     }
     
     return render(request, 'attendance/session_details.html', context)
@@ -1294,7 +1439,6 @@ def student_attendance_record(request, student_id):
     
     return render(request, 'attendance/student_attendance_record.html', context)
 
-
 @login_required
 def attendance_records(request):
     """
@@ -1320,6 +1464,16 @@ def attendance_records(request):
     if semester_filter:
         logs = logs.filter(student__semester=semester_filter)
     
+    # Subject filter
+    subject_filter = request.GET.get('subject', '')
+    if subject_filter:
+        logs = logs.filter(session__subject_name__icontains=subject_filter)
+    
+    # Session Semester filter (the semester the session was for)
+    session_semester_filter = request.GET.get('session_semester', '')
+    if session_semester_filter:
+        logs = logs.filter(session__semester=session_semester_filter)
+    
     # Pagination
     paginator = Paginator(logs, 25)
     page = request.GET.get('page', 1)
@@ -1341,11 +1495,31 @@ def attendance_records(request):
         year__isnull=False
     ).values_list('year', flat=True).distinct().order_by('year')
     
-    semesters = Student.objects.filter(
+    # Get semesters based on selected year (for dynamic filtering)
+    year_filter_val = request.GET.get('year', '')
+    if year_filter_val:
+        semesters = Student.objects.filter(
+            year=year_filter_val,
+            semester__isnull=False
+        ).values_list('semester', flat=True).distinct().order_by('semester')
+    else:
+        semesters = Student.objects.filter(
+            semester__isnull=False
+        ).values_list('semester', flat=True).distinct().order_by('semester')
+    
+    # Get unique subjects from sessions
+    subjects = AttendanceSession.objects.filter(
+        subject_name__isnull=False
+    ).exclude(
+        subject_name=''
+    ).values_list('subject_name', flat=True).distinct().order_by('subject_name')
+    
+    # Get session semesters (semesters that sessions were conducted for)
+    session_semesters = AttendanceSession.objects.filter(
         semester__isnull=False
     ).values_list('semester', flat=True).distinct().order_by('semester')
     
-    # Get semesters by year for dynamic filtering
+    # Get semesters by year for dynamic filtering in template (if needed)
     semesters_by_year = {}
     for year in years:
         sems = Student.objects.filter(
@@ -1361,6 +1535,10 @@ def attendance_records(request):
     partial_count = AttendanceLog.objects.filter(status='PARTIAL').count()
     late_count = AttendanceLog.objects.filter(status='LATE').count()
     
+    # For pagination info
+    start_index = (logs_page.number - 1) * paginator.per_page + 1 if logs_page.number > 0 else 0
+    end_index = min(start_index + paginator.per_page - 1, paginator.count)
+    
     context = {
         'logs': logs_page,
         'total_logs': total_logs,
@@ -1371,11 +1549,324 @@ def attendance_records(request):
         'departments': list(departments),
         'years': list(years),
         'semesters': list(semesters),
+        'subjects': list(subjects),
+        'session_semesters': list(session_semesters),
         'semesters_by_year': semesters_by_year,
         'status_filter': status_filter,
         'department_filter': department_filter,
         'year_filter': year_filter,
         'semester_filter': semester_filter,
+        'subject_filter': subject_filter,
+        'session_semester_filter': session_semester_filter,
+        'start_index': start_index,
+        'end_index': end_index,
     }
     
     return render(request, 'attendance/attendance_records.html', context)
+
+@login_required
+def weekly_attendance_report(request):
+    """
+    Attendance report in grid format with date range support (day, week, month)
+    """
+    # Get filter parameters
+    department_filter = request.GET.get('department', '')
+    semester_filter = request.GET.get('semester', '')
+    year_filter = request.GET.get('year', '')
+    section_filter = request.GET.get('section', '')
+    
+    # Date range parameters
+    date_range_type = request.GET.get('date_range', 'week')  # 'day', 'week', 'month'
+    start_date_str = request.GET.get('start_date', '')
+    end_date_str = request.GET.get('end_date', '')
+    
+    today = timezone.now().date()
+    
+    # Calculate date range based on selection
+    if start_date_str and end_date_str:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            start_date = today
+            end_date = today
+    else:
+        if date_range_type == 'day':
+            start_date = today
+            end_date = today
+        elif date_range_type == 'week':
+            start_date = today - timedelta(days=today.weekday())
+            end_date = start_date + timedelta(days=4)  # Monday to Friday
+        elif date_range_type == 'month':
+            start_date = today.replace(day=1)
+            # Get last day of month
+            if today.month == 12:
+                end_date = today.replace(year=today.year + 1, month=1, day=1) - timedelta(days=1)
+            else:
+                end_date = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
+        else:
+            start_date = today - timedelta(days=today.weekday())
+            end_date = start_date + timedelta(days=4)
+    
+    # Generate date list
+    date_list = []
+    current = start_date
+    while current <= end_date:
+        date_list.append(current)
+        current += timedelta(days=1)
+    
+    # Get students based on filters
+    students = Student.objects.all().order_by('full_name')
+    
+    if department_filter:
+        students = students.filter(department__iexact=department_filter)
+    if semester_filter:
+        students = students.filter(semester=semester_filter)
+    if year_filter:
+        students = students.filter(year=year_filter)
+    if section_filter:
+        students = students.filter(section__iexact=section_filter)
+    
+    # Prepare attendance data for each student
+    attendance_data = []
+    summary_stats = {
+        'total_students': 0,
+        'total_days': len(date_list),
+        'present_counts': {},
+        'absent_counts': {},
+        'no_session_counts': {},
+        'total_present': 0,
+        'total_absent': 0,
+        'total_no_session': 0,
+        'attendance_percentage': 0
+    }
+    
+    # Initialize summary stats for each date
+    for date_obj in date_list:
+        date_str = date_obj.strftime('%Y-%m-%d')
+        summary_stats['present_counts'][date_str] = 0
+        summary_stats['absent_counts'][date_str] = 0
+        summary_stats['no_session_counts'][date_str] = 0
+    
+    for student in students:
+        student_data = {
+            'student': student,
+            'days': []
+        }
+        
+        for date_obj in date_list:
+            date_str = date_obj.strftime('%Y-%m-%d')
+            # Check if student has attendance on this date
+            log = AttendanceLog.objects.filter(
+                student=student,
+                session__date=date_obj,
+                is_validated=True
+            ).first()
+            
+            if log and log.status in ['PRESENT', 'PARTIAL']:
+                status = 'PRESENT'
+                summary_stats['present_counts'][date_str] += 1
+                summary_stats['total_present'] += 1
+            else:
+                # Check if student has any log on this date
+                any_log = AttendanceLog.objects.filter(
+                    student=student,
+                    session__date=date_obj
+                ).exists()
+                
+                if any_log:
+                    status = 'ABSENT'
+                    summary_stats['absent_counts'][date_str] += 1
+                    summary_stats['total_absent'] += 1
+                else:
+                    # Check if student has a session on this date
+                    has_session = AttendanceSession.objects.filter(
+                        date=date_obj,
+                        semester=student.semester,
+                        year=student.year
+                    ).exists()
+                    
+                    if has_session:
+                        status = 'ABSENT'
+                        summary_stats['absent_counts'][date_str] += 1
+                        summary_stats['total_absent'] += 1
+                    else:
+                        status = 'NO_SESSION'
+                        summary_stats['no_session_counts'][date_str] += 1
+                        summary_stats['total_no_session'] += 1
+            
+            student_data['days'].append({
+                'date': date_str,
+                'day_name': date_obj.strftime('%a'),
+                'full_date': date_obj.strftime('%b %d, %Y'),
+                'status': status
+            })
+        
+        attendance_data.append(student_data)
+    
+    # Calculate summary
+    total_students = students.count()
+    total_sessions = 0
+    
+    for date_obj in date_list:
+        total_sessions += AttendanceSession.objects.filter(
+            date=date_obj
+        ).count()
+    
+    summary_stats['total_students'] = total_students
+    
+    total_possible_attendances = total_students * len(date_list)
+    total_actual_present = summary_stats['total_present']
+    
+    if total_possible_attendances > 0:
+        summary_stats['attendance_percentage'] = round(
+            (total_actual_present / total_possible_attendances) * 100, 1
+        )
+    
+    # Get filter options
+    departments = Student.objects.values_list('department', flat=True).distinct().order_by('department')
+    semesters = Student.objects.values_list('semester', flat=True).distinct().order_by('semester')
+    years = Student.objects.values_list('year', flat=True).distinct().order_by('year')
+    sections = Student.objects.values_list('section', flat=True).distinct().order_by('section')
+    
+    # Date range display
+    if start_date == end_date:
+        date_range_display = start_date.strftime('%B %d, %Y')
+    else:
+        date_range_display = f"{start_date.strftime('%b %d')} - {end_date.strftime('%b %d, %Y')}"
+    
+    # For date input values
+    start_date_val = start_date.strftime('%Y-%m-%d')
+    end_date_val = end_date.strftime('%Y-%m-%d')
+    
+    context = {
+        'attendance_data': attendance_data,
+        'date_list': date_list,
+        'date_range_display': date_range_display,
+        'start_date': start_date,
+        'end_date': end_date,
+        'start_date_val': start_date_val,
+        'end_date_val': end_date_val,
+        'date_range_type': date_range_type,
+        'summary': summary_stats,
+        'departments': departments,
+        'semesters': semesters,
+        'years': years,
+        'sections': sections,
+        'department_filter': department_filter,
+        'semester_filter': semester_filter,
+        'year_filter': year_filter,
+        'section_filter': section_filter,
+    }
+    
+    return render(request, 'attendance/attendance_report.html', context)
+
+@login_required
+def export_attendance_report_csv(request):
+    """
+    Export attendance report as CSV with date range support
+    """
+    import csv
+    from django.http import HttpResponse
+    
+    # Get filter parameters
+    department_filter = request.GET.get('department', '')
+    semester_filter = request.GET.get('semester', '')
+    year_filter = request.GET.get('year', '')
+    section_filter = request.GET.get('section', '')
+    
+    # Date range parameters
+    start_date_str = request.GET.get('start_date', '')
+    end_date_str = request.GET.get('end_date', '')
+    date_range_type = request.GET.get('date_range', 'week')
+    
+    today = timezone.now().date()
+    
+    if start_date_str and end_date_str:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            start_date = today - timedelta(days=today.weekday())
+            end_date = start_date + timedelta(days=4)
+    else:
+        if date_range_type == 'day':
+            start_date = today
+            end_date = today
+        elif date_range_type == 'week':
+            start_date = today - timedelta(days=today.weekday())
+            end_date = start_date + timedelta(days=4)
+        elif date_range_type == 'month':
+            start_date = today.replace(day=1)
+            if today.month == 12:
+                end_date = today.replace(year=today.year + 1, month=1, day=1) - timedelta(days=1)
+            else:
+                end_date = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
+        else:
+            start_date = today - timedelta(days=today.weekday())
+            end_date = start_date + timedelta(days=4)
+    
+    # Generate date list
+    date_list = []
+    current = start_date
+    while current <= end_date:
+        date_list.append(current)
+        current += timedelta(days=1)
+    
+    # Get students
+    students = Student.objects.all().order_by('full_name')
+    
+    if department_filter:
+        students = students.filter(department__iexact=department_filter)
+    if semester_filter:
+        students = students.filter(semester=semester_filter)
+    if year_filter:
+        students = students.filter(year=year_filter)
+    if section_filter:
+        students = students.filter(section__iexact=section_filter)
+    
+    # Prepare CSV
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="attendance_report_{start_date.strftime("%Y-%m-%d")}.csv"'
+    
+    writer = csv.writer(response)
+    
+    # Header row
+    header = ['Name', 'ID No.', 'Department', 'Semester', 'Section']
+    for date_obj in date_list:
+        header.append(date_obj.strftime('%a %m/%d'))
+    writer.writerow(header)
+    
+    # Data rows
+    for student in students:
+        row = [student.full_name, student.roll_number, student.department, student.semester, student.section]
+        for date_obj in date_list:
+            log = AttendanceLog.objects.filter(
+                student=student,
+                session__date=date_obj,
+                is_validated=True
+            ).first()
+            
+            if log and log.status in ['PRESENT', 'PARTIAL']:
+                row.append('P')
+            else:
+                # Check if there was a session
+                has_session = AttendanceSession.objects.filter(
+                    date=date_obj,
+                    semester=student.semester,
+                    year=student.year
+                ).exists()
+                if has_session:
+                    row.append('A')
+                else:
+                    row.append('-')
+        writer.writerow(row)
+    
+    # Summary footer
+    writer.writerow([])
+    writer.writerow(['ATTENDANCE SUMMARY'])
+    writer.writerow(['Total Students:', students.count()])
+    writer.writerow(['Date Range:', f'{start_date.strftime("%Y-%m-%d")} to {end_date.strftime("%Y-%m-%d")}'])
+    writer.writerow(['Generated on:', timezone.now().strftime('%Y-%m-%d %H:%M:%S')])
+    
+    return response
