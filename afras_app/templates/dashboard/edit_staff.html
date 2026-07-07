@@ -1,168 +1,355 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
 
-{% block title %}{{ page_title }}{% endblock %}
+{% block title %}Update Staff Record{% endblock %}
 
-{% block extra_head %}
-<link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap"
-    rel="stylesheet">
-
+{% block content %}
 <style>
-    :root {
-        --primary-glow: rgba(0, 98, 255, 0.4);
-        --bg-glow: radial-gradient(circle at 50% 50%, #1e293b 0%, #030712 100%);
-        --surface-card: #111827;
-        --border-subtle: rgba(255, 255, 255, 0.1);
-        --text-dim: #9ca3af;
-        --success: #10b981;
-        --warning: #f59e0b;
+    .page-container {
+        padding: 0.5rem;
+        max-width: 1400px;
     }
 
-    /* Layout Wrapper */
-    .enrollment-page-wrapper {
+    /* ============================================
+       PAGE HEADER
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
         display: flex;
-        justify-content: center;
+        padding: 1rem 1.5rem;
+        justify-content: space-between;
         align-items: center;
-        min-height: calc(100vh - 100px);
-        padding: 20px;
+        flex-wrap: wrap;
+        gap: 1rem;
+        color: var(--primary-text);
+        margin-bottom: 1rem;
     }
 
-    .enrollment-card {
-        background: var(--bg);
-        border: 1px solid var(--border-subtle);
-        border-radius: 28px;
-        padding: 2.5rem;
-        width: 100%;
-        max-width: 750px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(10px);
+    .page-header .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
     }
 
-    header h2 {
-        font-size: 1.8rem;
-        font-weight: 800;
-        letter-spacing: -1px;
-        margin-bottom: 8px;
-        text-align: center;
-        color: var(--main-text);
+    .page-header .header-left p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0;
     }
 
-    header p {
-        text-align: center;
-        margin-bottom: 30px;
-        color: var(--text-dim);
+    .page-header .header-left .breadcrumb {
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header .header-left .breadcrumb a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .page-header .header-left .breadcrumb a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .page-header .header-left .breadcrumb .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .page-header .header-left .breadcrumb .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .page-header .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-secondary {
+        padding: 0.6rem 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        font-weight: 500;
         font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
     }
 
-    /* Form Styling */
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    /* ============================================
+       FORM CARD
+    ============================================ */
+    .form-card {
+        background: #fff;
+        border-radius: 0 0 12px 12px;
+        border: 1px solid #f1f5f9;
+        padding: 2rem;
+        border-top: none;
+    }
+
     .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 15px;
+        gap: 1.25rem;
     }
 
     .input-group {
-        margin-bottom: 1rem;
         display: flex;
         flex-direction: column;
         gap: 6px;
     }
 
-    .full-width {
+    .input-group.full-width {
         grid-column: span 2;
     }
 
     .input-group label {
         font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--text-dim);
+        font-weight: 600;
+        color: #64748b;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
         display: flex;
         align-items: center;
         gap: 8px;
     }
 
-    /* Target Django form widgets */
+    .input-group label i {
+        color: #94a3b8;
+        font-size: 0.8rem;
+    }
+
     .input-group input,
     .input-group select,
     .input-group textarea {
-        background: var(--primary-text) !important;
-        border: 1px solid var(--border-subtle) !important;
-        color: var(--main-text) !important;
+        background: #f8fafc !important;
+        border: 1.5px solid #e2e8f0 !important;
+        color: #0f172a !important;
         padding: 10px 14px !important;
         border-radius: 10px !important;
-        font-family: 'JetBrains Mono', monospace !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
         font-size: 0.85rem !important;
         transition: all 0.3s ease !important;
         width: 100%;
+        box-sizing: border-box;
     }
 
     .input-group input:focus,
-    .input-group select:focus {
+    .input-group select:focus,
+    .input-group textarea:focus {
         outline: none !important;
-        border-color: var(--primary) !important;
-        box-shadow: 0 0 0 4px var(--primary-glow) !important;
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06) !important;
+        background: #ffffff !important;
     }
 
-    /* Action Buttons */
-    .action-bar {
+    .input-group .field-help {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin-top: 4px;
+        font-style: italic;
+    }
+
+    .input-group .error-message {
+        color: #dc2626;
+        font-size: 0.75rem;
+        margin-top: 4px;
         display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin-top: 2rem;
+        align-items: center;
+        gap: 5px;
     }
 
-    .btn-submit {
-        background: var(--primary);
-        color: white;
-        border: none;
-        padding: 14px 30px;
-        border-radius: 24px;
-        font-weight: 700;
+    .input-group .error-message i {
+        font-size: 0.7rem;
+    }
+
+    /* ============================================
+       PROFILE PREVIEW
+    ============================================ */
+    .profile-preview-section {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        padding: 1.5rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .profile-preview-section .preview-circle {
+        width: 100px;
+        height: 100px;
+        border-radius: 16px;
+        object-fit: cover;
+        border: 3px solid #6366f1;
         cursor: pointer;
-        display: flex;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+    }
+
+    .profile-preview-section .preview-circle:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25);
+    }
+
+    .profile-preview-section .profile-info-text {
+        flex: 1;
+    }
+
+    .profile-preview-section .profile-info-text h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 4px 0;
+    }
+
+    .profile-preview-section .profile-info-text p {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin: 0 0 2px 0;
+    }
+
+    .profile-preview-section .profile-info-text .designation-badge {
+        display: inline-flex;
         align-items: center;
-        gap: 10px;
-        transition: 0.3s;
-    }
-
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px var(--primary-glow);
-    }
-
-    .btn-discard {
-        background: transparent;
-        color: var(--text-dim);
-        border: 2px solid var(--primary);
-        padding: 14px 30px;
-        border-radius: 24px;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
         font-weight: 600;
-        text-decoration: none;
-        transition: 0.3s;
+        background: #e0e7ff;
+        color: #4f46e5;
+        margin-top: 4px;
     }
 
-    .btn-discard:hover {
-        background: rgba(26, 86, 148, 0.1);
-        border-color: var(--primary);
-        color: var(--primary);
-
+    .profile-preview-section .profile-info-text .admin-badge {
+        background: #fef3c7;
+        color: #d97706;
     }
 
-    /* Admin Card Specific */
-    .admin-access-panel {
-        background: rgba(245, 158, 11, 0.05);
-        border: 1px solid rgba(245, 158, 11, 0.2);
-        padding: 12px 20px;
-        border-radius: 15px;
+    /* ============================================
+       FILE UPLOAD
+    ============================================ */
+    .file-upload-section {
         display: flex;
-        flex-direction: row;
-        align-items: center;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .file-upload {
+        border: 2px dashed #e2e8f0;
+        padding: 1.5rem;
+        text-align: center;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #fafbfc;
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
         justify-content: center;
-        gap: 15px;
-        width: 100%;
+        align-items: center;
+    }
+
+    .file-upload:hover {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.03);
+    }
+
+    .file-upload i {
+        font-size: 1.5rem;
+        color: #6366f1;
+        margin-bottom: 4px;
+    }
+
+    .file-upload p {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin: 0;
+    }
+
+    .file-upload .preview-img {
+        max-width: 100%;
+        max-height: 120px;
+        object-fit: contain;
+        border-radius: 8px;
+        margin-top: 8px;
+    }
+
+    .file-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        font-size: 0.75rem;
+        color: #1e293b;
+    }
+
+    .file-info i {
+        color: #6366f1;
+    }
+
+    .remove-file-btn {
+        background: none;
+        border: none;
+        color: #dc2626;
+        cursor: pointer;
+        padding: 4px 8px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s;
+    }
+
+    .remove-file-btn:hover {
+        color: #b91c1c;
+        transform: scale(1.05);
+    }
+
+    /* ============================================
+       ADMIN ACCESS PANEL
+    ============================================ */
+    .admin-access-panel {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        padding: 1rem 1.25rem;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .admin-access-panel:hover {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.02);
     }
 
     .admin-access-panel input[type="checkbox"] {
@@ -170,45 +357,140 @@
         height: 18px !important;
         margin: 0 !important;
         cursor: pointer;
-        accent-color: var(--warning);
+        accent-color: #6366f1;
+        flex-shrink: 0;
     }
 
     .admin-access-panel label {
-        color: var(--warning);
-        font-size: 0.75rem;
+        color: #1e293b;
+        font-size: 0.85rem;
         cursor: pointer;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        white-space: nowrap;
+        font-weight: 500;
         margin: 0 !important;
+        text-transform: none !important;
+        letter-spacing: 0 !important;
     }
 
-    /* Profile Image Preview */
-    .current-profile-preview {
+    .admin-access-panel label i {
+        color: #f59e0b;
+        margin-right: 6px;
+    }
+
+    .admin-access-panel .admin-hint {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin-left: auto;
+        font-weight: 400;
+    }
+
+    /* ============================================
+       ACTION BAR
+    ============================================ */
+    .action-bar {
         display: flex;
-        justify-content: center;
-        margin-bottom: 20px;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #f1f5f9;
     }
 
-    .preview-circle {
-        width: 80px;
-        height: 80px;
-        border-radius: 20px;
-        border: 2px solid var(--primary);
-        object-fit: cover;
-        padding: 3px;
+    .btn-submit {
+        background: #6366f1;
+        color: #fff;
+        border: none;
+        padding: 0.7rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
         cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         transition: all 0.3s ease;
     }
 
-    .preview-circle:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 20px var(--primary-glow);
-        border-color: var(--primary);
+    .btn-submit:hover {
+        background: #4f46e5;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
     }
 
-    /* PHOTO MODAL STYLES */
+    .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    .btn-discard {
+        background: transparent;
+        color: #64748b;
+        border: 1.5px solid #e2e8f0;
+        padding: 0.7rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-discard:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    /* ============================================
+       MESSAGES
+    ============================================ */
+    .message-container {
+        margin-bottom: 1.5rem;
+    }
+
+    .message {
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    .message.success {
+        background: #dcfce7;
+        border: 1px solid #86efac;
+        color: #16a34a;
+    }
+
+    .message.error {
+        background: #fee2e2;
+        border: 1px solid #fca5a5;
+        color: #dc2626;
+    }
+
+    .message.warning {
+        background: #fef3c7;
+        border: 1px solid #fcd34d;
+        color: #d97706;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ============================================
+       PHOTO MODAL
+    ============================================ */
     .photo-modal-overlay {
         display: none;
         position: fixed;
@@ -217,61 +499,51 @@
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.9);
-        backdrop-filter: blur(10px);
-        z-index: 9999;
+        backdrop-filter: blur(8px);
+        z-index: 10000;
         align-items: center;
         justify-content: center;
-        animation: fadeIn 0.3s ease;
     }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-
-        to {
-            opacity: 1;
-        }
+    .photo-modal-overlay.active {
+        display: flex;
     }
 
     .photo-modal {
         position: relative;
         max-width: 90%;
         max-height: 90%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        animation: zoomIn 0.3s ease;
+        animation: modalSlideIn 0.3s ease-out;
     }
 
-    @keyframes zoomIn {
+    @keyframes modalSlideIn {
         from {
-            transform: scale(0.9);
             opacity: 0;
+            transform: scale(0.95);
         }
-
         to {
-            transform: scale(1);
             opacity: 1;
+            transform: scale(1);
         }
     }
 
-    .modal-photo {
+    .photo-modal .modal-photo {
         max-width: 100%;
         max-height: 80vh;
-        border-radius: 20px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        border-radius: 16px;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
         object-fit: contain;
         background: #000;
+        transition: transform 0.3s ease;
     }
 
-    .modal-close {
+    .photo-modal .modal-close {
         position: absolute;
-        top: -40px;
-        right: -40px;
+        top: -45px;
+        right: -45px;
         background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
+        color: #fff;
         width: 40px;
         height: 40px;
         border-radius: 50%;
@@ -281,49 +553,42 @@
         cursor: pointer;
         font-size: 1.2rem;
         transition: all 0.3s ease;
-        backdrop-filter: blur(5px);
     }
 
-    .modal-close:hover {
+    .photo-modal .modal-close:hover {
         background: rgba(255, 255, 255, 0.2);
         transform: rotate(90deg);
     }
 
-    .modal-info {
-        margin-top: 20px;
+    .photo-modal .modal-info {
         text-align: center;
-        color: white;
+        margin-top: 1rem;
+        color: #fff;
     }
 
-    .modal-info h3 {
-        font-size: 1.2rem;
-        margin-bottom: 5px;
-        color: white;
+    .photo-modal .modal-info h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 4px 0;
     }
 
-    .modal-info p {
-        color: var(--text-dim);
-        font-size: 0.9rem;
+    .photo-modal .modal-info p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.85rem;
+        margin: 0;
     }
 
-    /* Zoom controls */
     .zoom-controls {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
         display: flex;
-        gap: 10px;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 10px 20px;
-        border-radius: 30px;
-        backdrop-filter: blur(10px);
+        gap: 8px;
+        justify-content: center;
+        margin-top: 1rem;
     }
 
     .zoom-btn {
         background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #fff;
         width: 40px;
         height: 40px;
         border-radius: 50%;
@@ -331,7 +596,6 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        font-size: 1rem;
         transition: all 0.3s ease;
     }
 
@@ -340,106 +604,317 @@
         transform: scale(1.1);
     }
 
-    .download-btn {
-        background: rgba(0, 98, 255, 0.2);
-        border: 1px solid rgba(0, 98, 255, 0.4);
-        color: var(--primary);
+    .zoom-btn.download-btn {
+        background: rgba(99, 102, 241, 0.2);
+        border-color: rgba(99, 102, 241, 0.3);
     }
 
-    .download-btn:hover {
-        background: rgba(0, 98, 255, 0.3);
+    .zoom-btn.download-btn:hover {
+        background: rgba(99, 102, 241, 0.3);
+    }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 992px) {
+        .form-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 1rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1rem;
+        }
+
+        .page-header .header-actions {
+            width: 100%;
+        }
+
+        .page-header .header-actions .btn-secondary {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .form-card {
+            padding: 1rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .input-group.full-width {
+            grid-column: span 1;
+        }
+
+        .profile-preview-section {
+            flex-direction: column;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .action-bar {
+            flex-direction: column;
+        }
+
+        .action-bar .btn-submit,
+        .action-bar .btn-discard {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .admin-access-panel {
+            flex-wrap: wrap;
+        }
+
+        .admin-access-panel .admin-hint {
+            margin-left: 0;
+            width: 100%;
+        }
+
+        .photo-modal .modal-close {
+            top: -40px;
+            right: 0;
+        }
+
+        .zoom-controls {
+            flex-wrap: wrap;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .form-card {
+            padding: 0.75rem;
+        }
+
+        .profile-preview-section .preview-circle {
+            width: 80px;
+            height: 80px;
+        }
+
+        .admin-access-panel {
+            padding: 0.75rem 1rem;
+        }
+
+        .admin-access-panel label {
+            font-size: 0.75rem;
+        }
     }
 </style>
-{% endblock %}
 
-{% block content %}
+<div class="page-container">
+    <!-- ============================================
+    PAGE HEADER
+    ============================================ -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="breadcrumb">
+                <a href="{% url 'dashboard_home' %}">Dashboard</a>
+                <span class="separator">/</span>
+                <a href="{% url 'staff-directory' %}">Staff Directory</a>
+                <span class="separator">/</span>
+                <span class="current">Update Staff</span>
+            </div>
+            <h1>Update Staff Record</h1>
+            <p>Edit details for <strong style="color: #fff;">{{ staff_profile.full_name }}</strong> ({{ staff_profile.designation }})</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'staff-directory' %}" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Directory
+            </a>
+        </div>
+    </div>
 
-<div class="enrollment-page-wrapper">
-    <div class="enrollment-card">
-        <header>
-            <div class="current-profile-preview">
+    <!-- ============================================
+    MESSAGES
+    ============================================ -->
+    {% if messages %}
+    <div class="message-container">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">
+            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ============================================
+    FORM CARD
+    ============================================ -->
+    <div class="form-card">
+        <!-- Profile Preview -->
+        <div class="profile-preview-section">
+            <div>
                 {% if staff_profile.photo %}
                 <img src="{{ staff_profile.photo.url }}" class="preview-circle" id="preview-target"
                     onclick="openPhotoModal('{{ staff_profile.photo.url }}', '{{ staff_profile.full_name }}', '{{ staff_profile.designation }}')"
                     title="Click to view full size">
                 {% else %}
-                <img src="https://ui-avatars.com/api/?name={{ staff_profile.full_name }}&background=0062ff&color=fff"
+                <img src="https://ui-avatars.com/api/?name={{ staff_profile.full_name }}&background=6366f1&color=fff&size=128"
                     class="preview-circle" id="preview-target"
-                    onclick="openPhotoModal('https://ui-avatars.com/api/?name={{ staff_profile.full_name }}&background=0062ff&color=fff', '{{ staff_profile.full_name }}', '{{ staff_profile.designation }}')"
+                    onclick="openPhotoModal('https://ui-avatars.com/api/?name={{ staff_profile.full_name }}&background=6366f1&color=fff&size=128', '{{ staff_profile.full_name }}', '{{ staff_profile.designation }}')"
                     title="Click to view full size">
                 {% endif %}
             </div>
-            <h2>Update Personnel Record</h2>
-            <p>Editing Identity: {{ staff_profile.full_name }}</p>
-        </header>
+            <div class="profile-info-text">
+                <h3>{{ staff_profile.full_name }}</h3>
+                <p><i class="fas fa-briefcase" style="color: #94a3b8; width: 16px;"></i> {{ staff_profile.designation|default:"Staff Member" }}</p>
+                <p><i class="fas fa-envelope" style="color: #94a3b8; width: 16px;"></i> {{ staff_profile.user.email|default:"No email" }}</p>
+                <p><i class="fas fa-phone" style="color: #94a3b8; width: 16px;"></i> {{ staff_profile.phone_number|default:"No phone" }}</p>
+                <div>
+                    {% if staff_profile.is_admin %}
+                    <span class="designation-badge admin-badge">
+                        <i class="fas fa-crown"></i> Administrator
+                    </span>
+                    {% else %}
+                    <span class="designation-badge">
+                        <i class="fas fa-user-tie"></i> Staff
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
 
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data" id="update-staff-form">
             {% csrf_token %}
 
             <div class="form-grid">
+                <!-- Personal Information -->
                 <div class="input-group full-width">
                     <label><i class="fas fa-user"></i> Full Name</label>
                     {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.full_name.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="input-group full-width">
                     <label><i class="fas fa-envelope"></i> Email Address</label>
                     {{ form.email }}
+                    {% if form.email.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.email.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="input-group">
                     <label><i class="fas fa-phone"></i> Contact Number</label>
                     {{ form.phone_number }}
+                    {% if form.phone_number.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.phone_number.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="input-group">
                     <label><i class="fas fa-graduation-cap"></i> Educational Degree</label>
                     {{ form.degree }}
+                    {% if form.degree.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.degree.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="input-group">
                     <label><i class="fas fa-briefcase"></i> Designation</label>
                     {{ form.designation }}
+                    {% if form.designation.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.designation.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="input-group">
                     <label><i class="fas fa-sitemap"></i> Department</label>
                     {{ form.department }}
+                    {% if form.department.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.department.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
 
+                <!-- Profile Photo Upload -->
                 <div class="input-group full-width">
                     <label><i class="fas fa-camera"></i> Update Profile Photo</label>
-                    {{ form.photo }}
+                    <div class="file-upload-section">
+                        <div class="file-upload" onclick="document.getElementById('photo-input').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Click to upload new photo</p>
+                            <img id="photo-preview" class="preview-img" style="display: none;">
+                            <input type="file" id="photo-input" name="photo" accept="image/*" style="display: none;"
+                                onchange="handlePreview(this, 'photo-preview')">
+                        </div>
+                        <button type="button" class="remove-file-btn" onclick="removeFile('photo-input', 'photo-preview')" style="display: none;" id="remove-photo-btn">
+                            <i class="fas fa-times"></i> Remove Photo
+                        </button>
+                    </div>
+                    {% if form.photo.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.photo.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
 
+                <!-- Admin Access -->
                 <div class="input-group full-width">
                     <div class="admin-access-panel">
                         {{ form.is_admin }}
                         <label for="{{ form.is_admin.id_for_label }}">
-                            Grant Administrative Privileges (Full Dashboard Access)
+                            <i class="fas fa-crown"></i> Grant Administrative Privileges
+                            <span style="font-weight: 400; color: #94a3b8; font-size: 0.7rem; margin-left: 4px;">
+                                (Full Dashboard Access)
+                            </span>
                         </label>
+                        <span class="admin-hint">
+                            <i class="fas fa-info-circle"></i> Admin users can manage all system settings
+                        </span>
                     </div>
+                    {% if form.is_admin.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.is_admin.errors.0 }}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
+            <!-- Action Bar -->
             <div class="action-bar">
-                <a href="{% url 'staff-directory' %}" class="btn-discard">Discard</a>
-                <button type="submit" class="btn-submit">
-                    <i class="fas fa-sync-alt"></i> Update Identity
+                <a href="{% url 'staff-directory' %}" class="btn-discard">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <i class="fas fa-save"></i> Update Staff
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Photo Modal -->
+<!-- ============================================
+PHOTO MODAL
+============================================ -->
 <div id="photoModal" class="photo-modal-overlay" onclick="closePhotoModal(event)">
     <div class="photo-modal" onclick="event.stopPropagation()">
         <button class="modal-close" onclick="closePhotoModal()">
             <i class="fas fa-times"></i>
         </button>
 
-        <img id="modalPhoto" class="modal-photo" alt="Staff Photo">
+        <img id="modalPhoto" class="modal-photo" alt="Staff Photo" style="transform: scale(1);">
 
         <div class="modal-info">
             <h3 id="modalName"></h3>
@@ -467,28 +942,78 @@
 
 {% block extra_scripts %}
 <script>
-    // Live Image Preview logic
-    const photoInput = document.querySelector('input[type="file"]');
-    if (photoInput) {
-        photoInput.addEventListener('change', function () {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    document.getElementById('preview-target').src = e.target.result;
-                    // Update the preview image's onclick to use the new image
-                    const previewImg = document.getElementById('preview-target');
-                    previewImg.setAttribute('data-new-src', e.target.result);
-                    previewImg.onclick = function () {
-                        openPhotoModal(e.target.result, '{{ staff_profile.full_name }}', '{{ staff_profile.designation }}');
-                    };
-                }
-                reader.readAsDataURL(file);
+    // ============================================
+    // FILE PREVIEW HANDLER
+    // ============================================
+    function handlePreview(input, previewId) {
+        const file = input.files[0];
+        const preview = document.getElementById(previewId);
+        const removeBtn = document.getElementById('remove-photo-btn');
+
+        if (!file) return;
+
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size exceeds 5MB. Please choose a smaller file.');
+            input.value = '';
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            alert('Please upload an image file.');
+            input.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            removeBtn.style.display = 'inline-flex';
+
+            // Update the preview target
+            const previewTarget = document.getElementById('preview-target');
+            if (previewTarget) {
+                previewTarget.src = e.target.result;
+                previewTarget.onclick = function () {
+                    openPhotoModal(e.target.result, '{{ staff_profile.full_name }}', '{{ staff_profile.designation }}');
+                };
             }
-        });
+        };
+        reader.readAsDataURL(file);
     }
 
-    // PHOTO MODAL FUNCTIONS - EXACT SAME AS STUDENT
+    // ============================================
+    // REMOVE FILE
+    // ============================================
+    function removeFile(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        const removeBtn = document.getElementById('remove-photo-btn');
+
+        input.value = '';
+        if (preview) {
+            preview.src = '';
+            preview.style.display = 'none';
+        }
+        if (removeBtn) {
+            removeBtn.style.display = 'none';
+        }
+
+        // Reset preview target to original
+        const previewTarget = document.getElementById('preview-target');
+        if (previewTarget) {
+            const originalSrc = '{% if staff_profile.photo %}{{ staff_profile.photo.url }}{% else %}https://ui-avatars.com/api/?name={{ staff_profile.full_name }}&background=6366f1&color=fff&size=128{% endif %}';
+            previewTarget.src = originalSrc;
+            previewTarget.onclick = function () {
+                openPhotoModal(originalSrc, '{{ staff_profile.full_name }}', '{{ staff_profile.designation }}');
+            };
+        }
+    }
+
+    // ============================================
+    // PHOTO MODAL FUNCTIONS
+    // ============================================
     let currentZoom = 1;
     let currentPhotoUrl = '';
     let currentFileName = '';
@@ -499,94 +1024,98 @@
         const modalName = document.getElementById('modalName');
         const modalDesignation = document.getElementById('modalDesignation');
 
-        // Set photo and info
         modalPhoto.src = photoUrl;
         modalName.textContent = staffName;
         modalDesignation.textContent = staffDesignation;
 
-        // Store current photo URL for download
         currentPhotoUrl = photoUrl;
         currentFileName = `${staffName.replace(/\s+/g, '_')}_${staffDesignation.replace(/\s+/g, '_')}.jpg`;
 
-        // Reset zoom
         currentZoom = 1;
         modalPhoto.style.transform = 'scale(1)';
 
-        // Show modal
-        modal.style.display = 'flex';
+        modal.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
 
     function closePhotoModal(event = null) {
-        if (event && event.target.id !== 'photoModal' && !event.target.classList.contains('modal-close')) {
-            return;
-        }
-
+        if (event && event.target.id !== 'photoModal') return;
         const modal = document.getElementById('photoModal');
-        modal.style.display = 'none';
+        modal.classList.remove('active');
         document.body.style.overflow = 'auto';
     }
 
     function zoomPhoto(amount) {
         const modalPhoto = document.getElementById('modalPhoto');
         currentZoom += amount;
-
-        // Limit zoom range
         if (currentZoom < 0.5) currentZoom = 0.5;
         if (currentZoom > 3) currentZoom = 3;
-
         modalPhoto.style.transform = `scale(${currentZoom})`;
-        modalPhoto.style.transition = 'transform 0.3s ease';
     }
 
     function resetZoom() {
         const modalPhoto = document.getElementById('modalPhoto');
         currentZoom = 1;
         modalPhoto.style.transform = 'scale(1)';
-        modalPhoto.style.transition = 'transform 0.3s ease';
     }
 
     function downloadPhoto() {
         if (!currentPhotoUrl) return;
-
         const link = document.createElement('a');
         link.href = currentPhotoUrl;
         link.download = currentFileName;
-        link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     }
 
-    // Close modal with Escape key
-    document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape') {
+    // ============================================
+    // FORM SUBMISSION
+    // ============================================
+    document.getElementById('update-staff-form').addEventListener('submit', function (e) {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    });
+
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
             closePhotoModal();
         }
     });
 
-    // Optional: Add touch gesture support for mobile zoom
+    // ============================================
+    // TOUCH GESTURES FOR ZOOM
+    // ============================================
     let touchStartDistance = 0;
 
-    document.getElementById('modalPhoto').addEventListener('touchstart', function (e) {
-        if (e.touches.length === 2) {
-            touchStartDistance = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-        }
-    });
+    document.addEventListener('DOMContentLoaded', function () {
+        const modalPhoto = document.getElementById('modalPhoto');
+        if (modalPhoto) {
+            modalPhoto.addEventListener('touchstart', function (e) {
+                if (e.touches.length === 2) {
+                    touchStartDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                }
+            });
 
-    document.getElementById('modalPhoto').addEventListener('touchmove', function (e) {
-        if (e.touches.length === 2) {
-            e.preventDefault();
-            const touchDistance = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-            const zoomChange = (touchDistance - touchStartDistance) * 0.01;
-            zoomPhoto(zoomChange);
-            touchStartDistance = touchDistance;
+            modalPhoto.addEventListener('touchmove', function (e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const touchDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    const zoomChange = (touchDistance - touchStartDistance) * 0.01;
+                    zoomPhoto(zoomChange);
+                    touchStartDistance = touchDistance;
+                }
+            });
         }
     });
 </script>

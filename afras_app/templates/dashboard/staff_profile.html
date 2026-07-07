@@ -1,397 +1,648 @@
+<!-- templates/dashboard/staff_profile.html -->
 {% extends 'dashboard/base.html' %}
 {% load static %}
 
 {% block title %}{{ staff.full_name }} - Staff Profile{% endblock %}
 
 {% block extra_head %}
+<!-- Load Photo Modal CSS -->
+<link rel="stylesheet" href="{% static 'css/photo-modal.css' %}">
+
 <style>
+    /* ============================================
+       PROFESSIONAL STAFF PROFILE STYLES
+       (Same style as session_details.html)
+    ============================================ */
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
     .profile-container {
-        width: 100%;
-        margin: 0 auto;
+        padding: 0.5rem;
+        max-width: 1400px;
     }
 
-    /* Header Styles */
-    .profile-header {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%);
+    /* ============================================
+       PAGE HEADER WITH BREADCRUMB
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         border-radius: 20px 20px 0 0;
-        padding: 2rem;
-        color: white;
-        position: relative;
-        overflow: hidden;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 98, 255, 0.2);
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
     }
 
-    .profile-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 300px;
-        height: 300px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 50%;
-        pointer-events: none;
+    .breadcrumb-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.5rem;
+        padding: 0;
     }
 
-    .profile-header::after {
-        content: '';
-        position: absolute;
-        bottom: -30%;
-        left: -10%;
-        width: 250px;
-        height: 250px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 50%;
-        pointer-events: none;
+    .breadcrumb-header a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-header a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .breadcrumb-header .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .breadcrumb-header .current {
+        color: #ffffff;
+        font-weight: 600;
     }
 
     .header-content {
-        position: relative;
-        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-content .header-left {
         display: flex;
         align-items: center;
-        gap: 2rem;
+        gap: 1.5rem;
         flex-wrap: wrap;
     }
 
+    .header-content .header-left .avatar-wrapper {
+        position: relative;
+        flex-shrink: 0;
+    }
+
     .profile-avatar {
-        width: 180px;
-        height: 180px;
-        border-radius: 20px;
-        border: 5px solid rgba(255, 255, 255, 0.3);
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
         object-fit: cover;
-        background: var(--surface-light);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        border: 4px solid rgba(255, 255, 255, 0.3);
         cursor: pointer;
         transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        background: rgba(255, 255, 255, 0.1);
     }
 
     .profile-avatar:hover {
         transform: scale(1.05);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-        border-color: white;
+        border-color: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
     }
 
     .avatar-placeholder {
-        width: 180px;
-        height: 180px;
-        border-radius: 20px;
-        border: 5px solid rgba(255, 255, 255, 0.3);
-        background: rgba(255, 255, 255, 0.1);
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15);
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
     }
 
     .avatar-placeholder:hover {
         transform: scale(1.05);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-        border-color: white;
+        border-color: rgba(255, 255, 255, 0.8);
     }
 
     .avatar-placeholder i {
-        font-size: 4rem;
-        opacity: 0.5;
-        color: white;
-    }
-
-    .header-info {
-        flex: 1;
-        min-width: 300px;
-    }
-
-    .header-info h1 {
         font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-        font-weight: 800;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        color: rgba(255, 255, 255, 0.6);
     }
 
-    .staff-id {
-        font-size: 1.1rem;
-        opacity: 0.9;
-        margin-bottom: 0.5rem;
-        font-family: 'JetBrains Mono', monospace;
-        background: rgba(255, 255, 255, 0.1);
-        padding: 8px 15px;
-        border-radius: 10px;
-        display: inline-block;
-        backdrop-filter: blur(10px);
-    }
-
-    .staff-badges {
+    .header-content .header-left .info h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
         display: flex;
+        align-items: center;
         gap: 10px;
-        margin-top: 1rem;
+    }
+
+    .header-content .header-left .info h1 i {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .header-content .header-left .info .subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
         flex-wrap: wrap;
     }
 
-    .badge {
-        background: rgba(255, 255, 255, 0.15);
-        padding: 8px 16px;
-        border-radius: 50px;
-        font-size: 0.9rem;
+    .header-content .header-left .info .subtitle .badge-status {
+        padding: 2px 14px;
+        border-radius: 100px;
+        font-size: 0.65rem;
         font-weight: 600;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-transform: uppercase;
+    }
+
+    .badge-status.active {
+        background: rgba(16, 185, 129, 0.2);
+        color: #6ee7b7;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .badge-status.inactive {
+        background: rgba(148, 163, 184, 0.15);
+        color: #94a3b8;
+        border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+
+    .header-content .header-actions {
+        display: inline-block;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-outline-light {
+        padding: 0.6rem 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    .btn-primary-light {
+        padding: 0.6rem 1.5rem;
+        background: #16a34a;
+        border: none;
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-primary-light:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+    }
+
+    /* ============================================
+       BADGES
+    ============================================ */
+    .dept-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #4f46e5;
+        background: #eef2ff;
+    }
+
+    .designation-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #d97706;
+        background: #fef3c7;
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .role-badge.admin {
+        color: #4f46e5;
+        background: #eef2ff;
+    }
+
+    .role-badge.staff {
+        color: #16a34a;
+        background: #dcfce7;
+    }
+
+    /* ============================================
+       PROFILE INFO CARDS
+    ============================================ */
+    .profile-info-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-card {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #f1f5f9;
+        text-align: center;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        border-color: #e2e8f0;
+    }
+
+    .info-card .label {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        display: block;
+    }
+
+    .info-card .value {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    /* ============================================
+       PROFILE SECTIONS - Grid Layout
+    ============================================ */
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .profile-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+    }
+
+    .profile-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        border-color: #e2e8f0;
+    }
+
+    .profile-card .card-header {
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #f8fafc;
+    }
+
+    .profile-card .card-header h3 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
         display: flex;
         align-items: center;
         gap: 8px;
     }
 
-    .badge i {
-        font-size: 0.8rem;
+    .profile-card .card-header h3 i {
+        color: #6366f1;
     }
 
-    /* Profile Sections */
-    .profile-sections {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+    .profile-card .card-body {
+        padding: 1rem 1.25rem;
     }
 
-    .profile-section {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-    }
-
-    .profile-section:hover {
-        border-color: var(--primary);
-        box-shadow: 0 8px 20px rgba(0, 98, 255, 0.05);
-    }
-
-    .section-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding-bottom: 0.5rem;
-        margin-bottom: 1rem;
-        border-bottom: 2px solid var(--border);
-    }
-
-    .section-header i {
-        font-size: 1.2rem;
-        color: var(--primary);
-        width: 35px;
-        height: 35px;
-        background: rgba(0, 98, 255, 0.1);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .section-header h2 {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: var(--text-main);
-        flex: 1;
-    }
-
-    .info-grid {
-        display: grid;
-        gap: 1.2rem;
-    }
-
+    /* Info Items */
     .info-item {
         display: flex;
         align-items: flex-start;
         gap: 12px;
-        padding: 12px;
-        border-radius: 10px;
-        background: var(--surface-light);
-        transition: all 0.2s ease;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
     }
 
-    .info-item:hover {
-        background: rgba(0, 98, 255, 0.05);
-        transform: translateX(5px);
+    .info-item:last-child {
+        border-bottom: none;
     }
 
-    .info-item i {
-        color: var(--primary);
-        font-size: 1rem;
+    .info-item .icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
-        width: 20px;
-        text-align: center;
-    }
-
-    .info-content {
-        flex: 1;
-    }
-
-    .info-content label {
-        display: block;
+        background: rgba(99, 102, 241, 0.08);
+        color: #6366f1;
         font-size: 0.8rem;
-        color: var(--text-dim);
+    }
+
+    .info-item .content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .info-item .content .label {
+        font-size: 0.6rem;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 4px;
-        font-weight: 600;
+        color: #94a3b8;
+        display: block;
+        margin-bottom: 1px;
     }
 
-    .info-content .value {
-        font-size: 14px;
-        color: var(--text-main);
+    .info-item .content .value {
+        font-size: 0.85rem;
+        color: #0f172a;
+        font-weight: 500;
         word-break: break-word;
-        line-height: 1.4;
     }
 
-    .info-content .value a {
-        color: var(--primary);
+    .info-item .content .value a {
+        color: #6366f1;
         text-decoration: none;
-        transition: all 0.2s;
     }
 
-    .info-content .value a:hover {
+    .info-item .content .value a:hover {
         text-decoration: underline;
     }
 
-    /* Action Buttons */
+    /* ============================================
+       ACTION BUTTONS
+    ============================================ */
     .action-buttons {
         display: flex;
-        gap: 15px;
-        justify-content: center;
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 1px solid var(--border);
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        padding: 0 0 1rem 0;
     }
 
     .btn-action {
-        padding: 12px 24px;
+        padding: 0.6rem 1.5rem;
         border-radius: 10px;
-        text-decoration: none;
         font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
         display: inline-flex;
         align-items: center;
-        gap: 10px;
-        transition: all 0.3s ease;
-        min-width: 150px;
-        justify-content: center;
-        font-size: 14px;
+        gap: 8px;
+        text-decoration: none;
+        border: none;
     }
 
-    .btn-back {
+    .btn-action.back {
         background: transparent;
-        border: 1px solid var(--border);
-        color: var(--text-main);
+        border: 1.5px solid #e2e8f0;
+        color: #0f172a;
     }
 
-    .btn-back:hover {
-        background: var(--surface-light);
-        border-color: var(--primary);
-        color: var(--primary);
-    }
-
-    .btn-edit {
-        background: var(--primary);
-        color: white;
-        border: 1px solid var(--primary);
-    }
-
-    .btn-edit:hover {
+    .btn-action.back:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
         transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(0, 98, 255, 0.3);
     }
 
-    .btn-delete {
+    .btn-action.edit {
+        background: #6366f1;
+        color: #ffffff;
+        border: 1.5px solid #6366f1;
+    }
+
+    .btn-action.edit:hover {
+        background: #4f46e5;
+        border-color: #4f46e5;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-action.delete {
         background: transparent;
-        border: 1px solid var(--danger);
-        color: var(--danger);
+        border: 1.5px solid #dc2626;
+        color: #dc2626;
     }
 
-    .btn-delete:hover {
-        background: var(--danger);
-        color: white;
+    .btn-action.delete:hover {
+        background: #dc2626;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
     }
 
-    /* Mobile Responsiveness */
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 992px) {
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
     @media (max-width: 768px) {
         .profile-container {
-            padding: 1rem;
+            padding: 0.25rem;
         }
 
-        .profile-header {
-            padding: 1.5rem;
-            text-align: center;
+        .page-header {
+            padding: 0.5rem;
         }
 
         .header-content {
             flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-content .header-left {
+            flex-direction: column;
+            align-items: center;
             text-align: center;
-            gap: 1.5rem;
+            width: 100%;
+        }
+
+        .header-content .header-left .info h1 {
+            font-size: 1.2rem;
+            justify-content: center;
+        }
+
+        .header-content .header-left .info .subtitle {
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .header-content .header-actions {
+            width: 100%;
+        }
+
+        .header-content .header-actions .btn-outline-light,
+        .header-content .header-actions .btn-primary-light {
+            flex: 1;
+            justify-content: center;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
         }
 
         .profile-avatar,
         .avatar-placeholder {
-            width: 150px;
-            height: 150px;
+            width: 80px;
+            height: 80px;
         }
 
         .avatar-placeholder i {
-            font-size: 3rem;
-        }
-
-        .header-info h1 {
             font-size: 2rem;
         }
 
-        .profile-sections {
-            grid-template-columns: 1fr;
-            gap: 1rem;
+        .profile-info-cards {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .info-card {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .info-card .value {
+            font-size: 0.75rem;
         }
 
         .action-buttons {
             flex-direction: column;
-            gap: 10px;
         }
 
-        .btn-action {
-            width: 100%;
+        .action-buttons .btn-action {
+            justify-content: center;
         }
     }
 
     @media (max-width: 480px) {
-        .profile-header {
-            padding: 1rem;
+        .profile-info-cards {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
         }
 
-        .header-info h1 {
-            font-size: 1.5rem;
+        .info-card {
+            padding: 0.4rem 0.6rem;
         }
 
-        .profile-avatar,
-        .avatar-placeholder {
-            width: 120px;
-            height: 120px;
+        .info-card .value {
+            font-size: 0.7rem;
         }
 
-        .profile-section {
-            padding: 1rem;
+        .info-card .label {
+            font-size: 0.5rem;
+        }
+
+        .profile-card .card-header {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .profile-card .card-header h3 {
+            font-size: 0.8rem;
+        }
+
+        .profile-card .card-body {
+            padding: 0.5rem 0.75rem;
         }
 
         .info-item {
-            flex-direction: column;
-            gap: 8px;
-            align-items: flex-start;
+            padding: 6px 0;
         }
 
-        .staff-badges {
-            flex-direction: column;
-            align-items: center;
+        .info-item .content .value {
+            font-size: 0.75rem;
         }
 
-        .badge {
-            width: 100%;
-            justify-content: center;
+        .header-content .header-left .info h1 {
+            font-size: 1rem;
+        }
+    }
+
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+        .header-content .header-actions,
+        .btn-outline-light,
+        .btn-primary-light,
+        .btn-action,
+        .photo-controls {
+            display: none !important;
+        }
+
+        .page-header {
+            background: #0f172a !important;
+            border-radius: 0 !important;
+        }
+
+        .header-content .header-left .info h1 {
+            color: #ffffff !important;
+        }
+
+        .header-content .header-left .info .subtitle {
+            color: #94a3b8 !important;
+        }
+
+        .profile-card,
+        .info-card {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+        }
+
+        .profile-card:hover,
+        .info-card:hover {
+            transform: none !important;
+        }
+
+        .badge-status {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
     }
 </style>
@@ -399,192 +650,262 @@
 
 {% block content %}
 <div class="profile-container">
-    <!-- Header Section -->
-    <div class="profile-header">
+    <!-- ============================================
+    PAGE HEADER WITH BREADCRUMB
+    ============================================ -->
+    <div class="page-header">
+        <div class="breadcrumb-header">
+            <a href="{% url 'dashboard_home' %}">Dashboard</a>
+            <span class="separator">/</span>
+            <a href="{% url 'staff-directory' %}">Staff Directory</a>
+            <span class="separator">/</span>
+            <span class="current">Staff Profile</span>
+        </div>
+
         <div class="header-content">
-            {% if staff.photo %}
-            <img src="{{ staff.photo.url }}" class="profile-avatar" alt="{{ staff.full_name }}"
-                data-photo-src="{{ staff.photo.url }}" data-photo-title="{{ staff.full_name }}"
-                data-photo-subtitle="{{ staff.designation }} | {{ staff.department }}"
-                title="Click to view full size"
-                onclick="window.photoModal.open('{{ staff.photo.url }}', '{{ staff.full_name }}', '{{ staff.designation }} | {{ staff.department }}')">
-            {% else %}
-            <div class="avatar-placeholder"
-                onclick="window.photoModal.open('https://ui-avatars.com/api/?name={{ staff.full_name }}&background=0062ff&color=fff&size=400', '{{ staff.full_name }}', '{{ staff.designation }} | {{ staff.department }}')">
-                <i class="fas fa-user-tie"></i>
-            </div>
-            {% endif %}
-
-            <div class="header-info">
-                <h1>{{ staff.full_name }}</h1>
-                <div class="staff-id">Staff ID: {{ staff.staff_id|default:staff.user.username }}</div>
-
-                <div class="staff-badges">
-                    <div class="badge">
-                        <i class="fas fa-building"></i>
-                        {{ staff.department|default:"No Department" }}
+            <div class="header-left">
+                <div class="avatar-wrapper">
+                    {% if staff.photo %}
+                    <img src="{{ staff.photo.url }}" class="profile-avatar" alt="{{ staff.full_name }}"
+                         onclick="window.photoModal.open('{{ staff.photo.url }}', '{{ staff.full_name }}', '{{ staff.designation }} | {{ staff.department }}')">
+                    {% else %}
+                    <div class="avatar-placeholder"
+                         onclick="window.photoModal.open('https://ui-avatars.com/api/?name={{ staff.full_name }}&background=6366f1&color=fff&size=400', '{{ staff.full_name }}', '{{ staff.designation }} | {{ staff.department }}')">
+                        <i class="fas fa-user-tie"></i>
                     </div>
-                    <div class="badge">
-                        <i class="fas fa-user-tag"></i>
-                        {{ staff.designation|default:"Staff Member" }}
-                    </div>
-                    <div class="badge">
-                        <i class="fas fa-graduation-cap"></i>
-                        {{ staff.degree|default:"N/A" }}
-                    </div>
-                    <div class="badge">
-                        <i class="fas fa-calendar-check"></i>
-                        Joined {{ staff.user.date_joined|date:"d M Y" }}
+                    {% endif %}
+                </div>
+                <div class="info">
+                    <h1>
+                        <i class="fas fa-user-tie"></i>
+                        {{ staff.full_name }}
+                    </h1>
+                    <div class="subtitle">
+                        <span><strong>ID:</strong> {{ staff.staff_id|default:staff.user.username }}</span>
+                        <span><i class="fas fa-building"></i> {{ staff.department|default:"N/A" }}</span>
+                        <span><i class="fas fa-user-tag"></i> {{ staff.designation|default:"Staff Member" }}</span>
+                        <span class="badge-status {% if staff.user.is_active %}active{% else %}inactive{% endif %}">
+                            {% if staff.user.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
                     </div>
                 </div>
+            </div>
+            <div class="header-actions">
+                <button onclick="window.print()" class="btn-outline-light">
+                    <i class="fas fa-print"></i> Print
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Profile Sections -->
-    <div class="profile-sections">
+    <!-- ============================================
+    PROFILE INFO CARDS
+    ============================================ -->
+    <div class="profile-info-cards">
+        <div class="info-card">
+            <span class="label">Department</span>
+            <span class="value">
+                <i class="fas fa-building" style="color: #4f46e5;"></i>
+                {{ staff.department|default:"N/A" }}
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Designation</span>
+            <span class="value">
+                <i class="fas fa-user-tag" style="color: #d97706;"></i>
+                {{ staff.designation|default:"Staff Member" }}
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Role</span>
+            <span class="value">
+                {% if staff.user.is_superuser %}
+                <i class="fas fa-crown" style="color: #4f46e5;"></i> Administrator
+                {% else %}
+                <i class="fas fa-user-check" style="color: #16a34a;"></i> Staff
+                {% endif %}
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Status</span>
+            <span class="value">
+                {% if staff.user.is_active %}
+                <i class="fas fa-check-circle" style="color: #16a34a;"></i> Active
+                {% else %}
+                <i class="fas fa-times-circle" style="color: #dc2626;"></i> Inactive
+                {% endif %}
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Joined On</span>
+            <span class="value">
+                <i class="fas fa-calendar-check" style="color: #3b82f6;"></i>
+                {{ staff.user.date_joined|date:"d M Y" }}
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Last Login</span>
+            <span class="value">
+                <i class="fas fa-clock" style="color: #8b5cf6;"></i>
+                {{ staff.user.last_login|date:"d M Y"|default:"Never" }}
+            </span>
+        </div>
+    </div>
+
+    <!-- ============================================
+    PROFILE GRID
+    ============================================ -->
+    <div class="profile-grid">
         <!-- Personal Information -->
-        <div class="profile-section">
-            <div class="section-header">
-                <i class="fas fa-user-circle"></i>
-                <h2>Personal Information</h2>
+        <div class="profile-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-user-circle"></i>
+                    Personal Information
+                </h3>
+                <span class="count">{{ staff.full_name }}</span>
             </div>
-
-            <div class="info-grid">
+            <div class="card-body">
                 <div class="info-item">
-                    <i class="fas fa-id-card"></i>
-                    <div class="info-content">
-                        <label>Full Name</label>
-                        <div class="value">{{ staff.full_name }}</div>
+                    <div class="icon"><i class="fas fa-id-card"></i></div>
+                    <div class="content">
+                        <span class="label">Full Name</span>
+                        <span class="value">{{ staff.full_name }}</span>
                     </div>
                 </div>
-
                 <div class="info-item">
-                    <i class="fas fa-hashtag"></i>
-                    <div class="info-content">
-                        <label>Staff ID</label>
-                        <div class="value">{{ staff.staff_id|default:staff.user.username }}</div>
+                    <div class="icon"><i class="fas fa-hashtag"></i></div>
+                    <div class="content">
+                        <span class="label">Staff ID</span>
+                        <span class="value">{{ staff.staff_id|default:staff.user.username }}</span>
                     </div>
                 </div>
-
                 <div class="info-item">
-                    <i class="fas fa-phone"></i>
-                    <div class="info-content">
-                        <label>Phone Number</label>
-                        <div class="value">{{ staff.phone_number|default:"Not provided" }}</div>
+                    <div class="icon"><i class="fas fa-phone"></i></div>
+                    <div class="content">
+                        <span class="label">Phone Number</span>
+                        <span class="value">{{ staff.phone_number|default:"Not provided" }}</span>
                     </div>
                 </div>
-
                 <div class="info-item">
-                    <i class="fas fa-envelope"></i>
-                    <div class="info-content">
-                        <label>Email Address</label>
-                        <div class="value">
+                    <div class="icon"><i class="fas fa-envelope"></i></div>
+                    <div class="content">
+                        <span class="label">Email Address</span>
+                        <span class="value">
                             {% if staff.user.email %}
                             <a href="mailto:{{ staff.user.email }}">{{ staff.user.email }}</a>
                             {% else %}
                             Not provided
                             {% endif %}
-                        </div>
+                        </span>
                     </div>
                 </div>
-
                 <div class="info-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <div class="info-content">
-                        <label>Address</label>
-                        <div class="value">{{ staff.address|default:"Not provided" }}</div>
+                    <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="content">
+                        <span class="label">Address</span>
+                        <span class="value">{{ staff.address|default:"Not provided" }}</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Professional Information -->
-        <div class="profile-section">
-            <div class="section-header">
-                <i class="fas fa-briefcase"></i>
-                <h2>Professional Information</h2>
+        <div class="profile-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-briefcase"></i>
+                    Professional Information
+                </h3>
+                <span class="count">{{ staff.designation|default:"Staff" }}</span>
             </div>
-
-            <div class="info-grid">
+            <div class="card-body">
                 <div class="info-item">
-                    <i class="fas fa-building"></i>
-                    <div class="info-content">
-                        <label>Department</label>
-                        <div class="value">{{ staff.department|default:"Not specified" }}</div>
+                    <div class="icon"><i class="fas fa-building"></i></div>
+                    <div class="content">
+                        <span class="label">Department</span>
+                        <span class="value">
+                            <span class="dept-badge">{{ staff.department|default:"Not specified" }}</span>
+                        </span>
                     </div>
                 </div>
-
                 <div class="info-item">
-                    <i class="fas fa-user-tag"></i>
-                    <div class="info-content">
-                        <label>Designation</label>
-                        <div class="value">{{ staff.designation|default:"Staff Member" }}</div>
+                    <div class="icon"><i class="fas fa-user-tag"></i></div>
+                    <div class="content">
+                        <span class="label">Designation</span>
+                        <span class="value">
+                            <span class="designation-badge">{{ staff.designation|default:"Staff Member" }}</span>
+                        </span>
                     </div>
                 </div>
-
                 <div class="info-item">
-                    <i class="fas fa-graduation-cap"></i>
-                    <div class="info-content">
-                        <label>Degree / Qualification</label>
-                        <div class="value">{{ staff.degree|default:"Not specified" }}</div>
+                    <div class="icon"><i class="fas fa-graduation-cap"></i></div>
+                    <div class="content">
+                        <span class="label">Degree / Qualification</span>
+                        <span class="value">{{ staff.degree|default:"Not specified" }}</span>
                     </div>
                 </div>
-
                 <div class="info-item">
-                    <i class="fas fa-shield-alt"></i>
-                    <div class="info-content">
-                        <label>Role</label>
-                        <div class="value">
+                    <div class="icon"><i class="fas fa-shield-alt"></i></div>
+                    <div class="content">
+                        <span class="label">Role</span>
+                        <span class="value">
                             {% if staff.user.is_superuser %}
-                            <span style="color: var(--primary);">Administrator</span>
+                            <span class="role-badge admin"><i class="fas fa-crown"></i> Administrator</span>
                             {% else %}
-                            <span style="color: var(--success);">Staff Member</span>
+                            <span class="role-badge staff"><i class="fas fa-user-check"></i> Staff Member</span>
                             {% endif %}
-                        </div>
+                        </span>
                     </div>
                 </div>
-
                 <div class="info-item">
-                    <i class="fas fa-calendar-alt"></i>
-                    <div class="info-content">
-                        <label>Date Joined</label>
-                        <div class="value">{{ staff.user.date_joined|date:"d M Y, h:i A" }}</div>
+                    <div class="icon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="content">
+                        <span class="label">Date Joined</span>
+                        <span class="value">{{ staff.user.date_joined|date:"d M Y, h:i A" }}</span>
                     </div>
                 </div>
-
                 <div class="info-item">
-                    <i class="fas fa-clock"></i>
-                    <div class="info-content">
-                        <label>Last Login</label>
-                        <div class="value">{{ staff.user.last_login|date:"d M Y, h:i A"|default:"Never" }}</div>
+                    <div class="icon"><i class="fas fa-clock"></i></div>
+                    <div class="content">
+                        <span class="label">Last Login</span>
+                        <span class="value">{{ staff.user.last_login|date:"d M Y, h:i A"|default:"Never" }}</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Action Buttons -->
+    <!-- ============================================
+    ACTION BUTTONS - ORIGINAL FUNCTIONALITY
+    ============================================ -->
     <div class="action-buttons">
-        <a href="javascript:history.back()" class="btn-action btn-back">
+        <a href="javascript:history.back()" class="btn-action back">
             <i class="fas fa-arrow-left"></i> Back to Directory
         </a>
 
         {% if request.user.is_superuser or request.user == staff.user %}
-        <a href="{% url 'edit-staff' staff.id %}" class="btn-action btn-edit">
+        <a href="{% url 'edit-staff' staff.id %}" class="btn-action edit">
             <i class="fas fa-edit"></i> Edit Profile
         </a>
         {% endif %}
 
         {% if request.user.is_superuser and request.user != staff.user %}
-        <a href="#" class="btn-action btn-delete" onclick="confirmDelete('{{ staff.id }}', '{{ staff.full_name }}')">
+        <a href="#" class="btn-action delete" onclick="confirmDelete('{{ staff.id }}', '{{ staff.full_name }}')">
             <i class="fas fa-trash-alt"></i> Delete Staff
         </a>
         {% endif %}
     </div>
 </div>
 
+<!-- ============================================
+SCRIPTS - ORIGINAL FUNCTIONALITY
+============================================ -->
+<!-- Load Photo Modal JS -->
+<script src="{% static 'js/photo-model.js' %}"></script>
+
 <script>
+    // ORIGINAL FUNCTIONS - UNCHANGED
     function showMessage(message, type) {
         var notification = document.createElement('div');
         notification.className = 'msg ' + type;
@@ -634,13 +955,16 @@
         }
     }
 
-    // Close photo modal with Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            if (window.photoModal && typeof window.photoModal.close === 'function') {
-                window.photoModal.close();
+    // DOM Event Listeners - ORIGINAL
+    document.addEventListener('DOMContentLoaded', function() {
+        // Close photo modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (window.photoModal && typeof window.photoModal.close === 'function') {
+                    window.photoModal.close();
+                }
             }
-        }
+        });
     });
 </script>
 {% endblock %}

@@ -1,0 +1,755 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Attendance Report{% endblock %}
+
+{% block content %}
+<style>
+    .report-container { padding: 0.5rem; max-width: 1400px; }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .breadcrumb-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.5rem;
+    }
+
+    .breadcrumb-header a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-header a:hover { color: #ffffff; text-decoration: underline; }
+    .breadcrumb-header .separator { color: rgba(255, 255, 255, 0.3); }
+    .breadcrumb-header .current { color: #ffffff; font-weight: 600; }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-content .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .header-content .header-left p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-outline-light {
+        padding: 0.5rem 1.2rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        color: #ffffff;
+        font-weight: 500;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    /* Summary Cards */
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .summary-card {
+        background: #fff;
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        text-align: center;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        border-color: #e2e8f0;
+    }
+
+    .summary-card .number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: block;
+        line-height: 1.2;
+    }
+
+    .summary-card .number.blue { color: #3b82f6; }
+    .summary-card .number.green { color: #16a34a; }
+    .summary-card .number.red { color: #dc2626; }
+    .summary-card .number.purple { color: #8b5cf6; }
+    .summary-card .number.orange { color: #d97706; }
+
+    .summary-card .label {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    /* Filter Section */
+    .filter-section {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 1rem 1.5rem;
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .filter-section select,
+    .filter-section input {
+        padding: 0.4rem 0.8rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        background: #fafbfc;
+        color: #1e293b;
+        outline: none;
+        min-width: 120px;
+    }
+
+    .filter-section select:focus,
+    .filter-section input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06);
+    }
+
+    .filter-section input[type="date"] { min-width: 150px; }
+
+    .filter-section .btn-filter {
+        padding: 0.4rem 1.2rem;
+        border: none;
+        background: var(--primary);
+        color: #fff;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .filter-section .btn-filter:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(26, 86, 148, 0.25);
+    }
+
+    .filter-section .btn-clear {
+        padding: 0.4rem 1rem;
+        border: none;
+        background: #f1f5f9;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .filter-section .btn-clear:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+    .filter-section .btn-export {
+        padding: 0.4rem 1.2rem;
+        border: none;
+        background: #16a34a;
+        color: #fff;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .filter-section .btn-export:hover {
+        background: #15803d;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    }
+
+    .date-range-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .date-range-group .range-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Report Table */
+    .report-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .report-card .report-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #f8fafc;
+    }
+
+    .report-card .report-header h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .report-card .report-header .date-info {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .report-card .report-header .date-info strong {
+        color: #0f172a;
+    }
+
+    .table-scroll { overflow-x: auto; }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    thead { background: #f8fafc; }
+
+    thead th {
+        padding: 0.6rem 0.8rem;
+        text-align: left;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        border-bottom: 2px solid #f1f5f9;
+        white-space: nowrap;
+    }
+
+    thead th .day-sub {
+        display: block;
+        font-weight: 400;
+        font-size: 0.55rem;
+        color: #cbd5e1;
+        text-transform: none;
+    }
+
+    thead th .date-sub {
+        display: block;
+        font-weight: 400;
+        font-size: 0.55rem;
+        color: #cbd5e1;
+        text-transform: none;
+    }
+
+    tbody td {
+        padding: 0.4rem 0.8rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+        vertical-align: middle;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #f8fafc; }
+
+    .student-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .student-cell .avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #eef2ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+        font-weight: 700;
+        color: #4f46e5;
+        flex-shrink: 0;
+    }
+
+    .student-cell .name { font-weight: 500; color: #0f172a; }
+    .student-cell .roll { font-size: 0.65rem; color: #94a3b8; display: block; }
+
+    .status-icon {
+        font-size: 1.2rem;
+        text-align: center;
+        display: block;
+    }
+
+    .status-icon.present { color: #16a34a; }
+    .status-icon.absent { color: #dc2626; }
+    .status-icon.no-session { color: #94a3b8; }
+
+    /* Report Footer */
+    .report-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        gap: 1rem;
+        background: #fafbfc;
+    }
+
+    .report-footer .footer-left { font-size: 0.8rem; color: #64748b; }
+    .report-footer .footer-left strong { color: #0f172a; }
+
+    .report-footer .footer-right {
+        text-align: right;
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .report-footer .footer-right .signature-line {
+        margin-top: 0.5rem;
+        border-top: 1px solid #94a3b8;
+        width: 200px;
+        display: inline-block;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 0;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0 0 0.25rem 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .summary-cards { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+        .summary-cards { grid-template-columns: repeat(2, 1fr); }
+
+        .filter-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-section select,
+        .filter-section input {
+            width: 100%;
+            min-width: unset;
+        }
+
+        .date-range-group {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .header-content { flex-direction: column; align-items: flex-start; }
+        .header-content .header-left h1 { font-size: 1.2rem; }
+
+        .report-footer {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .report-footer .footer-right { text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+        .summary-cards {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .summary-card { padding: 0.5rem 0.75rem; }
+        .summary-card .number { font-size: 1.1rem; }
+
+        table { font-size: 0.7rem; }
+        thead th, tbody td { padding: 0.25rem 0.4rem; }
+    }
+
+    /* Print Styles */
+    @media print {
+        .filter-section, .btn-filter, .btn-clear, .btn-export, .header-actions {
+            display: none !important;
+        }
+
+        .page-header {
+            background: #0f172a !important;
+            border-radius: 0 !important;
+        }
+
+        .report-card {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+        }
+
+        .status-icon {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .report-footer .footer-right .signature-line {
+            border-top: 1px solid #0f172a !important;
+        }
+    }
+</style>
+
+<div class="report-container">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="breadcrumb-header">
+            <a href="{% url 'dashboard_home' %}">Dashboard</a>
+            <span class="separator">/</span>
+            <a href="{% url 'attendance:all_sessions' %}">Attendance</a>
+            <span class="separator">/</span>
+            <span class="current">Attendance Report</span>
+        </div>
+        <div class="header-content">
+            <div class="header-left">
+                <h1><i class="fas fa-calendar-alt"></i> Attendance Report</h1>
+                <p>View attendance in day, week, or month view with filters</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-outline-light" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="summary-cards">
+        <div class="summary-card">
+            <span class="number blue">{{ summary.total_students }}</span>
+            <span class="label">Total Students</span>
+        </div>
+        <div class="summary-card">
+            <span class="number green">{{ summary.total_present }}</span>
+            <span class="label">Present</span>
+        </div>
+        <div class="summary-card">
+            <span class="number red">{{ summary.total_absent }}</span>
+            <span class="label">Absent</span>
+        </div>
+        <div class="summary-card">
+            <span class="number orange">{{ summary.total_no_session }}</span>
+            <span class="label">No Session</span>
+        </div>
+        <div class="summary-card">
+            <span class="number purple">{{ summary.attendance_percentage }}%</span>
+            <span class="label">Attendance Rate</span>
+        </div>
+    </div>
+
+    <!-- FILTER SECTION -->
+    <div class="filter-section">
+        <form method="GET" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; width: 100%;">
+            <!-- Department Filter -->
+            <select name="department">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                <option value="{{ dept }}" {% if department_filter == dept %}selected{% endif %}>{{ dept }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Semester Filter -->
+            <select name="semester">
+                <option value="">All Semesters</option>
+                {% for sem in semesters %}
+                <option value="{{ sem }}" {% if semester_filter|add:'0' == sem %}selected{% endif %}>Semester {{ sem }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Year Filter -->
+            <select name="year">
+                <option value="">All Years</option>
+                {% for yr in years %}
+                <option value="{{ yr }}" {% if year_filter|add:'0' == yr %}selected{% endif %}>Year {{ yr }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Section Filter -->
+            <select name="section">
+                <option value="">All Sections</option>
+                {% for sec in sections %}
+                <option value="{{ sec }}" {% if section_filter == sec %}selected{% endif %}>Section {{ sec }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Date Range Type -->
+            <select name="date_range" id="dateRangeSelect">
+                <option value="day" {% if date_range_type == 'day' %}selected{% endif %}>Day</option>
+                <option value="week" {% if date_range_type == 'week' %}selected{% endif %}>Week</option>
+                <option value="month" {% if date_range_type == 'month' %}selected{% endif %}>Month</option>
+                <option value="custom" {% if date_range_type == 'custom' %}selected{% endif %}>Custom</option>
+            </select>
+
+            <!-- Custom Date Range -->
+            <div class="date-range-group" id="dateRangeGroup">
+                <input type="date" name="start_date" value="{{ start_date_val }}" placeholder="Start Date">
+                <span class="range-label">to</span>
+                <input type="date" name="end_date" value="{{ end_date_val }}" placeholder="End Date">
+            </div>
+
+            <button type="submit" class="btn-filter">
+                <i class="fas fa-search"></i> Apply
+            </button>
+            <a href="{% url 'attendance:attendance_report' %}" class="btn-clear">
+                <i class="fas fa-times"></i> Clear
+            </a>
+            <a href="{% url 'attendance:export_attendance_report_csv' %}?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}" class="btn-export">
+                <i class="fas fa-file-export"></i> Export CSV
+            </a>
+        </form>
+    </div>
+
+    <!-- REPORT TABLE -->
+    <div class="report-card">
+        <div class="report-header">
+            <h3>
+                <i class="fas fa-table"></i>
+                Attendance Report
+            </h3>
+            <span class="date-info">
+                <strong>Date Range:</strong> {{ date_range_display }}
+                <span style="margin: 0 8px;">|</span>
+                <strong>Students:</strong> {{ attendance_data|length }}
+            </span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 160px;">
+                            Student
+                            <span class="day-sub">Name &amp; ID</span>
+                        </th>
+                        <th style="min-width: 80px;">
+                            Dept
+                            <span class="day-sub">Department</span>
+                        </th>
+                        <th style="min-width: 60px;">
+                            Sem
+                            <span class="day-sub">Semester</span>
+                        </th>
+                        <th style="min-width: 60px;">
+                            Sec
+                            <span class="day-sub">Section</span>
+                        </th>
+                        {% for date_obj in date_list %}
+                        <th style="text-align: center; min-width: 50px;">
+                            {{ date_obj|date:"D" }}
+                            <span class="date-sub">{{ date_obj|date:"m/d" }}</span>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in attendance_data %}
+                    <tr>
+                        <td>
+                            <div class="student-cell">
+                                <div class="avatar">{{ data.student.full_name|make_list|first|upper }}</div>
+                                <div>
+                                    <span class="name">{{ data.student.full_name }}</span>
+                                    <span class="roll">{{ data.student.roll_number }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ data.student.department|default:'N/A' }}</td>
+                        <td>{{ data.student.semester|default:'N/A' }}</td>
+                        <td>{{ data.student.section|default:'N/A' }}</td>
+                        {% for day in data.days %}
+                        <td style="text-align: center;">
+                            {% if day.status == 'PRESENT' %}
+                            <span class="status-icon present">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                            {% elif day.status == 'ABSENT' %}
+                            <span class="status-icon absent">
+                                <i class="fas fa-times-circle"></i>
+                            </span>
+                            {% else %}
+                            <span class="status-icon no-session">
+                                <i class="fas fa-minus-circle"></i>
+                            </span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{{ date_list|length|add:'4' }}">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h3>No Students Found</h3>
+                                <p>No students match the selected filters</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="report-footer">
+            <div class="footer-left">
+                <strong>Total Students:</strong> {{ summary.total_students }}
+                <span style="margin: 0 8px;">|</span>
+                <strong>Present:</strong> {{ summary.total_present }}
+                <span style="margin: 0 8px;">|</span>
+                <strong>Absent:</strong> {{ summary.total_absent }}
+                <span style="margin: 0 8px;">|</span>
+                <strong>No Session:</strong> {{ summary.total_no_session }}
+            </div>
+            <div class="footer-right">
+                <strong>Authorized by:</strong> {{ request.user.get_full_name|default:request.user.username }}<br>
+                <strong>Date:</strong> {% now "F d, Y" %}<br>
+                <span class="signature-line"></span><br>
+                <span style="font-size: 0.7rem; color: #94a3b8;">Signature</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEGEND -->
+    <div style="display: flex; gap: 2rem; padding: 1rem 0; flex-wrap: wrap; margin-top: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="status-icon present"><i class="fas fa-check-circle"></i></span>
+            <span style="font-size: 0.8rem; color: #16a34a; font-weight: 500;">Present</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="status-icon absent"><i class="fas fa-times-circle"></i></span>
+            <span style="font-size: 0.8rem; color: #dc2626; font-weight: 500;">Absent</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="status-icon no-session"><i class="fas fa-minus-circle"></i></span>
+            <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 500;">No Session</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+            <span style="font-size: 0.7rem; color: #94a3b8;">
+                <i class="fas fa-print"></i> Ctrl+P to print
+            </span>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show/hide custom date range based on selection
+document.getElementById('dateRangeSelect').addEventListener('change', function() {
+    const dateGroup = document.getElementById('dateRangeGroup');
+    if (this.value === 'custom') {
+        dateGroup.style.display = 'flex';
+    } else {
+        dateGroup.style.display = 'none';
+    }
+});
+
+// Auto-submit on filter change
+document.querySelectorAll('.filter-section select:not(#dateRangeSelect), .filter-section input[type="date"]').forEach(el => {
+    el.addEventListener('change', function() {
+        this.closest('form').submit();
+    });
+});
+
+// Initial state
+if (document.getElementById('dateRangeSelect').value === 'custom') {
+    document.getElementById('dateRangeGroup').style.display = 'flex';
+} else {
+    document.getElementById('dateRangeGroup').style.display = 'none';
+}
+</script>
+{% endblock %}

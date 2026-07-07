@@ -1,466 +1,641 @@
-<!DOCTYPE html>
-<html lang="en">
+<!-- templates/dashboard/register_staff.html -->
+{% extends 'dashboard/base.html' %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personnel Enrollment | AFRAS CORE</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #0062ff;
-            --primary-glow: rgba(0, 98, 255, 0.4);
-            --bg: #f0f2f5;
-            --surface: #111827;
-            --primary-bg: #ffffff;
-            --border: rgba(255, 255, 255, 0.1);
-            --text-main: #f9fafb;
-            --main-text: #000000;
-            --text-dim: #64748b;
-            --success: #10b981;
-            --danger: #ef4444;
+{% block title %}Register Staff | AFRAS{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* ============================================
+       PROFESSIONAL REGISTER STAFF STYLES
+       (Same style as session_details.html)
+    ============================================ */
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    .register-container {
+        padding: 0.5rem;
+        max-width: 1400px;
+    }
+
+    /* ============================================
+       PAGE HEADER WITH BREADCRUMB
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .breadcrumb-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.5rem;
+        padding: 0;
+    }
+
+    .breadcrumb-header a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-header a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .breadcrumb-header .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .breadcrumb-header .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-content .header-left h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .header-content .header-left h1 i {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .header-content .header-left .subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+    }
+
+    .header-content .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-outline-light {
+        padding: 0.6rem 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    /* ============================================
+       REGISTRATION CARD
+    ============================================ */
+    .register-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .register-card .card-header {
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #f8fafc;
+    }
+
+    .register-card .card-header h3 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .register-card .card-header h3 i {
+        color: #6366f1;
+    }
+
+    .register-card .card-body {
+        padding: 1.25rem;
+    }
+
+    /* ============================================
+       FORM STYLES
+    ============================================ */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .full-width {
+        grid-column: span 2;
+    }
+
+    .input-group label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .input-group label i {
+        color: #6366f1;
+        font-size: 0.7rem;
+        width: 16px;
+        text-align: center;
+    }
+
+    .input-group label .required {
+        color: #dc2626;
+        font-size: 0.9rem;
+    }
+
+    .input-group input,
+    .input-group select {
+        padding: 0.6rem 0.8rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        color: #0f172a;
+        background: #ffffff;
+        transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
+        width: 100%;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .input-group input::placeholder {
+        color: #94a3b8;
+    }
+
+    .input-group input[type="file"] {
+        padding: 0.5rem;
+        border: 2px dashed #e2e8f0;
+        background: #f8fafc;
+        cursor: pointer;
+    }
+
+    .input-group input[type="file"]:hover {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.02);
+    }
+
+    /* ============================================
+       MESSAGES
+    ============================================ */
+    .msg-container {
+        margin-bottom: 1.5rem;
+    }
+
+    .msg {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid transparent;
+        font-weight: 500;
+        margin-bottom: 8px;
+        animation: slideDown 0.4s ease-out forwards;
+    }
+
+    .msg.success {
+        background: rgba(16, 185, 129, 0.1);
+        color: #16a34a;
+        border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .msg.error {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .msg.info {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
+    }
 
-        body {
-            background-color: var(--bg);
-            color: var(--main-text);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+    /* ============================================
+       SUBMIT BUTTON
+    ============================================ */
+    .form-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+    }
 
-        .enrollment-card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 28px;
-            padding: 2.5rem;
-            width: 100%;
-            max-width: 750px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            position: relative;
-        }
+    .btn-submit {
+        padding: 0.6rem 2rem;
+        background: #6366f1;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
 
-        /* Back Button - Same as student registration */
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            z-index: 10;
-        }
+    .btn-submit:hover:not(:disabled) {
+        background: #4f46e5;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
 
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--primary);
-            border-color: var(--primary);
-            transform: translateX(-3px);
-        }
+    .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
 
-        header {
-            text-align: center;
-            padding-top: 10px;
-        }
+    .btn-cancel {
+        padding: 0.6rem 2rem;
+        background: transparent;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
 
-        header h2 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-        }
+    .btn-cancel:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        transform: translateY(-2px);
+    }
 
-        header p {
-            margin-bottom: 30px;
-            color: var(--text-dim);
-            font-size: 0.85rem;
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 768px) {
+        .register-container {
+            padding: 0.25rem;
         }
 
         .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .input-group {
-            margin-bottom: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
         }
 
         .full-width {
-            grid-column: span 2;
+            grid-column: span 1;
         }
 
-        .input-group label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
         }
 
-        input,
-        select {
-            background: var(--primary-bg);
-            border: 1px solid var(--border);
-            color: var(--main-text);
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            transition: all 0.3s ease;
-        }
-
-        input[type="file"] {
-            padding: 8px;
-            font-size: 0.75rem;
-            cursor: pointer;
-        }
-
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px var(--primary-glow);
-        }
-
-        /* Messages styling similar to student registration */
-        .msg-container {
-            margin-bottom: 1.5rem;
-        }
-
-        .msg {
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid transparent;
-            font-weight: 500;
-            margin-bottom: 10px;
-            animation: slideDown 0.4s ease-out forwards;
-        }
-
-        .msg.success {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            border-color: rgba(16, 185, 129, 0.2);
-        }
-
-        .msg.error {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-            border-color: rgba(239, 68, 68, 0.2);
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .btn-submit {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 700;
-            width: 40%;
-            cursor: pointer;
-            margin: 1rem auto 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            transition: 0.3s;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px var(--primary-glow);
-        }
-
-        .btn-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .footer-link {
-            text-align: center;
-            color: var(--text-dim);
-            margin: 1rem auto 0;
-            font-size: 0.8rem;
-        }
-
-        .footer-link a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-            position: relative;
-            padding-bottom: 2px;
-            transition: all 0.3s ease;
-        }
-
-        .footer-link a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--primary), var(--primary-glow));
-            border-radius: 1px;
-            transition: width 0.3s ease;
-        }
-
-        .footer-link a:hover {
-            color: var(--primary-glow);
-            font-weight: 700;
-        }
-
-        .footer-link a:hover::after {
+        .header-content .header-actions {
             width: 100%;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .full-width {
-                grid-column: span 1;
-            }
-
-            .btn-submit {
-                width: 100%;
-            }
-
-            .enrollment-card {
-                padding: 2rem 1.5rem;
-            }
-
-            .back-btn {
-                top: 15px;
-                left: 15px;
-                width: 35px;
-                height: 35px;
-            }
-
-            header h2 {
-                font-size: 1.5rem;
-            }
+        .header-content .header-actions .btn-outline-light {
+            flex: 1;
+            justify-content: center;
         }
 
-        @media (max-width: 480px) {
-            .enrollment-card {
-                padding: 1.5rem 1rem;
-            }
-
-            .back-btn {
-                top: 10px;
-                left: 10px;
-                width: 32px;
-                height: 32px;
-                font-size: 0.9rem;
-            }
-
-            header h2 {
-                font-size: 1.3rem;
-            }
+        .form-actions {
+            flex-direction: column;
         }
-    </style>
-</head>
 
-<body>
-    <div class="enrollment-card">
-        <!-- Back Button - Goes to staff directory -->
-        <a href="{% url 'staff-directory' %}" class="back-btn" title="Back to Staff Directory">
-            <i class="fas fa-arrow-left"></i>
-        </a>
+        .btn-submit,
+        .btn-cancel {
+            width: 100%;
+            justify-content: center;
+        }
+    }
 
-        <header>
-            <h2>Personnel Registration</h2>
-            <p>Official Academic Staff Enrollment Portal</p>
-        </header>
+    @media (max-width: 480px) {
+        .register-card .card-body {
+            padding: 0.75rem;
+        }
 
-        <!-- Messages Container -->
-        <div class="msg-container" id="django-messages">
-            {% if messages %}
-            {% for message in messages %}
-            <div class="msg {{ message.tags }}">
-                <i
-                    class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
-                {{ message }}
-            </div>
-            {% endfor %}
-            {% endif %}
+        .input-group input,
+        .input-group select {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.6rem;
+        }
+
+        .header-content .header-left h1 {
+            font-size: 1.2rem;
+        }
+
+        .header-content .header-left .subtitle {
+            font-size: 0.7rem;
+        }
+    }
+
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+        .header-content .header-actions,
+        .btn-outline-light,
+        .btn-submit,
+        .btn-cancel {
+            display: none !important;
+        }
+
+        .page-header {
+            background: #0f172a !important;
+            border-radius: 0 !important;
+        }
+
+        .header-content .header-left h1 {
+            color: #ffffff !important;
+        }
+
+        .header-content .header-left .subtitle {
+            color: #94a3b8 !important;
+        }
+
+        .register-card {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <!-- ============================================
+    PAGE HEADER WITH BREADCRUMB
+    ============================================ -->
+    <div class="page-header">
+        <div class="breadcrumb-header">
+            <a href="{% url 'dashboard_home' %}">Dashboard</a>
+            <span class="separator">/</span>
+            <a href="{% url 'staff-directory' %}">Staff Directory</a>
+            <span class="separator">/</span>
+            <span class="current">Register Staff</span>
         </div>
 
-        <form method="POST" action="{% url 'register-staff' %}" enctype="multipart/form-data" id="staff-reg-form">
-            {% csrf_token %}
-
-            <div class="form-grid">
-                <div class="input-group">
-                    <label><i class="fas fa-user"></i> Full Name</label>
-                    <input type="text" name="name" placeholder="Prof. Jane Doe" required>
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-id-badge"></i> Staff ID / Username</label>
-                    <input type="text" name="staff_id" placeholder="STF-2026-X" required>
-                </div>
-
-                <div class="input-group">
-                    <label><i class="fas fa-phone"></i> Contact Number</label>
-                    <input type="tel" name="phone" placeholder="+977-98XXXXXXXX" required>
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-graduation-cap"></i> Educational Degree</label>
-                    <input type="text" name="degree" placeholder="PhD, MSc in CS" required>
-                </div>
-
-                <div class="input-group">
-                    <label><i class="fas fa-envelope"></i> Email Address</label>
-                    <input type="email" name="email" placeholder="staff@college.edu" required>
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-location-dot"></i> Address</label>
-                    <input type="text" name="address" placeholder="Enter the address" required>
-                </div>
-
-                <div class="input-group">
-                    <label><i class="fas fa-briefcase"></i> Designation</label>
-                    <input type="text" name="designation" placeholder="HOD / Senior Lecturer" required>
-                </div>
-
-                <div class="input-group">
-                    <label><i class="fas fa-sitemap"></i> Department</label>
-                    <select name="department" required>
-                        <option value="">Select Department</option>
-                        <option value="CSIT">CSIT</option>
-                        <option value="Engineering">Engineering</option>
-                        <option value="BCA">BCA</option>
-                        <option value="Management">Management</option>
-                        <option value="Science">Science</option>
-                        <option value="Humanities">Humanities</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-users-cog"></i> System Role</label>
-                    <select name="role" required>
-                        <option value="staff">Staff</option>
-                        <option value="admin">Administrator</option>
-                    </select>
-                </div>
-
-                <div class="input-group full-width">
-                    <label><i class="fas fa-camera"></i> Profile Photo (For Identity Log)</label>
-                    <input type="file" name="photo" accept="image/*" required id="photo-input">
-                </div>
-
-                <div class="input-group">
-                    <label><i class="fas fa-lock"></i> Password</label>
-                    <input type="password" name="password" minlength="8" placeholder="Minimum 8 characters" required>
-                </div>
-                <div class="input-group">
-                    <label style="color: var(--success);"><i class="fas fa-key"></i> Institutional Auth Key</label>
-                    <input type="password" name="auth_key" placeholder="Required for staff registration" required>
+        <div class="header-content">
+            <div class="header-left">
+                <h1>
+                    <i class="fas fa-user-shield"></i>
+                    Personnel Registration
+                </h1>
+                <div class="subtitle">
+                    <span><i class="fas fa-id-card"></i> Official Academic Staff Enrollment Portal</span>
                 </div>
             </div>
-
-            <button type="submit" class="btn-submit" id="submit-btn">
-                <i class="fas fa-user-shield"></i> Authorize Identity & Register
-            </button>
-        </form>
-
-        <div class="footer-link">
-            Registered already? <a href="{% url 'login' %}">Login to Portal</a>
+            <div class="header-actions">
+                <a href="{% url 'staff-directory' %}" class="btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Back to Directory
+                </a>
+            </div>
         </div>
     </div>
 
-    <script>
-        // Auto-dismiss messages after 5 seconds
-        document.addEventListener('DOMContentLoaded', function () {
-            const container = document.getElementById('django-messages');
-            if (container) {
-                setTimeout(() => {
-                    const msgs = container.querySelectorAll('.msg');
-                    msgs.forEach(m => {
-                        m.style.transition = "all 0.6s ease";
-                        m.style.opacity = "0";
-                        m.style.transform = "translateX(20px)";
-                        setTimeout(() => m.remove(), 600);
-                    });
-                }, 5000);
+    <!-- ============================================
+    REGISTRATION FORM
+    ============================================ -->
+    <div class="register-card">
+        <div class="card-header">
+            <h3>
+                <i class="fas fa-user-plus"></i>
+                Staff Registration Form
+            </h3>
+            <span class="count">All fields are required</span>
+        </div>
+        <div class="card-body">
+            <!-- Messages Container -->
+            <div class="msg-container" id="django-messages">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="msg {{ message.tags }}">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <form method="POST" action="{% url 'register-staff' %}" enctype="multipart/form-data" id="staff-reg-form">
+                {% csrf_token %}
+
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label><i class="fas fa-user"></i> Full Name <span class="required">*</span></label>
+                        <input type="text" name="name" placeholder="Prof. Jane Doe" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-id-badge"></i> Staff ID <span class="required">*</span></label>
+                        <input type="text" name="staff_id" placeholder="STF-2026-X" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-phone"></i> Contact Number <span class="required">*</span></label>
+                        <input type="tel" name="phone" placeholder="+977-98XXXXXXXX" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-graduation-cap"></i> Degree <span class="required">*</span></label>
+                        <input type="text" name="degree" placeholder="PhD, MSc in CS" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-envelope"></i> Email Address <span class="required">*</span></label>
+                        <input type="email" name="email" placeholder="staff@college.edu" required>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-location-dot"></i> Address <span class="required">*</span></label>
+                        <input type="text" name="address" placeholder="Enter the address" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-briefcase"></i> Designation <span class="required">*</span></label>
+                        <input type="text" name="designation" placeholder="HOD / Senior Lecturer" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-sitemap"></i> Department <span class="required">*</span></label>
+                        <select name="department" required>
+                            <option value="">Select Department</option>
+                            <option value="CSIT">CSIT</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="BCA">BCA</option>
+                            <option value="Management">Management</option>
+                            <option value="Science">Science</option>
+                            <option value="Humanities">Humanities</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-users-cog"></i> System Role <span class="required">*</span></label>
+                        <select name="role" required>
+                            <option value="staff">Staff</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group full-width">
+                        <label><i class="fas fa-camera"></i> Profile Photo <span class="required">*</span></label>
+                        <input type="file" name="photo" accept="image/*" required id="photo-input">
+                        <small style="color: #94a3b8; font-size: 0.7rem; margin-top: 2px;">
+                            <i class="fas fa-info-circle"></i> Upload a clear photo for identity verification
+                        </small>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-lock"></i> Password <span class="required">*</span></label>
+                        <input type="password" name="password" minlength="8" placeholder="Minimum 8 characters" required>
+                    </div>
+                    <div class="input-group">
+                        <label style="color: var(--success);"><i class="fas fa-key"></i> Auth Key <span class="required">*</span></label>
+                        <input type="password" name="auth_key" placeholder="Required for staff registration" required>
+                        <small style="color: #94a3b8; font-size: 0.7rem; margin-top: 2px;">
+                            <i class="fas fa-info-circle"></i> Institutional authorization key
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit" id="submit-btn">
+                        <i class="fas fa-user-shield"></i> Authorize & Register
+                    </button>
+                    <a href="{% url 'staff-directory' %}" class="btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+SCRIPTS - ORIGINAL FUNCTIONALITY
+============================================ -->
+<script>
+    // Auto-dismiss messages after 5 seconds - ORIGINAL
+    document.addEventListener('DOMContentLoaded', function () {
+        const container = document.getElementById('django-messages');
+        if (container) {
+            setTimeout(() => {
+                const msgs = container.querySelectorAll('.msg');
+                msgs.forEach(m => {
+                    m.style.transition = "all 0.6s ease";
+                    m.style.opacity = "0";
+                    m.style.transform = "translateX(20px)";
+                    setTimeout(() => m.remove(), 600);
+                });
+            }, 5000);
+        }
+
+        // Handle form submission UI - ORIGINAL
+        const form = document.getElementById('staff-reg-form');
+        const submitBtn = document.getElementById('submit-btn');
+
+        form.addEventListener('submit', function (e) {
+            const photoInput = document.getElementById('photo-input');
+
+            // Check if photo is uploaded
+            if (photoInput.files.length === 0) {
+                e.preventDefault();
+                alert("Please upload a profile photo.");
+                return false;
             }
 
-            // Handle form submission UI
-            const form = document.getElementById('staff-reg-form');
-            const submitBtn = document.getElementById('submit-btn');
+            // Check password length
+            const passwordInput = form.querySelector('input[name="password"]');
+            if (passwordInput.value.length < 8) {
+                e.preventDefault();
+                alert("Password must be at least 8 characters long.");
+                return false;
+            }
 
-            form.addEventListener('submit', function (e) {
-                const photoInput = document.getElementById('photo-input');
+            // Update button state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> PROCESSING...';
 
-                // Check if photo is uploaded
-                if (photoInput.files.length === 0) {
-                    e.preventDefault();
-                    alert("Please upload a profile photo.");
-                    return false;
-                }
-
-                // Check password length
-                const passwordInput = form.querySelector('input[name="password"]');
-                if (passwordInput.value.length < 8) {
-                    e.preventDefault();
-                    alert("Password must be at least 8 characters long.");
-                    return false;
-                }
-
-                // Update button state
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> PROCESSING...';
-
-                return true;
-            });
+            return true;
         });
-    </script>
-</body>
-
-</html>
+    });
+</script>
+{% endblock %}
