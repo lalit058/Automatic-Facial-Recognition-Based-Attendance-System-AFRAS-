@@ -126,7 +126,7 @@ class SidebarManager {
         if (isMobile) {
             this.main.style.marginLeft = '0';
             this.main.style.width = '100%';
-            this.main.style.paddingTop = '70px';
+            this.main.style.paddingTop = '40px';
         } else {
             this.main.style.paddingTop = '0.5rem';
             const sidebarWidth = getComputedStyle(document.documentElement)

@@ -14,14 +14,11 @@ from attendance.models import AttendanceSession, AttendanceLog
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.contrib import messages
-from django.http import JsonResponse
 import psutil
 import platform
-from django.contrib import messages
 from django.db.models import Q, Count
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from accounts.models import SystemConfiguration
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from dashboard.forms import StaffProfileEditForm, StudentEditForm
@@ -556,26 +553,21 @@ def get_student_details(request, student_id):
 
     if student.face_encoding:
         try:
-            # Parse face encoding
             if isinstance(student.face_encoding, list):
                 face_data = student.face_encoding
             elif isinstance(student.face_encoding, str):
                 import json
                 import ast
-
                 try:
                     face_data = json.loads(student.face_encoding)
                 except:
                     try:
                         face_data = ast.literal_eval(student.face_encoding)
                     except:
-                        # Clean up string
                         cleaned = student.face_encoding.strip()
                         if cleaned.startswith("[") and cleaned.endswith("]"):
                             cleaned = cleaned.replace('"', "").replace("'", "")
-                            face_data = [
-                                float(x.strip()) for x in cleaned[1:-1].split(",")
-                            ]
+                            face_data = [float(x.strip()) for x in cleaned[1:-1].split(",")]
                         else:
                             face_data = []
             else:
@@ -583,20 +575,16 @@ def get_student_details(request, student_id):
 
             if face_data and isinstance(face_data, list):
                 face_encoding_length = len(face_data)
-                # Get first 10 values as preview
                 for val in face_data[:10]:
                     try:
                         face_encoding_preview.append(f"{float(val):.6f}")
                     except:
                         face_encoding_preview.append(str(val))
-
-                # Full data for modal (limit to first 50 to avoid huge response)
                 face_encoding_data = [f"{float(val):.6f}" for val in face_data[:50]]
-
         except Exception as e:
             print(f"Error parsing face encoding: {e}")
 
-    # Get recent attendance for this student (last 5 records)
+    # Get recent attendance
     recent_attendance = (
         AttendanceLog.objects.filter(student=student)
         .select_related("session")
@@ -605,7 +593,6 @@ def get_student_details(request, student_id):
 
     attendance_history = []
     for att in recent_attendance:
-        # Use the property method to get duration
         duration_str = "N/A"
         if hasattr(att, 'presence_duration_minutes'):
             duration = att.presence_duration_minutes
@@ -614,51 +601,42 @@ def get_student_details(request, student_id):
             duration = (att.last_seen - att.first_seen).total_seconds() / 60
             duration_str = f"{duration:.1f} mins"
         
-        attendance_history.append(
-            {
-                "date": att.session.date.strftime("%Y-%m-%d"),
-                "subject": att.session.subject_name,
-                "status": att.status,
-                "first_seen": att.first_seen.strftime("%I:%M:%S %p"),
-                "last_seen": att.last_seen.strftime("%I:%M:%S %p"),
-                "duration": duration_str,
-            }
-        )
+        attendance_history.append({
+            "date": att.session.date.strftime("%Y-%m-%d") if att.session else "N/A",
+            "subject": att.session.subject_name if att.session else "N/A",
+            "status": att.status,
+            "first_seen": att.first_seen.strftime("%I:%M:%S %p") if att.first_seen else "N/A",
+            "last_seen": att.last_seen.strftime("%I:%M:%S %p") if att.last_seen else "N/A",
+            "duration": duration_str,
+            "is_validated": att.is_validated if hasattr(att, 'is_validated') else True,
+            "validation_error": att.validation_error if hasattr(att, 'validation_error') else None,
+        })
 
-    # Get student additional fields if they exist
-    phone = getattr(student, "phone", "N/A")
-    address = getattr(student, "address", "N/A")
-
-    return JsonResponse(
-        {
-            "success": True,
-            "student": {
-                "id": student.id,
-                "full_name": student.full_name,
-                "roll_number": student.roll_number,
-                "department": student.department,
-                "email": student.user.email if student.user else "N/A",
-                "phone": phone,
-                "address": address,
-                "has_id_proof": student.id_proof is not None,
-                "id_proof_url": student.id_proof.url if student.id_proof else None,
-            },
-            "face_encoding": {
-                "has_data": face_encoding_data is not None,
-                "length": face_encoding_length,
-                "preview": face_encoding_preview,
-                "full_data": face_encoding_data,
-                "formatted_date": (
-                    student.updated_at.strftime("%Y-%m-%d %I:%M %p")
-                    if hasattr(student, "updated_at") and student.updated_at
-                    else "Not updated"
-                ),
-            },
-            "attendance_history": attendance_history,
-            "total_attendance": AttendanceLog.objects.filter(student=student).count(),
-        }
-    )
-
+    return JsonResponse({
+        "success": True,
+        "student": {
+            "id": student.id,
+            "full_name": student.full_name,
+            "roll_number": student.roll_number,
+            "department": student.department,
+            "year": student.year,
+            "semester": student.semester,
+            "section": student.section,
+            "email": student.user.email if student.user else "N/A",
+            "phone": student.phone_number if hasattr(student, 'phone_number') else "N/A",
+            "address": student.address if hasattr(student, 'address') else "N/A",
+            "has_id_proof": student.id_proof is not None if hasattr(student, 'id_proof') else False,
+            "id_proof_url": student.id_proof.url if hasattr(student, 'id_proof') and student.id_proof else None,
+        },
+        "face_encoding": {
+            "has_data": face_encoding_data is not None,
+            "length": face_encoding_length,
+            "preview": face_encoding_preview,
+            "full_data": face_encoding_data,
+        },
+        "attendance_history": attendance_history,
+        "total_attendance": AttendanceLog.objects.filter(student=student).count(),
+    })
 
 @login_required
 @user_passes_test(is_staff_user, login_url="login", redirect_field_name=None)
@@ -706,13 +684,11 @@ def dashboard_home(request):
         total_staff = StaffProfile.objects.count()
         total_students_for_user = total_students
         
-        # Calculate attendance rate
         if total_students > 0:
             attendance_rate = round((present_today / total_students) * 100, 1)
         else:
             attendance_rate = 0
         
-        # Get recent logs for admin (all logs)
         recent_logs_queryset = (
             AttendanceLog.objects.select_related("student", "session")
             .all()
@@ -756,17 +732,14 @@ def dashboard_home(request):
             staff_profile = request.user.staffprofile
             dept = staff_profile.department
             
-            # Get students count for this department (case-insensitive)
             total_students_for_user = Student.objects.filter(department__iexact=dept).count()
             
-            # Get logs for staff's department
             recent_logs_queryset = (
                 AttendanceLog.objects.select_related("student", "session")
                 .filter(student__department__iexact=dept)
                 .order_by("-last_seen")[:15]
             )
             
-            # Calculate attendance rate for department
             present_today_dept = AttendanceLog.objects.filter(
                 session__date=today, 
                 student__department__iexact=dept, 
@@ -778,17 +751,14 @@ def dashboard_home(request):
             else:
                 attendance_rate = 0
             
-            # Get staff's created sessions
             staff_sessions = AttendanceSession.objects.filter(
                 created_by=staff_profile
             ).order_by('-date')[:5]
             
-            # Get subjects taught count
             subjects_taught_count = AttendanceSession.objects.filter(
                 created_by=staff_profile
             ).values('subject_name').distinct().count()
             
-            # Weekly attendance trend for department
             for i in range(6, -1, -1):
                 date = today - timedelta(days=i)
                 daily_present = AttendanceLog.objects.filter(
@@ -803,7 +773,6 @@ def dashboard_home(request):
                 })
             
         else:
-            # Fallback if no staff profile
             total_students_for_user = total_students
             recent_logs_queryset = (
                 AttendanceLog.objects.select_related("student", "session")
@@ -812,7 +781,7 @@ def dashboard_home(request):
             )
             attendance_rate = round((present_today / total_students) * 100, 1) if total_students > 0 else 0
     
-    # Prepare enhanced student data for the table
+    # Prepare enhanced student data for the table with validation data
     enhanced_logs = []
     for log in recent_logs_queryset:
         student = log.student
@@ -823,8 +792,12 @@ def dashboard_home(request):
                 "student_roll": student.roll_number,
                 "student_full_name": student.full_name,
                 "student_department": student.department if hasattr(student, 'department') else 'N/A',
+                "student_semester": student.semester if hasattr(student, 'semester') else 'N/A',
                 "has_face_encoding": student.face_encoding is not None,
+                "is_validated": log.is_validated if hasattr(log, 'is_validated') else True,
+                "validation_error": log.validation_error if hasattr(log, 'validation_error') else None,
                 "session_name": log.session.subject_name if log.session else "General",
+                "session_semester": log.session.semester if log.session else "N/A",
             }
             enhanced_logs.append(log_data)
     
@@ -864,6 +837,11 @@ def dashboard_home(request):
         cpu_usage = 0
         memory_usage = 0
         disk_usage = 0
+    
+    # Get validation statistics
+    total_logs = AttendanceLog.objects.count()
+    validated_logs = AttendanceLog.objects.filter(is_validated=True).count() if hasattr(AttendanceLog, 'is_validated') else total_logs
+    validation_failed = total_logs - validated_logs
     
     # Build main context dictionary
     main_context = {
@@ -907,11 +885,16 @@ def dashboard_home(request):
         "staff_sessions": staff_sessions if not request.user.is_superuser else [],
         "subjects_taught_count": subjects_taught_count,
         "total_staff": total_staff,
+        
+        # Validation stats
+        "total_logs": total_logs,
+        "validated_logs": validated_logs,
+        "validation_failed": validation_failed,
     }
     
-    # ========== ROLE-BASED NOTIFICATIONS ==========
+    # ========== NOTIFICATIONS ==========
     
-    # 1. Welcome notification for first visit of the day
+    # Welcome notification for first visit of the day
     today_key = f'visited_{today.isoformat()}'
     if not request.session.get(today_key, False):
         create_system_notification(
@@ -922,7 +905,7 @@ def dashboard_home(request):
         )
         request.session[today_key] = True
     
-    # 2. Low face registration alert
+    # Low face registration alert
     if face_registration_percentage < 50:
         alert_key = f'face_reg_alert_{today.isoformat()}'
         if not request.session.get(alert_key, False):
@@ -931,12 +914,12 @@ def dashboard_home(request):
                 title="⚠️ Action Required: Face Registration",
                 message=f"Only {face_registration_percentage}% of students have registered face data. Please complete registrations for accurate attendance.",
                 notification_type="alert",
-                link="/dashboard/student-directory/?filter=pending",
+                link="/dashboard/student-directory/?face_status=no_face",
                 metadata={"percentage": face_registration_percentage}
             )
             request.session[alert_key] = True
     
-    # 3. Low attendance alert
+    # Low attendance alert
     if attendance_rate < 50 and attendance_rate > 0:
         attendance_key = f'low_attendance_{today.isoformat()}'
         if not request.session.get(attendance_key, False):
@@ -950,7 +933,7 @@ def dashboard_home(request):
             )
             request.session[attendance_key] = True
     
-    # 4. Proxy alerts notification
+    # Proxy alerts notification
     if proxy_alerts > 0:
         proxy_key = f'proxy_alert_{today.isoformat()}'
         if not request.session.get(proxy_key, False):
@@ -964,7 +947,7 @@ def dashboard_home(request):
             )
             request.session[proxy_key] = True
     
-    # 5. Session active notification
+    # Session active notification
     if active_session:
         session_key = f'session_notification_{active_session.id}'
         if not request.session.get(session_key, False):
@@ -973,7 +956,7 @@ def dashboard_home(request):
                 title="🎓 Session Active",
                 message=f"Attendance session for '{active_session.subject_name}' is currently active. Click to monitor.",
                 notification_type="session",
-                link="/dashboard/",
+                link=f"/attendance/live/{active_session.id}/",
                 metadata={"session_id": active_session.id, "subject": active_session.subject_name}
             )
             request.session[session_key] = True
@@ -982,7 +965,6 @@ def dashboard_home(request):
     if request.user.is_superuser:
         # System health notifications
         try:
-            # CPU Alert (>80%)
             if cpu_usage > 80:
                 cpu_key = f'high_cpu_{today.isoformat()}'
                 if not request.session.get(cpu_key, False):
@@ -996,7 +978,6 @@ def dashboard_home(request):
                     )
                     request.session[cpu_key] = True
             
-            # Memory Alert (>85%)
             if memory_usage > 85:
                 mem_key = f'high_memory_{today.isoformat()}'
                 if not request.session.get(mem_key, False):
@@ -1010,7 +991,6 @@ def dashboard_home(request):
                     )
                     request.session[mem_key] = True
             
-            # Disk Space Alert (<15% free)
             if disk_usage > 85:
                 disk_key = f'low_disk_{today.isoformat()}'
                 if not request.session.get(disk_key, False):
@@ -1024,7 +1004,7 @@ def dashboard_home(request):
                         metadata={"free_gb": free_gb, "used_percent": disk_usage}
                     )
                     request.session[disk_key] = True
-        except ImportError:
+        except:
             pass
         
         # Face registration milestones
@@ -1073,7 +1053,6 @@ def dashboard_home(request):
         staff_profile = request.user.staffprofile
         department = staff_profile.department
         
-        # Department stats
         total_dept_students = Student.objects.filter(department__iexact=department).count()
         present_dept = AttendanceLog.objects.filter(
             session__date=today,
@@ -1082,7 +1061,6 @@ def dashboard_home(request):
         ).values_list('student_id', flat=True).distinct().count()
         dept_attendance_rate = round((present_dept / total_dept_students * 100) if total_dept_students > 0 else 0, 1)
         
-        # Low attendance alert for department
         if dept_attendance_rate < 40 and dept_attendance_rate > 0:
             low_key = f'dept_low_attendance_{department}_{today.isoformat()}'
             if not request.session.get(low_key, False):
@@ -1096,7 +1074,6 @@ def dashboard_home(request):
                 )
                 request.session[low_key] = True
         
-        # Students without face data in department
         students_without_face_dept = Student.objects.filter(
             department__iexact=department,
             face_encoding__isnull=True
@@ -1110,34 +1087,12 @@ def dashboard_home(request):
                     title="📸 Face Registration Reminder",
                     message=f"{students_without_face_dept} student(s) in {department} need face data registration.",
                     notification_type="student",
-                    link="/dashboard/student-directory/",
+                    link="/dashboard/student-directory/?face_status=no_face",
                     metadata={"department": department, "pending_count": students_without_face_dept}
                 )
                 request.session[face_key] = True
-        
-        # Staff daily summary
-        staff_summary_key = f'staff_daily_summary_{department}_{today.isoformat()}'
-        if not request.session.get(staff_summary_key, False):
-            message = f"📊 {department} Department Report\n"
-            message += f"• Attendance: {dept_attendance_rate}% ({present_dept}/{total_dept_students} students)"
-            
-            create_notification(
-                user=request.user,
-                title=f"📈 Daily Department Summary",
-                message=message,
-                notification_type="attendance",
-                link="/dashboard/department-attendance/",
-                metadata={
-                    "department": department,
-                    "attendance_rate": dept_attendance_rate,
-                    "present": present_dept,
-                    "total": total_dept_students
-                }
-            )
-            request.session[staff_summary_key] = True
 
     return render(request, "dashboard/home.html", main_context)
-
 
 def student_profile(request, student_id):
     student = get_object_or_404(Student, id=student_id)
@@ -1256,22 +1211,50 @@ def get_student_face_encoding(request, student_id):
             {"success": False, "error": "No face encoding data available"}, status=404
         )
 
+def get_user_department_students(user):
+    """Get students filtered by user's department"""
+    if user.is_superuser:
+        return Student.objects.all()
+    
+    dept = get_department_from_user(user)
+    if dept:
+        return Student.objects.filter(department__iexact=dept)
+    return Student.objects.none()
 
 @login_required
 def student_directory(request):
     if request.user.is_superuser:
-        # Admins see everyone
         students = Student.objects.all()
     else:
-        # 1. Get the staff profile for the logged-in user
-        staff_profile = StaffProfile.objects.filter(user=request.user).first()
+        students = get_user_department_students(request.user)
 
-        if staff_profile:
-            # 2. Filter students who are in the same department as the staff
-            students = Student.objects.filter(department=staff_profile.department)
-        else:
-            # Fallback if the user is staff but has no profile created yet
-            students = Student.objects.none()
+    # Apply filters
+    search_query = request.GET.get('search', '')
+    department_filter = request.GET.get('department', '')
+    year_filter = request.GET.get('year', '')
+    semester_filter = request.GET.get('semester', '')
+    face_status = request.GET.get('face_status', '')
+
+    if search_query:
+        students = students.filter(
+            Q(full_name__icontains=search_query) |
+            Q(roll_number__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+    
+    if department_filter:
+        students = students.filter(department__iexact=department_filter)
+    
+    if year_filter:
+        students = students.filter(year=year_filter)
+    
+    if semester_filter:
+        students = students.filter(semester=semester_filter)
+    
+    if face_status == 'has_face':
+        students = students.filter(face_encoding__isnull=False)
+    elif face_status == 'no_face':
+        students = students.filter(face_encoding__isnull=True)
 
     # Count students with face encoding
     students_with_face = students.filter(face_encoding__isnull=False).count()
@@ -1279,36 +1262,27 @@ def student_directory(request):
     students_without_face = total_students - students_with_face
 
     # Calculate percentage
-    if total_students > 0:
-        face_completion_rate = (students_with_face / total_students) * 100
-    else:
-        face_completion_rate = 0
+    face_completion_rate = (students_with_face / total_students * 100) if total_students > 0 else 0
 
     # Prepare student data with face encoding information
     students_data = []
     for student in students:
         has_face_encoding = student.face_encoding is not None
         face_value_length = 0
-
-        # Get a preview of the face encoding
         face_preview = []
+
         if has_face_encoding:
             try:
-                # Try to parse the face encoding
                 face_data = None
-
                 if isinstance(student.face_encoding, list):
                     face_data = student.face_encoding
                 elif isinstance(student.face_encoding, str):
                     try:
                         import json
-
                         face_data = json.loads(student.face_encoding)
                     except json.JSONDecodeError:
-                        # Try to parse as Python literal
                         try:
                             import ast
-
                             face_data = ast.literal_eval(student.face_encoding)
                         except:
                             face_data = []
@@ -1317,34 +1291,23 @@ def student_directory(request):
 
                 if isinstance(face_data, list) and face_data:
                     face_value_length = len(face_data)
-                    # Safely format first 5 values
                     for value in face_data[:5]:
                         try:
                             float_value = float(value)
                             face_preview.append(float(f"{float_value:.6f}"))
                         except (ValueError, TypeError):
-                            # If conversion fails, just keep the original value
                             face_preview.append(value)
-                else:
-                    face_value_length = 0
-                    face_preview = []
-
             except Exception as e:
-                # Log error but don't crash
                 print(f"Error processing face encoding for student {student.id}: {e}")
-                face_value_length = 0
-                face_preview = []
 
-        students_data.append(
-            {
-                "object": student,
-                "has_face_encoding": has_face_encoding,
-                "face_value_length": face_value_length,
-                "face_preview": face_preview,
-            }
-        )
+        students_data.append({
+            "object": student,
+            "has_face_encoding": has_face_encoding,
+            "face_value_length": face_value_length,
+            "face_preview": face_preview,
+        })
 
-    # ===== PAGINATION - 15 items per page (same as System Logs) =====
+    # Pagination
     paginator = Paginator(students_data, 15)
     page = request.GET.get('page', 1)
     
@@ -1355,14 +1318,28 @@ def student_directory(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
 
+    # Get filter options
+    departments = Student.objects.values_list('department', flat=True).distinct().order_by('department')
+    years = Student.objects.values_list('year', flat=True).distinct().order_by('year')
+    semesters = Student.objects.values_list('semester', flat=True).distinct().order_by('semester')
+
     active_session = AttendanceSession.objects.filter(is_active=True).first()
+    
     context = {
         "page_obj": page_obj,
         "total_students": total_students,
         "students_with_face": students_with_face,
         "students_without_face": students_without_face,
         "face_completion_rate": face_completion_rate,
+        "departments": departments,
+        "years": years,
+        "semesters": semesters,
         "active_session": active_session,
+        "search_query": search_query,
+        "department_filter": department_filter,
+        "year_filter": year_filter,
+        "semester_filter": semester_filter,
+        "face_status": face_status,
     }
     return render(request, "dashboard/student_directory.html", context)
 
@@ -1424,36 +1401,61 @@ def edit_staff(request, staff_id):
 @login_required
 def edit_student(request, student_id):
     """Edit student profile"""
-    # Get student object
     student = get_object_or_404(Student, id=student_id)
 
-    # Permission check: only superusers or staff from same department can edit
+    # Permission check
     if not request.user.is_superuser:
-        # Check if user has staff profile
         if not hasattr(request.user, "staff_profile"):
             messages.error(request, "You don't have permission to edit students.")
             return redirect("student-directory")
 
         staff_profile = request.user.staff_profile
-
-        # Check if staff is from the same department as student
         if staff_profile.department != student.department:
             messages.error(request, "You can only edit students from your department.")
             return redirect("student-directory")
 
     if request.method == "POST":
         form = StudentEditForm(request.POST, request.FILES, instance=student)
+        
+        # Handle face update
+        update_face = request.POST.get('update_face') == 'true'
+        face_encoding_data = request.POST.get('face_encoding')
+        photo_data = request.POST.get('photo_data')
+        
+        if update_face and face_encoding_data:
+            try:
+                import base64
+                
+                # Parse the face encoding
+                encoding = json.loads(face_encoding_data)
+                student.face_encoding = encoding
+                
+                # If photo data is available, save it too
+                if photo_data and photo_data.startswith('data:image'):
+                    try:
+                        format, imgstr = photo_data.split(';base64,')
+                        ext = format.split('/')[-1]
+                        data = ContentFile(
+                            base64.b64decode(imgstr), 
+                            name=f'face_{student.roll_number}_{timezone.now().strftime("%Y%m%d%H%M%S")}.{ext}'
+                        )
+                        student.photo = data
+                    except Exception as e:
+                        print(f"Error saving photo: {e}")
+                
+                messages.success(request, "Face data updated successfully!")
+            except Exception as e:
+                messages.error(request, f"Error updating face data: {str(e)}")
+        
         if form.is_valid():
             try:
                 delete_id_proof = request.POST.get("delete_existing_file") == "true"
 
                 if delete_id_proof and student.id_proof:
-                    # Delete the file from storage
                     student.id_proof.delete(save=False)
                     student.id_proof = None
-
-                    # Save the student without the file
                     student.save()
+                
                 form.save()
                 messages.success(
                     request, f"Student {student.full_name} updated successfully!"
@@ -1462,7 +1464,6 @@ def edit_student(request, student_id):
             except Exception as e:
                 messages.error(request, f"Error updating student: {str(e)}")
         else:
-            # Debug form errors
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
@@ -2138,26 +2139,68 @@ def api_session_stats(request):
 @login_required
 def api_recent_sessions(request):
     """API endpoint to get recent sessions"""
-    # Get last 10 sessions
     recent_sessions = AttendanceSession.objects.order_by("-date", "-start_time")[:10]
-
+    
     sessions_data = []
     for session in recent_sessions:
-        sessions_data.append(
-            {
-                "id": session.id,
-                "subject": session.subject_name,
-                "date": session.date.strftime("%Y-%m-%d"),
-                "time": (
-                    f"{session.start_time.strftime('%I:%M %p')} - {session.end_time.strftime('%I:%M %p')}"
-                    if session.end_time
-                    else session.start_time.strftime("%I:%M %p")
-                ),
-                "is_active": session.is_active,
-            }
-        )
-
+        sessions_data.append({
+            "id": session.id,
+            "subject": session.subject_name,
+            "date": session.date.strftime("%Y-%m-%d"),
+            "semester": session.semester,
+            "year": session.year,
+            "department": session.department,
+            "time": (
+                f"{session.start_time.strftime('%I:%M %p')} - {session.end_time.strftime('%I:%M %p')}"
+                if session.end_time
+                else session.start_time.strftime("%I:%M %p")
+            ),
+            "is_active": session.is_active,
+        })
+    
     return JsonResponse({"sessions": sessions_data})
+
+
+@login_required
+def api_recent_attendance(request):
+    """API endpoint for recent attendance feed"""
+    today = timezone.now().date()
+    
+    if request.user.is_superuser:
+        logs = AttendanceLog.objects.select_related('student', 'session').order_by('-last_seen')[:20]
+    else:
+        if hasattr(request.user, 'staffprofile'):
+            dept = request.user.staffprofile.department
+            logs = AttendanceLog.objects.select_related('student', 'session').filter(
+                student__department=dept
+            ).order_by('-last_seen')[:20]
+        else:
+            logs = AttendanceLog.objects.select_related('student', 'session').order_by('-last_seen')[:20]
+    
+    attendance_data = []
+    for log in logs:
+        attendance_data.append({
+            "id": log.id,
+            "student_id": log.student.id,
+            "student_name": log.student.full_name,
+            "student_roll": log.student.roll_number,
+            "student_dept": log.student.department,
+            "student_semester": log.student.semester,
+            "subject": log.session.subject_name if log.session else "Unknown",
+            "session_semester": log.session.semester if log.session else "N/A",
+            "status": log.status,
+            "status_display": log.get_status_display(),
+            "time": log.first_seen.strftime("%I:%M:%S %p") if log.first_seen else "N/A",
+            "has_face": log.student.face_encoding is not None,
+            "is_validated": log.is_validated if hasattr(log, 'is_validated') else True,
+            "validation_error": log.validation_error if hasattr(log, 'validation_error') else None,
+        })
+    
+    return JsonResponse({
+        "success": True,
+        "attendance": attendance_data,
+        "total": len(attendance_data)
+    })
 
 
 @csrf_exempt
@@ -2908,45 +2951,6 @@ def api_dashboard_stats(request):
     return JsonResponse(stats)
 
 
-@login_required
-def api_recent_attendance(request):
-    """API endpoint for recent attendance feed"""
-    today = timezone.now().date()
-    
-    if request.user.is_superuser:
-        logs = AttendanceLog.objects.select_related('student', 'session').order_by('-last_seen')[:20]
-    else:
-        # Staff sees only their department's logs
-        if hasattr(request.user, 'staffprofile'):
-            dept = request.user.staffprofile.department
-            logs = AttendanceLog.objects.select_related('student', 'session').filter(
-                student__department=dept
-            ).order_by('-last_seen')[:20]
-            print(f"[DEBUG] Staff Recent - User: {request.user.username}, Dept: {dept}, Logs: {logs.count()}")
-        else:
-            logs = AttendanceLog.objects.select_related('student', 'session').order_by('-last_seen')[:20]
-    
-    attendance_data = []
-    for log in logs:
-        attendance_data.append({
-            "id": log.id,
-            "student_id": log.student.id,
-            "student_name": log.student.full_name,
-            "student_roll": log.student.roll_number,
-            "student_dept": log.student.department,
-            "subject": log.session.subject_name if log.session else "Unknown",
-            "status": log.status,
-            "status_display": log.get_status_display(),
-            "time": log.first_seen.strftime("%I:%M:%S %p") if log.first_seen else "N/A",
-            "has_face": log.student.face_encoding is not None
-        })
-    
-    return JsonResponse({
-        "success": True,
-        "attendance": attendance_data,
-        "total": len(attendance_data)
-    })
-
 
 @login_required
 def api_attendance_summary(request):
@@ -3012,29 +3016,15 @@ def api_export_attendance(request):
         return JsonResponse({"error": "Method not allowed"}, status=405)
     
     try:
-        import json
-        
-        # Parse request body
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError as e:
-            return JsonResponse({
-                "success": False, 
-                "error": f"Invalid JSON: {str(e)}"
-            }, status=400)
-        
+        data = json.loads(request.body)
         attendance_ids = data.get('attendance_ids', [])
         
-        # Get logs based on permissions
         if request.user.is_superuser:
-            # Admin sees all logs
             if attendance_ids and len(attendance_ids) > 0:
                 logs = AttendanceLog.objects.filter(id__in=attendance_ids).select_related('student', 'session')
             else:
                 logs = AttendanceLog.objects.select_related('student', 'session').order_by('-last_seen')[:100]
         else:
-            # Staff sees only their department's logs
-            # Try to get staff profile - using correct related name
             if hasattr(request.user, 'staffprofile'):
                 staff_profile = request.user.staffprofile
                 dept = staff_profile.department
@@ -3048,19 +3038,12 @@ def api_export_attendance(request):
                     logs = AttendanceLog.objects.filter(
                         student__department=dept
                     ).select_related('student', 'session').order_by('-last_seen')[:100]
-                    
-                # Print debug info to server console
-                print(f"[DEBUG] Staff Export - User: {request.user.username}, Department: {dept}, Logs: {logs.count()}")
             else:
-                # If no staff profile, return empty
                 logs = AttendanceLog.objects.none()
-                print(f"[DEBUG] Staff Export - No staff profile for user: {request.user.username}")
         
-        # Prepare export data
         export_data = []
         for log in logs:
             try:
-                # Calculate duration
                 duration_str = "N/A"
                 if log.first_seen and log.last_seen:
                     duration = (log.last_seen - log.first_seen).total_seconds() / 60
@@ -3070,11 +3053,16 @@ def api_export_attendance(request):
                     "Student Name": log.student.full_name,
                     "Roll Number": log.student.roll_number,
                     "Department": getattr(log.student, 'department', 'N/A'),
+                    "Semester": getattr(log.student, 'semester', 'N/A'),
+                    "Year": getattr(log.student, 'year', 'N/A'),
                     "Subject": log.session.subject_name if log.session else "Unknown",
+                    "Session Semester": log.session.semester if log.session else "N/A",
                     "Status": log.get_status_display(),
                     "Date": log.session.date.strftime("%Y-%m-%d") if log.session else "",
                     "Time": log.first_seen.strftime("%I:%M:%S %p") if log.first_seen else "",
-                    "Duration": duration_str
+                    "Duration": duration_str,
+                    "Is Validated": "Yes" if (hasattr(log, 'is_validated') and log.is_validated) else "No",
+                    "Validation Error": log.validation_error if hasattr(log, 'validation_error') and log.validation_error else "N/A",
                 })
             except Exception as e:
                 print(f"Error processing log {log.id}: {e}")
@@ -3088,13 +3076,8 @@ def api_export_attendance(request):
         
     except Exception as e:
         import traceback
-        error_details = traceback.format_exc()
-        print(f"Export error: {error_details}")
-        return JsonResponse({
-            "success": False, 
-            "error": str(e)
-        }, status=500)
-
+        print(f"Export error: {traceback.format_exc()}")
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 @login_required
 def api_filter_attendance(request):
@@ -3102,6 +3085,7 @@ def api_filter_attendance(request):
     search = request.GET.get('search', '')
     status_filter = request.GET.get('status', '')
     date_filter = request.GET.get('date', '')
+    semester_filter = request.GET.get('semester', '')
     
     logs = AttendanceLog.objects.select_related('student', 'session')
     
@@ -3117,6 +3101,9 @@ def api_filter_attendance(request):
     if date_filter:
         logs = logs.filter(session__date=date_filter)
     
+    if semester_filter:
+        logs = logs.filter(session__semester=semester_filter)
+    
     # Permission filter
     if not request.user.is_superuser and hasattr(request.user, "staffprofile"):
         dept = request.user.staffprofile.department
@@ -3131,12 +3118,15 @@ def api_filter_attendance(request):
             "student_name": log.student.full_name,
             "student_roll": log.student.roll_number,
             "student_dept": log.student.department,
+            "student_semester": log.student.semester,
             "subject": log.session.subject_name if log.session else "Unknown",
+            "session_semester": log.session.semester if log.session else "N/A",
             "status": log.status,
             "status_display": log.get_status_display(),
-            "time": log.first_seen.strftime("%I:%M:%S %p"),
+            "time": log.first_seen.strftime("%I:%M:%S %p") if log.first_seen else "N/A",
             "date": log.session.date.strftime("%Y-%m-%d") if log.session else "",
-            "has_face": log.student.face_encoding is not None
+            "has_face": log.student.face_encoding is not None,
+            "is_validated": log.is_validated if hasattr(log, 'is_validated') else True,
         })
     
     return JsonResponse({
@@ -3144,7 +3134,15 @@ def api_filter_attendance(request):
         "attendance": attendance_data,
         "count": len(attendance_data)
     })
+
     
+def get_department_from_user(user):
+    """Get department from user's staff profile"""
+    if user.is_superuser:
+        return None
+    if hasattr(user, 'staffprofile'):
+        return user.staffprofile.department
+    return None
     
 # ========== NOTIFICATION API VIEWS ==========
 
@@ -3459,15 +3457,78 @@ def api_simulate_bulk_notifications(request):
     })
     
     
+@login_required
 def student_profile(request, student_id):
     student = get_object_or_404(Student, id=student_id)
     
-    # Check if it's an AJAX request (from modal)
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, "dashboard/student_profile_modal.html", {"student": student})
+    # Permission check
+    if not request.user.is_superuser:
+        dept = get_department_from_user(request.user)
+        if dept and student.department != dept:
+            messages.error(request, "You don't have permission to view this student's profile.")
+            return redirect('student-directory')
     
-    # Regular page request - use full template with base
-    return render(request, "dashboard/student_profile.html", {"student": student})
+    # Get attendance statistics
+    total_logs = AttendanceLog.objects.filter(student=student).count()
+    present_logs = AttendanceLog.objects.filter(student=student, status='PRESENT').count()
+    partial_logs = AttendanceLog.objects.filter(student=student, status='PARTIAL').count()
+    absent_logs = AttendanceLog.objects.filter(student=student, status='ABSENT').count()
+    
+    # Get validation stats
+    validated_logs = AttendanceLog.objects.filter(student=student, is_validated=True).count() if hasattr(AttendanceLog, 'is_validated') else total_logs
+    validation_failed = total_logs - validated_logs
+    
+    # Get recent attendance
+    recent_logs = AttendanceLog.objects.filter(
+        student=student
+    ).select_related('session').order_by('-last_seen')[:10]
+    
+    # Get semester-wise attendance
+    semester_stats = {}
+    for log in AttendanceLog.objects.filter(student=student).select_related('session'):
+        sem = log.session.semester if log.session else 0
+        if sem not in semester_stats:
+            semester_stats[sem] = {'present': 0, 'absent': 0, 'total': 0}
+        semester_stats[sem]['total'] += 1
+        if log.status in ['PRESENT', 'PARTIAL']:
+            semester_stats[sem]['present'] += 1
+        else:
+            semester_stats[sem]['absent'] += 1
+    
+    # Prepare face encoding data for JavaScript
+    face_encoding_data = student.face_encoding
+    if face_encoding_data is not None:
+        # If it's a string, try to parse it as JSON
+        if isinstance(face_encoding_data, str):
+            try:
+                import json
+                face_encoding_data = json.loads(face_encoding_data)
+            except:
+                # If it's a Python list string, try to evaluate it
+                try:
+                    import ast
+                    face_encoding_data = ast.literal_eval(face_encoding_data)
+                except:
+                    face_encoding_data = None
+        # If it's a list, convert to JSON string for JavaScript
+        if isinstance(face_encoding_data, list):
+            import json
+            face_encoding_data = json.dumps(face_encoding_data)
+    
+    context = {
+        'student': student,
+        'total_logs': total_logs,
+        'present_logs': present_logs,
+        'partial_logs': partial_logs,
+        'absent_logs': absent_logs,
+        'validated_logs': validated_logs,
+        'validation_failed': validation_failed,
+        'recent_logs': recent_logs,
+        'semester_stats': semester_stats,
+        'page_title': f'Student Profile: {student.full_name}',
+        'face_encoding_json': face_encoding_data,  # Pass serialized data
+    }
+    return render(request, "dashboard/student_profile.html", context)
 
 
 def staff_profile(request, staff_id):

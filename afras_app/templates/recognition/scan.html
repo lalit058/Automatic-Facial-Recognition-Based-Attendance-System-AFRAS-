@@ -1,15 +1,819 @@
-{% extends 'dashboard/home.html' %}
-{% block content %}
-<div class="panel">
-    <h2><i class="fas fa-camera"></i> Facial Recognition Scanner</h2>
-    <p style="color: var(--text-dim);">Initializing Biometric Engine...</p>
+<!-- templates/recognition/scan.html -->
+{% extends 'dashboard/base.html' %}
+{% load static %}
 
-    <div
-        style="margin-top: 2rem; border: 2px dashed var(--primary); height: 400px; border-radius: 20px; display: flex; align-items: center; justify-content: center;">
-        <div style="text-align: center;">
-            <i class="fas fa-video-slash" style="font-size: 3rem; opacity: 0.3;"></i>
-            <p>Webcam feed integration pending...</p>
+{% block title %}Face Recognition - Live Attendance{% endblock %}
+
+{% block extra_css %}
+<style>
+    .video-container {
+        position: relative;
+        background: #000;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    #video-feed {
+        width: 100%;
+        max-height: 550px;
+        object-fit: contain;
+    }
+    
+    .recognition-overlay {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        z-index: 10;
+    }
+    
+    .recognition-status {
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        display: none;
+        backdrop-filter: blur(10px);
+    }
+    
+    .recognition-status.success {
+        border-left: 4px solid #28a745;
+        display: block;
+    }
+    
+    .recognition-status.error {
+        border-left: 4px solid #dc3545;
+        display: block;
+    }
+    
+    .recognition-status.info {
+        border-left: 4px solid #17a2b8;
+        display: block;
+    }
+    
+    .recognition-status.warning {
+        border-left: 4px solid #ffc107;
+        display: block;
+    }
+    
+    .student-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        animation: slideIn 0.3s ease;
+        display: flex;
+        align-items: center;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .student-card .student-photo {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 12px;
+        border: 2px solid #28a745;
+    }
+    
+    .student-card .student-info {
+        flex: 1;
+    }
+    
+    .student-card .student-name {
+        font-weight: 600;
+        margin-bottom: 2px;
+        font-size: 0.95rem;
+    }
+    
+    .student-card .student-roll {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    
+    .student-card .status-badge {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-left: 8px;
+    }
+    
+    .status-badge.present {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-badge.already {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 12px;
+    }
+    
+    .stats-card .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    
+    .stats-card .stat-label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+    
+    .stats-card.green {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    
+    .stats-card.orange {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .controls-panel {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-recognition {
+        padding: 8px 25px;
+        border-radius: 25px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-recognition.active {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .btn-recognition.active:hover {
+        background: #c82333;
+    }
+    
+    .btn-recognition.inactive {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-recognition.inactive:hover {
+        background: #218838;
+    }
+    
+    .face-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .face-indicator.detected {
+        background: #28a745;
+        animation: pulse 1s infinite;
+    }
+    
+    .face-indicator.not-detected {
+        background: #dc3545;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    
+    .attendance-list {
+        max-height: 350px;
+        overflow-y: auto;
+        padding: 0 5px;
+    }
+    
+    .attendance-list::-webkit-scrollbar {
+        width: 5px;
+    }
+    
+    .attendance-list::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    
+    .attendance-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    .empty-message {
+        color: #6c757d;
+        padding: 30px 0;
+        text-align: center;
+    }
+    
+    .empty-message i {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        display: block;
+        opacity: 0.5;
+    }
+    
+    .recognition-modal-img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #28a745;
+        margin: 0 auto;
+        display: block;
+    }
+    
+    .keyboard-shortcut {
+        font-size: 0.75rem;
+        color: #6c757d;
+        background: #f8f9fa;
+        padding: 2px 8px;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+        font-family: monospace;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Main Video Feed -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-video text-primary"></i> Live Face Recognition
+                        {% if semester_filter_applied %}
+                        <span class="badge badge-info ml-2">
+                            <i class="fas fa-filter"></i> Semester {{ semester }}
+                        </span>
+                        {% endif %}
+                    </h5>
+                    <div>
+                        <span class="face-indicator" id="faceIndicator">●</span>
+                        <span id="faceStatus" style="font-size: 0.9rem;">No face detected</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="video-container">
+                        {% if session_id %}
+                        <img src="{% url 'recognition:video_feed_filtered' session_id %}" 
+                             alt="Video Feed" 
+                             id="video-feed"
+                             onerror="handleVideoError()">
+                        {% else %}
+                        <img src="{% url 'recognition:video_feed' %}" 
+                             alt="Video Feed" 
+                             id="video-feed"
+                             onerror="handleVideoError()">
+                        {% endif %}
+                        
+                        <div class="recognition-overlay">
+                            <div id="recognitionStatus" class="recognition-status info">
+                                <i class="fas fa-info-circle"></i>
+                                <span id="recognitionMessage">Camera initializing...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="controls-panel">
+                        <button class="btn btn-recognition inactive" id="toggleRecognitionBtn" onclick="window.toggleRecognition()">
+                            <i class="fas fa-play"></i> Start Recognition
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="window.captureFrame()" title="Capture current frame (C)">
+                            <i class="fas fa-camera"></i> Capture
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="window.clearRecent()">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                        <span class="ml-auto">
+                            <span class="keyboard-shortcut">Space</span> Toggle
+                            <span class="keyboard-shortcut ml-2">C</span> Capture
+                        </span>
+                    </div>
+                    {% if semester_filter_applied %}
+                    <div class="mt-2 small text-muted">
+                        <i class="fas fa-shield-alt text-success"></i>
+                        Only students from <strong>Semester {{ semester }}</strong> are being recognized
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Side Panel -->
+        <div class="col-lg-4">
+            <!-- Session Information -->
+            {% if semester_filter_applied %}
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-info-circle"></i> Session Details</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-borderless mb-0">
+                        <tr>
+                            <td><strong>Subject:</strong></td>
+                            <td>{{ subject_name|default:"N/A" }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Semester:</strong></td>
+                            <td><span class="badge badge-primary">{{ semester }}</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Department:</strong></td>
+                            <td>{{ department|default:"N/A" }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Year/Section:</strong></td>
+                            <td>{{ year|default:"N/A" }} / {{ section|default:"N/A" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Statistics -->
+            <div class="card mt-3">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-bar"></i> Attendance Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="stats-card">
+                                <div class="stat-number" id="totalStudents">{{ enrolled_students|default:0 }}</div>
+                                <div class="stat-label">Total Students</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-card green">
+                                <div class="stat-number" id="markedCount">0</div>
+                                <div class="stat-label">Marked Present</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="stats-card orange">
+                                <div class="stat-number" id="faceDataCount">{{ students_with_encoding|default:0 }}</div>
+                                <div class="stat-label">With Face Data</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-card" style="background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);">
+                                <div class="stat-number" id="remainingCount">{{ enrolled_students|default:0 }}</div>
+                                <div class="stat-label">Remaining</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-2">
+                        <label class="small text-muted">Face Data Coverage</label>
+                        <div class="progress" style="height: 22px;">
+                            <div class="progress-bar bg-success" 
+                                 role="progressbar" 
+                                 id="coverageProgress"
+                                 style="width: {% widthratio students_with_encoding enrolled_students 100 %}%;"
+                                 aria-valuenow="{{ students_with_encoding }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="{{ enrolled_students|default:1 }}">
+                                {% widthratio students_with_encoding enrolled_students 100 %}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recently Marked Students -->
+            <div class="card mt-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-user-check text-success"></i> Recently Marked</h6>
+                    <span class="badge badge-primary" id="recentCount">0</span>
+                </div>
+                <div class="card-body p-2">
+                    <div id="recentAttendance" class="attendance-list">
+                        <div class="empty-message" id="emptyMessage">
+                            <i class="fas fa-users"></i>
+                            <span>Waiting for students...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Semester Stats -->
+            <div class="card mt-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-pie"></i> Semester Overview</h6>
+                </div>
+                <div class="card-body" id="semesterStats">
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-spinner fa-spin"></i> Loading stats...
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Recognition Success Modal -->
+<div class="modal fade" id="recognitionModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle"></i> Attendance Marked!
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <img src="" alt="Student Photo" class="recognition-modal-img" id="modalStudentPhoto">
+                <h4 class="mt-3" id="modalStudentName">Student Name</h4>
+                <p class="text-muted" id="modalStudentRoll">Roll Number</p>
+                <div class="alert alert-success mt-3">
+                    <i class="fas fa-check-circle"></i> Attendance marked successfully!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Make all functions globally accessible
+window.isRecognitionActive = false;
+window.recognitionTimer = null;
+window.markedCount = 0;
+window.markedStudents = new Set();
+
+// CSRF token helper
+window.getCsrfToken = function() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+           document.cookie.split('; ').find(function(row) { 
+               return row.startsWith('csrftoken='); 
+           })?.split('=')[1];
+};
+
+// Toggle recognition
+window.toggleRecognition = function() {
+    window.isRecognitionActive = !window.isRecognitionActive;
+    var btn = document.getElementById('toggleRecognitionBtn');
+    
+    if (window.isRecognitionActive) {
+        btn.className = 'btn btn-recognition active';
+        btn.innerHTML = '<i class="fas fa-stop"></i> Stop Recognition';
+        window.showStatus('Recognition active - scanning for faces...', 'info');
+        window.startRecognition();
+    } else {
+        btn.className = 'btn btn-recognition inactive';
+        btn.innerHTML = '<i class="fas fa-play"></i> Start Recognition';
+        window.showStatus('Recognition paused', 'warning');
+        window.stopRecognition();
+    }
+};
+
+// Start recognition timer
+window.startRecognition = function() {
+    if (window.recognitionTimer) {
+        clearInterval(window.recognitionTimer);
+    }
+    
+    // Capture every 2 seconds
+    window.recognitionTimer = setInterval(function() {
+        if (window.isRecognitionActive) {
+            window.captureFrame();
+        }
+    }, 2000);
+};
+
+// Stop recognition timer
+window.stopRecognition = function() {
+    if (window.recognitionTimer) {
+        clearInterval(window.recognitionTimer);
+        window.recognitionTimer = null;
+    }
+    window.updateFaceIndicator(false);
+};
+
+// Capture frame for recognition
+window.captureFrame = function() {
+    var videoFeed = document.getElementById('video-feed');
+    
+    // Create canvas to capture current frame
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    
+    canvas.width = videoFeed.naturalWidth || 640;
+    canvas.height = videoFeed.naturalHeight || 480;
+    
+    context.drawImage(videoFeed, 0, 0, canvas.width, canvas.height);
+    
+    canvas.toBlob(function(blob) {
+        if (!blob) return;
+        
+        var formData = new FormData();
+        formData.append('image', blob, 'frame.jpg');
+        
+        var sessionId = '{{ session_id }}';
+        fetch('/recognition/mark-attendance/' + sessionId + '/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': window.getCsrfToken()
+            }
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success) {
+                window.handleRecognitionSuccess(data);
+            } else if (data.error) {
+                if (data.semester_mismatch) {
+                    window.showStatus('⚠️ Student not enrolled in this semester', 'warning');
+                } else {
+                    window.showStatus('❌ ' + data.error, 'error');
+                }
+                window.updateFaceIndicator(false);
+            }
+        })
+        .catch(function(error) {
+            console.error('Recognition error:', error);
+            window.showStatus('Error connecting to server', 'error');
+        });
+    }, 'image/jpeg', 0.8);
+};
+
+// Handle successful recognition
+window.handleRecognitionSuccess = function(data) {
+    var student = data.student;
+    var isNew = data.is_new_record;
+    
+    window.updateFaceIndicator(true);
+    
+    // Show status
+    var statusMsg = isNew ? '✅ ' + student.name + ' marked present' : '👤 ' + student.name + ' already marked';
+    window.showStatus(statusMsg, isNew ? 'success' : 'info');
+    
+    // Add to recent list
+    window.addToRecent(student, isNew);
+    
+    // Update counts
+    if (isNew && !window.markedStudents.has(student.id)) {
+        window.markedStudents.add(student.id);
+        window.markedCount++;
+        document.getElementById('markedCount').textContent = window.markedCount;
+        
+        var total = parseInt(document.getElementById('totalStudents').textContent) || 0;
+        document.getElementById('remainingCount').textContent = total - window.markedCount;
+        
+        // Show modal
+        window.showRecognitionModal(student);
+        
+        // Play sound
+        window.playSuccessSound();
+    }
+};
+
+// Add student to recent list
+window.addToRecent = function(student, isNew) {
+    var container = document.getElementById('recentAttendance');
+    var emptyMessage = document.getElementById('emptyMessage');
+    
+    if (emptyMessage) {
+        emptyMessage.style.display = 'none';
+    }
+    
+    // Check if already in list
+    var existing = container.querySelector('[data-student-id="' + student.id + '"]');
+    if (existing) {
+        // Update status
+        var badge = existing.querySelector('.status-badge');
+        if (isNew) {
+            badge.className = 'status-badge present';
+            badge.textContent = 'Present';
+        }
+        // Move to top
+        container.prepend(existing);
+        return;
+    }
+    
+    // Create new entry
+    var div = document.createElement('div');
+    div.className = 'student-card';
+    div.setAttribute('data-student-id', student.id);
+    
+    var photoUrl = student.photo_url || '/static/images/default-avatar.png';
+    
+    div.innerHTML = 
+        '<img src="' + photoUrl + '" alt="' + student.name + '" class="student-photo" onerror="this.src=\'/static/images/default-avatar.png\'">' +
+        '<div class="student-info">' +
+            '<div class="student-name">' + student.name + '</div>' +
+            '<div class="student-roll">' + (student.roll_number || 'N/A') + '</div>' +
+        '</div>' +
+        '<span class="status-badge ' + (isNew ? 'present' : 'already') + '">' +
+            (isNew ? '✅ Present' : 'Already') +
+        '</span>' +
+        '<small class="text-muted ml-2" style="font-size: 0.7rem;">' + new Date().toLocaleTimeString() + '</small>';
+    
+    container.prepend(div);
+    
+    // Keep only last 20
+    while (container.children.length > 20) {
+        container.removeChild(container.lastChild);
+    }
+    
+    document.getElementById('recentCount').textContent = container.children.length;
+};
+
+// Show recognition modal
+window.showRecognitionModal = function(student) {
+    document.getElementById('modalStudentName').textContent = student.name;
+    document.getElementById('modalStudentRoll').textContent = student.roll_number || 'N/A';
+    
+    var photo = document.getElementById('modalStudentPhoto');
+    photo.src = student.photo_url || '/static/images/default-avatar.png';
+    photo.onerror = function() { 
+        this.src = '/static/images/default-avatar.png'; 
+    };
+    
+    $('#recognitionModal').modal('show');
+    
+    // Auto-close after 3 seconds
+    setTimeout(function() {
+        $('#recognitionModal').modal('hide');
+    }, 3000);
+};
+
+// Update face indicator
+window.updateFaceIndicator = function(detected) {
+    var indicator = document.getElementById('faceIndicator');
+    var status = document.getElementById('faceStatus');
+    
+    if (detected) {
+        indicator.className = 'face-indicator detected';
+        status.textContent = 'Face detected!';
+        status.style.color = '#28a745';
+    } else {
+        indicator.className = 'face-indicator not-detected';
+        status.textContent = 'No face detected';
+        status.style.color = '#dc3545';
+    }
+};
+
+// Show status message
+window.showStatus = function(message, type) {
+    type = type || 'info';
+    var statusDiv = document.getElementById('recognitionStatus');
+    var messageSpan = document.getElementById('recognitionMessage');
+    
+    statusDiv.className = 'recognition-status ' + type;
+    messageSpan.textContent = message;
+    statusDiv.style.display = 'block';
+    
+    // Auto-hide after 4 seconds for success/error
+    if (type === 'success' || type === 'error') {
+        setTimeout(function() {
+            if (window.isRecognitionActive) {
+                statusDiv.className = 'recognition-status info';
+                messageSpan.textContent = 'Recognition active - scanning for faces...';
+            } else {
+                statusDiv.style.display = 'none';
+            }
+        }, 4000);
+    }
+};
+
+// Load semester stats
+window.loadSemesterStats = function() {
+    fetch('/recognition/api/semester-stats/')
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success) {
+                var container = document.getElementById('semesterStats');
+                var html = '';
+                data.stats.forEach(function(stat) {
+                    var color = stat.percentage_with_encoding >= 80 ? 'success' : 
+                                 stat.percentage_with_encoding >= 50 ? 'warning' : 'danger';
+                    html += 
+                        '<div class="mb-2">' +
+                            '<div class="d-flex justify-content-between small">' +
+                                '<strong>Semester ' + stat.semester + '</strong>' +
+                                '<span>' + stat.percentage_with_encoding.toFixed(1) + '%</span>' +
+                            '</div>' +
+                            '<div class="progress" style="height: 18px;">' +
+                                '<div class="progress-bar bg-' + color + '" role="progressbar" style="width: ' + stat.percentage_with_encoding + '%;" aria-valuenow="' + stat.students_with_encoding + '" aria-valuemin="0" aria-valuemax="' + stat.total_students + '">' +
+                                    stat.students_with_encoding + '/' + stat.total_students +
+                                '</div>' +
+                            '</div>' +
+                        '</div>';
+                });
+                container.innerHTML = html;
+            }
+        })
+        .catch(function(error) {
+            console.error('Error loading stats:', error);
+            document.getElementById('semesterStats').innerHTML = 
+                '<div class="text-center text-muted py-3">Failed to load stats</div>';
+        });
+};
+
+// Clear recent list
+window.clearRecent = function() {
+    var container = document.getElementById('recentAttendance');
+    container.innerHTML = 
+        '<div class="empty-message" id="emptyMessage">' +
+            '<i class="fas fa-users"></i>' +
+            '<span>Waiting for students...</span>' +
+        '</div>';
+    document.getElementById('recentCount').textContent = '0';
+    window.markedCount = 0;
+    window.markedStudents.clear();
+    document.getElementById('markedCount').textContent = '0';
+    
+    var total = parseInt(document.getElementById('totalStudents').textContent) || 0;
+    document.getElementById('remainingCount').textContent = total;
+};
+
+// Play success sound
+window.playSuccessSound = function() {
+    try {
+        var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        var oscillator = audioCtx.createOscillator();
+        var gainNode = audioCtx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        oscillator.frequency.value = 880;
+        oscillator.type = 'sine';
+        gainNode.gain.value = 0.2;
+        
+        oscillator.start();
+        setTimeout(function() { oscillator.stop(); }, 150);
+    } catch(e) {
+        // Silent fallback
+    }
+};
+
+// Handle video error
+window.handleVideoError = function() {
+    window.showStatus('⚠️ Camera error. Please check your camera connection.', 'error');
+};
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    window.showStatus('Camera initializing...', 'info');
+    window.loadSemesterStats();
+    
+    // Auto-start after 3 seconds
+    setTimeout(function() {
+        window.toggleRecognition();
+    }, 3000);
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Space bar to toggle recognition
+        if (e.key === ' ' && e.target === document.body) {
+            e.preventDefault();
+            window.toggleRecognition();
+        }
+        // 'C' key to capture
+        if ((e.key === 'c' || e.key === 'C') && e.target === document.body) {
+            window.captureFrame();
+        }
+    });
+});
+</script>
 {% endblock %}

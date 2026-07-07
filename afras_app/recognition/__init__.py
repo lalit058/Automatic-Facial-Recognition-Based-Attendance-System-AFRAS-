@@ -1,7 +1,16 @@
+# afras_app/recognition/__init__.py
 """
-Recognition package initialization
-Location: AFRAS/afras_app/recognition/__init__.py
+Face Recognition Module for Attendance System
 """
 
-# Empty file or add version info
-__version__ = '1.0.0'
+from .hybrid_recognizer import HybridFaceRecognizer
+from .face_utils import FaceUtils
+from .constants import RECOGNITION_CONFIG, CONFIDENCE_LEVELS, MODEL_PATHS
+
+__all__ = [
+    'HybridFaceRecognizer',
+    'FaceUtils',
+    'RECOGNITION_CONFIG',
+    'CONFIDENCE_LEVELS',
+    'MODEL_PATHS',
+]

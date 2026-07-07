@@ -1,0 +1,1007 @@
+<!-- templates/attendance/student_attendance_record.html -->
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Student Attendance Record{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       STUDENT ATTENDANCE RECORD STYLES
+       Matching Light Theme
+    ============================================ */
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    .page-container {
+        padding: 0.5rem;
+        max-width: 1400px;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .breadcrumb-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.5rem;
+    }
+
+    .breadcrumb-header a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-header a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .breadcrumb-header .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .breadcrumb-header .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-content .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .header-content .header-left h1 i {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .header-content .header-left .subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .header-content .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-outline-light {
+        padding: 0.6rem 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    /* Profile Card */
+    .profile-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .profile-card .avatar-large {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #ffffff;
+        flex-shrink: 0;
+    }
+
+    .profile-card .profile-info {
+        flex: 1;
+    }
+
+    .profile-card .profile-info h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .profile-card .profile-info .details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+
+    .profile-card .profile-info .details span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .profile-card .profile-info .details i {
+        color: var(--primary);
+        width: 16px;
+    }
+
+    .profile-card .stats-mini {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .profile-card .stats-mini .stat {
+        text-align: center;
+    }
+
+    .profile-card .stats-mini .stat .number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .profile-card .stats-mini .stat .number.green { color: #16a34a; }
+    .profile-card .stats-mini .stat .number.red { color: #dc2626; }
+    .profile-card .stats-mini .stat .number.blue { color: #3b82f6; }
+
+    .profile-card .stats-mini .stat .label {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    /* Summary Cards */
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .summary-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 1rem 1.25rem;
+        text-align: center;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        border-color: #e2e8f0;
+    }
+
+    .summary-card .number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: block;
+        line-height: 1.2;
+    }
+
+    .summary-card .label {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .summary-card .number.green { color: #16a34a; }
+    .summary-card .number.red { color: #dc2626; }
+    .summary-card .number.orange { color: #d97706; }
+    .summary-card .number.blue { color: #3b82f6; }
+    .summary-card .number.purple { color: #8b5cf6; }
+
+    /* Badges */
+    .dept-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: #eef2ff;
+        color: #4f46e5;
+    }
+
+    .sem-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .year-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .section-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: #fce7f3;
+        color: #db2777;
+    }
+
+    /* Toolbar */
+    .toolbar {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 0.75rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .toolbar .search-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8fafc;
+        padding: 0.3rem 0.8rem;
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        transition: all 0.2s;
+        flex: 1;
+        min-width: 200px;
+        max-width: 350px;
+    }
+
+    .toolbar .search-box:focus-within {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06);
+        background: #ffffff;
+    }
+
+    .toolbar .search-box i {
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+
+    .toolbar .search-box input {
+        border: none;
+        background: transparent;
+        padding: 0.2rem 0;
+        font-size: 0.85rem;
+        color: #1e293b;
+        width: 100%;
+        outline: none;
+    }
+
+    .toolbar .search-box input::placeholder {
+        color: #94a3b8;
+    }
+
+    .toolbar .filter-group {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .toolbar .filter-group select {
+        padding: 0.4rem 0.8rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        background: #fafbfc;
+        color: #1e293b;
+        outline: none;
+        cursor: pointer;
+    }
+
+    .toolbar .filter-group select:focus {
+        border-color: #6366f1;
+    }
+
+    .toolbar .filter-group .clear-btn {
+        padding: 0.3rem 1rem;
+        border: none;
+        background: #f1f5f9;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .toolbar .filter-group .clear-btn:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+    /* Table */
+    .table-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .table-card .table-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #f8fafc;
+    }
+
+    .table-card .table-header h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .table-card .table-header h3 i {
+        color: #6366f1;
+    }
+
+    .table-card .table-header .count {
+        background: #e2e8f0;
+        padding: 2px 12px;
+        border-radius: 100px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .table-scroll {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    thead {
+        background: #f8fafc;
+    }
+
+    thead th {
+        padding: 0.6rem 1.5rem;
+        text-align: left;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        border-bottom: 2px solid #f1f5f9;
+        white-space: nowrap;
+    }
+
+    tbody td {
+        padding: 0.6rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+        vertical-align: middle;
+    }
+
+    tbody tr:hover td {
+        background: #f8fafc;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .session-link {
+        color: #6366f1;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .session-link:hover {
+        text-decoration: underline;
+    }
+
+    .status-badge {
+        padding: 2px 12px;
+        border-radius: 100px;
+        font-size: 0.55rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-block;
+    }
+
+    .status-badge.PRESENT { background: #dcfce7; color: #16a34a; }
+    .status-badge.ABSENT { background: #fee2e2; color: #dc2626; }
+    .status-badge.PARTIAL { background: #fef3c7; color: #d97706; }
+    .status-badge.LATE { background: #fef3c7; color: #d97706; }
+    .status-badge.LEAVE { background: #e0e7ff; color: #4f46e5; }
+
+    .retention-text {
+        font-weight: 600;
+    }
+
+    .retention-text.good { color: #16a34a; }
+    .retention-text.medium { color: #d97706; }
+    .retention-text.poor { color: #dc2626; }
+
+    /* Pagination */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .pagination-container .info {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .pagination-container .info strong {
+        color: #0f172a;
+    }
+
+    .pagination-controls {
+        display: flex;
+        gap: 0.3rem;
+        align-items: center;
+    }
+
+    .pagination-controls a {
+        padding: 0.3rem 0.8rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #fff;
+        color: #1e293b;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pagination-controls a:hover:not(.active):not(.disabled) {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+
+    .pagination-controls a.active {
+        background: #0f172a;
+        color: #fff;
+        border-color: #0f172a;
+    }
+
+    .pagination-controls a.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 0;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .empty-state p {
+        margin: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .summary-cards {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .summary-cards {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 0.75rem 1rem;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-content .header-actions {
+            width: 100%;
+        }
+
+        .header-content .header-actions .btn-outline-light {
+            flex: 1;
+            justify-content: center;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .profile-card {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .profile-card .profile-info .details {
+            justify-content: center;
+        }
+
+        .profile-card .stats-mini {
+            justify-content: center;
+        }
+
+        .summary-cards {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .summary-card {
+            padding: 0.75rem 1rem;
+        }
+
+        .summary-card .number {
+            font-size: 1.3rem;
+        }
+
+        .toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 0.75rem 1rem;
+        }
+
+        .toolbar .search-box {
+            max-width: 100%;
+        }
+
+        .toolbar .filter-group {
+            justify-content: space-between;
+        }
+
+        .toolbar .filter-group select {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .pagination-container {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .pagination-controls {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        table {
+            font-size: 0.75rem;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.4rem 0.75rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .summary-cards {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .summary-card {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .summary-card .number {
+            font-size: 1.1rem;
+        }
+
+        .summary-card .label {
+            font-size: 0.55rem;
+        }
+
+        .header-content .header-left h1 {
+            font-size: 1.2rem;
+        }
+
+        .header-content .header-left .subtitle {
+            font-size: 0.7rem;
+        }
+
+        .profile-card .avatar-large {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+
+        .profile-card .stats-mini .stat .number {
+            font-size: 1.2rem;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.3rem 0.5rem;
+            font-size: 0.65rem;
+        }
+    }
+
+    /* Print Styles */
+    @media print {
+        .header-content .header-actions,
+        .btn-outline-light,
+        .toolbar .filter-group .clear-btn {
+            display: none !important;
+        }
+
+        .page-header {
+            background: #0f172a !important;
+            border-radius: 0 !important;
+        }
+
+        .profile-card,
+        .summary-card,
+        .table-card {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+        }
+
+        .status-badge {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .retention-text {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- ============================================
+    PAGE HEADER
+    ============================================ -->
+    <div class="page-header">
+        <div class="breadcrumb-header">
+            <a href="{% url 'dashboard_home' %}">Dashboard</a>
+            <span class="separator">/</span>
+            <a href="{% url 'attendance:records' %}">Attendance Records</a>
+            <span class="separator">/</span>
+            <span class="current">Student Record</span>
+        </div>
+
+        <div class="header-content">
+            <div class="header-left">
+                <h1>
+                    <i class="fas fa-user-graduate"></i>
+                    Attendance Record
+                </h1>
+                <div class="subtitle">
+                    <span><i class="fas fa-user"></i> {{ student.full_name }}</span>
+                    <span>•</span>
+                    <span><i class="fas fa-id-badge"></i> {{ student.roll_number }}</span>
+                    <span>•</span>
+                    <span><i class="fas fa-graduation-cap"></i> {{ student.department|default:"N/A" }}</span>
+                    <span>•</span>
+                    <span><i class="fas fa-calendar-alt"></i> Year {{ student.year|default:"N/A" }}</span>
+                    <span>•</span>
+                    <span><i class="fas fa-layer-group"></i> Sem {{ student.semester|default:"N/A" }}</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button onclick="window.print()" class="btn-outline-light">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <a href="{% url 'attendance:records' %}" class="btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Back to Records
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    STUDENT PROFILE CARD
+    ============================================ -->
+    <div class="profile-card">
+        <div class="avatar-large">
+            {{ student.full_name|make_list|first|upper }}
+        </div>
+        <div class="profile-info">
+            <h3>{{ student.full_name }}</h3>
+            <div class="details">
+                <span><i class="fas fa-id-card"></i> {{ student.roll_number }}</span>
+                <span><i class="fas fa-building"></i> {{ student.department|default:"N/A" }}</span>
+                <span><i class="fas fa-calendar-alt"></i> Year {{ student.year|default:"N/A" }}</span>
+                <span><i class="fas fa-layer-group"></i> Sem {{ student.semester|default:"N/A" }}</span>
+                <span><i class="fas fa-users"></i> Section {{ student.section|default:"N/A" }}</span>
+                <span><i class="fas fa-envelope"></i> {{ student.email|default:"N/A" }}</span>
+            </div>
+        </div>
+        <div class="stats-mini">
+            <div class="stat">
+                <span class="number blue">{{ total_sessions|default:0 }}</span>
+                <span class="label">Total Sessions</span>
+            </div>
+            <div class="stat">
+                <span class="number green">{{ present_count|default:0 }}</span>
+                <span class="label">Present</span>
+            </div>
+            <div class="stat">
+                <span class="number red">{{ absent_count|default:0 }}</span>
+                <span class="label">Absent</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    SUMMARY CARDS
+    ============================================ -->
+    <div class="summary-cards">
+        <div class="summary-card">
+            <span class="number blue">{{ total_sessions|default:0 }}</span>
+            <span class="label">Total Sessions</span>
+        </div>
+        <div class="summary-card">
+            <span class="number green">{{ present_count|default:0 }}</span>
+            <span class="label">Present</span>
+        </div>
+        <div class="summary-card">
+            <span class="number orange">{{ partial_count|default:0 }}</span>
+            <span class="label">Partial</span>
+        </div>
+        <div class="summary-card">
+            <span class="number orange">{{ late_count|default:0 }}</span>
+            <span class="label">Late</span>
+        </div>
+        <div class="summary-card">
+            <span class="number red">{{ absent_count|default:0 }}</span>
+            <span class="label">Absent</span>
+        </div>
+    </div>
+
+    <!-- ============================================
+    FILTER TOOLBAR
+    ============================================ -->
+    <div class="toolbar">
+        <form method="GET" action="{% url 'attendance:student_attendance_record' student.id %}" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; width: 100%;">
+            <div class="search-box" style="flex: 1; min-width: 150px;">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" placeholder="Search by subject..." value="{{ request.GET.search|default:'' }}">
+            </div>
+            <div class="filter-group">
+                <select name="status">
+                    <option value="all">All Status</option>
+                    <option value="PRESENT" {% if status_filter == 'PRESENT' %}selected{% endif %}>Present</option>
+                    <option value="ABSENT" {% if status_filter == 'ABSENT' %}selected{% endif %}>Absent</option>
+                    <option value="PARTIAL" {% if status_filter == 'PARTIAL' %}selected{% endif %}>Partial</option>
+                    <option value="LATE" {% if status_filter == 'LATE' %}selected{% endif %}>Late</option>
+                    <option value="LEAVE" {% if status_filter == 'LEAVE' %}selected{% endif %}>Leave</option>
+                </select>
+                <select name="date">
+                    <option value="all">All Time</option>
+                    <option value="7" {% if date_filter == '7' %}selected{% endif %}>Last 7 Days</option>
+                    <option value="30" {% if date_filter == '30' %}selected{% endif %}>Last 30 Days</option>
+                    <option value="90" {% if date_filter == '90' %}selected{% endif %}>Last 90 Days</option>
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.4rem 1.2rem; border: none; background: var(--primary); color: #fff; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                <a href="{% url 'attendance:student_attendance_record' student.id %}" class="clear-btn" style="padding: 0.4rem 1rem; border: none; background: #f1f5f9; border-radius: 8px; font-size: 0.7rem; color: #64748b; cursor: pointer; transition: all 0.2s; text-decoration: none;">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- ============================================
+    ATTENDANCE TABLE
+    ============================================ -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3>
+                <i class="fas fa-list-ul"></i>
+                Attendance History
+            </h3>
+            <span class="count">{{ logs|length }} records</span>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Session</th>
+                        <th>Subject</th>
+                        <th>Department</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Retention</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'attendance:session_details' log.session.id %}" class="session-link">
+                                #{{ log.session.id }}
+                            </a>
+                        </td>
+                        <td>{{ log.session.subject_name }}</td>
+                        <td>{{ log.session.department|default:"N/A" }}</td>
+                        <td>{{ log.session.date|date:"M d, Y" }}</td>
+                        <td>{{ log.session.start_time|date:"h:i A" }}</td>
+                        <td>
+                            <span class="status-badge {{ log.status }}">
+                                {{ log.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% with retention=log.retention_percentage|floatformat:0 %}
+                            <span class="retention-text 
+                                {% if retention|add:"0" >= 80 %}good
+                                {% elif retention|add:"0" >= 50 %}medium
+                                {% else %}poor{% endif %}">
+                                {{ retention }}%
+                            </span>
+                            {% endwith %}
+                        </td>
+                        <td style="text-align: right;">
+                            <a href="{% url 'attendance:attendance_pattern' log.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-chart-line"></i> Pattern
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h3>No Attendance Records</h3>
+                                <p>This student has no attendance logs yet</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ============================================
+        PAGINATION
+        ============================================ -->
+        {% if logs.paginator and logs.paginator.num_pages > 1 %}
+        <div class="pagination-container">
+            <div class="info">
+                Showing <strong>{{ logs.start_index }}</strong> - <strong>{{ logs.end_index }}</strong>
+                of <strong>{{ logs.paginator.count }}</strong> records
+            </div>
+            <div class="pagination-controls">
+                {% if logs.has_previous %}
+                <a href="?page={{ logs.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% else %}
+                <a class="disabled"><i class="fas fa-chevron-left"></i></a>
+                {% endif %}
+
+                {% for num in logs.paginator.page_range %}
+                    {% if num == logs.number %}
+                    <a class="active">{{ num }}</a>
+                    {% elif num > logs.number|add:'-3' and num < logs.number|add:'3' %}
+                    <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if logs.has_next %}
+                <a href="?page={{ logs.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% else %}
+                <a class="disabled"><i class="fas fa-chevron-right"></i></a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
