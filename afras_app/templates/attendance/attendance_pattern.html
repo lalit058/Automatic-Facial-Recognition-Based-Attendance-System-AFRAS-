@@ -8,34 +8,42 @@
 <style>
     /* ============================================
        PROFESSIONAL ATTENDANCE PATTERN STYLES
-       Matching Light Theme
+       Fully Responsive - Updated for Single-Shot
     ============================================ */
 
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
     .pattern-page {
-        padding: 0.5rem;
         max-width: 1400px;
+        margin: 0 auto;
+        padding: 0.5rem;
+        box-sizing: border-box;
+        width: 100%;
     }
 
     /* ============================================
-       PAGE HEADER WITH BREADCRUMB INSIDE
+       PAGE HEADER WITH BREADCRUMB
     ============================================ */
     .page-header {
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         border-radius: 20px 20px 0 0;
         padding: 1rem 1.5rem;
         margin-bottom: 1rem;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .breadcrumb-header {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         font-size: 0.75rem;
         color: rgba(255, 255, 255, 0.6);
         margin-bottom: 0.5rem;
+        flex-wrap: wrap;
         padding: 0;
+        min-height: 28px;
+        position: relative;
     }
 
     .breadcrumb-header a {
@@ -43,39 +51,199 @@
         text-decoration: none;
         font-weight: 500;
         transition: color 0.2s;
+        white-space: nowrap;
+        padding: 2px 4px;
+        border-radius: 4px;
     }
 
     .breadcrumb-header a:hover {
         color: #ffffff;
         text-decoration: underline;
+        background: rgba(255, 255, 255, 0.1);
     }
 
     .breadcrumb-header .separator {
         color: rgba(255, 255, 255, 0.3);
+        flex-shrink: 0;
+        font-size: 0.7rem;
     }
 
     .breadcrumb-header .current {
         color: #ffffff;
         font-weight: 600;
+        white-space: nowrap;
+        padding: 2px 4px;
+        border-radius: 4px;
     }
 
+    /* Mobile breadcrumb */
+    .breadcrumb-toggle {
+        display: none;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        padding: 4px 10px;
+        color: #ffffff;
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
+    .breadcrumb-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .breadcrumb-toggle i {
+        font-size: 0.6rem;
+    }
+
+    .breadcrumb-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: #1e293b;
+        border-radius: 8px;
+        padding: 8px 0;
+        min-width: 200px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        z-index: 100;
+        margin-top: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .breadcrumb-dropdown.show {
+        display: block;
+        animation: dropdownSlide 0.2s ease;
+    }
+
+    @keyframes dropdownSlide {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .breadcrumb-dropdown a {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-size: 0.75rem;
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+    }
+
+    .breadcrumb-dropdown a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border-left-color: var(--primary);
+    }
+
+    .breadcrumb-dropdown a i {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.6rem;
+    }
+
+    .breadcrumb-dropdown .dropdown-current {
+        background: rgba(99, 102, 241, 0.15);
+        color: #ffffff;
+        border-left-color: #6366f1;
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .breadcrumb-header {
+            font-size: 0.65rem;
+            gap: 4px;
+            min-height: 24px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .breadcrumb-header::-webkit-scrollbar {
+            display: none;
+        }
+
+        .breadcrumb-header a,
+        .breadcrumb-header .separator,
+        .breadcrumb-header .current {
+            flex-shrink: 0;
+        }
+
+        .breadcrumb-header .breadcrumb-item-hidden {
+            display: none !important;
+        }
+
+        .breadcrumb-toggle {
+            display: inline-flex !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .breadcrumb-header {
+            font-size: 0.6rem;
+            gap: 3px;
+            min-height: 22px;
+        }
+
+        .breadcrumb-toggle {
+            font-size: 0.6rem;
+            padding: 3px 8px;
+        }
+
+        .breadcrumb-dropdown {
+            min-width: 180px;
+            right: 0;
+            left: auto;
+        }
+
+        .breadcrumb-dropdown a {
+            font-size: 0.7rem;
+            padding: 6px 12px;
+        }
+    }
+
+    /* ============================================
+       HEADER CONTENT
+    ============================================ */
     .header-content {
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 1rem;
+        width: 100%;
+    }
+
+    .header-content .header-left {
+        flex: 1;
+        min-width: 150px;
     }
 
     .header-content .header-left h2 {
         font-size: 1.75rem;
         font-weight: 700;
-        margin: 0 0 0.4rem 0;
+        margin: 0 0 0.25rem 0;
         letter-spacing: -0.3px;
         color: #ffffff;
         display: flex;
         align-items: center;
         gap: 10px;
+        flex-wrap: wrap;
+        word-break: break-word;
     }
 
     .header-content .header-left h2 i {
@@ -87,7 +255,7 @@
         font-size: 0.85rem;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 8px;
         flex-wrap: wrap;
     }
 
@@ -97,52 +265,55 @@
         font-size: 0.65rem;
         font-weight: 600;
         text-transform: uppercase;
+        white-space: nowrap;
     }
 
-    .badge-status.present {
-        background: rgba(16, 185, 129, 0.2);
+    .badge-status.PRESENT {
         color: #6ee7b7;
+        background: rgba(16, 185, 129, 0.15);
         border: 1px solid rgba(16, 185, 129, 0.2);
     }
 
-    .badge-status.partial {
-        background: rgba(245, 158, 11, 0.2);
+    .badge-status.PARTIAL {
         color: #fcd34d;
-        border: 1px solid rgba(245, 158, 11, 0.2);
+        background: rgba(251, 191, 36, 0.15);
+        border: 1px solid rgba(251, 191, 36, 0.2);
     }
 
-    .badge-status.late {
-        background: rgba(245, 158, 11, 0.2);
+    .badge-status.LATE {
         color: #fcd34d;
-        border: 1px solid rgba(245, 158, 11, 0.2);
+        background: rgba(251, 191, 36, 0.15);
+        border: 1px solid rgba(251, 191, 36, 0.2);
     }
 
-    .badge-status.absent {
-        background: rgba(239, 68, 68, 0.2);
+    .badge-status.ABSENT {
         color: #fca5a5;
+        background: rgba(239, 68, 68, 0.15);
         border: 1px solid rgba(239, 68, 68, 0.2);
     }
 
     .header-content .header-actions {
         display: flex;
-        gap: 0.75rem;
+        gap: 0.5rem;
         flex-wrap: wrap;
+        flex-shrink: 0;
     }
 
     .btn-outline-light {
-        padding: 0.6rem 1.5rem;
+        padding: 0.5rem 1.2rem;
         background: rgba(255, 255, 255, 0.1);
         border: 1.5px solid rgba(255, 255, 255, 0.3);
         border-radius: 10px;
         color: #ffffff;
         font-weight: 500;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         cursor: pointer;
         transition: all 0.3s;
         display: inline-flex;
         align-items: center;
         gap: 6px;
         text-decoration: none;
+        white-space: nowrap;
     }
 
     .btn-outline-light:hover {
@@ -152,25 +323,68 @@
     }
 
     .btn-primary-light {
-        padding: 0.6rem 1.5rem;
+        padding: 0.5rem 1.2rem;
         background: #16a34a;
         border: none;
         border-radius: 10px;
         color: #ffffff;
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         cursor: pointer;
         transition: all 0.3s;
         display: inline-flex;
         align-items: center;
         gap: 6px;
         text-decoration: none;
+        white-space: nowrap;
     }
 
     .btn-primary-light:hover {
         background: #15803d;
         transform: translateY(-2px);
         box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+    }
+
+    /* ============================================
+       CONFIDENCE BADGE
+    ============================================ */
+    .confidence-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 10px;
+        border-radius: 100px;
+        font-size: 0.5rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .confidence-badge.high {
+        background: #dcfce7;
+        color: #16a34a;
+        border: 1px solid #86efac;
+    }
+
+    .confidence-badge.medium {
+        background: #fef3c7;
+        color: #d97706;
+        border: 1px solid #fcd34d;
+    }
+
+    .confidence-badge.low {
+        background: #fee2e2;
+        color: #dc2626;
+        border: 1px solid #fca5a5;
+    }
+
+    .confidence-badge.poor {
+        background: #f1f5f9;
+        color: #94a3b8;
+        border: 1px solid #e2e8f0;
+    }
+
+    .confidence-badge i {
+        font-size: 0.4rem;
     }
 
     /* ============================================
@@ -181,16 +395,18 @@
         grid-template-columns: repeat(4, 1fr);
         gap: 1rem;
         margin-bottom: 1rem;
+        width: 100%;
     }
 
     .stat-card {
         background: #ffffff;
         border-radius: 12px;
         border: 1px solid #f1f5f9;
-        padding: 1rem 1.25rem;
+        padding: 0.75rem 1rem;
         text-align: center;
         transition: all 0.2s;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        min-width: 0;
     }
 
     .stat-card:hover {
@@ -209,6 +425,7 @@
         font-size: 1.8rem;
         font-weight: 700;
         display: block;
+        line-height: 1.2;
     }
 
     .stat-card .stat-label {
@@ -235,10 +452,11 @@
         overflow: hidden;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         margin-bottom: 1rem;
+        width: 100%;
     }
 
     .pattern-card .card-header {
-        padding: 1rem 1.5rem;
+        padding: 0.75rem 1.25rem;
         border-bottom: 1px solid #f1f5f9;
         background: #f8fafc;
         display: flex;
@@ -249,13 +467,14 @@
     }
 
     .pattern-card .card-header h5 {
-        font-size: 0.95rem;
-        font-weight: 600;
+        font-size: 0.9rem;
+        font-weight: 700;
         color: #0f172a;
         margin: 0;
         display: flex;
         align-items: center;
         gap: 8px;
+        flex-wrap: wrap;
     }
 
     .pattern-card .card-header h5 i {
@@ -268,33 +487,78 @@
         background: #f1f5f9;
         padding: 2px 12px;
         border-radius: 100px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .pattern-card .card-header .hover-hint {
+        font-size: 0.7rem;
+        color: #94a3b8;
+    }
+
+    /* ============================================
+       TIME HEADER - Shows actual session times
+    ============================================ */
+    .time-header {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 1.25rem 8px 1.25rem;
+        font-size: 0.7rem;
+        color: #94a3b8;
+        font-family: 'JetBrains Mono', monospace;
+        background: rgba(255, 255, 255, 0.02);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .time-header .time-label {
         font-weight: 500;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .time-header .time-label i {
+        font-size: 0.6rem;
+        color: #6366f1;
+    }
+
+    .time-header .time-label .actual-time {
+        color: #e2e8f0;
+        font-weight: 600;
+        font-size: 0.75rem;
     }
 
     .pattern-container {
-        padding: 1.5rem;
+        padding: 0.75rem 1.25rem 0.5rem 1.25rem;
         background: #0f172a;
-        min-height: 120px;
+        min-height: 80px;
         overflow-x: auto;
         position: relative;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .pattern-grid {
         display: flex;
         gap: 2px;
         flex-wrap: nowrap;
-        min-height: 60px;
-        align-items: center;
-        padding: 8px 0;
+        min-height: 50px;
+        align-items: flex-end;
+        padding: 6px 0;
+        min-width: fit-content;
     }
 
     .minute-block {
         width: 16px;
-        height: 40px;
+        height: 36px;
         border-radius: 3px;
         transition: all 0.2s;
         position: relative;
         flex-shrink: 0;
+        cursor: pointer;
     }
 
     .minute-block.present {
@@ -313,22 +577,27 @@
 
     .minute-block.absent:hover {
         background: #475569;
+        transform: scaleY(1.1);
     }
 
     .minute-block .tooltip-min {
         display: none;
         position: absolute;
-        bottom: 45px;
+        bottom: 42px;
         left: 50%;
         transform: translateX(-50%);
         background: #1e293b;
         color: #ffffff;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.6rem;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.55rem;
         white-space: nowrap;
         font-family: 'JetBrains Mono', monospace;
         z-index: 10;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        line-height: 1.4;
     }
 
     .minute-block:hover .tooltip-min {
@@ -340,6 +609,7 @@
         gap: 2px;
         padding: 4px 0;
         margin-top: 4px;
+        min-width: fit-content;
     }
 
     .minute-label-row .label {
@@ -356,12 +626,21 @@
         font-weight: 600;
     }
 
+    .minute-label-row .label.time-marker {
+        color: #e2e8f0;
+        font-weight: 700;
+        font-size: 0.5rem;
+        background: rgba(99, 102, 241, 0.15);
+        border-radius: 2px;
+        padding: 0 2px;
+    }
+
     /* Legend */
     .legend {
         display: flex;
         gap: 1.5rem;
         flex-wrap: wrap;
-        padding: 0.75rem 1.5rem;
+        padding: 0.5rem 1.25rem;
         background: #f8fafc;
         border-top: 1px solid #f1f5f9;
     }
@@ -378,6 +657,7 @@
         width: 16px;
         height: 16px;
         border-radius: 4px;
+        flex-shrink: 0;
     }
 
     .legend-item .color-box.present { background: #10b981; }
@@ -390,9 +670,11 @@
         background: #ffffff;
         border-radius: 12px;
         border: 1px solid #f1f5f9;
-        padding: 1.25rem 1.5rem;
+        padding: 1rem 1.25rem;
         margin-bottom: 1rem;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .progress-container .progress-header {
@@ -400,6 +682,8 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
 
     .progress-container .progress-header .label {
@@ -445,11 +729,26 @@
         margin-top: 0.5rem;
         font-size: 0.7rem;
         color: #94a3b8;
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
 
     /* ============================================
        SIDEBAR CARDS
     ============================================ */
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin: 0;
+        width: 100%;
+    }
+
+    .col-md-6 {
+        flex: 1 1 calc(50% - 0.5rem);
+        min-width: 250px;
+    }
+
     .sidebar-card {
         background: #ffffff;
         border-radius: 12px;
@@ -457,10 +756,11 @@
         overflow: hidden;
         margin-bottom: 1rem;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        width: 100%;
     }
 
     .sidebar-card .card-header {
-        padding: 0.75rem 1.25rem;
+        padding: 0.6rem 1.25rem;
         border-bottom: 1px solid #f1f5f9;
         background: #f8fafc;
         font-weight: 600;
@@ -476,7 +776,7 @@
     }
 
     .sidebar-card .card-body {
-        padding: 1rem 1.25rem;
+        padding: 0.75rem 1.25rem;
     }
 
     .sidebar-card .info-row {
@@ -485,6 +785,8 @@
         padding: 0.4rem 0;
         border-bottom: 1px solid #f1f5f9;
         font-size: 0.85rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
 
     .sidebar-card .info-row:last-child {
@@ -498,13 +800,21 @@
     .sidebar-card .info-row .value {
         font-weight: 500;
         color: #0f172a;
+        text-align: right;
     }
 
     .sidebar-card .info-row .badge {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         padding: 2px 10px;
         border-radius: 100px;
+        display: inline-block;
     }
+
+    .badge.bg-success { background: #dcfce7; color: #16a34a; }
+    .badge.bg-secondary { background: #f1f5f9; color: #64748b; }
+    .badge.bg-warning { background: #fef3c7; color: #d97706; }
+    .badge.bg-danger { background: #fee2e2; color: #dc2626; }
+    .badge.bg-info { background: #e0e7ff; color: #4f46e5; }
 
     /* ============================================
        KEY INSIGHTS
@@ -516,10 +826,11 @@
         overflow: hidden;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         margin-top: 1rem;
+        width: 100%;
     }
 
     .insights-card .card-header {
-        padding: 0.75rem 1.25rem;
+        padding: 0.6rem 1.25rem;
         border-bottom: 1px solid #f1f5f9;
         background: #f8fafc;
         font-weight: 600;
@@ -569,52 +880,125 @@
     }
 
     /* ============================================
-       RESPONSIVE
+       RESPONSIVE BREAKPOINTS
     ============================================ */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
     @media (max-width: 992px) {
+        .page-header {
+            padding: 0.75rem 1rem;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .header-content .header-left h2 {
+            font-size: 1.3rem;
+        }
+
+        .header-content .header-left .subtitle {
+            font-size: 0.8rem;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .header-actions .btn-outline-light,
+        .header-actions .btn-primary-light {
+            flex: 1;
+            justify-content: center;
+            font-size: 0.7rem;
+            padding: 0.35rem 0.7rem;
+        }
+
         .stats-grid {
             grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .stat-card {
+            padding: 0.75rem 1rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.5rem;
+        }
+
+        .col-md-6 {
+            flex: 1 1 100%;
         }
     }
 
     @media (max-width: 768px) {
-        .pattern-page {
-            padding: 0.25rem;
+        .page-header {
+            padding: 0.6rem 0.8rem;
+            border-radius: 12px 12px 0 0;
         }
 
-        .header-content {
-            flex-direction: column;
-            align-items: flex-start;
+        .header-content .header-left h2 {
+            font-size: 1.1rem;
         }
 
-        .header-content .header-actions {
-            width: 100%;
+        .header-content .header-left .subtitle {
+            font-size: 0.7rem;
+            gap: 6px;
         }
 
-        .header-content .header-actions .btn-outline-light,
-        .header-content .header-actions .btn-primary-light {
-            flex: 1;
-            justify-content: center;
-            font-size: 0.75rem;
-            padding: 0.4rem 0.8rem;
+        .header-actions .btn-outline-light,
+        .header-actions .btn-primary-light {
+            font-size: 0.6rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 8px;
         }
 
         .stats-grid {
             grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
+            gap: 0.4rem;
         }
 
         .stat-card {
-            padding: 0.75rem;
+            padding: 0.5rem 0.6rem;
         }
 
         .stat-card .stat-value {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
+        }
+
+        .stat-card .stat-icon {
+            font-size: 1.2rem;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.55rem;
+        }
+
+        .pattern-card .card-header {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .pattern-card .card-header h5 {
+            font-size: 0.8rem;
+        }
+
+        .pattern-card .card-header .minute-count {
+            font-size: 0.6rem;
+            padding: 1px 8px;
+        }
+
+        .pattern-card .card-header .hover-hint {
+            font-size: 0.6rem;
+        }
+
+        .pattern-container {
+            padding: 0.5rem 0.75rem;
         }
 
         .minute-block {
             width: 12px;
-            height: 30px;
+            height: 28px;
         }
 
         .minute-label-row .label {
@@ -622,36 +1006,142 @@
             font-size: 0.4rem;
         }
 
-        .pattern-container {
-            padding: 0.75rem;
+        .time-header {
+            font-size: 0.6rem;
+            padding: 4px 0.75rem 6px 0.75rem;
+        }
+
+        .time-header .time-label .actual-time {
+            font-size: 0.6rem;
         }
 
         .progress-container {
-            padding: 1rem;
+            padding: 0.75rem 1rem;
+        }
+
+        .progress-container .progress-header .percentage {
+            font-size: 0.95rem;
+        }
+
+        .sidebar-card .card-header {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .sidebar-card .card-body {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .sidebar-card .info-row {
+            font-size: 0.75rem;
+            padding: 0.3rem 0;
+        }
+
+        .insights-card .card-header {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
         }
 
         .insights-card .card-body {
+            padding: 0.75rem;
             flex-direction: column;
             gap: 1rem;
+        }
+
+        .insight-item {
+            min-width: 100%;
+        }
+
+        .insight-item .insight-value {
+            font-size: 1rem;
+        }
+
+        .confidence-badge {
+            font-size: 0.45rem;
+            padding: 1px 6px;
         }
     }
 
     @media (max-width: 480px) {
-        .stats-grid {
-            grid-template-columns: 1fr 1fr;
+        .page-header {
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px 8px 0 0;
         }
 
         .header-content .header-left h2 {
-            font-size: 1.2rem;
+            font-size: 0.95rem;
+            gap: 6px;
+        }
+
+        .header-content .header-left h2 i {
+            font-size: 0.9rem;
         }
 
         .header-content .header-left .subtitle {
+            font-size: 0.6rem;
+            gap: 4px;
+        }
+
+        .header-content .header-left .subtitle .badge-status {
+            font-size: 0.55rem;
+            padding: 1px 10px;
+        }
+
+        .header-actions .btn-outline-light,
+        .header-actions .btn-primary-light {
+            font-size: 0.55rem;
+            padding: 0.25rem 0.4rem;
+            border-radius: 6px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.3rem;
+        }
+
+        .stat-card {
+            padding: 0.4rem 0.5rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1rem;
+        }
+
+        .stat-card .stat-icon {
+            font-size: 1rem;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.5rem;
+        }
+
+        .pattern-card .card-header {
+            padding: 0.4rem 0.5rem;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .pattern-card .card-header h5 {
             font-size: 0.7rem;
+        }
+
+        .pattern-card .card-header .minute-count {
+            font-size: 0.55rem;
+            padding: 1px 6px;
+        }
+
+        .pattern-card .card-header .hover-hint {
+            font-size: 0.55rem;
+            width: 100%;
+        }
+
+        .pattern-container {
+            padding: 0.4rem 0.5rem;
         }
 
         .minute-block {
             width: 10px;
-            height: 24px;
+            height: 22px;
         }
 
         .minute-label-row .label {
@@ -659,12 +1149,117 @@
             font-size: 0.35rem;
         }
 
-        .stat-card .stat-value {
-            font-size: 1.1rem;
+        .time-header {
+            font-size: 0.5rem;
+            padding: 3px 0.5rem 4px 0.5rem;
+        }
+
+        .time-header .time-label .actual-time {
+            font-size: 0.5rem;
+        }
+
+        .legend {
+            padding: 0.4rem 0.5rem;
+            gap: 0.75rem;
+        }
+
+        .legend-item {
+            font-size: 0.65rem;
+        }
+
+        .legend-item .color-box {
+            width: 12px;
+            height: 12px;
+        }
+
+        .progress-container {
+            padding: 0.5rem 0.6rem;
+        }
+
+        .progress-container .progress-header .label {
+            font-size: 0.7rem;
+        }
+
+        .progress-container .progress-header .percentage {
+            font-size: 0.85rem;
+        }
+
+        .progress-threshold {
+            font-size: 0.6rem;
+        }
+
+        .sidebar-card .card-header {
+            padding: 0.4rem 0.5rem;
+            font-size: 0.7rem;
+        }
+
+        .sidebar-card .card-body {
+            padding: 0.4rem 0.5rem;
         }
 
         .sidebar-card .info-row {
-            font-size: 0.75rem;
+            font-size: 0.65rem;
+            padding: 0.25rem 0;
+        }
+
+        .insights-card .card-header {
+            padding: 0.4rem 0.5rem;
+            font-size: 0.7rem;
+        }
+
+        .insights-card .card-body {
+            padding: 0.5rem;
+            gap: 0.75rem;
+        }
+
+        .insight-item .insight-label {
+            font-size: 0.6rem;
+        }
+
+        .insight-item .insight-value {
+            font-size: 0.9rem;
+        }
+
+        .insight-item .insight-desc {
+            font-size: 0.65rem;
+        }
+
+        .confidence-badge {
+            font-size: 0.4rem;
+            padding: 1px 5px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .header-content .header-left h2 {
+            font-size: 0.8rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.2rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 0.85rem;
+        }
+
+        .minute-block {
+            width: 8px;
+            height: 18px;
+        }
+
+        .minute-label-row .label {
+            width: 8px;
+            font-size: 0.3rem;
+        }
+
+        .sidebar-card .info-row {
+            font-size: 0.55rem;
+        }
+
+        .insight-item .insight-value {
+            font-size: 0.8rem;
         }
     }
 
@@ -674,7 +1269,8 @@
     @media print {
         .header-content .header-actions,
         .btn-outline-light,
-        .btn-primary-light {
+        .btn-primary-light,
+        .breadcrumb-toggle {
             display: none !important;
         }
 
@@ -689,6 +1285,23 @@
 
         .header-content .header-left .subtitle {
             color: #94a3b8 !important;
+        }
+
+        .breadcrumb-header {
+            color: #94a3b8 !important;
+        }
+
+        .breadcrumb-header a {
+            color: #94a3b8 !important;
+        }
+
+        .breadcrumb-header .current {
+            color: #ffffff !important;
+            background: transparent !important;
+        }
+
+        .breadcrumb-header .breadcrumb-item-hidden {
+            display: inline-flex !important;
         }
 
         .pattern-container {
@@ -720,6 +1333,45 @@
         .stat-card .stat-value {
             font-size: 1.2rem !important;
         }
+
+        .badge-status {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .stat-card {
+            background: #f8fafc !important;
+        }
+
+        .pattern-card .card-header {
+            background: #f8fafc !important;
+        }
+
+        .legend {
+            background: #f8fafc !important;
+        }
+
+        .insights-card .card-header {
+            background: #f8fafc !important;
+        }
+
+        .sidebar-card .card-header {
+            background: #f8fafc !important;
+        }
+
+        .confidence-badge {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .time-header {
+            background: #f8fafc !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+
+        .time-header .time-label .actual-time {
+            color: #0f172a !important;
+        }
     }
 </style>
 {% endblock %}
@@ -727,17 +1379,35 @@
 {% block content %}
 <div class="pattern-page">
     <!-- ============================================
-    PAGE HEADER WITH BREADCRUMB INSIDE
+    PAGE HEADER WITH RESPONSIVE BREADCRUMB
     ============================================ -->
     <div class="page-header">
-        <div class="breadcrumb-header">
-            <a href="{% url 'dashboard_home' %}">Dashboard</a>
-            <span class="separator">/</span>
-            <a href="{% url 'attendance:all_sessions' %}">All Sessions</a>
-            <span class="separator">/</span>
-            <a href="{% url 'attendance:session_details' session.id %}">Session Details</a>
-            <span class="separator">/</span>
-            <span class="current">Attendance Pattern</span>
+        <div class="breadcrumb-header" id="breadcrumbContainer">
+            <span class="breadcrumb-item-hidden">
+                <a href="{% url 'dashboard_home' %}"><i class="fas fa-home"></i> Dashboard</a>
+                <span class="separator">/</span>
+            </span>
+            <span class="breadcrumb-item-hidden">
+                <a href="{% url 'attendance:unified_sessions' %}"><i class="fas fa-calendar-alt"></i> Session Management</a>
+                <span class="separator">/</span>
+            </span>
+            <span class="breadcrumb-item-hidden">
+                <a href="{% url 'attendance:session_details' session.id %}"><i class="fas fa-chart-bar"></i> Session Details</a>
+                <span class="separator">/</span>
+            </span>
+            <span class="current"><i class="fas fa-chart-line"></i> Attendance Pattern</span>
+
+            <button class="breadcrumb-toggle" id="breadcrumbToggle" aria-label="Show navigation">
+                <i class="fas fa-chevron-down"></i>
+                <span>Menu</span>
+            </button>
+
+            <div class="breadcrumb-dropdown" id="breadcrumbDropdown">
+                <a href="{% url 'dashboard_home' %}"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="{% url 'attendance:unified_sessions' %}"><i class="fas fa-calendar-alt"></i> Session Management</a>
+                <a href="{% url 'attendance:session_details' session.id %}"><i class="fas fa-chart-bar"></i> Session Details</a>
+                <a class="dropdown-current"><i class="fas fa-chart-line"></i> Attendance Pattern</a>
+            </div>
         </div>
 
         <div class="header-content">
@@ -751,11 +1421,21 @@
                     <span>•</span>
                     <span><i class="fas fa-id-badge"></i> {{ student.roll_number }}</span>
                     <span>•</span>
-                    <span class="badge-status {{ summary.status|lower }}">
-                        {{ summary.status }}
+                    <span class="badge-status {{ log.status|upper }}">
+                        {{ log.status|default:"ABSENT" }}
                     </span>
                     <span>•</span>
                     <span>{{ session.subject_name }}</span>
+                    <span>•</span>
+                    <span style="font-size: 0.65rem; color: rgba(255,255,255,0.5);">
+                        <i class="fas fa-shield-alt"></i> 
+                        {{ log.confidence|default:0|floatformat:0 }}% confidence
+                    </span>
+                    <span>•</span>
+                    <span style="font-size: 0.65rem; color: rgba(255,255,255,0.5);">
+                        <i class="fas fa-eye"></i> 
+                        {{ log.detection_count|default:0 }} detections
+                    </span>
                 </div>
             </div>
             <div class="header-actions">
@@ -766,94 +1446,149 @@
                     <i class="fas fa-print"></i> Print
                 </button>
                 <a href="{% url 'attendance:session_details' session.id %}" class="btn-primary-light">
-                    <i class="fas fa-list"></i> View Details
+                    <i class="fas fa-list"></i> Details
                 </a>
             </div>
         </div>
     </div>
 
     <!-- ============================================
-    STATS GRID
+    STATS GRID - Shows Real Data from Backend
     ============================================ -->
     <div class="stats-grid">
         <div class="stat-card">
             <span class="stat-icon">⏱️</span>
-            <span class="stat-value blue">{{ summary.total_minutes|default:0 }}</span>
+            <span class="stat-value blue">{{ total_minutes|default:60 }}</span>
             <span class="stat-label">Total Minutes</span>
         </div>
         <div class="stat-card">
             <span class="stat-icon">✅</span>
-            <span class="stat-value green">{{ summary.attended_minutes|default:0 }}</span>
+            <span class="stat-value green">{{ attended_minutes|default:0 }}</span>
             <span class="stat-label">Attended</span>
         </div>
         <div class="stat-card">
             <span class="stat-icon">❌</span>
-            <span class="stat-value red">{{ summary.absent_minutes|default:0 }}</span>
+            <span class="stat-value red">{{ absent_minutes|default:0 }}</span>
             <span class="stat-label">Absent</span>
         </div>
         <div class="stat-card">
             <span class="stat-icon">📊</span>
-            <span class="stat-value purple">{{ summary.percentage|floatformat:1|default:0 }}%</span>
+            <span class="stat-value purple">{{ attendance_percentage|floatformat:1|default:0 }}%</span>
             <span class="stat-label">Attendance Rate</span>
         </div>
     </div>
 
     <!-- ============================================
-    PATTERN VISUALIZATION - FIXED
+    PATTERN VISUALIZATION - With Real Data from Backend
     ============================================ -->
     <div class="pattern-card">
         <div class="card-header">
             <h5>
                 <i class="fas fa-chart-bar"></i>
                 Minute-by-Minute Presence
-                <span class="minute-count">{{ summary.total_minutes|default:0 }} minutes</span>
+                <span class="minute-count">
+                    {{ total_minutes|default:60 }} min
+                    {% if time_range_display %} • {{ time_range_display }}{% endif %}
+                </span>
             </h5>
-            <span style="font-size: 0.75rem; color: #94a3b8;">
+            <span class="hover-hint">
                 <i class="fas fa-info-circle"></i>
                 Hover for details
             </span>
         </div>
+
+        <!-- TIME HEADER - Shows actual session times -->
+        <div class="time-header">
+            <span class="time-label">
+                <i class="fas fa-play"></i>
+                Start: <span class="actual-time">{{ start_time_local|date:"h:i A" }}</span>
+            </span>
+            <span class="time-label">
+                <i class="far fa-calendar-alt"></i>
+                {{ session.date|date:"M d, Y" }}
+            </span>
+            <span class="time-label">
+                <i class="fas fa-stop"></i>
+                End: <span class="actual-time">{{ end_time_local|date:"h:i A" }}</span>
+            </span>
+            <span class="time-label" style="margin-left: auto;">
+                <i class="fas fa-user-check"></i>
+                Status: <span class="actual-time" style="color: {% if log.status == 'PRESENT' %}#10b981{% elif log.status == 'PARTIAL' %}#d97706{% elif log.status == 'LATE' %}#f59e0b{% else %}#ef4444{% endif %};">
+                    {{ log.status|default:"ABSENT" }}
+                </span>
+            </span>
+        </div>
+
         <div class="pattern-container">
             <div class="pattern-grid">
-                {% if log.minute_presence %}
-                    {% for minute in log.minute_presence %}
+                {% if log_data.minute_presence %}
+                    {# Use the actual minute_presence data from backend #}
+                    {% for minute in log_data.minute_presence %}
                         <div class="minute-block {% if minute %}present{% else %}absent{% endif %}" 
-                             title="Minute {{ forloop.counter }}: {% if minute %}Present{% else %}Absent{% endif %}">
-                            <span class="tooltip-min">Minute {{ forloop.counter }}</span>
+                             title="Minute {{ forloop.counter0 }}: {% if minute %}Present{% else %}Absent{% endif %}">
+                            <span class="tooltip-min">
+                                {% if start_time_local %}
+                                    {% with time_minute=forloop.counter0 %}
+                                        {% with total_minutes=start_time_local|date:"h"|add:0|add:time_minute %}
+                                            {% if total_minutes >= 12 and total_minutes < 24 %}
+                                                {{ total_minutes|divisibleby:12|yesno:"12," }}{% if total_minutes|divisibleby:12 %}{% else %}{{ total_minutes|add:total_minutes|divisibleby:60|yesno:",:" }}{% endif %}
+                                            {% else %}
+                                                {{ total_minutes }}
+                                            {% endif %}
+                                        {% endwith %}
+                                        :{{ time_minute|stringformat:"02d" }}
+                                        {{ start_time_local|date:"A" }}
+                                    {% endwith %}
+                                {% else %}
+                                    Min {{ forloop.counter0 }}
+                                {% endif %}
+                                <br>
+                                <small style="color: #94a3b8; font-size: 0.5rem;">
+                                    {% if minute %}✅ Present{% else %}❌ Absent{% endif %}
+                                </small>
+                            </span>
                         </div>
                     {% endfor %}
                 {% else %}
-                    <!-- Fallback: Generate blocks based on total minutes -->
-                    {% with total=summary.total_minutes|default:0 %}
+                    {# Fallback: show all absent #}
+                    {% with total=total_minutes|default:60 %}
                         {% for i in "x"|rjust:total %}
-                            {% with index=forloop.counter0 %}
-                                {% if index < summary.attended_minutes|default:0 %}
-                                    <div class="minute-block present" title="Minute {{ forloop.counter }}: Present">
-                                        <span class="tooltip-min">Minute {{ forloop.counter }}</span>
-                                    </div>
-                                {% else %}
-                                    <div class="minute-block absent" title="Minute {{ forloop.counter }}: Absent">
-                                        <span class="tooltip-min">Minute {{ forloop.counter }}</span>
-                                    </div>
-                                {% endif %}
-                            {% endwith %}
+                            <div class="minute-block absent" title="Minute {{ forloop.counter0 }}: Absent">
+                                <span class="tooltip-min">Min {{ forloop.counter0 }}</span>
+                            </div>
                         {% endfor %}
                     {% endwith %}
                 {% endif %}
             </div>
+
+            <!-- Minute Labels with Time Markers -->
             <div class="minute-label-row">
-                {% if log.minute_presence %}
-                    {% for minute in log.minute_presence %}
+                {% if log_data.minute_presence %}
+                    {% for minute in log_data.minute_presence %}
                         {% with index=forloop.counter0 %}
                             {% if index|divisibleby:5 %}
-                                <span class="label marker">{{ index }}</span>
+                                <span class="label marker time-marker">
+                                    {% if start_time_local %}
+                                        {% with hour=start_time_local|date:"h"|add:0 %}
+                                            {% with total_mins=hour|add:index %}
+                                                {% if total_mins >= 12 and total_mins < 24 %}
+                                                    {{ total_mins|divisibleby:12|yesno:"12," }}{% if total_mins|divisibleby:12 %}{% else %}{{ total_mins }}{% endif %}
+                                                {% else %}
+                                                    {{ total_mins }}
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endwith %}
+                                    {% else %}
+                                        {{ index }}
+                                    {% endif %}
+                                </span>
                             {% else %}
                                 <span class="label"></span>
                             {% endif %}
                         {% endwith %}
                     {% endfor %}
                 {% else %}
-                    {% with total=summary.total_minutes|default:0 %}
+                    {% with total=total_minutes|default:60 %}
                         {% for i in "x"|rjust:total %}
                             {% with index=forloop.counter0 %}
                                 {% if index|divisibleby:5 %}
@@ -867,6 +1602,7 @@
                 {% endif %}
             </div>
         </div>
+
         <div class="legend">
             <div class="legend-item">
                 <span class="color-box present"></span>
@@ -878,13 +1614,23 @@
             </div>
             <div class="legend-item">
                 <span style="color: #94a3b8; font-weight: 600;">|</span>
-                <span>5-minute markers</span>
+                <span>5-min markers</span>
+            </div>
+            <div class="legend-item" style="margin-left: auto;">
+                <span style="color: #6366f1; font-size: 0.6rem;">
+                    <i class="fas fa-info-circle"></i>
+                    {{ total_minutes|default:60 }} minutes tracked
+                    {% if start_time_local %}
+                        • {{ start_time_local|date:"h:i A" }} - {{ end_time_local|date:"h:i A" }}
+                    {% endif %}
+                    • {{ attended_minutes|default:0 }} attended
+                </span>
             </div>
         </div>
     </div>
 
     <!-- ============================================
-    PROGRESS BAR
+    PROGRESS BAR - Shows Real Data
     ============================================ -->
     <div class="progress-container">
         <div class="progress-header">
@@ -893,29 +1639,29 @@
                 Attendance Rate
             </span>
             <span class="percentage 
-                {% if summary.percentage >= 80 %}green
-                {% elif summary.percentage >= 50 %}orange
+                {% if attendance_percentage >= 80 %}green
+                {% elif attendance_percentage >= 50 %}orange
                 {% else %}red{% endif %}">
-                {{ summary.percentage|floatformat:1|default:0 }}%
+                {{ attendance_percentage|floatformat:1|default:0 }}%
             </span>
         </div>
         <div class="progress-track">
             <div class="progress-fill 
-                {% if summary.percentage >= 80 %}green
-                {% elif summary.percentage >= 50 %}orange
+                {% if attendance_percentage >= 80 %}green
+                {% elif attendance_percentage >= 50 %}orange
                 {% else %}red{% endif %}" 
-                style="width: {{ summary.percentage|floatformat:1|default:0 }}%;">
+                style="width: {{ attendance_percentage|floatformat:1|default:0 }}%;">
             </div>
         </div>
         <div class="progress-threshold">
             <span>0%</span>
-            <span>80% Required for PRESENT</span>
+            <span>80% Required</span>
             <span>100%</span>
         </div>
     </div>
 
     <!-- ============================================
-    TWO COLUMN SIDEBAR
+    STUDENT & SESSION DETAILS - Shows Real Data
     ============================================ -->
     <div class="row">
         <div class="col-md-6">
@@ -968,57 +1714,40 @@
                         <span class="value">{{ session.department|default:"N/A" }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="label">Year / Semester</span>
-                        <span class="value">{{ session.year|default:"N/A" }} / {{ session.semester|default:"N/A" }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Section</span>
-                        <span class="value">{{ session.section|default:"N/A" }}</span>
-                    </div>
-                    <div class="info-row">
                         <span class="label">Date</span>
                         <span class="value">{{ session.date|date:"F d, Y" }}</span>
                     </div>
                     <div class="info-row">
                         <span class="label">Duration</span>
-                        <span class="value">{{ session.expected_duration }} minutes</span>
+                        <span class="value">{{ total_minutes|default:60 }} min</span>
                     </div>
                     <div class="info-row">
                         <span class="label">Start Time</span>
-                        <span class="value">{{ session.start_time|date:"h:i A" }}</span>
+                        <span class="value">{{ start_time_local|date:"h:i A" }}</span>
                     </div>
                     <div class="info-row">
                         <span class="label">End Time</span>
-                        <span class="value">{{ session.end_time|date:"h:i A" }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Status</span>
-                        <span class="value">
-                            <span class="badge 
-                                {% if session.is_active %}bg-success{% else %}bg-secondary{% endif %}">
-                                {% if session.is_active %}Active{% else %}Ended{% endif %}
-                            </span>
-                        </span>
+                        <span class="value">{{ end_time_local|date:"h:i A" }}</span>
                     </div>
                     <div class="info-row">
                         <span class="label">Attendance Status</span>
                         <span class="value">
-                            <span class="badge 
-                                {% if summary.status == 'PRESENT' %}bg-success
-                                {% elif summary.status == 'PARTIAL' %}bg-warning
-                                {% elif summary.status == 'LATE' %}bg-info
-                                {% else %}bg-danger{% endif %}">
-                                {{ summary.status }}
+                            <span class="badge-status {{ log.status|upper }}">
+                                {{ log.status|default:"ABSENT" }}
                             </span>
                         </span>
                     </div>
                     <div class="info-row">
-                        <span class="label">Detections</span>
-                        <span class="value">{{ summary.detection_count|default:0 }}</span>
+                        <span class="label">Confidence</span>
+                        <span class="value">{{ confidence|floatformat:0|default:0 }}%</span>
                     </div>
                     <div class="info-row">
-                        <span class="label">Confidence</span>
-                        <span class="value">{{ summary.confidence|default:0|floatformat:1 }}%</span>
+                        <span class="label">Detections</span>
+                        <span class="value">{{ detection_count|default:0 }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Retention</span>
+                        <span class="value">{{ retention|floatformat:1|default:0 }}%</span>
                     </div>
                 </div>
             </div>
@@ -1037,55 +1766,374 @@
             <div class="insight-item">
                 <div class="insight-label">Attendance Rate</div>
                 <div class="insight-value 
-                    {% if summary.percentage >= 80 %}green
-                    {% elif summary.percentage >= 50 %}orange
+                    {% if attendance_percentage >= 80 %}green
+                    {% elif attendance_percentage >= 50 %}orange
                     {% else %}red{% endif %}">
-                    {{ summary.percentage|floatformat:1|default:0 }}%
+                    {{ attendance_percentage|floatformat:1|default:0 }}%
                 </div>
                 <div class="insight-desc">
-                    {% if summary.percentage >= 80 %}✅ Meets 80% requirement
-                    {% elif summary.percentage >= 50 %}⚠️ Below 80% requirement
+                    {% if attendance_percentage >= 80 %}✅ Meets 80% requirement
+                    {% elif attendance_percentage >= 50 %}⚠️ Below 80% requirement
                     {% else %}❌ Far below 80% requirement{% endif %}
                 </div>
             </div>
             <div class="insight-item">
                 <div class="insight-label">Status</div>
                 <div class="insight-value 
-                    {% if summary.status == 'PRESENT' %}green
-                    {% elif summary.status == 'PARTIAL' %}orange
-                    {% elif summary.status == 'LATE' %}orange
+                    {% if log.status == 'PRESENT' %}green
+                    {% elif log.status == 'PARTIAL' %}orange
+                    {% elif log.status == 'LATE' %}orange
                     {% else %}red{% endif %}">
-                    {{ summary.status }}
+                    {{ log.status|default:"ABSENT" }}
                 </div>
                 <div class="insight-desc">
-                    {% if summary.status == 'PRESENT' %}Student met the 80% attendance requirement
-                    {% elif summary.status == 'PARTIAL' %}Student attended 50-79% of the class
-                    {% elif summary.status == 'LATE' %}Student attended less than 50% but more than 2 minutes
+                    {% if log.status == 'PRESENT' %}Student met the 80% attendance requirement
+                    {% elif log.status == 'PARTIAL' %}Student attended 50-79% of the class
+                    {% elif log.status == 'LATE' %}Student attended less than 50% but more than 2 minutes
                     {% else %}Student was absent or attended less than 2 minutes{% endif %}
+                </div>
+            </div>
+            <div class="insight-item">
+                <div class="insight-label">Minutes</div>
+                <div class="insight-value purple">
+                    {{ attended_minutes|default:0 }}/{{ total_minutes|default:60 }}
+                </div>
+                <div class="insight-desc">
+                    {{ attended_minutes|default:0 }} minutes attended out of {{ total_minutes|default:60 }}
                 </div>
             </div>
             <div class="insight-item">
                 <div class="insight-label">Recommendation</div>
                 <div class="insight-value purple" style="font-size: 1rem;">
-                    {% if summary.percentage >= 80 %}
-                        <i class="fas fa-check-circle" style="color: #16a34a;"></i> Student is on track
-                    {% elif summary.percentage >= 50 %}
-                        <i class="fas fa-exclamation-triangle" style="color: #d97706;"></i> Needs to improve attendance
+                    {% if attendance_percentage >= 80 %}
+                        <i class="fas fa-check-circle" style="color: #16a34a;"></i> On track
+                    {% elif attendance_percentage >= 50 %}
+                        <i class="fas fa-exclamation-triangle" style="color: #d97706;"></i> Needs improvement
                     {% else %}
-                        <i class="fas fa-exclamation-circle" style="color: #dc2626;"></i> Requires immediate attention
+                        <i class="fas fa-exclamation-circle" style="color: #dc2626;"></i> Needs attention
                     {% endif %}
                 </div>
                 <div class="insight-desc">
-                    {% if summary.percentage >= 80 %}
-                        Student attended {{ summary.attended_minutes|default:0 }}/{{ summary.total_minutes|default:0 }} minutes
-                    {% elif summary.percentage >= 50 %}
-                        Student needs improvement to reach 80%
+                    {% if attendance_percentage >= 80 %}
+                        Attended {{ attended_minutes|default:0 }}/{{ total_minutes|default:60 }} min
+                    {% elif attendance_percentage >= 50 %}
+                        Needs improvement to reach 80%
                     {% else %}
-                        Student needs significant improvement in attendance
+                        Significant improvement needed
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- ============================================
+    JSON DATA FOR JAVASCRIPT
+    ============================================ -->
+{{ summary|json_script:"summary-data" }}
+{{ log_data|json_script:"log-data" }}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ============================================
+    // SAFELY LOAD DATA FROM JSON SCRIPT TAGS
+    // ============================================
+    let summary = {};
+    let log = {};
+    
+    try {
+        const summaryElement = document.getElementById('summary-data');
+        if (summaryElement) {
+            summary = JSON.parse(summaryElement.textContent);
+        }
+    } catch (e) {
+        console.warn('Failed to parse summary data:', e);
+        summary = {
+            total_minutes: 0,
+            attended_minutes: 0,
+            absent_minutes: 0,
+            percentage: 0,
+            status: 'ABSENT',
+            detection_count: 0,
+            confidence: 0
+        };
+    }
+    
+    try {
+        const logElement = document.getElementById('log-data');
+        if (logElement) {
+            log = JSON.parse(logElement.textContent);
+        }
+    } catch (e) {
+        console.warn('Failed to parse log data:', e);
+        log = {
+            minute_presence: []
+        };
+    }
+
+    // ============================================
+    // BREADCRUMB TOGGLE FOR MOBILE
+    // ============================================
+    const toggleBtn = document.getElementById('breadcrumbToggle');
+    const dropdown = document.getElementById('breadcrumbDropdown');
+
+    if (toggleBtn && dropdown) {
+        toggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+            const icon = this.querySelector('i');
+            if (dropdown.classList.contains('show')) {
+                icon.className = 'fas fa-chevron-up';
+            } else {
+                icon.className = 'fas fa-chevron-down';
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!toggleBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+                const icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-chevron-down';
+                }
+            }
+        });
+
+        dropdown.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                dropdown.classList.remove('show');
+                const icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-chevron-down';
+                }
+            });
+        });
+    }
+
+    // ============================================
+    // MINUTE BLOCK TOOLTIP - ENHANCED
+    // ============================================
+    const minuteBlocks = document.querySelectorAll('.minute-block');
+    minuteBlocks.forEach(function(block) {
+        block.addEventListener('mouseenter', function() {
+            const tooltip = this.querySelector('.tooltip-min');
+            if (tooltip) {
+                tooltip.style.display = 'block';
+            }
+        });
+        
+        block.addEventListener('mouseleave', function() {
+            const tooltip = this.querySelector('.tooltip-min');
+            if (tooltip) {
+                tooltip.style.display = 'none';
+            }
+        });
+        
+        block.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            const tooltip = this.querySelector('.tooltip-min');
+            if (tooltip) {
+                if (tooltip.style.display === 'block') {
+                    tooltip.style.display = 'none';
+                } else {
+                    document.querySelectorAll('.tooltip-min').forEach(function(t) {
+                        t.style.display = 'none';
+                    });
+                    tooltip.style.display = 'block';
+                }
+            }
+        });
+    });
+
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.tooltip-min').forEach(function(t) {
+            t.style.display = 'none';
+        });
+    });
+
+    // ============================================
+    // PROGRESS BAR ANIMATION
+    // ============================================
+    const progressFill = document.querySelector('.progress-fill');
+    if (progressFill) {
+        const targetWidth = progressFill.style.width;
+        progressFill.style.width = '0%';
+        setTimeout(function() {
+            progressFill.style.width = targetWidth;
+        }, 300);
+    }
+
+    // ============================================
+    // STATS COUNTER ANIMATION
+    // ============================================
+    function animateCounter(element, target, suffix = '') {
+        if (!element) return;
+        const duration = 1000;
+        const start = 0;
+        const startTime = performance.now();
+        
+        function updateCounter(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const current = start + (target - start) * progress;
+            
+            if (target % 1 === 0) {
+                element.textContent = Math.round(current) + suffix;
+            } else {
+                element.textContent = current.toFixed(1) + suffix;
+            }
+            
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            } else {
+                if (target % 1 === 0) {
+                    element.textContent = Math.round(target) + suffix;
+                } else {
+                    element.textContent = target.toFixed(1) + suffix;
+                }
+            }
+        }
+        
+        requestAnimationFrame(updateCounter);
+    }
+
+    const statValues = document.querySelectorAll('.stat-value');
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                const el = entry.target;
+                const text = el.textContent;
+                const num = parseFloat(text);
+                const suffix = text.replace(/[\d.]/g, '');
+                
+                if (!isNaN(num) && !el.dataset.animated) {
+                    el.dataset.animated = 'true';
+                    animateCounter(el, num, suffix);
+                }
+            }
+        });
+    }, observerOptions);
+
+    statValues.forEach(function(el) {
+        observer.observe(el);
+    });
+
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const backBtn = document.querySelector('.btn-outline-light[href*="session_details"]');
+            if (backBtn) {
+                window.location.href = backBtn.href;
+            }
+        }
+    });
+
+    // ============================================
+    // PRINT OPTIMIZATION
+    // ============================================
+    window.addEventListener('beforeprint', function() {
+        document.querySelectorAll('.minute-block').forEach(function(block) {
+            block.style.transform = 'scale(1)';
+        });
+    });
+
+    window.addEventListener('afterprint', function() {
+        document.querySelectorAll('.minute-block').forEach(function(block) {
+            block.style.transform = '';
+        });
+    });
+
+    // ============================================
+    // RESPONSIVE MINUTE BLOCKS
+    // ============================================
+    function adjustMinuteBlocks() {
+        const container = document.querySelector('.pattern-container');
+        const grid = document.querySelector('.pattern-grid');
+        const labels = document.querySelector('.minute-label-row');
+        
+        if (!container || !grid) return;
+        
+        const containerWidth = container.offsetWidth;
+        const blockCount = grid.children.length;
+        
+        if (blockCount > 0) {
+            let blockSize = 16;
+            
+            if (containerWidth < 480) {
+                blockSize = 10;
+            } else if (containerWidth < 768) {
+                blockSize = 12;
+            } else if (containerWidth < 992) {
+                blockSize = 14;
+            }
+            
+            const blocks = grid.querySelectorAll('.minute-block');
+            blocks.forEach(function(block) {
+                block.style.width = blockSize + 'px';
+                block.style.height = (blockSize * 2.25) + 'px';
+            });
+            
+            if (labels) {
+                const labelElements = labels.querySelectorAll('.label');
+                labelElements.forEach(function(label) {
+                    label.style.width = blockSize + 'px';
+                });
+            }
+        }
+    }
+
+    adjustMinuteBlocks();
+    window.addEventListener('resize', adjustMinuteBlocks);
+
+    const sidebarToggle = document.querySelector('.sidebar-toggle');
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            setTimeout(adjustMinuteBlocks, 300);
+        });
+    }
+
+    // ============================================
+    // TOOLTIP POSITIONING
+    // ============================================
+    function positionTooltips() {
+        document.querySelectorAll('.minute-block').forEach(function(block) {
+            const tooltip = block.querySelector('.tooltip-min');
+            if (tooltip) {
+                const rect = block.getBoundingClientRect();
+                const tooltipRect = tooltip.getBoundingClientRect();
+                
+                if (rect.left + tooltipRect.width / 2 > window.innerWidth) {
+                    tooltip.style.left = 'auto';
+                    tooltip.style.right = '0';
+                    tooltip.style.transform = 'none';
+                } else if (rect.left - tooltipRect.width / 2 < 0) {
+                    tooltip.style.left = '0';
+                    tooltip.style.right = 'auto';
+                    tooltip.style.transform = 'none';
+                }
+            }
+        });
+    }
+
+    document.querySelectorAll('.minute-block').forEach(function(block) {
+        block.addEventListener('mouseenter', function() {
+            setTimeout(positionTooltips, 10);
+        });
+    });
+
+    // ============================================
+    // LOG DATA TO CONSOLE (Debug)
+    // ============================================
+    console.log('📊 Attendance Pattern Loaded');
+    console.log('Summary:', summary);
+    console.log('Log:', log);
+});
+</script>
 {% endblock %}

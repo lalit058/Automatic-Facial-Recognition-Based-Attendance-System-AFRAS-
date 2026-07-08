@@ -479,6 +479,20 @@
             }
         }
 
+        @keyframes arrowPulseVertical {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: translateY(0) rotate(90deg);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateY(5px) rotate(90deg);
+            }
+        }
+
         .info-section {
             max-width: 1300px;
             margin: 0.5rem auto;
@@ -1243,7 +1257,6 @@
 
             .workflow-arrow {
                 transform: rotate(90deg);
-                margin: -0.5rem 0;
             }
 
             .hero-buttons {
@@ -1317,6 +1330,22 @@
 
             .hardware-requirement {
                 overflow-x: auto;
+            }
+
+            .workflow-steps {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .workflow-arrow {
+                transform: rotate(90deg);
+                animation: arrowPulseVertical 2s infinite;
+            }
+
+            .workflow-step {
+                width: 100%;
+                max-width: 280px;
+                margin: 0 auto;
             }
         }
 

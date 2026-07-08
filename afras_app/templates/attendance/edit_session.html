@@ -1,0 +1,604 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Edit Session - {{ session.subject_name }}{% endblock %}
+
+{% block content %}
+<style>
+    .edit-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
+    .edit-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid #f1f5f9;
+        padding: 2rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .edit-card .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .edit-card .card-header h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .edit-card .card-header h2 i {
+        color: #6366f1;
+    }
+
+    .edit-card .card-header .session-id {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        background: #f1f5f9;
+        padding: 4px 14px;
+        border-radius: 100px;
+        font-weight: 600;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #1e293b;
+        margin-bottom: 0.3rem;
+    }
+
+    .form-group label .required {
+        color: #ef4444;
+        margin-left: 2px;
+    }
+
+    .form-group label .optional {
+        font-weight: 400;
+        font-size: 0.65rem;
+        color: #94a3b8;
+        margin-left: 6px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.5rem 0.8rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        background: #fafbfc;
+        color: #0f172a;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        border-color: #6366f1;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
+    }
+
+    .form-control:disabled {
+        background: #f1f5f9;
+        cursor: not-allowed;
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc2626;
+        background: #fef2f2;
+    }
+
+    .form-control.is-invalid:focus {
+        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.08);
+    }
+
+    .form-hint {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        margin-top: 0.2rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .form-hint i {
+        font-size: 0.5rem;
+        opacity: 0.6;
+    }
+
+    .form-hint.error {
+        color: #dc2626;
+    }
+
+    .form-hint.success {
+        color: #16a34a;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin: 0;
+    }
+
+    .col-md-4 {
+        flex: 1 1 calc(33.333% - 0.75rem);
+        min-width: 120px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        padding: 0.6rem 1.5rem;
+        background: var(--primary);
+        border: none;
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-secondary {
+        padding: 0.6rem 1.5rem;
+        background: #f1f5f9;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .btn-secondary:hover {
+        background: #e2e8f0;
+        transform: translateY(-2px);
+    }
+
+    .btn-danger {
+        padding: 0.6rem 1.5rem;
+        background: #dc2626;
+        border: none;
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
+    }
+
+    .session-preview {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        color: #64748b;
+        border: 1px solid #f1f5f9;
+    }
+
+    .session-preview i {
+        color: #6366f1;
+        margin-right: 4px;
+    }
+
+    .alert {
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 1rem;
+        border: none;
+        border-left: 4px solid transparent;
+    }
+
+    .alert-danger {
+        background: #fef2f2;
+        color: #dc2626;
+        border-left-color: #dc2626;
+    }
+
+    .alert-success {
+        background: #f0fdf4;
+        color: #16a34a;
+        border-left-color: #16a34a;
+    }
+
+    .alert i {
+        font-size: 0.85rem;
+        margin-top: 1px;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+        .edit-card {
+            padding: 1rem;
+        }
+
+        .col-md-4 {
+            flex: 1 1 100%;
+            min-width: 0;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-actions .btn-primary,
+        .form-actions .btn-secondary,
+        .form-actions .btn-danger {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .edit-card .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .edit-container {
+            padding: 0.5rem;
+        }
+
+        .edit-card {
+            padding: 0.75rem;
+        }
+
+        .edit-card .card-header h2 {
+            font-size: 1rem;
+        }
+
+        .form-group label {
+            font-size: 0.7rem;
+        }
+
+        .form-control {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.6rem;
+        }
+    }
+</style>
+
+<div class="edit-container">
+    <div class="edit-card">
+        <div class="card-header">
+            <h2>
+                <i class="fas fa-edit"></i>
+                Edit Session
+            </h2>
+            <span class="session-id">#{{ session.id }}</span>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                    <div>{{ message }}</div>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" id="editSessionForm" novalidate>
+            {% csrf_token %}
+
+            <!-- Subject Name -->
+            <div class="form-group">
+                <label for="subject">
+                    Subject Name <span class="required">*</span>
+                </label>
+                <input type="text" class="form-control" id="subject" name="subject" required
+                    placeholder="Enter subject name" value="{{ session.subject_name }}">
+                <div class="form-hint">
+                    <i class="fas fa-book"></i>
+                    The subject name will appear on attendance reports
+                </div>
+            </div>
+
+            <!-- Department -->
+            <div class="form-group">
+                <label for="department">
+                    Department <span class="required">*</span>
+                </label>
+                <select class="form-control" id="department" name="department" required>
+                    <option value="">Select Department...</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept }}" {% if session.department == dept %}selected{% endif %}>
+                        {{ dept }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Year, Semester, Section -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="year">
+                            Year <span class="required">*</span>
+                        </label>
+                        <select class="form-control" id="year" name="year" required>
+                            <option value="">Select Year</option>
+                            {% for yr in years %}
+                            <option value="{{ yr }}" {% if session.year == yr %}selected{% endif %}>
+                                {{ yr }}{% if yr == 1 %}st{% elif yr == 2 %}nd{% elif yr == 3 %}rd{% else %}th{% endif %} Year
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="semester">
+                            Semester <span class="required">*</span>
+                        </label>
+                        <select class="form-control" id="semester" name="semester" required>
+                            <option value="">Select Semester</option>
+                            {% for sem in semesters %}
+                            <option value="{{ sem }}" {% if session.semester == sem %}selected{% endif %}>
+                                Semester {{ sem }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="section">
+                            Section <span class="optional">(optional)</span>
+                        </label>
+                        <select class="form-control" id="section" name="section">
+                            <option value="">Select Section</option>
+                            {% for sec in sections %}
+                            <option value="{{ sec }}" {% if session.section == sec %}selected{% endif %}>
+                                Section {{ sec }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date/Time -->
+            <div class="form-group">
+                <label for="session_datetime">
+                    Session Date &amp; Time <span class="required">*</span>
+                </label>
+                <input type="datetime-local" class="form-control" id="session_datetime" name="session_datetime"
+                    required value="{{ now }}">
+                <div class="form-hint">
+                    <i class="fas fa-calendar-clock"></i>
+                    Select the date and time when the class starts
+                </div>
+            </div>
+
+            <!-- Duration -->
+            <div class="form-group">
+                <label for="duration">
+                    Class Duration <span class="required">*</span>
+                    <span class="optional">(minutes)</span>
+                </label>
+                <input type="number" class="form-control" id="duration" name="duration" required
+                    placeholder="60" min="5" max="180" value="{{ session.expected_duration }}">
+                <div class="form-hint">
+                    <i class="fas fa-clock"></i>
+                    Set between 5 and 180 minutes
+                </div>
+            </div>
+
+            <!-- Session Preview -->
+            <div class="session-preview" id="sessionPreview">
+                <i class="fas fa-info-circle"></i>
+                <span id="previewText">{{ session.subject_name }} | {{ session.department }} | 
+                {{ session.year }}{% if session.year == 1 %}st{% elif session.year == 2 %}nd{% elif session.year == 3 %}rd{% else %}th{% endif %} Year, 
+                {{ session.semester }}th Sem | Section {{ session.section|default:'N/A' }} | {{ session.expected_duration }} min</span>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn-primary" id="submitBtn">
+                    <i class="fas fa-save"></i> Update Session
+                </button>
+                <a href="{% url 'attendance:session_details' session.id %}" class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Cancel
+                </a>
+                {% if not session.is_active %}
+                <button type="button" class="btn-danger" onclick="deleteSession()">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('editSessionForm');
+        const subject = document.getElementById('subject');
+        const department = document.getElementById('department');
+        const year = document.getElementById('year');
+        const semester = document.getElementById('semester');
+        const section = document.getElementById('section');
+        const duration = document.getElementById('duration');
+        const datetime = document.getElementById('session_datetime');
+        const previewText = document.getElementById('previewText');
+
+        function updatePreview() {
+            const subj = subject.value || '[Subject]';
+            const dept = department.value || '[Dept]';
+            const yr = year.value || '?';
+            const sem = semester.value || '?';
+            const sec = section.value || 'N/A';
+            const dur = duration.value || '?';
+            
+            const yearNames = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' };
+            const yearText = yearNames[yr] || yr;
+            
+            previewText.textContent = `${subj} | ${dept} | ${yearText} Year, ${sem}th Sem | Section ${sec} | ${dur} min`;
+        }
+
+        // Check for duplicate session
+        async function checkDuplicate() {
+            const data = {
+                subject: subject.value,
+                department: department.value,
+                year: year.value,
+                semester: semester.value,
+                section: section.value,
+                session_datetime: datetime.value
+            };
+
+            // Don't check if any field is empty
+            if (!data.subject || !data.department || !data.year || !data.semester || !data.session_datetime) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/attendance/check-session/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                
+                const hint = document.getElementById('session_datetime').parentElement.querySelector('.form-hint');
+                if (result.exists) {
+                    hint.className = 'form-hint error';
+                    hint.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message}`;
+                } else {
+                    hint.className = 'form-hint success';
+                    hint.innerHTML = `<i class="fas fa-check-circle"></i> Session available for this slot`;
+                }
+            } catch (e) {
+                console.error('Error checking duplicate:', e);
+            }
+        }
+
+        // Add event listeners for live preview
+        [subject, department, year, semester, section, duration].forEach(el => {
+            if (el) {
+                el.addEventListener('change', updatePreview);
+                el.addEventListener('input', updatePreview);
+            }
+        });
+
+        // Check for duplicates on change
+        [subject, department, year, semester, section, datetime].forEach(el => {
+            if (el) {
+                el.addEventListener('change', checkDuplicate);
+                el.addEventListener('blur', checkDuplicate);
+            }
+        });
+
+        // Initial preview
+        updatePreview();
+
+        // Form submission validation
+        form.addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+        });
+    });
+
+    function deleteSession() {
+        if (confirm('⚠️ Are you sure you want to delete this session?\n\nThis action cannot be undone. All attendance records will be permanently removed.')) {
+            const sessionId = {{ session.id }};
+            fetch(`/attendance/delete-session/${sessionId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = "{% url 'attendance:unified_sessions' %}";
+                } else {
+                    alert('Error deleting session: ' + data.message);
+                }
+            })
+            .catch(err => {
+                alert('Error deleting session: ' + err.message);
+            });
+        }
+    }
+</script>
+{% endblock %}

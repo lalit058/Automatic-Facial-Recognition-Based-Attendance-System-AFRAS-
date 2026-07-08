@@ -1,3 +1,4 @@
+<!-- templates/attendance/attendance_session.html -->
 {% extends 'dashboard/base.html' %}
 {% load static %}
 
@@ -7,7 +8,7 @@
 <style>
     /* ============================================
        MODERN PROFESSIONAL UI/UX - ATTENDANCE SESSION
-       Matching Base Theme with Premium Design
+       SINGLE SHOT DETECTION MODE
     ============================================ */
     
     /* Google Font */
@@ -41,6 +42,7 @@
         display: flex;
         align-items: center;
         gap: 16px;
+        flex-wrap: wrap;
     }
 
     .section-header .left .status-indicator {
@@ -93,6 +95,26 @@
         display: flex;
         align-items: center;
         gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .badge-mode {
+        padding: 4px 14px;
+        border-radius: 100px;
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: rgba(99, 102, 241, 0.1);
+        color: #818cf8;
+        border: 1px solid rgba(99, 102, 241, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .badge-mode i {
+        font-size: 0.5rem;
     }
 
     .btn-end-session {
@@ -174,6 +196,7 @@
         display: flex;
         align-items: center;
         gap: 16px;
+        flex-wrap: wrap;
     }
 
     .video-card .card-header .header-left .live-badge {
@@ -223,6 +246,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        flex-wrap: wrap;
     }
 
     /* VIDEO CONTAINER */
@@ -311,6 +335,15 @@
 
     .video-overlay .chip.success i {
         color: var(--success);
+    }
+
+    .video-overlay .chip.mode {
+        border-color: rgba(99, 102, 241, 0.2);
+        color: #818cf8;
+    }
+
+    .video-overlay .chip.mode i {
+        color: #818cf8;
     }
 
     /* Bottom Right Overlay - Time Remaining */
@@ -501,6 +534,7 @@
         align-items: center;
         gap: 12px;
         min-width: 0;
+        flex: 1;
     }
 
     .log-item .avatar {
@@ -532,6 +566,7 @@
 
     .log-item .info {
         min-width: 0;
+        flex: 1;
     }
 
     .log-item .name {
@@ -591,6 +626,7 @@
         align-items: center;
         gap: 12px;
         flex-shrink: 0;
+        margin-left: 8px;
     }
 
     .log-item .confidence {
@@ -624,6 +660,26 @@
         min-width: 65px;
         text-align: right;
         font-weight: 500;
+    }
+
+    /* Single Shot Badge */
+    .log-item .shot-badge {
+        font-size: 0.45rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 1px 8px;
+        border-radius: 100px;
+        background: rgba(99, 102, 241, 0.08);
+        color: #818cf8;
+        border: 1px solid rgba(99, 102, 241, 0.1);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .log-item .shot-badge i {
+        font-size: 0.4rem;
     }
 
     /* Empty State - Modern */
@@ -929,6 +985,10 @@
         .section-header .left .status-indicator span {
             font-size: 0.65rem;
         }
+        .badge-mode {
+            font-size: 0.5rem;
+            padding: 2px 10px;
+        }
     }
 
     /* ============================================
@@ -952,6 +1012,42 @@
     .sidebar-card:nth-child(3) {
         animation: fadeInUp 0.5s ease-out 0.3s both;
     }
+
+    /* ============================================
+       CAMERA STATUS - NEW
+    ============================================ */
+    .camera-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-size: 0.6rem;
+        font-weight: 600;
+        background: rgba(39, 174, 96, 0.08);
+        color: var(--success);
+        border: 1px solid rgba(39, 174, 96, 0.1);
+    }
+
+    .camera-status .cam-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--success);
+        display: inline-block;
+        animation: pulse-dot 1.8s infinite;
+    }
+
+    .camera-status.offline {
+        background: rgba(231, 76, 60, 0.08);
+        color: var(--danger);
+        border-color: rgba(231, 76, 60, 0.1);
+    }
+
+    .camera-status.offline .cam-dot {
+        background: var(--danger);
+        animation: none;
+    }
 </style>
 {% endblock %}
 
@@ -970,9 +1066,16 @@
                 {{ session.subject_name }}
                 <small>Session #{{ session.id }}</small>
             </h2>
+            <span class="badge-mode">
+                <i class="fas fa-bolt"></i> Single Shot Mode
+            </span>
         </div>
         <div class="right">
-            <button class="btn-outline-session" onclick="window.location.href='{% url 'attendance:all_sessions' %}'">
+            <span class="camera-status" id="cameraStatus">
+                <span class="cam-dot"></span>
+                <span id="cameraStatusText">Connected</span>
+            </span>
+            <button class="btn-outline-session" onclick="window.location.href='{% url 'attendance:unified_sessions' %}'">
                 <i class="fas fa-arrow-left"></i> All Sessions
             </button>
             <button class="btn-end-session" onclick="stopSession()">
@@ -1004,6 +1107,9 @@
                             <i class="fas fa-{{ session.routine.department|lower|default:'graduation-cap' }}"></i>
                             {{ session.routine.department|default:'Engineering' }}
                         </span>
+                        <span style="font-size:0.7rem; color:var(--text-dim); margin-left:8px;">
+                            <i class="fas fa-camera"></i> Single Shot
+                        </span>
                     </div>
                 </div>
 
@@ -1013,7 +1119,8 @@
                         <img id="video-feed" 
                              src="{% url 'attendance:hybrid_video_feed' session.id %}" 
                              class="img-fluid" 
-                             alt="Live Feed">
+                             alt="Live Feed"
+                             onerror="handleVideoError()">
                     {% else %}
                         <div class="video-placeholder">
                             <i class="fas fa-video-slash"></i>
@@ -1024,6 +1131,10 @@
 
                     <!-- Overlay - Top Left -->
                     <div class="video-overlay">
+                        <span class="chip mode">
+                            <i class="fas fa-bolt"></i> 
+                            Single Shot Detection
+                        </span>
                         <span class="chip accent">
                             <i class="fas fa-microchip"></i> 
                             {% if hybrid_available %}Hybrid AI{% else %}Basic{% endif %}
@@ -1038,7 +1149,7 @@
                         </span>
                         <span class="chip success">
                             <i class="fas fa-check-circle"></i> 
-                            Logged: <span class="val" id="logged-value">0</span>
+                            Marked: <span class="val" id="logged-value">0</span>
                         </span>
                     </div>
 
@@ -1070,12 +1181,17 @@
                     <span class="divider"></span>
                     <span class="item">
                         <i class="fas fa-users"></i> 
-                        Present: <strong id="total-present">0</strong>
+                        Marked: <strong id="total-present">0</strong>
                     </span>
                     <span class="divider"></span>
                     <span class="item">
                         <i class="fas fa-hourglass-end"></i> 
                         Ends: <strong>{{ end_time_local|date:"h:i:s A" }}</strong>
+                    </span>
+                    <span class="divider"></span>
+                    <span class="item" style="color: #818cf8;">
+                        <i class="fas fa-bolt"></i> 
+                        Mode: <strong>Single Shot</strong>
                     </span>
                 </div>
             </div>
@@ -1099,8 +1215,8 @@
                             <i class="fas fa-camera"></i>
                         </div>
                         <h5>No Detections Yet</h5>
-                        <p>Faces will appear here when recognized</p>
-                        <small>Waiting for students to appear on camera</small>
+                        <p>Students will be marked on first detection</p>
+                        <small>Single Shot Mode: One detection = Present</small>
                     </div>
                     <div id="log-items" style="display:none;"></div>
                 </div>
@@ -1118,7 +1234,7 @@
                     <div class="stats-grid">
                         <div class="stat-box green">
                             <span class="icon">✅</span>
-                            <span class="label">Present</span>
+                            <span class="label">Marked</span>
                             <span class="value green" id="stat-present">0</span>
                         </div>
                         <div class="stat-box blue">
@@ -1131,10 +1247,10 @@
                             <span class="label">Avg Conf</span>
                             <span class="value cyan" id="stat-confidence">0%</span>
                         </div>
-                        <div class="stat-box orange">
-                            <span class="icon">📊</span>
-                            <span class="label">Status</span>
-                            <span class="value orange" id="stat-status" style="font-size:0.95rem;">Active</span>
+                        <div class="stat-box purple">
+                            <span class="icon">⚡</span>
+                            <span class="label">Mode</span>
+                            <span class="value purple" id="stat-mode" style="font-size:0.85rem;">Single Shot</span>
                         </div>
                     </div>
                 </div>
@@ -1153,29 +1269,77 @@
 </div>
 
 <!-- ============================================
-SESSION ID
+SESSION ID AND TIME - CRITICAL FOR MINUTE TRACKING
 ============================================ -->
 <input type="hidden" id="session-id" value="{{ session.id }}">
 <input type="hidden" id="session-end-time" value="{{ session.end_time|date:'U'|default:0 }}">
+<input type="hidden" id="session-start-time" value="{{ session.start_time|date:'U'|default:0 }}">
 
 {% block extra_scripts %}
 <script>
 // ============================================
-// UPDATE LOGS
+// MINUTE TRACKING - Single Shot Mode
+// ============================================
+let minuteTracker = {};
+let sessionStartTime = null;
+let currentMinuteOffset = 0;
+
+function initMinuteTracker() {
+    const startTimeEl = document.getElementById('session-start-time');
+    if (startTimeEl && startTimeEl.value) {
+        sessionStartTime = new Date(parseInt(startTimeEl.value) * 1000);
+        console.log('📅 Session Start Time:', sessionStartTime);
+    }
+}
+
+function getCurrentMinuteOffset() {
+    if (!sessionStartTime) return 0;
+    const now = new Date();
+    const diffMs = now - sessionStartTime;
+    return Math.floor(diffMs / 60000); // minutes since session start
+}
+
+function markMinutePresent(studentId, studentName) {
+    const currentMinute = getCurrentMinuteOffset();
+    if (currentMinute < 0) return;
+    
+    if (!minuteTracker[studentId]) {
+        minuteTracker[studentId] = {
+            name: studentName,
+            minutes: new Set()
+        };
+    }
+    
+    // In Single Shot Mode, we only mark the FIRST detection minute
+    if (minuteTracker[studentId].minutes.size === 0) {
+        minuteTracker[studentId].minutes.add(currentMinute);
+        console.log(`✅ Single Shot: ${studentName} marked at minute ${currentMinute}`);
+    }
+}
+
+// Call this when a student is detected in the video feed
+function onStudentDetected(studentId, studentName) {
+    markMinutePresent(studentId, studentName);
+}
+
+// ============================================
+// UPDATE LOGS - Single Shot Mode
 // ============================================
 function updateLogs() {
     const sessionId = document.getElementById('session-id').value;
+    const timestamp = Date.now(); // Add cache-busting
     
-    fetch(`/attendance/api/logs/${sessionId}/`)
+    fetch(`/attendance/api/logs/${sessionId}/?_=${timestamp}`)
         .then(r => r.json())
         .then(data => {
+            console.log('📊 Logs data:', data); // Debug log
             if (data.logs) {
                 updateTable(data.logs);
                 updateStats(data.logs);
                 updateFaces(data.logs);
             }
         })
-        .catch(() => console.log('Error fetching logs'));
+        .catch(err => console.log('Error fetching logs:', err));
 }
 
 function updateTable(logs) {
@@ -1217,9 +1381,10 @@ function updateTable(logs) {
                 <div class="avatar ${getAvatarClass(log.status)}">${getInitials(log.name)}</div>
                 <div class="info">
                     <span class="name">${log.name || 'Unknown'}</span>
-                    <span class="roll">${log.detections || 0} detections</span>
+                    <span class="roll">${log.detections || 1} detection(s)</span>
                 </div>
                 <span class="status-badge ${getStatusClass(log.status)}">${log.status || 'ABSENT'}</span>
+                <span class="shot-badge"><i class="fas fa-bolt"></i> 1st</span>
             </div>
             <div class="right">
                 <span class="confidence ${getConfClass(log.confidence)}">${log.confidence || 0}%</span>
@@ -1246,8 +1411,8 @@ function updateStats(logs) {
         document.getElementById('stat-confidence').textContent = '0%';
     }
     
-    const status = logs.length > 0 ? 'Active' : 'Waiting';
-    document.getElementById('stat-status').textContent = status;
+    // Show mode in stats
+    document.getElementById('stat-mode').textContent = 'Single Shot';
 }
 
 function updateFaces(logs) {
@@ -1315,6 +1480,28 @@ setInterval(() => {
 }, 2000);
 
 // ============================================
+// VIDEO ERROR HANDLER
+// ============================================
+function handleVideoError() {
+    const statusEl = document.getElementById('cameraStatus');
+    const statusText = document.getElementById('cameraStatusText');
+    statusEl.className = 'camera-status offline';
+    statusText.textContent = 'Disconnected';
+    
+    // Show reconnect message
+    const container = document.querySelector('.video-container');
+    const placeholder = document.createElement('div');
+    placeholder.className = 'video-placeholder';
+    placeholder.innerHTML = `
+        <i class="fas fa-video-slash"></i>
+        <p>Camera Disconnected</p>
+        <small style="color:rgba(255,255,255,0.3);">Please check your IP camera connection</small>
+    `;
+    container.innerHTML = '';
+    container.appendChild(placeholder);
+}
+
+// ============================================
 // AUTO REFRESH VIDEO FEED
 // ============================================
 setInterval(() => {
@@ -1326,14 +1513,27 @@ setInterval(() => {
 }, 30000);
 
 // ============================================
+// MINUTE TRACKER STATUS - Log to console
+// ============================================
+setInterval(() => {
+    console.log('📊 Minute Tracker Status:', {
+        totalTracked: Object.keys(minuteTracker).length,
+        data: minuteTracker
+    });
+}, 10000);
+
+// ============================================
 // START
 // ============================================
+initMinuteTracker();
 setInterval(updateLogs, 3000);
 setInterval(updateCountdown, 1000);
 updateLogs();
 updateCountdown();
 
-console.log('🎥 Live monitoring started for session:', document.getElementById('session-id').value);
+console.log('🎥 Live monitoring started (Single Shot Mode) for session:', document.getElementById('session-id').value);
+console.log('⚡ Students will be marked on FIRST detection only');
+console.log('📅 Session Start Time:', sessionStartTime);
 </script>
 {% endblock %}
 {% endblock %}

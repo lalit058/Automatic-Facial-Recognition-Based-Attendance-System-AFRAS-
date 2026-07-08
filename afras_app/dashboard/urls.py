@@ -54,12 +54,13 @@ urlpatterns = [
     
     # Export
     path('api/export-logs/', views.export_logs, name='export_logs'),
+    path('api/notifications/export/', views.export_notifications, name='export_notifications'),
     
     # Log Details
     path('api/log-details/<int:log_id>/', views.api_get_log_details, name='log_details'),
     
+    path('api/active-routines/', views.active_routines_api, name='active_routines_api'),
     
-    path("routine-management/", views.routine_management, name="routine_management"),
     path('configuration/', views.system_configuration_view, name='system_configuration'),
     path("api/test-config/", views.test_configuration_api, name="test_configuration"),
     path("api/generate-key/", views.generate_api_key_api, name="generate_api_key"),

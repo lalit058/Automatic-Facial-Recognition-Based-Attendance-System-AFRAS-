@@ -1,12 +1,17 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
 
+{% block extra_head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Directory</title>
+{% endblock %}
+
 {% block title %}Student Directory{% endblock %}
 
 {% block content %}
 <style>
     .page-container {
-        padding: 0.5rem;
         max-width: 1400px;
     }
 
@@ -789,9 +794,6 @@
 
     /* Mobile devices */
     @media (max-width: 768px) {
-        .page-container {
-            padding: 0.25rem;
-        }
 
         .page-header {
             flex-direction: column;

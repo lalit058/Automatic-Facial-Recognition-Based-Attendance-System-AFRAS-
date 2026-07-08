@@ -6,24 +6,40 @@
 
 {% block content %}
 <style>
+    /* ============================================
+       PAGE CONTAINER
+    ============================================ */
     .page-container {
         max-width: 1400px;
+        margin: 0 auto;
+        padding: 0.5rem;
+        box-sizing: border-box;
+        width: 100%;
     }
 
+    /* ============================================
+       PAGE HEADER WITH RESPONSIVE BREADCRUMB
+    ============================================ */
     .page-header {
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         border-radius: 20px 20px 0 0;
         padding: 1rem 1.5rem;
         margin-bottom: 1rem;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .breadcrumb-header {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         font-size: 0.75rem;
         color: rgba(255, 255, 255, 0.6);
         margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+        padding: 0;
+        min-height: 28px;
+        position: relative;
     }
 
     .breadcrumb-header a {
@@ -31,28 +47,188 @@
         text-decoration: none;
         font-weight: 500;
         transition: color 0.2s;
+        white-space: nowrap;
+        padding: 2px 4px;
+        border-radius: 4px;
     }
 
     .breadcrumb-header a:hover {
         color: #ffffff;
         text-decoration: underline;
+        background: rgba(255, 255, 255, 0.1);
     }
 
     .breadcrumb-header .separator {
         color: rgba(255, 255, 255, 0.3);
+        flex-shrink: 0;
+        font-size: 0.7rem;
     }
 
     .breadcrumb-header .current {
         color: #ffffff;
         font-weight: 600;
+        white-space: nowrap;
+        padding: 2px 4px;
+        border-radius: 4px;
     }
 
+    /* Mobile breadcrumb toggle - ALWAYS VISIBLE on mobile */
+    .breadcrumb-toggle {
+        display: none;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        padding: 4px 10px;
+        color: #ffffff;
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
+    .breadcrumb-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .breadcrumb-toggle i {
+        font-size: 0.6rem;
+    }
+
+    .breadcrumb-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: #1e293b;
+        border-radius: 8px;
+        padding: 8px 0;
+        min-width: 200px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        z-index: 100;
+        margin-top: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .breadcrumb-dropdown.show {
+        display: block;
+        animation: dropdownSlide 0.2s ease;
+    }
+
+    @keyframes dropdownSlide {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .breadcrumb-dropdown a {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-size: 0.75rem;
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+    }
+
+    .breadcrumb-dropdown a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border-left-color: var(--primary);
+    }
+
+    .breadcrumb-dropdown a i {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.6rem;
+    }
+
+    .breadcrumb-dropdown .dropdown-current {
+        background: rgba(99, 102, 241, 0.15);
+        color: #ffffff;
+        border-left-color: #6366f1;
+        font-weight: 600;
+    }
+
+    /* Show toggle button on mobile */
+    @media (max-width: 768px) {
+        .breadcrumb-header {
+            font-size: 0.65rem;
+            gap: 4px;
+            min-height: 24px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .breadcrumb-header::-webkit-scrollbar {
+            display: none;
+        }
+
+        .breadcrumb-header a,
+        .breadcrumb-header .separator,
+        .breadcrumb-header .current {
+            flex-shrink: 0;
+        }
+
+        /* Hide middle items on mobile */
+        .breadcrumb-header .breadcrumb-item-hidden {
+            display: none !important;
+        }
+
+        .breadcrumb-toggle {
+            display: inline-flex !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .breadcrumb-header {
+            font-size: 0.6rem;
+            gap: 3px;
+            min-height: 22px;
+        }
+
+        .breadcrumb-toggle {
+            font-size: 0.6rem;
+            padding: 3px 8px;
+        }
+
+        .breadcrumb-dropdown {
+            min-width: 180px;
+            right: 0;
+            left: auto;
+        }
+
+        .breadcrumb-dropdown a {
+            font-size: 0.7rem;
+            padding: 6px 12px;
+        }
+    }
+
+    /* ============================================
+       HEADER CONTENT
+    ============================================ */
     .header-content {
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 1rem;
+        width: 100%;
+    }
+
+    .header-content .header-left {
+        flex: 1;
+        min-width: 150px;
     }
 
     .header-content .header-left h1 {
@@ -63,19 +239,22 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        flex-wrap: wrap;
+        word-break: break-word;
     }
 
     .header-content .header-left p {
         color: rgba(255, 255, 255, 0.7);
         font-size: 0.9rem;
         margin: 0;
+        word-break: break-word;
     }
 
-    /* Action Buttons in Header */
     .header-actions {
         display: flex;
-        gap: 0.75rem;
+        gap: 0.5rem;
         flex-wrap: wrap;
+        flex-shrink: 0;
     }
 
     .btn-report {
@@ -92,6 +271,7 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        white-space: nowrap;
     }
 
     .btn-report:hover {
@@ -99,10 +279,6 @@
         border-color: rgba(255, 255, 255, 0.5);
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .btn-report i {
-        font-size: 0.9rem;
     }
 
     .btn-export-csv {
@@ -119,6 +295,7 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        white-space: nowrap;
     }
 
     .btn-export-csv:hover {
@@ -127,21 +304,26 @@
         box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
     }
 
-    /* Stats Row */
+    /* ============================================
+       STATS ROW
+    ============================================ */
     .stats-row {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
         gap: 1rem;
+        margin-bottom: 1.5rem;
+        width: 100%;
     }
 
     .stat-item {
         background: #fff;
-        padding: 1rem 1.25rem;
+        padding: 0.75rem 1rem;
         border-radius: 12px;
         border: 1px solid #f1f5f9;
         text-align: center;
         transition: all 0.2s;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        min-width: 0;
     }
 
     .stat-item:hover {
@@ -157,25 +339,11 @@
         line-height: 1.2;
     }
 
-    .stat-item .number.blue {
-        color: #3b82f6;
-    }
-
-    .stat-item .number.green {
-        color: #16a34a;
-    }
-
-    .stat-item .number.red {
-        color: #dc2626;
-    }
-
-    .stat-item .number.orange {
-        color: #d97706;
-    }
-
-    .stat-item .number.purple {
-        color: #8b5cf6;
-    }
+    .stat-item .number.blue { color: #3b82f6; }
+    .stat-item .number.green { color: #16a34a; }
+    .stat-item .number.red { color: #dc2626; }
+    .stat-item .number.orange { color: #d97706; }
+    .stat-item .number.purple { color: #8b5cf6; }
 
     .stat-item .label {
         font-size: 0.65rem;
@@ -185,14 +353,29 @@
         font-weight: 600;
     }
 
-    /* Filter Section */
+    /* ============================================
+       FILTER SECTION
+    ============================================ */
     .filter-section {
+        background: #fff;
         border-radius: 12px;
-        padding: 1rem 0;
+        border: 1px solid #f1f5f9;
+        padding: 1rem 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .filter-section form {
         display: flex;
         gap: 0.75rem;
         flex-wrap: wrap;
         align-items: center;
+        width: 100%;
     }
 
     .filter-section .filter-group {
@@ -200,18 +383,10 @@
         align-items: center;
         gap: 0.5rem;
         flex-wrap: wrap;
+        flex: 1 1 auto;
     }
 
-    .filter-section .filter-label {
-        font-size: 0.7rem;
-        font-weight: 600;
-        color: #94a3b8;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .filter-section select,
-    .filter-section input {
+    .filter-section select {
         padding: 0.4rem 0.8rem;
         border: 1.5px solid #e2e8f0;
         border-radius: 8px;
@@ -220,16 +395,29 @@
         color: #1e293b;
         outline: none;
         cursor: pointer;
-        min-width: 140px;
+        min-width: 120px;
+        flex: 1 1 auto;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        padding-right: 28px;
     }
 
-    .filter-section select:focus,
-    .filter-section input:focus {
+    .filter-section select:focus {
         border-color: #6366f1;
         box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06);
     }
 
-    .filter-section .btn-filter {
+    .filter-divider {
+        width: 1px;
+        height: 30px;
+        background: #e2e8f0;
+        flex-shrink: 0;
+    }
+
+    .btn-filter {
         padding: 0.4rem 1.2rem;
         border: none;
         background: var(--primary);
@@ -242,15 +430,16 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
+        white-space: nowrap;
     }
 
-    .filter-section .btn-filter:hover {
+    .btn-filter:hover {
         background: var(--primary-dark);
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(26, 86, 148, 0.25);
     }
 
-    .filter-section .btn-clear {
+    .btn-clear {
         padding: 0.4rem 1rem;
         border: none;
         background: #f1f5f9;
@@ -263,31 +452,28 @@
         display: inline-flex;
         align-items: center;
         gap: 4px;
+        white-space: nowrap;
     }
 
-    .filter-section .btn-clear:hover {
+    .btn-clear:hover {
         background: #e2e8f0;
         color: #1e293b;
     }
 
-    .filter-divider {
-        width: 1px;
-        height: 30px;
-        background: #e2e8f0;
-        margin: 0 0.25rem;
-    }
-
-    /* Table */
+    /* ============================================
+       TABLE
+    ============================================ */
     .table-card {
         background: #fff;
         border-radius: 12px;
         border: 1px solid #f1f5f9;
         overflow: hidden;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        width: 100%;
     }
 
     .table-card .table-header {
-        padding: 0.5rem 1.5rem;
+        padding: 0.75rem 1.25rem;
         border-bottom: 1px solid #f1f5f9;
         display: flex;
         justify-content: space-between;
@@ -299,12 +485,13 @@
 
     .table-card .table-header h3 {
         font-size: 0.95rem;
-        font-weight: 600;
+        font-weight: 700;
         color: #0f172a;
         margin: 0;
         display: flex;
         align-items: center;
         gap: 8px;
+        flex-wrap: wrap;
     }
 
     .table-card .table-header h3 i {
@@ -312,22 +499,26 @@
     }
 
     .table-card .table-header .count {
-        background: #e2e8f0;
+        background: #f1f5f9;
         padding: 2px 12px;
         border-radius: 100px;
         font-size: 0.7rem;
         font-weight: 600;
         color: #64748b;
+        white-space: nowrap;
     }
 
     .table-scroll {
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
     }
 
     table {
         width: 100%;
         border-collapse: collapse;
         font-size: 0.85rem;
+        min-width: 900px;
     }
 
     thead {
@@ -335,9 +526,9 @@
     }
 
     thead th {
-        padding: 0.75rem 1.5rem;
+        padding: 0.6rem 1rem;
         text-align: left;
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -347,11 +538,11 @@
     }
 
     thead th:last-child {
-        text-align: right;
+        text-align: center;
     }
 
     tbody td {
-        padding: 0.6rem 1.5rem;
+        padding: 0.5rem 1rem;
         border-bottom: 1px solid #f1f5f9;
         color: #1e293b;
         vertical-align: middle;
@@ -365,6 +556,7 @@
         background: #f8fafc;
     }
 
+    /* Status Badges */
     .status-badge {
         padding: 2px 12px;
         border-radius: 100px;
@@ -373,25 +565,31 @@
         text-transform: uppercase;
         letter-spacing: 0.3px;
         display: inline-block;
+        white-space: nowrap;
     }
 
     .status-badge.PRESENT {
+        background: #dcfce7;
         color: #16a34a;
     }
 
     .status-badge.ABSENT {
+        background: #fee2e2;
         color: #dc2626;
     }
 
     .status-badge.PARTIAL {
+        background: #fef3c7;
         color: #d97706;
     }
 
     .status-badge.LATE {
+        background: #fef3c7;
         color: #d97706;
     }
 
     .status-badge.LEAVE {
+        background: #e0e7ff;
         color: #4f46e5;
     }
 
@@ -399,6 +597,7 @@
         color: #6366f1;
         text-decoration: none;
         font-weight: 500;
+        transition: color 0.2s;
     }
 
     .student-link:hover {
@@ -406,47 +605,58 @@
         color: #4f46e5;
     }
 
-    .retention-text {
-        font-weight: 600;
-    }
-
-    .retention-text.good {
-        color: #16a34a;
-    }
-
-    .retention-text.medium {
-        color: #d97706;
-    }
-
-    .retention-text.poor {
-        color: #dc2626;
-    }
-
     .subject-badge {
         display: inline-block;
         padding: 2px 10px;
         border-radius: 6px;
+        color: #4f46e5;
         font-weight: 500;
+        font-size: 0.75rem;
+        white-space: nowrap;
     }
 
     .sem-badge {
         display: inline-block;
+        padding: 2px 10px;
+        border-radius: 6px;
+        color: #d97706;
+        font-weight: 500;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+
+    .retention-text {
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .retention-text.good { color: #16a34a; }
+    .retention-text.medium { color: #d97706; }
+    .retention-text.poor { color: #dc2626; }
+
+    .validation-badge {
+        font-size: 0.7rem;
         font-weight: 500;
     }
 
-    /* Pagination */
+    .validation-badge.valid { color: #16a34a; }
+    .validation-badge.invalid { color: #dc2626; }
+
+    /* ============================================
+       PAGINATION
+    ============================================ */
     .pagination-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem 1.5rem;
+        padding: 0.75rem 1.25rem;
         border-top: 1px solid #f1f5f9;
         flex-wrap: wrap;
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
 
     .pagination-container .info {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: #64748b;
     }
 
@@ -456,23 +666,25 @@
 
     .pagination-controls {
         display: flex;
-        gap: 0.3rem;
+        gap: 0.25rem;
         align-items: center;
+        flex-wrap: wrap;
     }
 
     .pagination-controls a {
-        padding: 0.3rem 0.8rem;
+        padding: 0.25rem 0.7rem;
         border: 1px solid #e2e8f0;
         border-radius: 6px;
         background: #fff;
         color: #1e293b;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         cursor: pointer;
         transition: all 0.2s;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 4px;
+        min-height: 28px;
     }
 
     .pagination-controls a:hover:not(.active):not(.disabled) {
@@ -492,7 +704,9 @@
         pointer-events: none;
     }
 
-    /* Empty State */
+    /* ============================================
+       EMPTY STATE
+    ============================================ */
     .empty-state {
         text-align: center;
         padding: 3rem 0;
@@ -515,10 +729,11 @@
 
     .empty-state p {
         margin: 0;
+        font-size: 0.85rem;
     }
 
     /* ============================================
-       RESPONSIVE
+       RESPONSIVE BREAKPOINTS
     ============================================ */
     @media (max-width: 1200px) {
         .stats-row {
@@ -527,23 +742,13 @@
     }
 
     @media (max-width: 992px) {
-        .stats-row {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    @media (max-width: 768px) {
-        .page-container {
-            padding: 0.25rem;
-        }
-
-        .header-content {
-            flex-direction: column;
-            align-items: flex-start;
+        .page-header {
+            padding: 0.75rem 1rem;
+            border-radius: 16px 16px 0 0;
         }
 
         .header-content .header-left h1 {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
         }
 
         .header-actions {
@@ -555,26 +760,25 @@
             flex: 1;
             justify-content: center;
             font-size: 0.7rem;
-            padding: 0.4rem 0.8rem;
+            padding: 0.35rem 0.7rem;
         }
 
         .stats-row {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
         }
 
         .stat-item {
-            padding: 0.75rem 1rem;
+            padding: 0.5rem 0.75rem;
         }
 
         .stat-item .number {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
         }
 
-        .filter-section {
+        .filter-section form {
             flex-direction: column;
             align-items: stretch;
-            padding: 0.75rem 1rem;
         }
 
         .filter-section .filter-group {
@@ -583,20 +787,33 @@
             width: 100%;
         }
 
-        .filter-section select,
-        .filter-section input {
+        .filter-section select {
             width: 100%;
             min-width: unset;
         }
 
-        .filter-section .btn-filter,
-        .filter-section .btn-clear {
+        .filter-divider {
+            display: none;
+        }
+
+        .btn-filter,
+        .btn-clear {
             justify-content: center;
             width: 100%;
         }
 
-        .filter-divider {
-            display: none;
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        table {
+            font-size: 0.75rem;
+            min-width: 700px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.4rem 0.75rem;
         }
 
         .pagination-container {
@@ -606,51 +823,190 @@
         }
 
         .pagination-controls {
-            flex-wrap: wrap;
             justify-content: center;
-        }
-
-        table {
-            font-size: 0.75rem;
-        }
-
-        thead th,
-        tbody td {
-            padding: 0.4rem 0.75rem;
-        }
-
-        .table-card .table-header {
-            padding: 0.75rem 1rem;
         }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 0.6rem 0.8rem;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .header-content .header-left h1 {
+            font-size: 1.1rem;
+        }
+
+        .header-content .header-left p {
+            font-size: 0.7rem;
+        }
+
+        .header-actions .btn-report,
+        .header-actions .btn-export-csv {
+            font-size: 0.6rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 6px;
+        }
+
         .stats-row {
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.4rem;
         }
 
         .stat-item {
-            padding: 0.5rem 0.75rem;
+            padding: 0.4rem 0.6rem;
         }
 
         .stat-item .number {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
         }
 
         .stat-item .label {
             font-size: 0.55rem;
         }
 
+        .table-card .table-header {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .table-card .table-header h3 {
+            font-size: 0.8rem;
+        }
+
+        table {
+            font-size: 0.65rem;
+            min-width: 550px;
+        }
+
         thead th,
         tbody td {
             padding: 0.3rem 0.5rem;
-            font-size: 0.65rem;
         }
 
         .status-badge {
             font-size: 0.45rem;
             padding: 1px 8px;
+        }
+
+        .subject-badge,
+        .sem-badge {
+            font-size: 0.6rem;
+            padding: 1px 6px;
+        }
+
+        .pagination-container {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .pagination-controls a {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.5rem;
+            min-height: 24px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-header {
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .header-content .header-left h1 {
+            font-size: 0.95rem;
+        }
+
+        .header-content .header-left p {
+            font-size: 0.6rem;
+        }
+
+        .header-actions .btn-report,
+        .header-actions .btn-export-csv {
+            font-size: 0.55rem;
+            padding: 0.25rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.3rem;
+        }
+
+        .stat-item {
+            padding: 0.3rem 0.4rem;
+        }
+
+        .stat-item .number {
+            font-size: 1rem;
+        }
+
+        .stat-item .label {
+            font-size: 0.5rem;
+        }
+
+        .filter-section {
+            padding: 0.5rem 0.6rem;
+        }
+
+        .filter-section select {
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+        }
+
+        table {
+            font-size: 0.55rem;
+            min-width: 450px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.25rem 0.4rem;
+        }
+
+        .student-link {
+            font-size: 0.55rem;
+        }
+
+        .retention-text {
+            font-size: 0.65rem;
+        }
+
+        .validation-badge {
+            font-size: 0.55rem;
+        }
+
+        .pagination-container .info {
+            font-size: 0.6rem;
+        }
+
+        .pagination-controls a {
+            font-size: 0.55rem;
+            padding: 0.1rem 0.4rem;
+            min-height: 20px;
+        }
+
+        .table-card .table-header .count {
+            font-size: 0.55rem;
+            padding: 1px 8px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .header-content .header-left h1 {
+            font-size: 0.8rem;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.2rem;
+        }
+
+        .stat-item .number {
+            font-size: 0.85rem;
+        }
+
+        table {
+            font-size: 0.5rem;
+            min-width: 380px;
         }
     }
 
@@ -658,10 +1014,12 @@
        PRINT STYLES
     ============================================ */
     @media print {
-
-        .page-header .header-actions,
-        .filter-section .btn-filter,
-        .filter-section .btn-clear {
+        .header-actions,
+        .filter-section,
+        .btn-filter,
+        .btn-clear,
+        .breadcrumb-toggle,
+        .pagination-container {
             display: none !important;
         }
 
@@ -670,11 +1028,35 @@
             border-radius: 0 !important;
         }
 
+        .header-content .header-left h1 {
+            color: #ffffff !important;
+        }
+
+        .header-content .header-left p {
+            color: #94a3b8 !important;
+        }
+
+        .breadcrumb-header {
+            color: #94a3b8 !important;
+        }
+
+        .breadcrumb-header a {
+            color: #94a3b8 !important;
+        }
+
+        .breadcrumb-header .current {
+            color: #ffffff !important;
+            background: transparent !important;
+        }
+
         .stat-item,
-        .table-card,
-        .filter-section {
+        .table-card {
             border: 1px solid #e2e8f0 !important;
             box-shadow: none !important;
+        }
+
+        .stat-item .number {
+            font-size: 1.2rem !important;
         }
 
         .status-badge {
@@ -682,21 +1064,51 @@
             print-color-adjust: exact !important;
         }
 
-        .pagination-container {
-            display: none !important;
+        thead {
+            background: #f1f5f9 !important;
+        }
+
+        thead th {
+            color: #0f172a !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+
+        tbody td {
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+
+        tbody tr:hover td {
+            background: transparent !important;
         }
     }
 </style>
 
 <div class="page-container">
     <!-- ============================================
-    PAGE HEADER
+    PAGE HEADER WITH RESPONSIVE BREADCRUMB
     ============================================ -->
     <div class="page-header">
-        <div class="breadcrumb-header">
-            <a href="{% url 'dashboard_home' %}">Dashboard</a>
+        <div class="breadcrumb-header" id="breadcrumbContainer">
+            <!-- Desktop: Full breadcrumb -->
+            <a href="{% url 'dashboard_home' %}"><i class="fas fa-home"></i> Dashboard</a>
             <span class="separator">/</span>
-            <span class="current">Attendance Records</span>
+            <span class="current"><i class="fas fa-clipboard-list"></i> Attendance Records</span>
+
+            <!-- Mobile: Toggle button - Always visible on mobile -->
+            <button class="breadcrumb-toggle" id="breadcrumbToggle" aria-label="Show navigation">
+                <i class="fas fa-chevron-down"></i>
+                <span>Menu</span>
+            </button>
+
+            <!-- Dropdown for mobile -->
+            <div class="breadcrumb-dropdown" id="breadcrumbDropdown">
+                <a href="{% url 'dashboard_home' %}">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a class="dropdown-current">
+                    <i class="fas fa-clipboard-list"></i> Attendance Records
+                </a>
+            </div>
         </div>
 
         <div class="header-content">
@@ -705,11 +1117,10 @@
                 <p>View all student attendance logs with subject and semester filtering</p>
             </div>
             <div class="header-actions">
-                <a href="{% url 'attendance:attendance_report' %}" class="btn-report" title="View Attendance Report">
+                <a href="{% url 'attendance:attendance_report' %}?date_range=all" class="btn-report" title="View Attendance Report">
                     <i class="fas fa-chart-bar"></i> View Report
                 </a>
-                <a href="{% url 'attendance:attendance_report' %}?export=csv" class="btn-export-csv"
-                    title="Export as CSV">
+                <a href="{% url 'attendance:attendance_report' %}?export=csv&date_range=all" class="btn-export-csv" title="Export as CSV">
                     <i class="fas fa-file-export"></i> Export CSV
                 </a>
             </div>
@@ -743,10 +1154,10 @@
     </div>
 
     <!-- ============================================
-FILTER SECTION
-============================================ -->
+    FILTER SECTION
+    ============================================ -->
     <div class="filter-section">
-        <form method="GET" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; width: 100%;">
+        <form method="GET">
             <!-- Year filter -->
             <div class="filter-group">
                 <select name="year">
@@ -759,7 +1170,7 @@ FILTER SECTION
                 </select>
             </div>
 
-            <!-- Semester filter (based on year) -->
+            <!-- Semester filter -->
             <div class="filter-group">
                 <select name="semester">
                     <option value="">All Semesters</option>
@@ -870,8 +1281,7 @@ FILTER SECTION
                     {% for log in logs %}
                     <tr>
                         <td>
-                            <a href="{% url 'attendance:student_attendance_record' log.student.id %}"
-                                class="student-link">
+                            <a href="{% url 'attendance:student_attendance_record' log.student.id %}" class="student-link">
                                 {{ log.student.full_name }}
                             </a>
                         </td>
@@ -894,7 +1304,7 @@ FILTER SECTION
                         <td>
                             {% with retention=log.retention_percentage|floatformat:0 %}
                             <span class="retention-text 
-                                {% if retention|add:" 0" >= 80 %}good
+                                {% if retention|add:"0" >= 80 %}good
                                 {% elif retention|add:"0" >= 50 %}medium
                                 {% else %}poor{% endif %}">
                                 {{ retention }}%
@@ -903,11 +1313,11 @@ FILTER SECTION
                         </td>
                         <td>
                             {% if log.is_validated %}
-                            <span style="color: #16a34a; font-size: 0.75rem;">
+                            <span class="validation-badge valid">
                                 <i class="fas fa-check-circle"></i> Yes
                             </span>
                             {% else %}
-                            <span style="color: #dc2626; font-size: 0.75rem;">
+                            <span class="validation-badge invalid">
                                 <i class="fas fa-times-circle"></i> No
                             </span>
                             {% endif %}
@@ -915,7 +1325,7 @@ FILTER SECTION
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8">
+                        <td colspan="9">
                             <div class="empty-state">
                                 <i class="fas fa-inbox"></i>
                                 <h3>No Attendance Records</h3>
@@ -939,8 +1349,7 @@ FILTER SECTION
             </div>
             <div class="pagination-controls">
                 {% if logs.has_previous %}
-                <a
-                    href="?page={{ logs.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                <a href="?page={{ logs.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
                     <i class="fas fa-chevron-left"></i>
                 </a>
                 {% else %}
@@ -950,36 +1359,77 @@ FILTER SECTION
                 {% for num in logs.paginator.page_range %}
                 {% if num == logs.number %}
                 <a class="active">{{ num }}</a>
-                {% elif num > logs.number|add:'-3' and num < logs.number|add:'3' %} <a
-                    href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                    {{ num }}</a>
-                    {% endif %}
-                    {% endfor %}
+                {% elif num > logs.number|add:'-3' and num < logs.number|add:'3' %}
+                <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    {{ num }}
+                </a>
+                {% endif %}
+                {% endfor %}
 
-                    {% if logs.has_next %}
-                    <a
-                        href="?page={{ logs.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                    {% else %}
-                    <a class="disabled"><i class="fas fa-chevron-right"></i></a>
-                    {% endif %}
+                {% if logs.has_next %}
+                <a href="?page={{ logs.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% else %}
+                <a class="disabled"><i class="fas fa-chevron-right"></i></a>
+                {% endif %}
             </div>
         </div>
         {% endif %}
     </div>
 </div>
 
-{% endblock %}
-// Add this to the bottom of your attendance_records.html
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const yearSelect = document.querySelector('select[name="year"]');
-        const semesterSelect = document.querySelector('select[name="semester"]');
+document.addEventListener('DOMContentLoaded', function() {
+    // ============================================
+    // BREADCRUMB TOGGLE FOR MOBILE
+    // ============================================
+    const toggleBtn = document.getElementById('breadcrumbToggle');
+    const dropdown = document.getElementById('breadcrumbDropdown');
 
-        // Store all semesters by year from Django context
-        const semestersByYear = {{ semesters_by_year|safe }};
+    if (toggleBtn && dropdown) {
+        toggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+            const icon = this.querySelector('i');
+            if (dropdown.classList.contains('show')) {
+                icon.className = 'fas fa-chevron-up';
+            } else {
+                icon.className = 'fas fa-chevron-down';
+            }
+        });
 
+        document.addEventListener('click', function(e) {
+            if (!toggleBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+                const icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-chevron-down';
+                }
+            }
+        });
+
+        dropdown.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                dropdown.classList.remove('show');
+                const icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-chevron-down';
+                }
+            });
+        });
+    }
+
+    // ============================================
+    // DYNAMIC SEMESTER FILTERING
+    // ============================================
+    const yearSelect = document.querySelector('select[name="year"]');
+    const semesterSelect = document.querySelector('select[name="semester"]');
+
+    // Store all semesters by year from Django context
+    const semestersByYear = {{ semesters_by_year|safe }};
+
+    if (yearSelect && semesterSelect) {
         yearSelect.addEventListener('change', function() {
             const selectedYear = this.value;
             const semesters = semestersByYear[selectedYear] || [];
@@ -995,5 +1445,16 @@ FILTER SECTION
                 semesterSelect.appendChild(option);
             });
         });
+    }
+
+    // ============================================
+    // AUTO-SUBMIT ON FILTER CHANGE
+    // ============================================
+    document.querySelectorAll('.filter-section select').forEach(function(el) {
+        el.addEventListener('change', function() {
+            this.closest('form').submit();
+        });
     });
+});
 </script>
+{% endblock %}
