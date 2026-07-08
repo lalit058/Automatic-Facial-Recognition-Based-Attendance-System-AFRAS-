@@ -428,7 +428,7 @@ def check_session_status(session):
 
 
 def session_summary(request, session_id):
-    """Show session summary after ending"""
+    """Show session summary after ending - FIXED for section validation"""
     session = get_object_or_404(AttendanceSession, id=session_id)
     
     # Auto-stop if session has ended
@@ -437,27 +437,85 @@ def session_summary(request, session_id):
         session.save()
         print(f"⏰ Auto-stopped session in summary: {session.subject_name}")
     
-    # Get all enrolled students for this session
+    # ============================================================
+    # STEP 1: Get all enrolled students for this session
+    # ============================================================
     enrolled_students = session.get_enrolled_students()
+    enrolled_student_ids = set(enrolled_students.values_list('id', flat=True))
     
-    # Get attendance logs
+    # ============================================================
+    # STEP 2: Get all attendance logs for this session
+    # ============================================================
     logs = AttendanceLog.objects.filter(session=session).select_related('student')
     
-    # Prepare attendance summary with three statuses
+    # ============================================================
+    # STEP 3: Build a map of student_id -> log
+    # ============================================================
+    log_map = {}
+    for log in logs:
+        log_map[log.student_id] = log
+    
+    # ============================================================
+    # STEP 4: Build attendance summary with validation
+    # ============================================================
     attendance_summary = []
     valid_count = 0
     not_seen_count = 0
     invalid_count = 0
     
-    # Get student IDs with logs
-    student_ids_with_logs = set(logs.values_list('student_id', flat=True))
-    enrolled_student_ids = set(enrolled_students.values_list('id', flat=True))
-    
     for student in enrolled_students:
-        log = logs.filter(student=student).first()
+        log = log_map.get(student.id)
+        
         if log:
-            # Student has a log - check if validated
-            if log.is_validated:
+            # Check if student is valid for this session
+            is_valid = True
+            validation_errors = []
+            
+            # Check Section
+            if session.section and student.section:
+                if student.section != session.section:
+                    is_valid = False
+                    validation_errors.append(f"Section {student.section} (expected {session.section})")
+                    log.is_validated = False
+                    log.validation_error = f"Student from Section {student.section} attempted to attend Section {session.section}"
+                    log.save(update_fields=['is_validated', 'validation_error'])
+            
+            # Check Semester
+            if session.semester and student.semester:
+                if student.semester != session.semester:
+                    is_valid = False
+                    validation_errors.append(f"Semester {student.semester} (expected {session.semester})")
+                    log.is_validated = False
+                    log.validation_error = f"Student from Semester {student.semester} attempted to attend Semester {session.semester}"
+                    log.save(update_fields=['is_validated', 'validation_error'])
+            
+            # Check Year
+            if session.year and student.year:
+                if student.year != session.year:
+                    is_valid = False
+                    validation_errors.append(f"Year {student.year} (expected {session.year})")
+                    log.is_validated = False
+                    log.validation_error = f"Student from Year {student.year} attempted to attend Year {session.year}"
+                    log.save(update_fields=['is_validated', 'validation_error'])
+            
+            # Check Department
+            if session.department and student.department:
+                if student.department != session.department:
+                    is_valid = False
+                    validation_errors.append(f"Department {student.department} (expected {session.department})")
+                    log.is_validated = False
+                    log.validation_error = f"Student from {student.department} attempted to attend {session.department}"
+                    log.save(update_fields=['is_validated', 'validation_error'])
+            
+            # Also check if log itself says it's invalid
+            if hasattr(log, 'is_validated') and not log.is_validated:
+                is_valid = False
+            
+            # Also check if the log has a validation error
+            if hasattr(log, 'validation_error') and log.validation_error:
+                is_valid = False
+            
+            if is_valid and student.id in enrolled_student_ids:
                 # Valid - enrolled and detected
                 attendance_summary.append({
                     'student': student,
@@ -465,16 +523,19 @@ def session_summary(request, session_id):
                     'confidence': log.confidence,
                     'retention': log.retention_percentage,
                     'log': log,
+                    'error': None,
                 })
                 valid_count += 1
             else:
-                # Invalid - attempted but not enrolled in this semester
+                # Invalid - attempted but not properly enrolled
+                error_msg = ', '.join(validation_errors) if validation_errors else (log.validation_error if hasattr(log, 'validation_error') and log.validation_error else 'Not enrolled in this section')
                 attendance_summary.append({
                     'student': student,
                     'status': 'invalid',
                     'confidence': 0,
                     'retention': 0,
                     'log': log,
+                    'error': error_msg,
                 })
                 invalid_count += 1
         else:
@@ -485,16 +546,35 @@ def session_summary(request, session_id):
                 'confidence': 0,
                 'retention': 0,
                 'log': None,
+                'error': None,
             })
             not_seen_count += 1
     
-    # Calculate statistics
+    # ============================================================
+    # STEP 5: Calculate statistics
+    # ============================================================
     total_students = enrolled_students.count()
-    present_count = logs.filter(status='PRESENT').count()
-    absent_count = logs.filter(status='ABSENT').count()
-    leave_count = logs.filter(status='LEAVE').count()
-    late_count = logs.filter(status='LATE').count()
-    partial_count = logs.filter(status='PARTIAL').count()
+    
+    # Count present (only validated logs)
+    present_count = 0
+    absent_count = 0
+    leave_count = 0
+    late_count = 0
+    partial_count = 0
+    
+    for log in logs:
+        if hasattr(log, 'is_validated') and not log.is_validated:
+            continue  # Skip invalid logs
+        if log.status == 'PRESENT':
+            present_count += 1
+        elif log.status == 'ABSENT':
+            absent_count += 1
+        elif log.status == 'LEAVE':
+            leave_count += 1
+        elif log.status == 'LATE':
+            late_count += 1
+        elif log.status == 'PARTIAL':
+            partial_count += 1
     
     # Calculate average retention (only for valid students)
     total_retention = 0
@@ -507,6 +587,9 @@ def session_summary(request, session_id):
     # Calculate attendance rate (only valid students are considered present)
     attendance_rate = (valid_count / total_students * 100) if total_students > 0 else 0
     
+    # ============================================================
+    # STEP 6: Prepare context
+    # ============================================================
     context = {
         'session': session,
         'logs': logs,
@@ -533,22 +616,20 @@ def session_summary(request, session_id):
 
 @require_GET
 def get_logs(request, session_id):
-    """API endpoint to get attendance logs"""
+    """API endpoint to get attendance logs with validation status"""
     try:
         session = get_object_or_404(AttendanceSession, id=session_id)
         logs = AttendanceLog.objects.filter(session=session).select_related('student')
         
-        # Debug logging
-        print(f"🔍 get_logs: Session {session_id}, Found {logs.count()} logs")
-        for log in logs:
-            print(f"   - {log.student.full_name}: {log.status} (Confidence: {log.confidence}, Detection: {log.detection_count})")
-        
         data = []
         for log in logs:
+            # Check if student is validated
+            is_unauthorized = not log.is_validated if hasattr(log, 'is_validated') else False
+            
             log_entry = {
                 'id': log.id,
                 'name': log.student.full_name if log.student else 'Unknown',
-                'status': log.status,  # This should be 'PRESENT'
+                'status': log.status,
                 'retention': int(log.retention_percentage),
                 'confidence': int(log.confidence) if log.confidence else 0,
                 'time': get_local_time(log.first_seen).strftime('%H:%M:%S') if log.first_seen else None,
@@ -556,11 +637,15 @@ def get_logs(request, session_id):
                 'total_time': f"{log.presence_duration_minutes:.1f} min",
                 'detections': log.detection_count,
                 'out_of_frame': log.out_of_frame_count,
+                'is_validated': log.is_validated if hasattr(log, 'is_validated') else True,
+                'validation_error': log.validation_error if hasattr(log, 'validation_error') else None,
+                'is_unauthorized': is_unauthorized,
+                'student_semester': log.student_semester if hasattr(log, 'student_semester') else None,
+                'session_semester': log.session_semester if hasattr(log, 'session_semester') else None,
             }
             data.append(log_entry)
         
         response = JsonResponse({'logs': data})
-        # Prevent caching
         response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response['Pragma'] = 'no-cache'
         response['Expires'] = '0'
@@ -1411,15 +1496,21 @@ def get_student_status(request, session_id):
     Used by mark_attendance.html for real-time updates
     """
     session = get_object_or_404(AttendanceSession, id=session_id)
+    
+    # Get all enrolled students for this session
+    enrolled_students = session.get_enrolled_students()
     logs = AttendanceLog.objects.filter(session=session).select_related('student')
     
     students_data = []
+    
+    # Get all students with logs
     for log in logs:
+        is_unauthorized = not log.is_validated if hasattr(log, 'is_validated') else False
         students_data.append({
             'id': log.student.id,
             'full_name': log.student.full_name,
             'roll_number': log.student.roll_number,
-            'status': log.status,
+            'status': 'UNAUTHORIZED' if is_unauthorized else log.status,
             'confidence': int(log.confidence) if log.confidence else 0,
             'first_seen': get_local_time(log.first_seen).strftime('%I:%M %p') if log.first_seen else None,
             'last_seen': get_local_time(log.last_seen).strftime('%I:%M %p') if log.last_seen else None,
@@ -1427,11 +1518,40 @@ def get_student_status(request, session_id):
             'retention': int(log.retention_percentage),
             'attended_minutes': log.attended_minutes,
             'minute_presence': log.minute_presence,
+            'is_validated': log.is_validated if hasattr(log, 'is_validated') else True,
+            'validation_error': log.validation_error if hasattr(log, 'validation_error') else None,
+            'is_unauthorized': is_unauthorized,
+        })
+    
+    # Add absent students (enrolled but no log)
+    enrolled_ids = set(enrolled_students.values_list('id', flat=True))
+    log_student_ids = set(logs.values_list('student_id', flat=True))
+    absent_student_ids = enrolled_ids - log_student_ids
+    
+    for student in Student.objects.filter(id__in=absent_student_ids):
+        students_data.append({
+            'id': student.id,
+            'full_name': student.full_name,
+            'roll_number': student.roll_number,
+            'status': 'ABSENT',
+            'confidence': 0,
+            'first_seen': None,
+            'last_seen': None,
+            'detection_count': 0,
+            'retention': 0,
+            'attended_minutes': 0,
+            'minute_presence': [],
+            'is_validated': True,
+            'validation_error': None,
+            'is_unauthorized': False,
         })
     
     return JsonResponse({
         'students': students_data,
-        'total': len(students_data)
+        'total': len(students_data),
+        'present': len([s for s in students_data if s['status'] == 'PRESENT']),
+        'absent': len([s for s in students_data if s['status'] == 'ABSENT']),
+        'unauthorized': len([s for s in students_data if s['status'] == 'UNAUTHORIZED']),
     })
 
 
@@ -1790,7 +1910,7 @@ def attendance_records(request):
 def weekly_attendance_report(request):
     """
     Attendance report showing registered students for selected subject/session
-    Shows all students registered for the subject, even without logs
+    Shows students based on the actual session data (Year, Semester, Section)
     """
     # Get filter parameters
     year_filter = request.GET.get('year', '')
@@ -1848,44 +1968,61 @@ def weekly_attendance_report(request):
         current += timedelta(days=1)
     
     # ============================================================
-    # GET STUDENTS - Based on Subject/Semester/Year
+    # GET STUDENTS - Based on filters
     # ============================================================
     students = Student.objects.all().order_by('full_name')
     
-    # Apply filters
+    # Apply year/semester filters if provided directly
     if semester_filter:
         students = students.filter(semester=semester_filter)
     if year_filter:
         students = students.filter(year=year_filter)
     
-    # Subject filter - Get ALL students registered for this subject
+    # ============================================================
+    # SUBJECT FILTER - Get students from the subject's sessions
+    # ============================================================
     if subject_filter:
         # Get all sessions for this subject
         subject_sessions = AttendanceSession.objects.filter(
             subject_name__iexact=subject_filter
-        )
+        ).order_by('-date', '-start_time')
         
-        # Get all students who are enrolled in any session of this subject
-        enrolled_student_ids = set()
-        for session in subject_sessions:
-            for student in session.get_enrolled_students():
-                enrolled_student_ids.add(student.id)
-        
-        # If no sessions found, get students from the semester/year
-        if not enrolled_student_ids and semester_filter:
-            students = students.filter(semester=semester_filter)
-            if year_filter:
-                students = students.filter(year=year_filter)
+        if subject_sessions.exists():
+            # Get the session details (use the most recent session or first)
+            # We'll use the session's semester, year, department, section
+            session = subject_sessions.first()
+            
+            # Build filter from session data
+            session_filters = {}
+            if session.semester:
+                session_filters['semester'] = session.semester
+            if session.year:
+                session_filters['year'] = session.year
+            if session.department:
+                session_filters['department'] = session.department
+            if session.section:
+                session_filters['section'] = session.section
+            
+            # Apply these filters to students
+            if session_filters:
+                # If we have session filters, use them
+                students = Student.objects.filter(**session_filters).order_by('full_name')
+            else:
+                # Fallback: get students from enrolled students of all sessions
+                enrolled_student_ids = set()
+                for s in subject_sessions:
+                    for student in s.get_enrolled_students():
+                        enrolled_student_ids.add(student.id)
+                if enrolled_student_ids:
+                    students = Student.objects.filter(id__in=enrolled_student_ids).order_by('full_name')
         else:
-            students = students.filter(id__in=enrolled_student_ids)
-        
-        # If still no students, show all from semester/year
-        if not students.exists() and semester_filter:
-            students = Student.objects.filter(semester=semester_filter)
-            if year_filter:
-                students = students.filter(year=year_filter)
+            # No sessions found, use semester/year filters or return empty
+            if not semester_filter and not year_filter:
+                students = Student.objects.none()
     
-    # Get all sessions in date range for this subject
+    # ============================================================
+    # GET ALL SESSIONS IN DATE RANGE
+    # ============================================================
     all_sessions = AttendanceSession.objects.filter(
         date__gte=start_date,
         date__lte=end_date
@@ -1893,18 +2030,6 @@ def weekly_attendance_report(request):
     
     if subject_filter:
         all_sessions = all_sessions.filter(subject_name__iexact=subject_filter)
-    
-    # ============================================================
-    # BUILD SESSION LOOKUP - Check which students have sessions on which dates
-    # ============================================================
-    session_lookup = {}
-    for session in all_sessions:
-        key = (session.date, session.semester, session.year, session.department, session.section)
-        if key not in session_lookup:
-            session_lookup[key] = {
-                'subject': session.subject_name,
-                'session_id': session.id
-            }
     
     # ============================================================
     # FETCH ATTENDANCE LOGS
@@ -1954,8 +2079,6 @@ def weekly_attendance_report(request):
             date_str = date_obj.strftime('%Y-%m-%d')
             
             # Check if this student has a session on this date
-            # A student has a session if they are enrolled in the semester/year/department/section
-            # that has a session on this date
             has_session = False
             for session in all_sessions.filter(date=date_obj):
                 if session.is_student_enrolled(student.id):
@@ -1966,15 +2089,11 @@ def weekly_attendance_report(request):
             key = (student.id, date_obj)
             log_status = log_map.get(key)
             
-            if log_status:
-                if log_status in ['PRESENT', 'PARTIAL']:
-                    status = 'PRESENT'
-                    summary_stats['present_counts'][date_str] += 1
-                    summary_stats['total_present'] += 1
-                else:
-                    status = 'ABSENT'
-                    summary_stats['absent_counts'][date_str] += 1
-                    summary_stats['total_absent'] += 1
+            # Determine status
+            if log_status in ['PRESENT', 'PARTIAL']:
+                status = 'PRESENT'
+                summary_stats['present_counts'][date_str] += 1
+                summary_stats['total_present'] += 1
             elif has_session:
                 # Student has a session but no log = ABSENT
                 status = 'ABSENT'
@@ -2170,14 +2289,24 @@ def scheduler_status(request):
     """API endpoint to check scheduler status"""
     try:
         from attendance.scheduler import get_scheduler
+        
         scheduler = get_scheduler()
+        # Force a check to ensure status is updated
+        running = scheduler.running if scheduler else False
+        
         return JsonResponse({
-            'running': scheduler.running,
-            'interval': scheduler.interval,
-            'status': 'active' if scheduler.running else 'inactive'
+            'running': running,
+            'interval': scheduler.interval if scheduler else 30,
+            'status': 'active' if running else 'inactive'
         })
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        print(f"❌ Scheduler status error: {e}")
+        return JsonResponse({
+            'running': False,
+            'interval': 30,
+            'status': 'inactive',
+            'error': str(e)
+        }, status=500)
 
 
 @login_required

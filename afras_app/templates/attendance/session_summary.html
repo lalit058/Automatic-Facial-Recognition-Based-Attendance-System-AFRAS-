@@ -241,7 +241,7 @@
     }
 
     /* ============================================
-       CONFIDENCE BADGE - NEW
+       CONFIDENCE BADGE
     ============================================ */
     .confidence-badge {
         display: inline-flex;
@@ -283,7 +283,7 @@
     }
 
     /* ============================================
-       THREE STATUS BADGES
+       THREE STATUS BADGES - PRESENT, NOT SEEN, NOT ENROLLED
     ============================================ */
     .status-badge-summary {
         padding: 3px 12px;
@@ -298,13 +298,13 @@
         white-space: nowrap;
     }
 
-    .status-badge-summary.valid {
+    .status-badge-summary.present {
         background: #dcfce7;
         color: #16a34a;
         border: 1px solid #86efac;
     }
 
-    .status-badge-summary.valid i {
+    .status-badge-summary.present i {
         color: #16a34a;
     }
 
@@ -318,33 +318,13 @@
         color: #d97706;
     }
 
-    .status-badge-summary.present {
-        background: #dcfce7;
-        color: #16a34a;
-        border: 1px solid #86efac;
-    }
-
-    .status-badge-summary.present i {
-        color: #16a34a;
-    }
-
-    .status-badge-summary.partial {
-        background: #fef3c7;
-        color: #d97706;
-        border: 1px solid #fcd34d;
-    }
-
-    .status-badge-summary.partial i {
-        color: #d97706;
-    }
-
-    .status-badge-summary.absent {
-        background: #fee2e2;
+    .status-badge-summary.not-enrolled {
+        background: #fef2f2;
         color: #dc2626;
         border: 1px solid #fca5a5;
     }
 
-    .status-badge-summary.absent i {
+    .status-badge-summary.not-enrolled i {
         color: #dc2626;
     }
 
@@ -389,11 +369,30 @@
         flex-shrink: 0;
     }
 
-    .stat-item .icon.blue { background: #eef2ff; color: #4f46e5; }
-    .stat-item .icon.green { background: #dcfce7; color: #16a34a; }
-    .stat-item .icon.orange { background: #fef3c7; color: #d97706; }
-    .stat-item .icon.purple { background: #f3e8ff; color: #7c3aed; }
-    .stat-item .icon.pink { background: #fce7f3; color: #db2777; }
+    .stat-item .icon.blue {
+        background: #eef2ff;
+        color: #4f46e5;
+    }
+
+    .stat-item .icon.green {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .stat-item .icon.orange {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .stat-item .icon.red {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .stat-item .icon.purple {
+        background: #f3e8ff;
+        color: #7c3aed;
+    }
 
     .stat-item .info {
         min-width: 0;
@@ -575,7 +574,7 @@
         flex-shrink: 0;
     }
 
-    .student-cell .avatar.valid-avatar {
+    .student-cell .avatar.present-avatar {
         background: #dcfce7;
         color: #16a34a;
     }
@@ -585,9 +584,9 @@
         color: #d97706;
     }
 
-    .student-cell .avatar.present-avatar {
-        background: #dcfce7;
-        color: #16a34a;
+    .student-cell .avatar.not-enrolled-avatar {
+        background: #fee2e2;
+        color: #dc2626;
     }
 
     .student-cell .student-info {
@@ -633,9 +632,17 @@
         transition: width 0.6s;
     }
 
-    .conf-bar .track .fill.high { background: #16a34a; }
-    .conf-bar .track .fill.medium { background: #d97706; }
-    .conf-bar .track .fill.low { background: #dc2626; }
+    .conf-bar .track .fill.high {
+        background: #16a34a;
+    }
+
+    .conf-bar .track .fill.medium {
+        background: #d97706;
+    }
+
+    .conf-bar .track .fill.low {
+        background: #dc2626;
+    }
 
     .conf-bar .percent {
         font-size: 0.65rem;
@@ -652,9 +659,17 @@
         white-space: nowrap;
     }
 
-    .retention-value .good { color: #16a34a; }
-    .retention-value .average { color: #d97706; }
-    .retention-value .poor { color: #dc2626; }
+    .retention-value .good {
+        color: #16a34a;
+    }
+
+    .retention-value .average {
+        color: #d97706;
+    }
+
+    .retention-value .poor {
+        color: #dc2626;
+    }
 
     .empty-state {
         text-align: center;
@@ -676,6 +691,15 @@
     .empty-state .sub {
         font-size: 0.75rem;
         color: #cbd5e1;
+    }
+
+    .error-text {
+        font-size: 0.55rem;
+        color: #94a3b8;
+        margin-top: 2px;
+        max-width: 150px;
+        word-wrap: break-word;
+        line-height: 1.3;
     }
 
     /* ============================================
@@ -715,7 +739,6 @@
        FULLY RESPONSIVE BREAKPOINTS
     ============================================ */
 
-    /* Laptops */
     @media (max-width: 1200px) {
         .stats-row {
             grid-template-columns: repeat(3, 1fr);
@@ -725,29 +748,23 @@
         }
     }
 
-    /* Tablets & Small Laptops */
     @media (max-width: 992px) {
-        
         .page-header {
             padding: 0.75rem 1rem;
             border-radius: 16px 16px 0 0;
             flex-direction: column;
             align-items: flex-start;
         }
-        
         .page-header .header-left h1 {
             font-size: 1.3rem;
         }
-        
         .page-header .header-left p {
             font-size: 0.75rem;
         }
-        
         .page-header .header-actions {
             width: 100%;
             gap: 0.4rem;
         }
-        
         .page-header .header-actions .btn-primary,
         .page-header .header-actions .btn-outline,
         .page-header .header-actions .btn-details {
@@ -756,81 +773,64 @@
             font-size: 0.7rem;
             padding: 0.35rem 0.7rem;
         }
-        
         .stats-row {
             grid-template-columns: repeat(3, 1fr);
             gap: 0.5rem;
         }
-        
         .stat-item {
             padding: 0.6rem 0.75rem;
         }
-        
         .stat-item .info .value {
             font-size: 1.1rem;
         }
-        
         .stat-item .icon {
             width: 32px;
             height: 32px;
             font-size: 0.9rem;
         }
-        
         .session-info {
             gap: 0.4rem 1rem;
             padding: 0.5rem 0.75rem;
         }
-        
         .session-info .item {
             min-width: 60px;
         }
-        
         .session-info .item .value {
             font-size: 0.7rem;
         }
-        
         table {
             font-size: 0.7rem;
             min-width: 550px;
         }
-        
         thead th,
         tbody td {
             padding: 0.35rem 0.75rem;
         }
-        
         .student-cell .name {
             max-width: 80px;
             font-size: 0.7rem;
         }
-        
         .conf-bar .track {
             width: 50px;
         }
     }
 
-    /* Mobile Large */
     @media (max-width: 768px) {
-        
         .page-header {
             padding: 0.5rem 0.75rem;
             border-radius: 12px 12px 0 0;
         }
-        
         .page-header .header-left h1 {
             font-size: 1.1rem;
         }
-        
         .page-header .header-left p {
             font-size: 0.65rem;
             gap: 2px 4px;
         }
-        
         .page-header .header-left .breadcrumb {
             font-size: 0.55rem;
             gap: 4px;
         }
-        
         .page-header .header-actions .btn-primary,
         .page-header .header-actions .btn-outline,
         .page-header .header-actions .btn-details {
@@ -839,119 +839,94 @@
             border-radius: 8px;
             gap: 4px;
         }
-        
         .stats-row {
             grid-template-columns: repeat(2, 1fr);
             gap: 0.4rem;
         }
-        
         .stat-item {
             padding: 0.5rem 0.6rem;
             border-radius: 10px;
         }
-        
         .stat-item .info .value {
             font-size: 1rem;
         }
-        
         .stat-item .icon {
             width: 28px;
             height: 28px;
             font-size: 0.75rem;
             border-radius: 8px;
         }
-        
         .stat-item .info .label {
             font-size: 0.55rem;
         }
-        
         .session-info {
             gap: 0.3rem 0.75rem;
             padding: 0.4rem 0.6rem;
             border-radius: 10px;
         }
-        
         .session-info .item {
             min-width: 50px;
         }
-        
         .session-info .item .label {
             font-size: 0.5rem;
         }
-        
         .session-info .item .value {
             font-size: 0.65rem;
         }
-        
         .table-card {
             border-radius: 10px;
         }
-        
         .table-card .table-header {
             padding: 0.4rem 0.6rem;
         }
-        
         .table-card .table-header h3 {
             font-size: 0.75rem;
         }
-        
         .table-card .table-header .count {
             font-size: 0.55rem;
             padding: 1px 8px;
         }
-        
         table {
             font-size: 0.6rem;
             min-width: 450px;
         }
-        
         thead th {
             font-size: 0.5rem;
             padding: 0.25rem 0.5rem;
         }
-        
         tbody td {
             padding: 0.25rem 0.5rem;
         }
-        
         .student-cell .avatar {
             width: 22px;
             height: 22px;
             font-size: 0.5rem;
         }
-        
         .student-cell .name {
             font-size: 0.65rem;
             max-width: 70px;
         }
-        
         .student-cell .roll {
             font-size: 0.5rem;
         }
-        
         .status-badge-summary {
             font-size: 0.45rem;
             padding: 2px 8px;
         }
-        
         .confidence-badge {
             font-size: 0.45rem;
             padding: 1px 8px;
         }
-        
         .conf-bar .track {
             width: 40px;
         }
-        
         .conf-bar .percent {
             font-size: 0.55rem;
             min-width: 24px;
         }
-        
         .retention-value {
             font-size: 0.65rem;
         }
-        
         .dept-badge,
         .sem-badge,
         .year-badge,
@@ -959,60 +934,51 @@
             font-size: 0.5rem;
             padding: 1px 8px;
         }
-        
         .legend {
             gap: 0.5rem;
             padding: 0.4rem 0.6rem;
             border-radius: 10px;
         }
-        
         .legend-item .text {
             font-size: 0.6rem;
         }
-        
         .empty-state {
             padding: 1.5rem 0;
         }
-        
         .empty-state i {
             font-size: 1.8rem;
         }
-        
         .empty-state p {
             font-size: 0.75rem;
         }
-        
         .empty-state .sub {
             font-size: 0.6rem;
         }
-        
         .status-badge {
             font-size: 0.55rem;
             padding: 1px 10px;
         }
+        .error-text {
+            font-size: 0.5rem;
+            max-width: 100px;
+        }
     }
 
-    /* Mobile Small */
     @media (max-width: 480px) {
-        
         .page-header {
             padding: 0.4rem 0.5rem;
             border-radius: 8px 8px 0 0;
         }
-        
         .page-header .header-left h1 {
             font-size: 0.95rem;
         }
-        
         .page-header .header-left p {
             font-size: 0.55rem;
             gap: 2px 4px;
         }
-        
         .page-header .header-left .breadcrumb {
             font-size: 0.5rem;
         }
-        
         .page-header .header-actions .btn-primary,
         .page-header .header-actions .btn-outline,
         .page-header .header-actions .btn-details {
@@ -1021,131 +987,104 @@
             border-radius: 6px;
             gap: 3px;
         }
-        
         .stats-row {
             grid-template-columns: 1fr 1fr;
             gap: 0.3rem;
         }
-        
         .stat-item {
             padding: 0.35rem 0.4rem;
             border-radius: 8px;
         }
-        
         .stat-item .info .value {
             font-size: 0.85rem;
         }
-        
         .stat-item .icon {
             width: 24px;
             height: 24px;
             font-size: 0.65rem;
             border-radius: 6px;
         }
-        
         .stat-item .info .label {
             font-size: 0.45rem;
         }
-        
         .session-info {
             gap: 0.2rem 0.5rem;
             padding: 0.3rem 0.4rem;
             border-radius: 8px;
         }
-        
         .session-info .item {
             min-width: 40px;
         }
-        
         .session-info .item .label {
             font-size: 0.45rem;
         }
-        
         .session-info .item .value {
             font-size: 0.6rem;
         }
-        
         .table-card .table-header {
             padding: 0.3rem 0.4rem;
         }
-        
         .table-card .table-header h3 {
             font-size: 0.65rem;
             gap: 4px;
         }
-        
         .table-card .table-header .count {
             font-size: 0.5rem;
             padding: 1px 6px;
         }
-        
         table {
             font-size: 0.55rem;
             min-width: 380px;
         }
-        
         thead th {
             font-size: 0.45rem;
             padding: 0.2rem 0.3rem;
         }
-        
         tbody td {
             padding: 0.2rem 0.3rem;
         }
-        
         .student-cell {
             gap: 4px;
         }
-        
         .student-cell .avatar {
             width: 18px;
             height: 18px;
             font-size: 0.4rem;
         }
-        
         .student-cell .name {
             font-size: 0.55rem;
             max-width: 55px;
         }
-        
         .student-cell .roll {
             font-size: 0.45rem;
         }
-        
         .status-badge-summary {
             font-size: 0.4rem;
             padding: 1px 5px;
             gap: 3px;
         }
-        
         .status-badge-summary i {
             font-size: 0.35rem;
         }
-        
         .confidence-badge {
             font-size: 0.4rem;
             padding: 1px 5px;
             gap: 2px;
         }
-        
         .confidence-badge i {
             font-size: 0.35rem;
         }
-        
         .conf-bar .track {
             width: 30px;
             height: 3px;
         }
-        
         .conf-bar .percent {
             font-size: 0.5rem;
             min-width: 20px;
         }
-        
         .retention-value {
             font-size: 0.55rem;
         }
-        
         .dept-badge,
         .sem-badge,
         .year-badge,
@@ -1154,98 +1093,86 @@
             padding: 1px 5px;
             border-radius: 8px;
         }
-        
         .legend {
             gap: 0.3rem;
             padding: 0.3rem 0.4rem;
             border-radius: 8px;
         }
-        
         .legend-item .text {
             font-size: 0.5rem;
         }
-        
         .empty-state {
             padding: 1rem 0;
         }
-        
         .empty-state i {
             font-size: 1.5rem;
         }
-        
         .empty-state p {
             font-size: 0.65rem;
         }
-        
         .empty-state .sub {
             font-size: 0.55rem;
         }
-        
         .status-badge {
             font-size: 0.5rem;
             padding: 1px 8px;
         }
+        .error-text {
+            font-size: 0.45rem;
+            max-width: 80px;
+        }
     }
 
-    /* Extra Small */
     @media (max-width: 360px) {
         .page-header .header-left h1 {
             font-size: 0.8rem;
         }
-        
         .stats-row {
             grid-template-columns: 1fr 1fr;
             gap: 0.2rem;
         }
-        
         .stat-item {
             padding: 0.25rem 0.3rem;
         }
-        
         .stat-item .info .value {
             font-size: 0.75rem;
         }
-        
         .stat-item .icon {
             width: 20px;
             height: 20px;
             font-size: 0.55rem;
         }
-        
         table {
             font-size: 0.5rem;
             min-width: 320px;
         }
-        
         thead th {
             font-size: 0.4rem;
             padding: 0.15rem 0.2rem;
         }
-        
         tbody td {
             padding: 0.15rem 0.2rem;
         }
-        
         .student-cell .name {
             font-size: 0.5rem;
             max-width: 45px;
         }
-        
         .conf-bar .track {
             width: 25px;
         }
-        
         .conf-bar .percent {
             font-size: 0.45rem;
             min-width: 18px;
         }
-        
         .retention-value {
             font-size: 0.5rem;
         }
-        
         .legend-item .text {
             font-size: 0.45rem;
+        }
+        .error-text {
+            font-size: 0.4rem;
+            max-width: 60px;
         }
     }
 
@@ -1391,7 +1318,7 @@
     </div>
 
     <!-- ============================================
-    STATS ROW
+    STATS ROW - THREE STATUSES
     ============================================ -->
     <div class="stats-row">
         <div class="stat-item">
@@ -1416,23 +1343,23 @@
             </div>
         </div>
         <div class="stat-item">
+            <div class="icon red"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="info">
+                <div class="label">Not Enrolled</div>
+                <div class="value">{{ invalid_count|default:0 }}</div>
+            </div>
+        </div>
+        <div class="stat-item">
             <div class="icon purple"><i class="fas fa-percentage"></i></div>
             <div class="info">
                 <div class="label">Attendance Rate</div>
                 <div class="value">
                     {% if total_students > 0 %}
-                        {{ attendance_rate|floatformat:0 }}%
+                    {{ attendance_rate|floatformat:0 }}%
                     {% else %}
-                        0%
+                    0%
                     {% endif %}
                 </div>
-            </div>
-        </div>
-        <div class="stat-item">
-            <div class="icon pink"><i class="fas fa-hourglass-half"></i></div>
-            <div class="info">
-                <div class="label">Avg Retention</div>
-                <div class="value">{{ avg_retention|floatformat:1 }}%</div>
             </div>
         </div>
     </div>
@@ -1485,9 +1412,9 @@
             <span class="label">End Time</span>
             <span class="value">
                 {% if session.end_time %}
-                    {{ session.end_time|date:"h:i A" }}
+                {{ session.end_time|date:"h:i A" }}
                 {% else %}
-                    <span style="color: #94a3b8;">Not ended</span>
+                <span style="color: #94a3b8;">Not ended</span>
                 {% endif %}
             </span>
         </div>
@@ -1506,7 +1433,7 @@
     </div>
 
     <!-- ============================================
-    TABLE
+    TABLE - THREE STATUSES: PRESENT, NOT SEEN, NOT ENROLLED
     ============================================ -->
     <div class="table-card">
         <div class="table-header">
@@ -1528,98 +1455,112 @@
                 </thead>
                 <tbody>
                     {% if attendance_summary %}
-                        {% for item in attendance_summary %}
-                            <tr>
-                                <td>
-                                    <div class="student-cell">
-                                        <div class="avatar 
-                                            {% if item.status == 'valid' %}valid-avatar
-                                            {% elif item.status == 'not_seen' %}not-seen-avatar
-                                            {% endif %}">
-                                            {{ item.student.full_name|make_list|first|upper }}
-                                        </div>
-                                        <div class="student-info">
-                                            <span class="name" title="{{ item.student.full_name }}">{{ item.student.full_name }}</span>
-                                            <span class="roll">{{ item.student.roll_number }}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>{{ item.student.roll_number }}</td>
-                                <td>{{ item.student.department|default:'N/A' }}</td>
-                                <td><span class="sem-badge">{{ item.student.semester|default:'N/A' }}</span></td>
-                                <td>
-                                    {% if item.status == 'valid' %}
-                                        <span class="status-badge-summary present">
-                                            <i class="fas fa-check-circle"></i> Present
-                                        </span>
-                                    {% elif item.status == 'not_seen' %}
-                                        <span class="status-badge-summary absent">
-                                            <i class="fas fa-times-circle"></i> Not Seen
-                                        </span>
-                                    {% else %}
-                                        <span class="status-badge-summary absent">
-                                            <i class="fas fa-times-circle"></i> {{ item.status|default:'Unknown' }}
-                                        </span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if item.status == 'valid' and item.confidence %}
-                                        <div class="conf-bar">
-                                            <div class="track">
-                                                <div class="fill 
-                                                    {% if item.confidence > 70 %}high
-                                                    {% elif item.confidence > 50 %}medium
-                                                    {% else %}low{% endif %}" 
-                                                    style="width: {{ item.confidence|default:0 }}%;">
-                                                </div>
-                                            </div>
-                                            <span class="percent">{{ item.confidence|default:0 }}%</span>
-                                        </div>
-                                        <div style="margin-top: 2px;">
-                                            <span class="confidence-badge 
-                                                {% if item.confidence >= 80 %}high
-                                                {% elif item.confidence >= 60 %}medium
-                                                {% elif item.confidence >= 40 %}low
-                                                {% else %}poor{% endif %}">
-                                                <i class="fas fa-shield-alt"></i>
-                                                {% if item.confidence >= 80 %}High
-                                                {% elif item.confidence >= 60 %}Medium
-                                                {% elif item.confidence >= 40 %}Low
-                                                {% else %}Poor{% endif %}
-                                            </span>
-                                        </div>
-                                    {% else %}
-                                        <span style="color: #94a3b8; font-size: 0.65rem;">N/A</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="retention-value">
-                                        {% if item.status == 'valid' %}
-                                            {% with retention=item.retention|default:0 %}
-                                                <span class="
-                                                    {% if retention > 75 %}good
-                                                    {% elif retention > 50 %}average
-                                                    {% else %}poor{% endif %}">
-                                                    {{ retention|floatformat:0 }}%
-                                                </span>
-                                            {% endwith %}
-                                        {% else %}
-                                            <span style="color: #94a3b8; font-size: 0.65rem;">N/A</span>
-                                        {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="7">
-                                <div class="empty-state">
-                                    <i class="fas fa-inbox"></i>
-                                    <p>No attendance records found</p>
-                                    <div class="sub">This session has no logs yet</div>
+                    {% for item in attendance_summary %}
+                    <tr>
+                        <td>
+                            <div class="student-cell">
+                                <div class="avatar 
+                                    {% if item.status == 'valid' %}present-avatar
+                                    {% elif item.status == 'not_seen' %}not-seen-avatar
+                                    {% elif item.status == 'invalid' %}not-enrolled-avatar
+                                    {% endif %}">
+                                    {{ item.student.full_name|make_list|first|upper }}
                                 </div>
-                            </td>
-                        </tr>
+                                <div class="student-info">
+                                    <span class="name" title="{{ item.student.full_name }}">{{ item.student.full_name }}</span>
+                                    <span class="roll">{{ item.student.roll_number }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ item.student.roll_number }}</td>
+                        <td>{{ item.student.department|default:'N/A' }}</td>
+                        <td><span class="sem-badge">{{ item.student.semester|default:'N/A' }}</span></td>
+                        <td>
+                            {% if item.status == 'valid' %}
+                            <span class="status-badge-summary present">
+                                <i class="fas fa-check-circle"></i> Present
+                            </span>
+                            {% elif item.status == 'not_seen' %}
+                            <span class="status-badge-summary not-seen">
+                                <i class="fas fa-clock"></i> Not Seen
+                            </span>
+                            {% elif item.status == 'invalid' %}
+                            <span class="status-badge-summary not-enrolled">
+                                <i class="fas fa-exclamation-triangle"></i> Not Enrolled
+                            </span>
+                            {% if item.error %}
+                            <div class="error-text">
+                                <i class="fas fa-info-circle"></i> {{ item.error }}
+                            </div>
+                            {% endif %}
+                            {% else %}
+                            <span class="status-badge-summary not-seen">
+                                <i class="fas fa-clock"></i> Not Seen
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.status == 'valid' and item.confidence %}
+                            <div class="conf-bar">
+                                <div class="track">
+                                    <div class="fill 
+                                        {% if item.confidence > 70 %}high
+                                        {% elif item.confidence > 50 %}medium
+                                        {% else %}low{% endif %}"
+                                        style="width: {{ item.confidence|default:0 }}%;">
+                                    </div>
+                                </div>
+                                <span class="percent">{{ item.confidence|default:0 }}%</span>
+                            </div>
+                            <div style="margin-top: 2px;">
+                                <span class="confidence-badge 
+                                    {% if item.confidence >= 80 %}high
+                                    {% elif item.confidence >= 60 %}medium
+                                    {% elif item.confidence >= 40 %}low
+                                    {% else %}poor{% endif %}">
+                                    <i class="fas fa-shield-alt"></i>
+                                    {% if item.confidence >= 80 %}High
+                                    {% elif item.confidence >= 60 %}Medium
+                                    {% elif item.confidence >= 40 %}Low
+                                    {% else %}Poor{% endif %}
+                                </span>
+                            </div>
+                            {% elif item.status == 'invalid' %}
+                            <span style="color: #dc2626; font-size: 0.6rem; font-weight: 600;">
+                                <i class="fas fa-exclamation-triangle"></i> Blocked
+                            </span>
+                            {% else %}
+                            <span style="color: #94a3b8; font-size: 0.65rem;">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="retention-value">
+                                {% if item.status == 'valid' %}
+                                {% with retention=item.retention|default:0 %}
+                                <span class="
+                                    {% if retention > 75 %}good
+                                    {% elif retention > 50 %}average
+                                    {% else %}poor{% endif %}">
+                                    {{ retention|floatformat:0 }}%
+                                </span>
+                                {% endwith %}
+                                {% else %}
+                                <span style="color: #94a3b8; font-size: 0.65rem;">N/A</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <p>No attendance records found</p>
+                                <div class="sub">This session has no logs yet</div>
+                            </div>
+                        </td>
+                    </tr>
                     {% endif %}
                 </tbody>
             </table>
@@ -1627,16 +1568,20 @@
     </div>
 
     <!-- ============================================
-    STATUS LEGEND - UPDATED
+    STATUS LEGEND - THREE STATUSES
     ============================================ -->
     <div class="legend">
         <div class="legend-item">
             <span class="status-badge-summary present"><i class="fas fa-check-circle"></i> Present</span>
-            <span class="text">Student was detected (Single-Shot mode)</span>
+            <span class="text">Student detected and enrolled</span>
         </div>
         <div class="legend-item">
-            <span class="status-badge-summary absent"><i class="fas fa-times-circle"></i> Not Seen</span>
-            <span class="text">Student was not detected</span>
+            <span class="status-badge-summary not-seen"><i class="fas fa-clock"></i> Not Seen</span>
+            <span class="text">Student not detected</span>
+        </div>
+        <div class="legend-item">
+            <span class="status-badge-summary not-enrolled"><i class="fas fa-exclamation-triangle"></i> Not Enrolled</span>
+            <span class="text">Student from other section/semester</span>
         </div>
         <div class="legend-item">
             <span class="confidence-badge high"><i class="fas fa-shield-alt"></i> High</span>
@@ -1658,61 +1603,61 @@
 </div>
 
 <script>
-function exportCSV() {
-    const rows = document.querySelectorAll('table tbody tr');
-    
-    if (rows.length === 1 && rows[0].querySelector('.empty-state')) {
-        alert('No data to export');
-        return;
-    }
-    
-    let csv = 'Student,Roll Number,Department,Semester,Status,Confidence (%),Confidence Level,Retention (%)\n';
-    let hasData = false;
-    
-    rows.forEach(row => {
-        if (row.querySelector('.empty-state')) return;
-        
-        const cells = row.querySelectorAll('td');
-        if (cells.length >= 7) {
-            const nameCell = cells[0];
-            const nameEl = nameCell.querySelector('.name');
-            const studentName = nameEl ? nameEl.textContent.trim() : nameCell.textContent.trim();
-            
-            const rollNo = cells[1].textContent.trim();
-            const department = cells[2].textContent.trim();
-            const semester = cells[3].textContent.trim();
-            
-            const statusEl = cells[4].querySelector('.status-badge-summary');
-            const status = statusEl ? statusEl.textContent.trim() : cells[4].textContent.trim();
-            
-            // Get confidence and level
-            const confidenceEl = cells[5].querySelector('.percent');
-            const confidence = confidenceEl ? confidenceEl.textContent.trim().replace('%', '') : '';
-            
-            const levelEl = cells[5].querySelector('.confidence-badge');
-            const level = levelEl ? levelEl.textContent.trim() : 'N/A';
-            
-            const retentionEl = cells[6].querySelector('.retention-value span');
-            const retention = retentionEl ? retentionEl.textContent.trim().replace('%', '') : '';
-            
-            csv += `"${studentName}","${rollNo}","${department}","${semester}","${status}",${confidence || 'N/A'},"${level}",${retention || 'N/A'}\n`;
-            hasData = true;
+    function exportCSV() {
+        const rows = document.querySelectorAll('table tbody tr');
+
+        if (rows.length === 1 && rows[0].querySelector('.empty-state')) {
+            alert('No data to export');
+            return;
         }
-    });
-    
-    if (!hasData) {
-        alert('No data to export');
-        return;
+
+        let csv = 'Student,Roll Number,Department,Semester,Status,Confidence (%),Confidence Level,Retention (%)\n';
+        let hasData = false;
+
+        rows.forEach(row => {
+            if (row.querySelector('.empty-state')) return;
+
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 7) {
+                const nameCell = cells[0];
+                const nameEl = nameCell.querySelector('.name');
+                const studentName = nameEl ? nameEl.textContent.trim() : nameCell.textContent.trim();
+
+                const rollNo = cells[1].textContent.trim();
+                const department = cells[2].textContent.trim();
+                const semester = cells[3].textContent.trim();
+
+                const statusEl = cells[4].querySelector('.status-badge-summary');
+                let status = statusEl ? statusEl.textContent.trim() : cells[4].textContent.trim();
+                status = status.replace(/[^\w\s]/g, '').trim();
+
+                const confidenceEl = cells[5].querySelector('.percent');
+                const confidence = confidenceEl ? confidenceEl.textContent.trim().replace('%', '') : '';
+
+                const levelEl = cells[5].querySelector('.confidence-badge');
+                const level = levelEl ? levelEl.textContent.trim() : 'N/A';
+
+                const retentionEl = cells[6].querySelector('.retention-value span');
+                const retention = retentionEl ? retentionEl.textContent.trim().replace('%', '') : '';
+
+                csv += `"${studentName}","${rollNo}","${department}","${semester}","${status}",${confidence || 'N/A'},"${level}",${retention || 'N/A'}\n`;
+                hasData = true;
+            }
+        });
+
+        if (!hasData) {
+            alert('No data to export');
+            return;
+        }
+
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `attendance_summary_{{ session.id }}_{{ session.date|date:"Y-m-d" }}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
     }
-    
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `attendance_summary_{{ session.id }}_{{ session.date|date:"Y-m-d" }}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
-}
 </script>
 {% endblock %}
