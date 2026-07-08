@@ -5,7 +5,6 @@
 
 {% block content %}
 <style>
-
     /* ============================================
        BASE
     ============================================ */
@@ -14,7 +13,6 @@
     }
 
     .page-container {
-        padding: 0.5rem;
         max-width: 1400px;
         margin: 0 auto;
         width: 100%;
@@ -90,14 +88,11 @@
        FILTER CONTAINER - FULLY RESPONSIVE
     ============================================ */
     .filter-container {
-        background: #fff;
-        border-radius: var(--radius);
-        border: 1px solid var(--border);
-        padding: 1rem 1.25rem;
+        background: transparent;
+        border-radius: 12px;
         display: flex;
         flex-wrap: wrap;
         gap: 0.75rem;
-        margin-bottom: 1rem;
         align-items: center;
     }
 
@@ -183,6 +178,7 @@
         transition: all 0.2s;
         white-space: nowrap;
         flex-shrink: 0;
+        text-decoration: none;
     }
 
     .filter-container .filter-group .clear-btn:hover {
@@ -232,7 +228,7 @@
     ============================================ */
     .table-card {
         background: #fff;
-        border-radius: var(--radius);
+        border-radius: 12px;
         border: 1px solid var(--border);
         overflow: hidden;
         width: 100%;
@@ -262,8 +258,8 @@
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        color: var(--text-light);
-        border-bottom: 2px solid var(--border);
+        color: #94a3b8;
+        border-bottom: 1px solid var(--border);
         white-space: nowrap;
         position: sticky;
         top: 0;
@@ -276,7 +272,6 @@
 
     tbody td {
         padding: 0.6rem 1.25rem;
-        border-bottom: 1px solid var(--border);
         color: var(--text-main);
         vertical-align: middle;
     }
@@ -438,8 +433,6 @@
         font-size: 0.75rem;
         line-height: 1.4;
         color: var(--text-main);
-        word-wrap: break-word;
-        word-break: break-word;
     }
 
     /* ============================================
@@ -664,6 +657,29 @@
         border-color: #cbd5e1;
     }
 
+    .btn-apply-filter {
+        padding: 0.3rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        background: var(--primary);
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-apply-filter:hover {
+        background: #0d3b6e;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 12px rgba(26, 86, 148, 0.2);
+    }
+
     /* ============================================
        PAGINATION
     ============================================ */
@@ -807,6 +823,7 @@
             opacity: 0;
             transform: scale(0.95);
         }
+
         to {
             opacity: 1;
             transform: scale(1);
@@ -992,9 +1009,6 @@
 
     /* Mobile Large */
     @media (max-width: 768px) {
-        .page-container {
-            padding: 0.25rem;
-        }
 
         .page-header {
             flex-direction: column;
@@ -1270,6 +1284,9 @@
         .filter-container .filter-group .clear-btn {
             font-size: 0.6rem;
             padding: 0.3rem;
+            justify-content: center;
+            display: flex;
+            width: 40%;
         }
 
         .filter-tag {
@@ -1468,6 +1485,7 @@
        PRINT STYLES
     ============================================ */
     @media print {
+
         .filter-container,
         .filter-tags,
         .pagination-container,
@@ -1542,34 +1560,40 @@
     </div>
 
     <!-- ============================================
-    FILTER CONTAINER
-    ============================================ -->
-    <div class="filter-container">
-        <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" id="logSearch" placeholder="Search logs...">
+FILTER CONTAINER - SERVER-SIDE
+============================================ -->
+    <form method="GET" action="{% url 'system-logs' %}" id="filterForm">
+        <div class="filter-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="q" id="logSearch" placeholder="Search logs..."
+                    value="{{ search_query|default:'' }}">
+            </div>
+            <div class="filter-group">
+                <select name="action" id="actionFilter">
+                    <option value="all">All Actions</option>
+                    <option value="create" {% if action_filter == "create" %}selected{% endif %}>Create</option>
+                    <option value="update" {% if action_filter == "update" %}selected{% endif %}>Update</option>
+                    <option value="delete" {% if action_filter == "delete" %}selected{% endif %}>Delete</option>
+                    <option value="login" {% if action_filter == "login" %}selected{% endif %}>Login</option>
+                    <option value="logout" {% if action_filter == "logout" %}selected{% endif %}>Logout</option>
+                </select>
+                <select name="status" id="statusFilter">
+                    <option value="active" {% if status_filter == "active" %}selected{% endif %}>Active</option>
+                    <option value="archived" {% if status_filter == "archived" %}selected{% endif %}>Archived</option>
+                    {% if request.user.is_superuser %}
+                    <option value="all" {% if status_filter == "all" %}selected{% endif %}>All</option>
+                    {% endif %}
+                </select>
+                <button type="submit" class="btn-apply-filter">
+                    <i class="fas fa-filter"></i> Apply
+                </button>
+                <a href="{% url 'system-logs' %}" class="clear-btn">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
         </div>
-        <div class="filter-group">
-            <select id="actionFilter">
-                <option value="all">All Actions</option>
-                <option value="create">Create</option>
-                <option value="update">Update</option>
-                <option value="delete">Delete</option>
-                <option value="login">Login</option>
-                <option value="logout">Logout</option>
-            </select>
-            <select id="statusFilter">
-                <option value="active" selected>Active</option>
-                <option value="archived">Archived</option>
-                {% if request.user.is_superuser %}
-                <option value="all">All</option>
-                {% endif %}
-            </select>
-            <button class="clear-btn" id="clearFilters">
-                <i class="fas fa-times"></i> Clear
-            </button>
-        </div>
-    </div>
+    </form>
 
     <!-- ============================================
     FILTER TAGS
@@ -1598,11 +1622,10 @@
                 </thead>
                 <tbody id="logsTableBody">
                     {% for log in page_obj %}
-                    <tr data-log-id="{{ log.id }}" data-log-deleted="{{ log.is_deleted|yesno:'true,false' }}" 
+                    <tr data-log-id="{{ log.id }}" data-log-deleted="{{ log.is_deleted|yesno:'true,false' }}"
                         data-action="{{ log.action|lower }}" class="{% if log.is_deleted %}archived{% endif %}">
                         <td>
-                            <input type="checkbox" class="row-selector log-selector" data-log-id="{{ log.id }}" 
-                                {% if log.is_deleted %}disabled{% endif %}>
+                            <input type="checkbox" class="row-selector log-selector" data-log-id="{{ log.id }}" {% if log.is_deleted %}disabled{% endif %}>
                         </td>
                         <td class="timestamp-col">
                             <span class="timestamp-date">{{ log.timestamp|date:"M d, Y" }}</span>
@@ -1638,9 +1661,11 @@
                         <td>
                             {% if 'Delete' in log.action or 'delete' in log.action|lower %}
                             <span class="action-badge delete">{{ log.action }}</span>
-                            {% elif 'Create' in log.action or 'Add' in log.action or 'create' in log.action|lower or 'add' in log.action|lower %}
+                            {% elif 'Create' in log.action or 'Add' in log.action or 'create' in log.action|lower or
+                            'add' in log.action|lower %}
                             <span class="action-badge create">{{ log.action }}</span>
-                            {% elif 'Update' in log.action or 'Edit' in log.action or 'update' in log.action|lower or 'edit' in log.action|lower %}
+                            {% elif 'Update' in log.action or 'Edit' in log.action or 'update' in log.action|lower or
+                            'edit' in log.action|lower %}
                             <span class="action-badge update">{{ log.action }}</span>
                             {% elif 'Login' in log.action or 'login' in log.action|lower %}
                             <span class="action-badge login">{{ log.action }}</span>
@@ -1654,7 +1679,8 @@
                             <div class="details-text" title="{{ log.details }}">{{ log.details|truncatechars:60 }}</div>
                         </td>
                         <td>
-                            <span class="ip-badge {% if '::1' in log.ip_address or '127.0.0.1' in log.ip_address or 'localhost' in log.ip_address|lower %}local{% else %}public{% endif %}">
+                            <span
+                                class="ip-badge {% if '::1' in log.ip_address or '127.0.0.1' in log.ip_address or 'localhost' in log.ip_address|lower %}local{% else %}public{% endif %}">
                                 <i class="fas fa-network-wired"></i> {{ log.ip_address|default:"0.0.0.0" }}
                             </span>
                         </td>
@@ -1675,7 +1701,8 @@
                                 </button>
                                 {% endif %}
                                 {% if request.user.is_superuser and log.is_deleted %}
-                                <button class="action-btn delete-permanent" onclick="permanentDeleteLog({{ log.id }})" title="Permanently delete">
+                                <button class="action-btn delete-permanent" onclick="permanentDeleteLog({{ log.id }})"
+                                    title="Permanently delete">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                                 {% endif %}
@@ -1710,7 +1737,8 @@
                     <i class="fas fa-undo"></i> Restore
                 </button>
                 {% if request.user.is_superuser %}
-                <button class="btn-danger" id="permanentDeleteSelectedBtn" onclick="bulkPermanentDeleteLogs()" style="display:none;">
+                <button class="btn-danger" id="permanentDeleteSelectedBtn" onclick="bulkPermanentDeleteLogs()"
+                    style="display:none;">
                     <i class="fas fa-trash-alt"></i> Delete
                 </button>
                 {% endif %}
@@ -1721,7 +1749,8 @@
         <!-- Pagination -->
         <div class="pagination-container">
             <div class="info">
-                Showing <strong>{{ page_obj.start_index }}</strong> – <strong>{{ page_obj.end_index }}</strong> of <strong>{{ total_logs }}</strong>
+                Showing <strong>{{ page_obj.start_index }}</strong> – <strong>{{ page_obj.end_index }}</strong> of
+                <strong>{{ total_logs }}</strong>
             </div>
             <div class="pagination-controls">
                 {% if page_obj.has_previous %}
@@ -1736,20 +1765,20 @@
 
                 <div class="page-numbers">
                     {% for num in page_obj.paginator.page_range %}
-                        {% if num == page_obj.number %}
-                        <button class="active">{{ num }}</button>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <button onclick="goToPage({{ num }})">{{ num }}</button>
-                        {% elif num == page_obj.number|add:'3' and num < page_obj.paginator.num_pages %}
-                        <span class="dots">…</span>
-                        {% elif num == page_obj.number|add:'-3' and num > 1 %}
-                        <span class="dots">…</span>
-                        {% elif num == page_obj.paginator.num_pages and num > page_obj.number|add:'2' %}
-                        <button onclick="goToPage({{ num }})">{{ num }}</button>
-                        {% elif num == 1 and num < page_obj.number|add:'-2' %}
-                        <button onclick="goToPage(1)">1</button>
-                        {% endif %}
-                    {% endfor %}
+                    {% if num == page_obj.number %}
+                    <button class="active">{{ num }}</button>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <button
+                        onclick="goToPage({{ num }})">{{ num }}</button>
+                        {% elif num == page_obj.number|add:'3' and num < page_obj.paginator.num_pages %} <span
+                            class="dots">…</span>
+                            {% elif num == page_obj.number|add:'-3' and num > 1 %}
+                            <span class="dots">…</span>
+                            {% elif num == page_obj.paginator.num_pages and num > page_obj.number|add:'2' %}
+                            <button onclick="goToPage({{ num }})">{{ num }}</button>
+                            {% elif num == 1 and num < page_obj.number|add:'-2' %} <button onclick="goToPage(1)">
+                                1</button>
+                                {% endif %}
+                                {% endfor %}
                 </div>
 
                 {% if page_obj.has_next %}
@@ -1786,7 +1815,7 @@ PHOTO MODAL
     // ============================================
     // PERMISSIONS
     // ============================================
-    const isSuperuser = {{ request.user.is_superuser|yesno:"true,false" }};
+    const isSuperuser = {{ request.user.is_superuser| lower }};
 
     // ============================================
     // GLOBALS
@@ -1801,6 +1830,14 @@ PHOTO MODAL
         if (page < 1 || page > totalPages) return;
         const url = new URL(window.location.href);
         url.searchParams.set('page', page);
+        // Preserve existing filters
+        const form = document.getElementById('filterForm');
+        const formData = new FormData(form);
+        for (const [key, value] of formData) {
+            if (key !== 'page') {
+                url.searchParams.set(key, value);
+            }
+        }
         window.location.href = url.toString();
     }
 
@@ -1862,458 +1899,336 @@ PHOTO MODAL
     }
 
     // ============================================
-    // SEARCH & FILTER
+    // AUTO-SUBMIT FILTER ON CHANGE
     // ============================================
-    const searchInput = document.getElementById('logSearch');
-    const actionFilter = document.getElementById('actionFilter');
-    const statusFilter = document.getElementById('statusFilter');
-    const clearFiltersBtn = document.getElementById('clearFilters');
-    const filterTags = document.getElementById('filterTags');
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterForm = document.getElementById('filterForm');
+        const actionFilter = document.getElementById('actionFilter');
+        const statusFilter = document.getElementById('statusFilter');
 
-    const allRows = document.querySelectorAll('#logsTableBody tr');
+        // Auto-submit on filter change
+        actionFilter.addEventListener('change', function () {
+            filterForm.submit();
+        });
 
-    const filterState = {
-        search: '',
-        action: 'all',
-        status: 'active'
-    };
+        statusFilter.addEventListener('change', function () {
+            filterForm.submit();
+        });
 
-    function applyFilters() {
-        let visibleRows = 0;
+        // ============================================
+        // SELECT ALL / BULK ACTIONS
+        // ============================================
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
 
-        allRows.forEach(row => {
-            const rowAction = row.getAttribute('data-action') || '';
-            const rowDeleted = row.getAttribute('data-log-deleted') === 'true';
-            const rowText = row.textContent.toLowerCase();
+        function updateSelectAllState() {
+            const visibleCheckboxes = document.querySelectorAll('.log-selector:not(:disabled)');
+            const checkedCheckboxes = document.querySelectorAll('.log-selector:not(:disabled):checked');
 
-            let matchesSearch = true;
-            if (filterState.search) {
-                matchesSearch = rowText.includes(filterState.search);
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = visibleCheckboxes.length > 0 && visibleCheckboxes.length === checkedCheckboxes.length;
             }
+        }
 
-            let matchesAction = filterState.action === 'all' || rowAction === filterState.action;
+        function updateBulkActions() {
+            const selected = document.querySelectorAll('.log-selector:checked:not(:disabled)');
+            const count = selected.length;
+            selectedCount.textContent = count;
 
-            let matchesStatus = true;
-            if (filterState.status === 'active') {
-                matchesStatus = !rowDeleted;
-            } else if (filterState.status === 'archived') {
-                matchesStatus = rowDeleted;
-            }
+            const hasArchived = Array.from(selected).some(cb => {
+                const row = cb.closest('tr');
+                return row && row.dataset.logDeleted === 'true';
+            });
 
-            if (matchesSearch && matchesAction && matchesStatus) {
-                row.style.display = '';
-                visibleRows++;
+            const hasActive = Array.from(selected).some(cb => {
+                const row = cb.closest('tr');
+                return row && row.dataset.logDeleted === 'false';
+            });
+
+            if (count > 0) {
+                bulkActions.classList.add('show');
+                document.getElementById('deleteSelectedBtn').style.display = hasActive ? 'inline-flex' : 'none';
+                document.getElementById('restoreSelectedBtn').style.display = hasArchived ? 'inline-flex' : 'none';
+                if (document.getElementById('permanentDeleteSelectedBtn')) {
+                    document.getElementById('permanentDeleteSelectedBtn').style.display = hasArchived ? 'inline-flex' : 'none';
+                }
             } else {
-                row.style.display = 'none';
+                bulkActions.classList.remove('show');
             }
-        });
-
-        updateFilterTags();
-        updateSelectAllState();
-        updateBulkActions();
-    }
-
-    function updateFilterTags() {
-        filterTags.innerHTML = '';
-
-        if (filterState.search) {
-            filterTags.appendChild(createFilterTag('search', `Search: "${filterState.search}"`));
         }
 
-        if (filterState.action !== 'all') {
-            const actionName = actionFilter.options[actionFilter.selectedIndex]?.text || filterState.action;
-            filterTags.appendChild(createFilterTag('action', `Action: ${actionName}`));
-        }
-
-        if (filterState.status !== 'active') {
-            const statusName = statusFilter.options[statusFilter.selectedIndex]?.text || filterState.status;
-            filterTags.appendChild(createFilterTag('status', `Status: ${statusName}`));
-        }
-
-        filterTags.style.display = filterTags.children.length > 0 ? 'flex' : 'none';
-    }
-
-    function createFilterTag(type, text) {
-        const tag = document.createElement('div');
-        tag.className = 'filter-tag';
-        tag.innerHTML = `${text} <i class="fas fa-times" onclick="removeFilter('${type}')"></i>`;
-        return tag;
-    }
-
-    function removeFilter(type) {
-        if (type === 'search') {
-            searchInput.value = '';
-            filterState.search = '';
-        } else if (type === 'action') {
-            actionFilter.value = 'all';
-            filterState.action = 'all';
-        } else if (type === 'status') {
-            statusFilter.value = 'active';
-            filterState.status = 'active';
-        }
-        applyFilters();
-    }
-
-    // ============================================
-    // EVENT LISTENERS
-    // ============================================
-    let searchTimeout;
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            filterState.search = this.value.trim().toLowerCase();
-            applyFilters();
-        }, 300);
-    });
-
-    actionFilter.addEventListener('change', function() {
-        filterState.action = this.value;
-        applyFilters();
-    });
-
-    statusFilter.addEventListener('change', function() {
-        filterState.status = this.value;
-        applyFilters();
-    });
-
-    clearFiltersBtn.addEventListener('click', function() {
-        searchInput.value = '';
-        actionFilter.value = 'all';
-        statusFilter.value = 'active';
-        filterState.search = '';
-        filterState.action = 'all';
-        filterState.status = 'active';
-        applyFilters();
-    });
-
-    // ============================================
-    // SELECT ALL / BULK ACTIONS
-    // ============================================
-    const selectAllCheckbox = document.getElementById('selectAll');
-    const bulkActions = document.getElementById('bulkActions');
-    const selectedCount = document.getElementById('selectedCount');
-
-    function updateSelectAllState() {
-        const visibleCheckboxes = document.querySelectorAll('.log-selector:not(:disabled):not([style*="display: none"])');
-        const checkedCheckboxes = document.querySelectorAll('.log-selector:not(:disabled):checked:not([style*="display: none"])');
-        
-        if (selectAllCheckbox) {
-            selectAllCheckbox.checked = visibleCheckboxes.length > 0 && visibleCheckboxes.length === checkedCheckboxes.length;
-        }
-    }
-
-    function updateBulkActions() {
-        const selected = document.querySelectorAll('.log-selector:checked:not(:disabled)');
-        const count = selected.length;
-        selectedCount.textContent = count;
-
-        const hasArchived = Array.from(selected).some(cb => {
-            const row = cb.closest('tr');
-            return row && row.dataset.logDeleted === 'true';
-        });
-
-        const hasActive = Array.from(selected).some(cb => {
-            const row = cb.closest('tr');
-            return row && row.dataset.logDeleted === 'false';
-        });
-
-        if (count > 0) {
-            bulkActions.classList.add('show');
-            document.getElementById('deleteSelectedBtn').style.display = hasActive ? 'inline-flex' : 'none';
-            document.getElementById('restoreSelectedBtn').style.display = hasArchived ? 'inline-flex' : 'none';
-            if (document.getElementById('permanentDeleteSelectedBtn')) {
-                document.getElementById('permanentDeleteSelectedBtn').style.display = hasArchived ? 'inline-flex' : 'none';
-            }
-        } else {
-            bulkActions.classList.remove('show');
-        }
-    }
-
-    selectAllCheckbox.addEventListener('change', function() {
-        const isChecked = this.checked;
-        const visibleCheckboxes = document.querySelectorAll('.log-selector:not(:disabled):not([style*="display: none"])');
-        visibleCheckboxes.forEach(cb => {
-            cb.checked = isChecked;
-        });
-        updateBulkActions();
-        updateSelectAllState();
-    });
-
-    document.querySelectorAll('.log-selector').forEach(cb => {
-        cb.addEventListener('change', function() {
+        selectAllCheckbox.addEventListener('change', function () {
+            const isChecked = this.checked;
+            document.querySelectorAll('.log-selector:not(:disabled)').forEach(cb => {
+                cb.checked = isChecked;
+            });
             updateBulkActions();
-            updateSelectAllState();
-        });
-    });
-
-    function clearSelection() {
-        document.querySelectorAll('.log-selector').forEach(cb => cb.checked = false);
-        selectAllCheckbox.checked = false;
-        updateBulkActions();
-    }
-
-    // ============================================
-    // LOG ACTION FUNCTIONS
-    // ============================================
-    function archiveLog(logId) {
-        if (!confirm('Archive this log? It can be restored later.')) return;
-        
-        showMessage('Archiving log...', 'info');
-        fetch(`/dashboard/api/soft-delete-log/${logId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ reason: 'Archived by admin' })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showMessage(data.message, 'success');
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showMessage(data.error || 'Failed to archive', 'error');
-            }
-        })
-        .catch(() => {
-            showMessage('Error archiving log', 'error');
-        });
-    }
-
-    function restoreLog(logId) {
-        if (!confirm('Restore this archived log?')) return;
-        
-        showMessage('Restoring log...', 'info');
-        fetch(`/dashboard/api/restore-log/${logId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showMessage(data.message, 'success');
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showMessage(data.error || 'Failed to restore', 'error');
-            }
-        })
-        .catch(() => {
-            showMessage('Error restoring log', 'error');
-        });
-    }
-
-    function permanentDeleteLog(logId) {
-        if (!isSuperuser) {
-            showMessage('Only admins can permanently delete logs', 'error');
-            return;
-        }
-        if (!confirm('⚠️ Permanently delete this log? This cannot be undone!')) return;
-        
-        showMessage('Deleting log...', 'info');
-        fetch(`/dashboard/api/permanent-delete-log/${logId}/`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showMessage(data.message, 'warning');
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showMessage(data.error || 'Failed to delete', 'error');
-            }
-        })
-        .catch(() => {
-            showMessage('Error deleting log', 'error');
-        });
-    }
-
-    // ============================================
-    // BULK FUNCTIONS
-    // ============================================
-    function bulkArchiveLogs() {
-        const selected = document.querySelectorAll('.log-selector:checked:not(:disabled)');
-        const activeSelected = Array.from(selected).filter(cb => {
-            const row = cb.closest('tr');
-            return row && row.dataset.logDeleted === 'false';
         });
 
-        if (activeSelected.length === 0) {
-            showMessage('No active logs selected', 'info');
-            return;
-        }
-
-        if (!confirm(`Archive ${activeSelected.length} log(s)?`)) return;
-
-        const logIds = Array.from(activeSelected).map(cb => parseInt(cb.getAttribute('data-log-id')));
-        
-        showMessage(`Archiving ${logIds.length} logs...`, 'info');
-        fetch('/dashboard/api/bulk-soft-delete-logs/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ log_ids: logIds })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showMessage(data.message, 'success');
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showMessage(data.error || 'Failed to archive', 'error');
-            }
-        })
-        .catch(() => {
-            showMessage('Error archiving logs', 'error');
-        });
-    }
-
-    function bulkRestoreLogs() {
-        const selected = document.querySelectorAll('.log-selector:checked:not(:disabled)');
-        const archivedSelected = Array.from(selected).filter(cb => {
-            const row = cb.closest('tr');
-            return row && row.dataset.logDeleted === 'true';
-        });
-
-        if (archivedSelected.length === 0) {
-            showMessage('No archived logs selected', 'info');
-            return;
-        }
-
-        if (!confirm(`Restore ${archivedSelected.length} archived log(s)?`)) return;
-
-        const logIds = Array.from(archivedSelected).map(cb => parseInt(cb.getAttribute('data-log-id')));
-        
-        showMessage(`Restoring ${logIds.length} logs...`, 'info');
-        fetch('/dashboard/api/bulk-restore-logs/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ log_ids: logIds })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showMessage(data.message, 'success');
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showMessage(data.error || 'Failed to restore', 'error');
-            }
-        })
-        .catch(() => {
-            showMessage('Error restoring logs', 'error');
-        });
-    }
-
-    function bulkPermanentDeleteLogs() {
-        if (!isSuperuser) {
-            showMessage('Only admins can permanently delete logs', 'error');
-            return;
-        }
-
-        const selected = document.querySelectorAll('.log-selector:checked:not(:disabled)');
-        const archivedSelected = Array.from(selected).filter(cb => {
-            const row = cb.closest('tr');
-            return row && row.dataset.logDeleted === 'true';
-        });
-
-        if (archivedSelected.length === 0) {
-            showMessage('No archived logs selected', 'info');
-            return;
-        }
-
-        if (!confirm(`⚠️ Permanently delete ${archivedSelected.length} log(s)? This cannot be undone!`)) return;
-
-        const logIds = Array.from(archivedSelected).map(cb => parseInt(cb.getAttribute('data-log-id')));
-        
-        showMessage(`Deleting ${logIds.length} logs...`, 'info');
-        let deleted = 0, failed = 0;
-        const promises = logIds.map(id => {
-            return fetch(`/dashboard/api/permanent-delete-log/${id}/`, {
-                method: 'DELETE',
-                headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) deleted++;
-                else failed++;
+        document.querySelectorAll('.log-selector').forEach(cb => {
+            cb.addEventListener('change', function () {
+                updateBulkActions();
+                updateSelectAllState();
             });
         });
-        Promise.all(promises).then(() => {
-            if (deleted > 0) {
-                showMessage(`${deleted} deleted${failed > 0 ? `, ${failed} failed` : ''}`, 'warning');
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showMessage('Failed to delete logs', 'error');
+
+        function clearSelection() {
+            document.querySelectorAll('.log-selector').forEach(cb => cb.checked = false);
+            selectAllCheckbox.checked = false;
+            updateBulkActions();
+        }
+        window.clearSelection = clearSelection;
+
+        // ============================================
+        // LOG ACTION FUNCTIONS
+        // ============================================
+        function archiveLog(logId) {
+            if (!confirm('Archive this log? It can be restored later.')) return;
+
+            showMessage('Archiving log...', 'info');
+            fetch(`/dashboard/api/soft-delete-log/${logId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason: 'Archived by admin' })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showMessage(data.error || 'Failed to archive', 'error');
+                    }
+                })
+                .catch(() => {
+                    showMessage('Error archiving log', 'error');
+                });
+        }
+        window.archiveLog = archiveLog;
+
+        function restoreLog(logId) {
+            if (!confirm('Restore this archived log?')) return;
+
+            showMessage('Restoring log...', 'info');
+            fetch(`/dashboard/api/restore-log/${logId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showMessage(data.error || 'Failed to restore', 'error');
+                    }
+                })
+                .catch(() => {
+                    showMessage('Error restoring log', 'error');
+                });
+        }
+        window.restoreLog = restoreLog;
+
+        function permanentDeleteLog(logId) {
+            if (!isSuperuser) {
+                showMessage('Only admins can permanently delete logs', 'error');
+                return;
+            }
+            if (!confirm('⚠️ Permanently delete this log? This cannot be undone!')) return;
+
+            showMessage('Deleting log...', 'info');
+            fetch(`/dashboard/api/permanent-delete-log/${logId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage(data.message, 'warning');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showMessage(data.error || 'Failed to delete', 'error');
+                    }
+                })
+                .catch(() => {
+                    showMessage('Error deleting log', 'error');
+                });
+        }
+        window.permanentDeleteLog = permanentDeleteLog;
+
+        // ============================================
+        // BULK FUNCTIONS
+        // ============================================
+        function bulkArchiveLogs() {
+            const selected = document.querySelectorAll('.log-selector:checked:not(:disabled)');
+            const activeSelected = Array.from(selected).filter(cb => {
+                const row = cb.closest('tr');
+                return row && row.dataset.logDeleted === 'false';
+            });
+
+            if (activeSelected.length === 0) {
+                showMessage('No active logs selected', 'info');
+                return;
+            }
+
+            if (!confirm(`Archive ${activeSelected.length} log(s)?`)) return;
+
+            const logIds = Array.from(activeSelected).map(cb => parseInt(cb.getAttribute('data-log-id')));
+
+            showMessage(`Archiving ${logIds.length} logs...`, 'info');
+            fetch('/dashboard/api/bulk-soft-delete-logs/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ log_ids: logIds })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showMessage(data.error || 'Failed to archive', 'error');
+                    }
+                })
+                .catch(() => {
+                    showMessage('Error archiving logs', 'error');
+                });
+        }
+        window.bulkArchiveLogs = bulkArchiveLogs;
+
+        function bulkRestoreLogs() {
+            const selected = document.querySelectorAll('.log-selector:checked:not(:disabled)');
+            const archivedSelected = Array.from(selected).filter(cb => {
+                const row = cb.closest('tr');
+                return row && row.dataset.logDeleted === 'true';
+            });
+
+            if (archivedSelected.length === 0) {
+                showMessage('No archived logs selected', 'info');
+                return;
+            }
+
+            if (!confirm(`Restore ${archivedSelected.length} archived log(s)?`)) return;
+
+            const logIds = Array.from(archivedSelected).map(cb => parseInt(cb.getAttribute('data-log-id')));
+
+            showMessage(`Restoring ${logIds.length} logs...`, 'info');
+            fetch('/dashboard/api/bulk-restore-logs/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ log_ids: logIds })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showMessage(data.error || 'Failed to restore', 'error');
+                    }
+                })
+                .catch(() => {
+                    showMessage('Error restoring logs', 'error');
+                });
+        }
+        window.bulkRestoreLogs = bulkRestoreLogs;
+
+        function bulkPermanentDeleteLogs() {
+            if (!isSuperuser) {
+                showMessage('Only admins can permanently delete logs', 'error');
+                return;
+            }
+
+            const selected = document.querySelectorAll('.log-selector:checked:not(:disabled)');
+            const archivedSelected = Array.from(selected).filter(cb => {
+                const row = cb.closest('tr');
+                return row && row.dataset.logDeleted === 'true';
+            });
+
+            if (archivedSelected.length === 0) {
+                showMessage('No archived logs selected', 'info');
+                return;
+            }
+
+            if (!confirm(`⚠️ Permanently delete ${archivedSelected.length} log(s)? This cannot be undone!`)) return;
+
+            const logIds = Array.from(archivedSelected).map(cb => parseInt(cb.getAttribute('data-log-id')));
+
+            showMessage(`Deleting ${logIds.length} logs...`, 'info');
+            let deleted = 0, failed = 0;
+            const promises = logIds.map(id => {
+                return fetch(`/dashboard/api/permanent-delete-log/${id}/`, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) deleted++;
+                        else failed++;
+                    });
+            });
+            Promise.all(promises).then(() => {
+                if (deleted > 0) {
+                    showMessage(`${deleted} deleted${failed > 0 ? `, ${failed} failed` : ''}`, 'warning');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showMessage('Failed to delete logs', 'error');
+                }
+            });
+        }
+        window.bulkPermanentDeleteLogs = bulkPermanentDeleteLogs;
+
+        // ============================================
+        // PHOTO MODAL
+        // ============================================
+        function openUserPhotoModal(photoUrl, userName, userEmail) {
+            const modal = document.getElementById('photoModal');
+            document.getElementById('modalPhoto').src = photoUrl;
+            document.getElementById('modalName').textContent = userName;
+            document.getElementById('modalEmail').textContent = userEmail;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        window.openUserPhotoModal = openUserPhotoModal;
+
+        function closePhotoModal(event = null) {
+            if (event && event.target.id !== 'photoModal' && !event.target.classList.contains('modal-close')) {
+                return;
+            }
+            const modal = document.getElementById('photoModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        window.closePhotoModal = closePhotoModal;
+
+        // ============================================
+        // KEYBOARD SHORTCUTS
+        // ============================================
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closePhotoModal();
             }
         });
-    }
 
-    // ============================================
-    // PHOTO MODAL
-    // ============================================
-    function openUserPhotoModal(photoUrl, userName, userEmail) {
-        const modal = document.getElementById('photoModal');
-        document.getElementById('modalPhoto').src = photoUrl;
-        document.getElementById('modalName').textContent = userName;
-        document.getElementById('modalEmail').textContent = userEmail;
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closePhotoModal(event = null) {
-        if (event && event.target.id !== 'photoModal' && !event.target.classList.contains('modal-close')) {
-            return;
-        }
-        const modal = document.getElementById('photoModal');
-        modal.classList.remove('active');
-        document.body.style.overflow = 'auto';
-    }
-
-    // ============================================
-    // KEYBOARD SHORTCUTS
-    // ============================================
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closePhotoModal();
-        }
-    });
-
-    // ============================================
-    // INITIALIZATION
-    // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const searchParam = urlParams.get('q');
-        const actionParam = urlParams.get('action');
-        const statusParam = urlParams.get('status');
-
-        if (searchParam) {
-            searchInput.value = searchParam;
-            filterState.search = searchParam.toLowerCase();
-        }
-        if (actionParam) {
-            actionFilter.value = actionParam;
-            filterState.action = actionParam;
-        }
-        if (statusParam) {
-            statusFilter.value = statusParam;
-            filterState.status = statusParam;
-        }
-
-        applyFilters();
+        // Initialize bulk actions
         updateBulkActions();
+        updateSelectAllState();
     });
 </script>
 {% endblock %}

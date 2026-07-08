@@ -1,8 +1,11 @@
+# afras_app/attendance/models.py
+
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from accounts.models import Student, StaffProfile, SystemConfiguration
+from accounts.models import Student, StaffProfile
 from dashboard.models import Routine
+from datetime import timedelta  # ADD THIS IMPORT
 
 
 class AttendanceSession(models.Model):
@@ -29,13 +32,11 @@ class AttendanceSession(models.Model):
         return f"{self.subject_name} ({self.date}) - {dept_info}{sem_info}"
     
     def save(self, *args, **kwargs):
-        # Only generate session_id if it doesn't exist AND this is a new record
         if not self.session_id and not self.pk:
             self.session_id = f"S{timezone.now().strftime('%Y%m%d%H%M%S')}"
         super().save(*args, **kwargs)
     
     def get_enrolled_students(self):
-        """Get all students enrolled in this semester and year"""
         if self.semester and self.year:
             students = Student.objects.filter(
                 semester=self.semester,
@@ -49,7 +50,6 @@ class AttendanceSession(models.Model):
         return Student.objects.none()
     
     def is_student_enrolled(self, student_id):
-        """Check if a specific student is enrolled in this session"""
         try:
             student = Student.objects.get(id=student_id)
             if self.semester and self.year:
@@ -65,7 +65,6 @@ class AttendanceSession(models.Model):
             return False
     
     def get_attendance_summary(self):
-        """Get attendance summary for this session"""
         total_students = self.get_enrolled_students().count()
         present_count = self.logs.filter(status__in=['PRESENT', 'PARTIAL']).count()
         
@@ -77,7 +76,6 @@ class AttendanceSession(models.Model):
         }
     
     def end_session(self):
-        """End the current session"""
         self.is_active = False
         self.end_time = timezone.now()
         self.save()
@@ -137,13 +135,12 @@ class AttendanceLog(models.Model):
             models.Index(fields=['session', 'student']),
             models.Index(fields=['status', 'session']),
             models.Index(fields=['is_validated']),
-            models.Index(fields=['student_semester', 'session_semester']),  # FIXED: Removed 'session__semester'
-            models.Index(fields=['student', 'session_semester']),  # FIXED: Simplified index
+            models.Index(fields=['student_semester', 'session_semester']),
+            models.Index(fields=['student', 'session_semester']),
         ]
     
     @property
     def presence_duration_minutes(self):
-        """Calculate presence duration in minutes"""
         return self.total_presence_seconds / 60 if self.total_presence_seconds else 0
 
     @property
@@ -160,7 +157,6 @@ class AttendanceLog(models.Model):
             self.session_semester = self.session.semester
             self.session_year = self.session.year
             
-            # Check semester match
             if self.student.semester != self.session.semester:
                 self.is_validated = False
                 self.validation_error = (
@@ -170,7 +166,6 @@ class AttendanceLog(models.Model):
                 )
                 return False
             
-            # Check year match
             if self.student.year != self.session.year:
                 self.is_validated = False
                 self.validation_error = (
@@ -180,7 +175,6 @@ class AttendanceLog(models.Model):
                 )
                 return False
             
-            # Check department match if specified
             if self.session.department and self.student.department != self.session.department:
                 self.is_validated = False
                 self.validation_error = (
@@ -190,7 +184,6 @@ class AttendanceLog(models.Model):
                 )
                 return False
             
-            # Check section match if specified
             if self.session.section and self.student.section != self.session.section:
                 self.is_validated = False
                 self.validation_error = (
@@ -200,7 +193,6 @@ class AttendanceLog(models.Model):
                 )
                 return False
             
-            # All validations passed
             self.is_validated = True
             self.validation_error = None
             return True
@@ -225,13 +217,11 @@ class AttendanceLog(models.Model):
         return False
     
     def get_minute_attendance_percentage(self):
-        """Calculate attendance percentage from minute tracking"""
         if self.minute_count == 0:
             return 0
         return (self.attended_minutes / self.minute_count) * 100
     
     def get_attendance_pattern(self):
-        """Get attendance pattern as a string"""
         if not self.minute_presence:
             return "No data"
         
@@ -243,7 +233,6 @@ class AttendanceLog(models.Model):
         return "".join(pattern)
     
     def get_attendance_summary(self):
-        """Get a summary of attendance"""
         total = self.minute_count or self.session.expected_duration
         attended = self.attended_minutes
         absent = total - attended
@@ -265,44 +254,126 @@ class AttendanceLog(models.Model):
         }
 
     def save(self, *args, **kwargs):
-        # Validate semester before saving
+        """
+        Modified save() with combined single-shot + minute-tracking logic
+        REMOVED SystemConfiguration dependency
+        """
+        
+        # ============================================================
+        # STEP 1: Validate semester
+        # ============================================================
         self.validate_student_semester()
         
-        # If validation failed and not manual, set status to ABSENT
-        if not self.is_validated and not self.is_manual:
+        # ============================================================
+        # STEP 2: Manual override check
+        # ============================================================
+        if self.is_manual:
+            # Manual entries keep their status
+            self.last_seen = timezone.now()
+            super().save(*args, **kwargs)
+            return
+        
+        # ============================================================
+        # STEP 3: If validation failed, force ABSENT
+        # ============================================================
+        if not self.is_validated:
             self.status = "ABSENT"
             self.confidence = 0.0
+            super().save(*args, **kwargs)
+            return
         
-        # Update last_seen if not manual and validated
+        # ============================================================
+        # STEP 4: Update tracking fields
+        # ============================================================
         if not self.is_manual and self.is_validated:
             self.last_seen = timezone.now()
             self.last_detected = timezone.now()
             self.detection_count += 1
-
-        # Get the global config
-        config = SystemConfiguration.load()
         
-        # Get min_retention_required (80% default)
-        min_retention = float(config.min_retention_required) if config.min_retention_required else 80.0
+        # ============================================================
+        # STEP 5: Get config - Use 80% as default (REMOVED SystemConfiguration)
+        # ============================================================
+        min_retention = 80.0
         
-        # Calculate retention based on minute tracking (if available)
-        if self.minute_count > 0:
-            retention = self.get_minute_attendance_percentage()
-        else:
-            retention = self.retention_percentage  # Fallback to old method
+        # ============================================================
+        # STEP 6: Calculate actual session duration
+        # ============================================================
+        actual_duration = self.session.expected_duration or 60
+        if self.session.start_time and self.session.end_time:
+            time_diff = self.session.end_time - self.session.start_time
+            actual_duration = int(time_diff.total_seconds() // 60)
+            if actual_duration <= 0:
+                actual_duration = self.session.expected_duration or 60
         
-        # Determine status based on retention percentage (only if validated)
-        if self.is_validated:
-            if retention >= min_retention:
+        # If session ended early, use actual duration
+        if self.session.end_time and self.session.start_time:
+            expected_end = self.session.start_time + timedelta(minutes=self.session.expected_duration or 60)
+            if self.session.end_time < expected_end:
+                actual_duration = int((self.session.end_time - self.session.start_time).total_seconds() // 60)
+                if actual_duration <= 0:
+                    actual_duration = self.session.expected_duration or 60
+        
+        # Ensure we have at least 1 minute
+        if actual_duration < 1:
+            actual_duration = 1
+        
+        # ============================================================
+        # STEP 7: DETERMINE STATUS - Combined Logic
+        # ============================================================
+        
+        # ----- CASE 1: SINGLE SHOT MODE -----
+        # Student was detected at least once AND no minute tracking data
+        if self.detection_count >= 1 and (self.minute_count == 0 or not self.minute_presence):
+            self.status = "PRESENT"
+            print(f"✅ SINGLE-SHOT: {self.student.full_name} marked PRESENT (detections={self.detection_count})")
+        
+        # ----- CASE 2: MINUTE-BASED TRACKING MODE -----
+        elif self.minute_count > 0 and self.minute_presence:
+            if len(self.minute_presence) != actual_duration:
+                # Resize minute_presence to match actual duration
+                if len(self.minute_presence) < actual_duration:
+                    self.minute_presence.extend([0] * (actual_duration - len(self.minute_presence)))
+                else:
+                    self.minute_presence = self.minute_presence[:actual_duration]
+                self.minute_count = actual_duration
+                self.attended_minutes = sum(self.minute_presence)
+            
+            retention = self.attended_minutes / self.minute_count if self.minute_count > 0 else 0
+            
+            if retention >= (min_retention / 100):
                 self.status = "PRESENT"
-            elif retention >= 50:  # Between 50% and 80%
+            elif retention >= 0.5:
                 self.status = "PARTIAL"
-            elif self.presence_duration_minutes > 2:  # Less than 2 minutes
+            elif retention > 0:
                 self.status = "LATE"
             else:
                 self.status = "ABSENT"
+            
+            print(f"📊 MINUTE-TRACKING: {self.student.full_name} retention={retention:.1f}%, status={self.status}")
+        
+        # ----- CASE 3: MIXED MODE -----
+        # Student was detected AND has some minute data (hybrid scenario)
+        elif self.detection_count >= 1 and self.minute_count > 0:
+            retention = self.attended_minutes / self.minute_count if self.minute_count > 0 else 0
+            
+            # Use the better of the two methods
+            if retention >= (min_retention / 100):
+                self.status = "PRESENT"
+            elif retention >= 0.5:
+                self.status = "PARTIAL"
+            else:
+                # If detected but retention is low, still mark as PRESENT
+                # Because they were physically present at least once
+                self.status = "PRESENT"
+            
+            print(f"🔄 MIXED MODE: {self.student.full_name} detection={self.detection_count}, retention={retention:.1f}%, status={self.status}")
+        
+        # ----- CASE 4: FALLBACK -----
         else:
-            # If not validated, mark as absent with warning
             self.status = "ABSENT"
-
+            print(f"❌ FALLBACK: {self.student.full_name} marked ABSENT")
+        
+        # ============================================================
+        # STEP 8: Save to database
+        # ============================================================
         super().save(*args, **kwargs)

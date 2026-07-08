@@ -18,7 +18,6 @@
     /* ===== NOTIFICATIONS CONTAINER ===== */
     .notifications-container {
         margin-left: 0;
-        padding: 0.5rem;
         width: 100%;
         transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -85,7 +84,8 @@
 
     .header-icon-wrapper i {
         font-size: 1.5rem;
-        color: #60a5fa;
+        font-weight: 600;
+        color: var(--primary-text);
     }
 
     .header-title h1 {
@@ -1197,34 +1197,77 @@
     window.markAsRead = function (id) {
         fetch(`/dashboard/api/notifications/mark-read/${id}/`, {
             method: 'POST',
-            headers: { 'X-CSRFToken': getCookie('csrftoken') }
-        }).then(() => {
-            loadNotifications(currentPage, currentFilter);
-            showToast('Marked as read', 'success');
-        }).catch(() => { });
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Marked as read', 'success');
+                    loadNotifications(currentPage, currentFilter);
+                } else {
+                    showToast(data.error || 'Failed to mark as read', 'error');
+                }
+            })
+            .catch(() => {
+                showToast('An error occurred', 'error');
+            });
     };
 
     window.deleteNotification = function (id) {
         if (!confirm('Delete this notification?')) return;
+
+        // Get the notification title for better message
+        const item = document.querySelector(`.notification-item[data-id="${id}"]`);
+        const title = item ? item.querySelector('.notification-title')?.textContent || 'Notification' : 'Notification';
+
         fetch(`/dashboard/api/notifications/delete/${id}/`, {
             method: 'DELETE',
-            headers: { 'X-CSRFToken': getCookie('csrftoken') }
-        }).then(() => {
-            loadNotifications(currentPage, currentFilter);
-            showToast('Notification deleted', 'info');
-        }).catch(() => { });
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Use Django message system via toast
+                    showToast(data.toast?.text || `"${title}" deleted successfully!`, 'success');
+                    loadNotifications(currentPage, currentFilter);
+                } else {
+                    showToast(data.error || 'Failed to delete notification', 'error');
+                }
+            })
+            .catch(() => {
+                showToast('An error occurred while deleting', 'error');
+            });
     };
 
     window.markAllRead = function () {
         if (!confirm('Mark all notifications as read?')) return;
+
         fetch('/dashboard/api/notifications/mark-all-read/', {
             method: 'POST',
-            headers: { 'X-CSRFToken': getCookie('csrftoken') }
-        }).then(() => {
-            loadNotifications(currentPage, currentFilter);
-            showToast('All notifications marked as read', 'success');
-            updateParentBadge(0);
-        }).catch(() => { });
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('All notifications marked as read successfully!', 'success');
+                    loadNotifications(currentPage, currentFilter);
+                    updateParentBadge(0);
+                } else {
+                    showToast(data.error || 'Failed to mark all as read', 'error');
+                }
+            })
+            .catch(() => {
+                showToast('An error occurred', 'error');
+            });
     };
 
     window.refreshNotifications = function () {
@@ -1233,18 +1276,47 @@
     };
 
     window.exportNotifications = function () {
-        fetch(`/dashboard/api/notifications/export/?filter=${currentFilter}`)
-            .then(response => response.blob())
+        // Build URL with current filter
+        let url = `/dashboard/api/notifications/export/?filter=${currentFilter}`;
+
+        // Show loading indicator
+        showToast('Preparing export...', 'info');
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'text/csv, application/octet-stream, */*'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('text/html')) {
+                    throw new Error('Server returned HTML instead of CSV. Please check authentication.');
+                }
+
+                return response.blob();
+            })
             .then(blob => {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `notifications-${new Date().toISOString().split('T')[0]}.csv`;
+                const date = new Date().toISOString().split('T')[0];
+                a.download = `notifications_export_${date}.csv`;
+                document.body.appendChild(a);
                 a.click();
+                document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                showToast('Export successful', 'success');
+                showToast('Export successful!', 'success');
             })
-            .catch(() => showToast('Export failed', 'error'));
+            .catch(error => {
+                console.error('Export error:', error);
+                showToast(error.message || 'Export failed. Please try again.', 'error');
+            });
     };
 
     // ===== SEARCH =====
@@ -1342,7 +1414,7 @@
             container = document.createElement('div');
             container.className = 'msg-container';
             container.id = 'django-messages';
-            document.body.appendChild(container);
+            document.body.prepend(container);
         }
 
         // Create message element matching base template
@@ -1354,7 +1426,7 @@
         const icons = {
             success: 'fa-check-circle',
             error: 'fa-exclamation-circle',
-            warning: 'fa-exclamation-circle',
+            warning: 'fa-exclamation-triangle',
             info: 'fa-info-circle'
         };
 
@@ -1370,8 +1442,13 @@
             if (msg.parentNode) {
                 msg.style.animation = 'slideUp 0.3s ease-out forwards';
                 setTimeout(() => {
-                    if (msg.parentNode) msg.remove();
-                    if (container.children.length === 0) container.remove();
+                    if (msg.parentNode) {
+                        msg.remove();
+                        // Clean up empty container
+                        if (container.children.length === 0) {
+                            container.remove();
+                        }
+                    }
                 }, 300);
             }
         }, 4000);

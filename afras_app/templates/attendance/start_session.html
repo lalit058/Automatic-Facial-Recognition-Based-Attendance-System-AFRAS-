@@ -7,7 +7,7 @@
 <style>
     /* ============================================
        PROFESSIONAL DASHBOARD STYLE
-       Full Session List View
+       Fully Responsive Session Management
     ============================================ */
 
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -17,12 +17,11 @@
     }
 
     .page-container {
-        padding: 0.5rem;
         max-width: 1400px;
     }
 
     /* ============================================
-       PAGE HEADER
+       PAGE HEADER - FULLY RESPONSIVE
     ============================================ */
     .page-header {
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
@@ -57,6 +56,7 @@
         align-items: center;
         gap: 6px;
         margin-bottom: 0.5rem;
+        flex-wrap: wrap;
     }
 
     .page-header .header-left .breadcrumb a {
@@ -100,6 +100,7 @@
         align-items: center;
         gap: 8px;
         text-decoration: none;
+        white-space: nowrap;
     }
 
     .btn-primary:hover {
@@ -122,6 +123,7 @@
         align-items: center;
         gap: 8px;
         text-decoration: none;
+        white-space: nowrap;
     }
 
     .btn-export:hover {
@@ -130,34 +132,12 @@
         transform: translateY(-2px);
     }
 
-    .btn-outline-primary {
-        padding: 0.6rem 1.5rem;
-        background: transparent;
-        color: #6366f1;
-        border: 1.5px solid rgba(255, 255, 255, 0.3);
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        text-decoration: none;
-    }
-
-    .btn-outline-primary:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.5);
-        transform: translateY(-2px);
-    }
-
     /* ============================================
-       TWO COLUMN LAYOUT
+       TWO COLUMN LAYOUT - RESPONSIVE
     ============================================ */
     .two-column {
         display: grid;
-        grid-template-columns: 420px 1fr;
+        grid-template-columns: 380px 1fr;
         gap: 0.5rem;
         align-items: start;
     }
@@ -169,7 +149,7 @@
         background: #ffffff;
         border-radius: 16px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
-        padding: 1.75rem;
+        padding: 1.5rem;
         border: 1px solid #f1f5f9;
         position: sticky;
         top: 1.5rem;
@@ -195,25 +175,26 @@
         justify-content: center;
         color: #4f46e5;
         font-size: 0.9rem;
+        flex-shrink: 0;
     }
 
     .form-card .card-subtitle {
         font-size: 0.85rem;
         color: #64748b;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
         padding-left: 46px;
     }
 
     .form-group {
-        margin-bottom: 1.25rem;
+        margin-bottom: 1rem;
     }
 
     .form-group label {
         display: block;
         font-weight: 600;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: #1e293b;
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.3rem;
     }
 
     .form-group label .required {
@@ -223,21 +204,23 @@
 
     .form-group label .optional {
         font-weight: 400;
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         color: #94a3b8;
         margin-left: 6px;
     }
 
     .form-control {
         width: 100%;
-        padding: 0.65rem 1rem;
+        padding: 0.55rem 0.9rem;
         border: 1.5px solid #e2e8f0;
         border-radius: 10px;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         transition: all 0.2s ease;
         background: #fafbfc;
         color: #0f172a;
         outline: none;
+        -webkit-appearance: none;
+        appearance: none;
     }
 
     .form-control:focus {
@@ -248,44 +231,58 @@
 
     .form-control::placeholder {
         color: #94a3b8;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
 
     .form-control[type="datetime-local"] {
-        appearance: none;
         -webkit-appearance: none;
+        appearance: none;
     }
 
     .form-hint {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         color: #94a3b8;
-        margin-top: 0.25rem;
+        margin-top: 0.2rem;
         display: flex;
         align-items: center;
         gap: 4px;
     }
 
     .form-hint i {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         opacity: 0.6;
+    }
+
+    /* Row for Year/Semester/Section */
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0;
+    }
+
+    .col-md-4 {
+        flex: 1 1 calc(33.333% - 0.5rem);
+        min-width: 100px;
     }
 
     .btn-submit {
         width: 100%;
-        padding: 0.75rem;
+        padding: 0.7rem;
         background: var(--primary);
         border: none;
         border-radius: 10px;
         color: #ffffff;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         cursor: pointer;
         transition: all 0.3s ease;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        margin-top: 0.5rem;
+        margin-top: 0.25rem;
+        font-family: 'Inter', sans-serif;
     }
 
     .btn-submit:hover {
@@ -325,13 +322,13 @@
 
     /* Alerts */
     .alert {
-        padding: 0.6rem 0.9rem;
+        padding: 0.5rem 0.8rem;
         border-radius: 10px;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         display: flex;
         align-items: flex-start;
         gap: 8px;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
         border: none;
         border-left: 4px solid transparent;
     }
@@ -349,13 +346,29 @@
     }
 
     .alert i {
-        font-size: 1rem;
+        font-size: 0.9rem;
         margin-top: 1px;
         flex-shrink: 0;
     }
 
+    /* Session Preview */
+    .session-preview {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 0.6rem 0.9rem;
+        margin-top: 0.25rem;
+        font-size: 0.7rem;
+        color: #64748b;
+        border: 1px solid #f1f5f9;
+    }
+
+    .session-preview i {
+        color: #6366f1;
+        margin-right: 4px;
+    }
+
     /* ============================================
-       RIGHT COLUMN - SESSION LIST
+       RIGHT COLUMN - SESSION LIST - RESPONSIVE
     ============================================ */
     .sessions-section {
         background: #ffffff;
@@ -366,7 +379,7 @@
     }
 
     .sessions-header {
-        padding: 1.25rem 1.75rem;
+        padding: 1rem 1.25rem;
         border-bottom: 1px solid #f1f5f9;
         display: flex;
         justify-content: space-between;
@@ -382,7 +395,7 @@
     }
 
     .sessions-header .title-section h3 {
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 700;
         color: #0f172a;
         margin: 0;
@@ -393,7 +406,7 @@
         color: #4f46e5;
         padding: 1px 12px;
         border-radius: 100px;
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         font-weight: 600;
     }
 
@@ -405,45 +418,60 @@
     }
 
     .sessions-header .filter-actions select {
-        padding: 0.4rem 0.8rem;
+        padding: 0.35rem 0.7rem;
         border: 1.5px solid #e2e8f0;
         border-radius: 8px;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         background: #fafbfc;
         color: #1e293b;
         outline: none;
         cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        padding-right: 28px;
+        min-width: 100px;
+        flex: 1 1 auto;
     }
 
     .sessions-header .filter-actions select:focus {
         border-color: #6366f1;
     }
 
-    /* Session Table */
+    /* Session Table - Responsive */
     .session-table-wrapper {
         overflow-x: auto;
-        padding: 0 1.75rem 1.75rem 1.75rem;
+        padding: 0 1.25rem 1.25rem 1.25rem;
+        -webkit-overflow-scrolling: touch;
     }
 
     .session-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        min-width: 700px;
     }
 
     .session-table thead th {
         text-align: left;
-        padding: 0.75rem 0.5rem;
+        padding: 0.6rem 0.4rem;
         font-weight: 600;
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: #94a3b8;
         border-bottom: 2px solid #f1f5f9;
+        white-space: nowrap;
+    }
+
+    .session-table thead th:last-child {
+        text-align: right;
     }
 
     .session-table tbody td {
-        padding: 0.75rem 0.5rem;
+        padding: 0.6rem 0.4rem;
         border-bottom: 1px solid #f1f5f9;
         color: #1e293b;
         vertical-align: middle;
@@ -460,45 +488,52 @@
     .session-table .session-id {
         font-weight: 600;
         color: #0f172a;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
     }
 
     .session-table .session-subject {
         font-weight: 500;
         color: #0f172a;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .session-table .session-dept {
         color: #64748b;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
     }
 
     .session-table .session-semester {
         color: #64748b;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         text-align: center;
     }
 
     .session-table .session-date {
         color: #64748b;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
     }
 
     .session-table .session-time {
         color: #64748b;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
     }
 
     .session-table .status-badge {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.3px;
-        padding: 3px 12px;
+        padding: 2px 10px;
         border-radius: 100px;
         display: inline-flex;
         align-items: center;
         gap: 4px;
+        white-space: nowrap;
     }
 
     .session-table .status-badge.active {
@@ -507,8 +542,8 @@
     }
 
     .session-table .status-badge.active .dot {
-        width: 6px;
-        height: 6px;
+        width: 5px;
+        height: 5px;
         border-radius: 50%;
         background: #16a34a;
         display: inline-block;
@@ -516,15 +551,8 @@
     }
 
     @keyframes pulse-dot {
-
-        0%,
-        100% {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0.3;
-        }
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
     }
 
     .session-table .status-badge.ended {
@@ -541,11 +569,12 @@
         color: #6366f1;
         text-decoration: none;
         font-weight: 500;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         transition: color 0.2s;
         display: inline-flex;
         align-items: center;
         gap: 4px;
+        white-space: nowrap;
     }
 
     .session-table .action-link:hover {
@@ -554,53 +583,55 @@
 
     .session-table .empty-row td {
         text-align: center;
-        padding: 3rem 0;
+        padding: 2.5rem 0;
         color: #94a3b8;
     }
 
     .session-table .empty-row i {
-        font-size: 2rem;
+        font-size: 1.8rem;
         opacity: 0.2;
         display: block;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.4rem;
     }
 
-    /* Department/Semester badges in table */
+    /* Badges */
     .dept-badge {
         display: inline-block;
         padding: 1px 10px;
         border-radius: 12px;
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 600;
         background: #eef2ff;
         color: #4f46e5;
+        white-space: nowrap;
     }
 
     .sem-badge {
         display: inline-block;
         padding: 1px 10px;
         border-radius: 12px;
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 600;
         background: #fef3c7;
         color: #d97706;
+        white-space: nowrap;
     }
 
     /* ============================================
-       PAGINATION
+       PAGINATION - RESPONSIVE
     ============================================ */
     .pagination-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem 1.75rem;
+        padding: 0.75rem 1.25rem;
         border-top: 1px solid #f1f5f9;
         flex-wrap: wrap;
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
 
     .pagination-container .info {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         color: #64748b;
     }
 
@@ -610,25 +641,28 @@
 
     .pagination-controls {
         display: flex;
-        gap: 0.3rem;
+        gap: 0.25rem;
         align-items: center;
+        flex-wrap: wrap;
     }
 
     .pagination-controls button {
-        padding: 0.3rem 0.8rem;
+        padding: 0.25rem 0.6rem;
         border: 1px solid #e2e8f0;
         border-radius: 6px;
         background: #fff;
         color: #1e293b;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         cursor: pointer;
         transition: all 0.2s;
         display: flex;
         align-items: center;
         gap: 4px;
+        min-height: 30px;
+        white-space: nowrap;
     }
 
-    .pagination-controls button:hover:not(:disabled) {
+    .pagination-controls button:hover:not(:disabled):not(.active) {
         background: #f1f5f9;
         border-color: #cbd5e1;
     }
@@ -650,108 +684,544 @@
 
     .pagination-controls .page-numbers {
         display: flex;
-        gap: 0.2rem;
+        gap: 0.15rem;
+        flex-wrap: wrap;
     }
 
     .pagination-controls .page-numbers button {
-        min-width: 32px;
+        min-width: 30px;
         justify-content: center;
     }
 
     .pagination-controls .dots {
-        padding: 0 0.3rem;
+        padding: 0 0.2rem;
         color: #94a3b8;
+        font-size: 0.7rem;
     }
 
     /* View All Button */
     .view-all-container {
         text-align: center;
-        padding: 0.5rem 1.75rem 1rem 1.75rem;
+        padding: 0.5rem 1.25rem 1rem 1.25rem;
+    }
+
+    .view-all-container .btn-outline-primary {
+        padding: 0.4rem 1.5rem;
+        font-size: 0.8rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #6366f1;
+        border-radius: 10px;
+        background: transparent;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .view-all-container .btn-outline-primary:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        transform: translateY(-2px);
     }
 
     /* ============================================
-       RESPONSIVE
+       FULLY RESPONSIVE BREAKPOINTS
     ============================================ */
-    @media (max-width: 1024px) {
+
+    /* Laptops & Desktops */
+    @media (max-width: 1200px) {
         .two-column {
-            grid-template-columns: 1fr;
+            grid-template-columns: 340px 1fr;
+            gap: 0.75rem;
         }
-
-        .form-card {
-            position: static;
+        .session-table {
+            min-width: 650px;
         }
-
-        .page-container {
-            padding: 1rem;
+        .page-header .header-left h1 {
+            font-size: 1.5rem;
         }
     }
 
-    @media (max-width: 768px) {
+    /* Tablets */
+    @media (max-width: 992px) {
+        .two-column {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .form-card {
+            position: static;
+        }
+        .page-header {
+            padding: 0.75rem 1rem;
+            border-radius: 16px 16px 0 0;
+        }
+        .page-header .header-left h1 {
+            font-size: 1.3rem;
+        }
+        .page-header .header-left p {
+            font-size: 0.8rem;
+        }
+        .form-card {
+            padding: 1.25rem;
+        }
+        .sessions-header {
+            padding: 0.75rem 1rem;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+        .sessions-header .filter-actions {
+            flex-wrap: wrap;
+        }
+        .sessions-header .filter-actions select {
+            flex: 1 1 calc(50% - 0.25rem);
+            min-width: 120px;
+        }
+        .session-table-wrapper {
+            padding: 0 0.75rem 0.75rem 0.75rem;
+        }
+        .session-table {
+            font-size: 0.75rem;
+            min-width: 600px;
+        }
+        .session-table thead th,
+        .session-table tbody td {
+            padding: 0.4rem 0.3rem;
+        }
+        .session-table .session-subject {
+            max-width: 100px;
+        }
         .pagination-container {
             flex-direction: column;
             align-items: center;
             text-align: center;
+            padding: 0.5rem 0.75rem;
+            gap: 0.4rem;
         }
-
-        .pagination-controls {
-            flex-wrap: wrap;
-            justify-content: center;
+        .pagination-container .info {
+            font-size: 0.7rem;
+        }
+        .pagination-controls button {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            min-height: 28px;
+        }
+        .pagination-controls .page-numbers button {
+            min-width: 28px;
+        }
+        .col-md-4 {
+            flex: 1 1 calc(50% - 0.5rem);
         }
     }
 
-    @media (max-width: 640px) {
+    /* Mobile Large */
+    @media (max-width: 768px) {
         .page-header {
             flex-direction: column;
             align-items: flex-start;
+            padding: 0.6rem 0.8rem;
+            border-radius: 12px 12px 0 0;
         }
-
+        .page-header .header-left h1 {
+            font-size: 1.1rem;
+        }
+        .page-header .header-left p {
+            font-size: 0.7rem;
+        }
+        .page-header .header-left .breadcrumb {
+            font-size: 0.6rem;
+        }
         .page-header .header-actions {
             width: 100%;
+            gap: 0.5rem;
         }
-
         .page-header .header-actions .btn-primary,
-        .page-header .header-actions .btn-outline {
+        .page-header .header-actions .btn-export {
             flex: 1;
             justify-content: center;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             padding: 0.4rem 0.8rem;
         }
-
-        .sessions-header {
-            flex-direction: column;
-            align-items: flex-start;
+        .form-card {
+            padding: 1rem;
+            border-radius: 12px;
         }
+        .form-card .card-title {
+            font-size: 1rem;
+        }
+        .form-card .card-title .icon-circle {
+            width: 32px;
+            height: 32px;
+            font-size: 0.8rem;
+        }
+        .form-card .card-subtitle {
+            font-size: 0.75rem;
+            padding-left: 42px;
+            margin-bottom: 0.75rem;
+        }
+        .form-group {
+            margin-bottom: 0.75rem;
+        }
+        .form-group label {
+            font-size: 0.7rem;
+        }
+        .form-control {
+            font-size: 0.8rem;
+            padding: 0.45rem 0.7rem;
+            border-radius: 8px;
+        }
+        .row {
+            gap: 0.4rem;
+        }
+        .col-md-4 {
+            flex: 1 1 calc(50% - 0.4rem);
+            min-width: 80px;
+        }
+        .btn-submit {
+            font-size: 0.8rem;
+            padding: 0.6rem;
+            border-radius: 8px;
+        }
+        .session-preview {
+            font-size: 0.65rem;
+            padding: 0.4rem 0.7rem;
+        }
+        .sessions-section {
+            border-radius: 12px;
+        }
+        .sessions-header .title-section h3 {
+            font-size: 0.85rem;
+        }
+        .sessions-header .title-section .badge-count {
+            font-size: 0.6rem;
+            padding: 1px 10px;
+        }
+        .sessions-header .filter-actions select {
+            font-size: 0.65rem;
+            padding: 0.3rem 0.6rem;
+            padding-right: 24px;
+            min-width: 80px;
+        }
+        .session-table-wrapper {
+            padding: 0 0.5rem 0.5rem 0.5rem;
+        }
+        .session-table {
+            font-size: 0.65rem;
+            min-width: 500px;
+        }
+        .session-table thead th {
+            font-size: 0.55rem;
+            padding: 0.3rem 0.25rem;
+        }
+        .session-table tbody td {
+            padding: 0.3rem 0.25rem;
+        }
+        .session-table .session-id {
+            font-size: 0.65rem;
+        }
+        .session-table .session-subject {
+            font-size: 0.65rem;
+            max-width: 80px;
+        }
+        .session-table .session-date {
+            font-size: 0.65rem;
+        }
+        .session-table .session-time {
+            font-size: 0.65rem;
+        }
+        .session-table .status-badge {
+            font-size: 0.5rem;
+            padding: 2px 8px;
+        }
+        .session-table .action-link {
+            font-size: 0.65rem;
+        }
+        .dept-badge,
+        .sem-badge {
+            font-size: 0.55rem;
+            padding: 1px 8px;
+        }
+        .view-all-container .btn-outline-primary {
+            font-size: 0.7rem;
+            padding: 0.3rem 1.2rem;
+        }
+        .alert {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.7rem;
+        }
+    }
 
+    /* Mobile Small */
+    @media (max-width: 480px) {
+        .page-header {
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px 8px 0 0;
+        }
+        .page-header .header-left h1 {
+            font-size: 0.95rem;
+        }
+        .page-header .header-left p {
+            font-size: 0.6rem;
+        }
+        .page-header .header-left .breadcrumb {
+            font-size: 0.55rem;
+            gap: 4px;
+        }
+        .page-header .header-actions .btn-primary,
+        .page-header .header-actions .btn-export {
+            font-size: 0.6rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+            gap: 4px;
+        }
+        .form-card {
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+        .form-card .card-title {
+            font-size: 0.85rem;
+        }
+        .form-card .card-title .icon-circle {
+            width: 28px;
+            height: 28px;
+            font-size: 0.7rem;
+            border-radius: 8px;
+        }
+        .form-card .card-subtitle {
+            font-size: 0.65rem;
+            padding-left: 38px;
+            margin-bottom: 0.5rem;
+        }
+        .form-group {
+            margin-bottom: 0.5rem;
+        }
+        .form-group label {
+            font-size: 0.6rem;
+        }
+        .form-control {
+            font-size: 0.7rem;
+            padding: 0.35rem 0.6rem;
+            border-radius: 6px;
+        }
+        .form-control::placeholder {
+            font-size: 0.7rem;
+        }
+        .form-hint {
+            font-size: 0.55rem;
+        }
+        .row {
+            gap: 0.3rem;
+        }
+        .col-md-4 {
+            flex: 1 1 100%;
+            min-width: 0;
+        }
+        .btn-submit {
+            font-size: 0.7rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+        }
+        .session-preview {
+            font-size: 0.55rem;
+            padding: 0.3rem 0.6rem;
+        }
+        .sessions-header {
+            padding: 0.5rem 0.6rem;
+        }
+        .sessions-header .title-section h3 {
+            font-size: 0.75rem;
+        }
+        .sessions-header .title-section .badge-count {
+            font-size: 0.5rem;
+            padding: 1px 8px;
+        }
         .sessions-header .filter-actions {
+            flex-direction: column;
             width: 100%;
         }
-
         .sessions-header .filter-actions select {
-            flex: 1;
-            font-size: 0.7rem;
+            width: 100%;
+            font-size: 0.6rem;
+            padding: 0.25rem 0.5rem;
+            padding-right: 22px;
+            min-width: 0;
         }
-
         .session-table-wrapper {
-            padding: 0 0.75rem 0.75rem 0.75rem;
+            padding: 0 0.3rem 0.3rem 0.3rem;
         }
-
-        .session-table thead th,
+        .session-table {
+            font-size: 0.55rem;
+            min-width: 400px;
+        }
+        .session-table thead th {
+            font-size: 0.5rem;
+            padding: 0.2rem 0.2rem;
+        }
         .session-table tbody td {
-            padding: 0.4rem 0.2rem;
-            font-size: 0.7rem;
+            padding: 0.2rem 0.2rem;
         }
-
-        .form-card {
-            padding: 1.25rem;
+        .session-table .session-id {
+            font-size: 0.55rem;
         }
-
-        .page-container {
-            padding: 0.75rem;
+        .session-table .session-subject {
+            font-size: 0.55rem;
+            max-width: 60px;
         }
+        .session-table .session-dept {
+            font-size: 0.55rem;
+        }
+        .session-table .session-semester {
+            font-size: 0.55rem;
+        }
+        .session-table .session-date {
+            font-size: 0.55rem;
+        }
+        .session-table .session-time {
+            font-size: 0.55rem;
+        }
+        .session-table .status-badge {
+            font-size: 0.45rem;
+            padding: 1px 6px;
+        }
+        .session-table .action-link {
+            font-size: 0.55rem;
+        }
+        .dept-badge,
+        .sem-badge {
+            font-size: 0.5rem;
+            padding: 1px 6px;
+        }
+        .pagination-container {
+            padding: 0.3rem 0.5rem;
+        }
+        .pagination-container .info {
+            font-size: 0.6rem;
+        }
+        .pagination-controls button {
+            font-size: 0.6rem;
+            padding: 0.15rem 0.4rem;
+            min-height: 24px;
+            border-radius: 4px;
+        }
+        .pagination-controls .page-numbers button {
+            min-width: 24px;
+        }
+        .pagination-controls .dots {
+            font-size: 0.6rem;
+        }
+        .view-all-container {
+            padding: 0.3rem 0.6rem 0.6rem 0.6rem;
+        }
+        .view-all-container .btn-outline-primary {
+            font-size: 0.6rem;
+            padding: 0.25rem 1rem;
+            border-radius: 8px;
+        }
+        .session-table .empty-row td {
+            padding: 1.5rem 0;
+        }
+        .session-table .empty-row i {
+            font-size: 1.5rem;
+        }
+        .alert {
+            font-size: 0.65rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+        }
+        .alert i {
+            font-size: 0.75rem;
+        }
+    }
 
-        .pagination-container .pagination-controls button {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.5rem;
+    /* Extra Small */
+    @media (max-width: 360px) {
+        .session-table {
+            font-size: 0.5rem;
+            min-width: 350px;
+        }
+        .session-table thead th {
+            font-size: 0.45rem;
+            padding: 0.15rem 0.15rem;
+        }
+        .session-table tbody td {
+            padding: 0.15rem 0.15rem;
+        }
+        .session-table .session-subject {
+            max-width: 50px;
+        }
+        .session-table .action-link {
+            font-size: 0.5rem;
+        }
+        .dept-badge,
+        .sem-badge {
+            font-size: 0.45rem;
+            padding: 1px 4px;
+        }
+        .pagination-controls button {
+            font-size: 0.5rem;
+            padding: 0.1rem 0.3rem;
+            min-height: 20px;
+        }
+        .pagination-controls .page-numbers button {
+            min-width: 20px;
+        }
+        .page-header .header-left h1 {
+            font-size: 0.8rem;
+        }
+    }
+
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+        .page-header .header-actions,
+        .form-card,
+        .view-all-container,
+        .pagination-container,
+        .sessions-header .filter-actions {
+            display: none !important;
+        }
+        .two-column {
+            display: block !important;
+        }
+        .sessions-section {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+        }
+        .page-header {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+        }
+        .page-header .header-left h1 {
+            color: #0f172a !important;
+        }
+        .page-header .header-left p {
+            color: #64748b !important;
+        }
+        .page-header .header-left .breadcrumb a,
+        .page-header .header-left .breadcrumb .current {
+            color: #0f172a !important;
+        }
+        .session-table thead {
+            background: #f1f5f9 !important;
+        }
+        .session-table thead th {
+            color: #0f172a !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+        .session-table tbody td {
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+        .session-table tbody tr:hover {
+            background: none !important;
+        }
+        .status-badge.active .dot {
+            animation: none !important;
         }
     }
 </style>
@@ -806,8 +1276,7 @@
             {% if messages %}
             {% for message in messages %}
             <div class="alert alert-{{ message.tags }}">
-                <i
-                    class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
                 <div>{{ message }}</div>
             </div>
             {% endfor %}
@@ -852,7 +1321,7 @@
                 </div>
 
                 <!-- Year, Semester, Section - Dynamic Filtering -->
-                <div class="row g-2">
+                <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="year">
@@ -875,7 +1344,6 @@
                             </label>
                             <select class="form-control" id="semester" name="semester" required>
                                 <option value="">Select Semester</option>
-                                <!-- Options will be dynamically populated based on year selection -->
                             </select>
                         </div>
                     </div>
@@ -886,7 +1354,6 @@
                             </label>
                             <select class="form-control" id="section" name="section">
                                 <option value="">Select Section</option>
-                                <!-- Options will be dynamically populated based on year selection -->
                             </select>
                         </div>
                     </div>
@@ -921,11 +1388,9 @@
                 </div>
 
                 <!-- Session Summary Preview -->
-                <div class="form-group" style="background: #f8fafc; border-radius: 10px; padding: 0.75rem 1rem; margin-top: 0.5rem;">
-                    <div style="font-size: 0.75rem; color: #64748b;">
-                        <i class="fas fa-info-circle"></i>
-                        <span id="session-preview">Session will be created for the selected class</span>
-                    </div>
+                <div class="session-preview">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="session-preview">Session will be created for the selected class</span>
                 </div>
 
                 <button type="submit" class="btn-submit" id="submitBtn">
@@ -1012,8 +1477,7 @@
 
             <!-- View All Button -->
             <div class="view-all-container">
-                <a href="{% url 'attendance:all_sessions' %}" class="btn-outline-primary"
-                    style="padding:0.5rem 2rem; font-size:0.85rem; text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+                <a href="{% url 'attendance:all_sessions' %}" class="btn-outline-primary">
                     <i class="fas fa-list"></i> View All Sessions
                 </a>
             </div>
@@ -1043,7 +1507,7 @@
     let allSessions = [];
     let filteredSessions = [];
     let currentPage = 1;
-    const pageSize = 10;
+    const pageSize = 12;
 
     // ============================================
     // DYNAMIC FILTERING - Update semester and section based on year
@@ -1173,7 +1637,7 @@
                         <td colspan="8">
                             <i class="fas fa-inbox"></i>
                             No sessions found
-                            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;">Start your first session</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">Start your first session</div>
                         </td>
                     </tr>
                 `;
@@ -1186,7 +1650,7 @@
                     <td colspan="8">
                         <i class="fas fa-exclamation-triangle"></i>
                         Could not load sessions
-                        <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;">Please refresh the page</div>
+                        <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">Please refresh the page</div>
                     </td>
                 </tr>
             `;
@@ -1257,7 +1721,7 @@
                 <td colspan="8">
                     <i class="fas fa-inbox"></i>
                     No sessions found
-                    <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;">
+                    <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">
                         ${document.getElementById('filterStatus').value !== 'all' ? 'Try changing your filters' : 'Start your first session'}
                     </div>
                 </td>
@@ -1269,7 +1733,7 @@
         container.innerHTML = pageSessions.map((s) => `
         <tr>
             <td class="session-id">#${s.id}</td>
-            <td class="session-subject">${s.subject}</td>
+            <td class="session-subject" title="${s.subject}">${s.subject}</td>
             <td class="session-dept">
                 <span class="dept-badge">${s.department || 'N/A'}</span>
             </td>

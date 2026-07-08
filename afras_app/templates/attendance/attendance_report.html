@@ -131,18 +131,38 @@
         font-weight: 600;
     }
 
-    /* Filter Section */
+    /* Filter Section - SIMPLIFIED */
     .filter-section {
         background: #fff;
         border-radius: 12px;
         border: 1px solid #f1f5f9;
         padding: 1rem 1.5rem;
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-        align-items: center;
         margin-bottom: 1.5rem;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .filter-section form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: flex-end;
+        width: 100%;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        flex: 1 1 150px;
+        min-width: 130px;
+    }
+
+    .filter-group label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
     }
 
     .filter-section select,
@@ -154,7 +174,8 @@
         background: #fafbfc;
         color: #1e293b;
         outline: none;
-        min-width: 120px;
+        width: 100%;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .filter-section select:focus,
@@ -163,9 +184,39 @@
         box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06);
     }
 
-    .filter-section input[type="date"] { min-width: 150px; }
+    .filter-section select {
+        cursor: pointer;
+        appearance: auto;
+    }
 
-    .filter-section .btn-filter {
+    .filter-section input[type="date"] {
+        min-width: 130px;
+    }
+
+    .date-range-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1 1 300px;
+    }
+
+    .date-range-group .range-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+        flex: 0 0 auto;
+    }
+
+    .btn-filter {
         padding: 0.4rem 1.2rem;
         border: none;
         background: var(--primary);
@@ -178,15 +229,16 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
+        white-space: nowrap;
     }
 
-    .filter-section .btn-filter:hover {
+    .btn-filter:hover {
         background: var(--primary-dark);
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(26, 86, 148, 0.25);
     }
 
-    .filter-section .btn-clear {
+    .btn-clear {
         padding: 0.4rem 1rem;
         border: none;
         background: #f1f5f9;
@@ -199,14 +251,15 @@
         display: inline-flex;
         align-items: center;
         gap: 4px;
+        white-space: nowrap;
     }
 
-    .filter-section .btn-clear:hover {
+    .btn-clear:hover {
         background: #e2e8f0;
         color: #1e293b;
     }
 
-    .filter-section .btn-export {
+    .btn-export {
         padding: 0.4rem 1.2rem;
         border: none;
         background: #16a34a;
@@ -220,27 +273,13 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
+        white-space: nowrap;
     }
 
-    .filter-section .btn-export:hover {
+    .btn-export:hover {
         background: #15803d;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
-    }
-
-    .date-range-group {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .date-range-group .range-label {
-        font-size: 0.7rem;
-        font-weight: 600;
-        color: #94a3b8;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
     }
 
     /* Report Table */
@@ -411,28 +450,56 @@
         margin: 0 0 0.25rem 0;
     }
 
-    /* Responsive */
-    @media (max-width: 1200px) {
-        .summary-cards { grid-template-columns: repeat(3, 1fr); }
+    .info-banner {
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+        color: #0369a1;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
 
+    .info-banner i {
+        font-size: 1.1rem;
+        color: #0ea5e9;
+    }
+
+    /* Responsive */
     @media (max-width: 768px) {
         .summary-cards { grid-template-columns: repeat(2, 1fr); }
 
         .filter-section {
+            padding: 0.75rem 1rem;
+        }
+
+        .filter-section form {
             flex-direction: column;
             align-items: stretch;
         }
 
-        .filter-section select,
-        .filter-section input {
-            width: 100%;
+        .filter-group {
             min-width: unset;
         }
 
         .date-range-group {
             flex-direction: column;
             align-items: stretch;
+        }
+
+        .filter-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .filter-actions .btn-filter,
+        .filter-actions .btn-clear,
+        .filter-actions .btn-export {
+            width: 100%;
+            justify-content: center;
         }
 
         .header-content { flex-direction: column; align-items: flex-start; }
@@ -500,7 +567,7 @@
         <div class="header-content">
             <div class="header-left">
                 <h1><i class="fas fa-calendar-alt"></i> Attendance Report</h1>
-                <p>View attendance in day, week, or month view with filters</p>
+                <p>View attendance by Subject, Year, and Semester</p>
             </div>
             <div class="header-actions">
                 <button class="btn-outline-light" onclick="window.print()">
@@ -534,67 +601,87 @@
         </div>
     </div>
 
-    <!-- FILTER SECTION -->
+    <!-- FILTER SECTION - SIMPLIFIED -->
     <div class="filter-section">
-        <form method="GET" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; width: 100%;">
-            <!-- Department Filter -->
-            <select name="department">
-                <option value="">All Departments</option>
-                {% for dept in departments %}
-                <option value="{{ dept }}" {% if department_filter == dept %}selected{% endif %}>{{ dept }}</option>
-                {% endfor %}
-            </select>
+        <form method="GET" id="filterForm">
+            <!-- Year Filter -->
+            <div class="filter-group">
+                <label>Year</label>
+                <select name="year" id="yearFilter">
+                    <option value="">All Years</option>
+                    {% for yr in years %}
+                    <option value="{{ yr }}" {% if year_filter|add:'0' == yr %}selected{% endif %}>Year {{ yr }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
             <!-- Semester Filter -->
-            <select name="semester">
-                <option value="">All Semesters</option>
-                {% for sem in semesters %}
-                <option value="{{ sem }}" {% if semester_filter|add:'0' == sem %}selected{% endif %}>Semester {{ sem }}</option>
-                {% endfor %}
-            </select>
+            <div class="filter-group">
+                <label>Semester</label>
+                <select name="semester" id="semesterFilter">
+                    <option value="">All Semesters</option>
+                    {% for sem in semesters %}
+                    <option value="{{ sem }}" {% if semester_filter|add:'0' == sem %}selected{% endif %}>Semester {{ sem }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-            <!-- Year Filter -->
-            <select name="year">
-                <option value="">All Years</option>
-                {% for yr in years %}
-                <option value="{{ yr }}" {% if year_filter|add:'0' == yr %}selected{% endif %}>Year {{ yr }}</option>
-                {% endfor %}
-            </select>
+            <!-- Subject Filter -->
+            <div class="filter-group">
+                <label>Subject</label>
+                <select name="subject" id="subjectFilter">
+                    <option value="">All Subjects</option>
+                    {% for sub in subjects %}
+                    <option value="{{ sub }}" {% if subject_filter == sub %}selected{% endif %}>{{ sub }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-            <!-- Section Filter -->
-            <select name="section">
-                <option value="">All Sections</option>
-                {% for sec in sections %}
-                <option value="{{ sec }}" {% if section_filter == sec %}selected{% endif %}>Section {{ sec }}</option>
-                {% endfor %}
-            </select>
-
-            <!-- Date Range Type -->
-            <select name="date_range" id="dateRangeSelect">
-                <option value="day" {% if date_range_type == 'day' %}selected{% endif %}>Day</option>
-                <option value="week" {% if date_range_type == 'week' %}selected{% endif %}>Week</option>
-                <option value="month" {% if date_range_type == 'month' %}selected{% endif %}>Month</option>
-                <option value="custom" {% if date_range_type == 'custom' %}selected{% endif %}>Custom</option>
-            </select>
+            <!-- Date Range -->
+            <div class="filter-group" style="flex: 1 1 120px; min-width: 100px;">
+                <label>View</label>
+                <select name="date_range" id="dateRangeSelect">
+                    <option value="day" {% if date_range_type == 'day' %}selected{% endif %}>Day</option>
+                    <option value="week" {% if date_range_type == 'week' %}selected{% endif %}>Week</option>
+                    <option value="month" {% if date_range_type == 'month' %}selected{% endif %}>Month</option>
+                    <option value="custom" {% if date_range_type == 'custom' %}selected{% endif %}>Custom</option>
+                </select>
+            </div>
 
             <!-- Custom Date Range -->
-            <div class="date-range-group" id="dateRangeGroup">
+            <div class="date-range-group" id="dateRangeGroup" style="display: {% if date_range_type == 'custom' %}flex{% else %}none{% endif %};">
                 <input type="date" name="start_date" value="{{ start_date_val }}" placeholder="Start Date">
                 <span class="range-label">to</span>
                 <input type="date" name="end_date" value="{{ end_date_val }}" placeholder="End Date">
             </div>
 
-            <button type="submit" class="btn-filter">
-                <i class="fas fa-search"></i> Apply
-            </button>
-            <a href="{% url 'attendance:attendance_report' %}" class="btn-clear">
-                <i class="fas fa-times"></i> Clear
-            </a>
-            <a href="{% url 'attendance:export_attendance_report_csv' %}?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}" class="btn-export">
-                <i class="fas fa-file-export"></i> Export CSV
-            </a>
+            <!-- Actions -->
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">
+                    <i class="fas fa-search"></i> Apply
+                </button>
+                <a href="{% url 'attendance:attendance_report' %}" class="btn-clear">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+                <a href="{% url 'attendance:export_attendance_report_csv' %}?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}" class="btn-export">
+                    <i class="fas fa-file-export"></i> Export CSV
+                </a>
+            </div>
         </form>
     </div>
+
+    <!-- INFO BANNER - Shows subject registered students info -->
+    {% if subject_filter %}
+    <div class="info-banner">
+        <i class="fas fa-info-circle"></i>
+        <span>
+            <strong>{{ subject_filter }}</strong> - Showing <strong>{{ summary.total_students }}</strong> registered students
+            {% if first_session_date %}
+            (First session: {{ first_session_date|date:"F d, Y" }})
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
 
     <!-- REPORT TABLE -->
     <div class="report-card">
@@ -602,6 +689,11 @@
             <h3>
                 <i class="fas fa-table"></i>
                 Attendance Report
+                {% if subject_filter %}
+                <span style="font-size: 0.7rem; font-weight: 400; color: #64748b; margin-left: 0.5rem;">
+                    {{ subject_filter }}
+                </span>
+                {% endif %}
             </h3>
             <span class="date-info">
                 <strong>Date Range:</strong> {{ date_range_display }}
@@ -676,7 +768,13 @@
                             <div class="empty-state">
                                 <i class="fas fa-inbox"></i>
                                 <h3>No Students Found</h3>
-                                <p>No students match the selected filters</p>
+                                <p>
+                                    {% if subject_filter %}
+                                    No students registered for <strong>{{ subject_filter }}</strong>
+                                    {% else %}
+                                    No students match the selected filters
+                                    {% endif %}
+                                </p>
                             </div>
                         </td>
                     </tr>
@@ -728,28 +826,53 @@
 </div>
 
 <script>
-// Show/hide custom date range based on selection
-document.getElementById('dateRangeSelect').addEventListener('change', function() {
-    const dateGroup = document.getElementById('dateRangeGroup');
-    if (this.value === 'custom') {
-        dateGroup.style.display = 'flex';
-    } else {
-        dateGroup.style.display = 'none';
+document.addEventListener('DOMContentLoaded', function() {
+    const dateRangeSelect = document.getElementById('dateRangeSelect');
+    const dateRangeGroup = document.getElementById('dateRangeGroup');
+    const filterForm = document.getElementById('filterForm');
+    
+    // Show/hide custom date range
+    function toggleDateRange() {
+        if (dateRangeSelect.value === 'custom') {
+            dateRangeGroup.style.display = 'flex';
+        } else {
+            dateRangeGroup.style.display = 'none';
+        }
     }
-});
-
-// Auto-submit on filter change
-document.querySelectorAll('.filter-section select:not(#dateRangeSelect), .filter-section input[type="date"]').forEach(el => {
-    el.addEventListener('change', function() {
-        this.closest('form').submit();
+    
+    toggleDateRange();
+    
+    // Date range change handler
+    dateRangeSelect.addEventListener('change', function() {
+        toggleDateRange();
+        if (this.value !== 'custom') {
+            const form = this.closest('form');
+            const startInput = form.querySelector('input[name="start_date"]');
+            const endInput = form.querySelector('input[name="end_date"]');
+            if (startInput) startInput.value = '';
+            if (endInput) endInput.value = '';
+            form.submit();
+        }
+    });
+    
+    // Auto-submit on filter change
+    document.querySelectorAll('.filter-section select:not(#dateRangeSelect)').forEach(el => {
+        el.addEventListener('change', function() {
+            this.closest('form').submit();
+        });
+    });
+    
+    // Auto-submit when both dates are filled
+    document.querySelectorAll('input[type="date"]').forEach(el => {
+        el.addEventListener('change', function() {
+            const form = this.closest('form');
+            const startInput = form.querySelector('input[name="start_date"]');
+            const endInput = form.querySelector('input[name="end_date"]');
+            if (startInput.value && endInput.value) {
+                form.submit();
+            }
+        });
     });
 });
-
-// Initial state
-if (document.getElementById('dateRangeSelect').value === 'custom') {
-    document.getElementById('dateRangeGroup').style.display = 'flex';
-} else {
-    document.getElementById('dateRangeGroup').style.display = 'none';
-}
 </script>
 {% endblock %}

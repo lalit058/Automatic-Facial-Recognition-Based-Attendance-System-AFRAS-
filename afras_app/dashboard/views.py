@@ -12,6 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods, require_POST
 from attendance.models import AttendanceSession, AttendanceLog
 from django.utils import timezone
+from .models import Routine
 from datetime import datetime, timedelta
 from django.contrib import messages
 import psutil
@@ -1610,7 +1611,7 @@ def system_logs_view(request):
         logs = logs.filter(action__icontains=action_filter)
     
     # Pagination - 15 items per page
-    paginator = Paginator(logs, 15)
+    paginator = Paginator(logs, 25)
     
     try:
         page_obj = paginator.page(page)
@@ -2016,38 +2017,6 @@ def delete_single_log(request, log_id):
             'success': False,
             'error': str(e)
         }, status=500)
-
-
-@login_required
-def routine_management(request):
-    """Render the routine management page"""
-    
-    # Get active session
-    active_session = AttendanceSession.objects.filter(is_active=True).first()
-    
-    # Get recent sessions for display
-    recent_sessions = AttendanceSession.objects.all().order_by('-date', '-start_time')[:10]
-    
-    # Get today's sessions
-    today = timezone.now().date()
-    today_sessions = AttendanceSession.objects.filter(date=today)
-    
-    # Get extracted routines from session (if any)
-    extracted_routines = request.session.get('extracted_routines', [])
-    
-    # Get total stats
-    total_sessions = AttendanceSession.objects.count()
-    active_sessions = AttendanceSession.objects.filter(is_active=True).count()
-    
-    context = {
-        "active_session": active_session,
-        "recent_sessions": recent_sessions,
-        "total_sessions": total_sessions,
-        "active_sessions_count": active_sessions,
-        "today_sessions_count": today_sessions.count(),
-        "extracted_routines": extracted_routines,
-    }
-    return render(request, "dashboard/routine_management.html", context)
 
 
 @csrf_exempt
@@ -2880,6 +2849,44 @@ def generate_api_key_api(request):
     })
 
 
+@login_required
+def active_routines_api(request):
+    """
+    API endpoint to get active routines
+    """
+    routines = Routine.objects.filter(is_active=True).order_by('day_of_week', 'start_time')
+    
+    day_map = {
+        0: 'Monday', 1: 'Tuesday', 2: 'Wednesday',
+        3: 'Thursday', 4: 'Friday', 5: 'Saturday', 6: 'Sunday'
+    }
+    
+    data = []
+    for routine in routines:
+        # Convert day_of_week to string if it's an integer
+        day = routine.day_of_week
+        if isinstance(day, int):
+            day = day_map.get(day, 'Unknown')
+        
+        data.append({
+            'id': routine.id,
+            'subject': routine.subject,
+            'department': routine.department,
+            'semester': routine.semester,
+            'year': routine.year,
+            'section': routine.section or 'N/A',
+            'day_of_week': day,
+            'start_time': routine.start_time.strftime('%I:%M %p'),
+            'duration': routine.duration,
+            'is_active': routine.is_active
+        })
+    
+    return JsonResponse({
+        'routines': data,
+        'total': len(data)
+    })
+    
+
 @user_passes_test(lambda u: u.is_superuser)
 def system_status_api(request):
     """Real-time system status"""
@@ -3218,6 +3225,8 @@ def api_mark_all_notifications_read(request):
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
+from django.contrib import messages
+
 @login_required
 def api_delete_notification(request, notification_id):
     """Delete a notification"""
@@ -3230,8 +3239,20 @@ def api_delete_notification(request, notification_id):
             return JsonResponse({"success": False, "error": "Permission denied"}, status=403)
         
         notification.delete()
-        return JsonResponse({"success": True, "message": "Notification deleted"})
+        
+        # Add success message
+        messages.success(request, f'Notification "{notification.title}" deleted successfully!')
+        
+        return JsonResponse({
+            "success": True, 
+            "message": "Notification deleted",
+            "toast": {
+                "type": "success",
+                "text": f'Notification "{notification.title}" deleted successfully!'
+            }
+        })
     except Exception as e:
+        messages.error(request, f'Error deleting notification: {str(e)}')
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
@@ -3359,6 +3380,48 @@ def api_get_all_notifications(request):
         "unread_count": Notification.get_unread_count(request.user)
     })
 
+
+@login_required
+def export_notifications(request):
+    """Export notifications to CSV"""
+    import csv
+    from django.http import HttpResponse
+    from accounts.models import Notification
+    
+    # Get filter
+    filter_type = request.GET.get('filter', 'all')
+    
+    # Get notifications for user (including system)
+    notifications = Notification.get_user_notifications(request.user, limit=1000, include_system=True)
+    
+    if filter_type == 'unread':
+        notifications = [n for n in notifications if not n.is_read]
+    elif filter_type == 'read':
+        notifications = [n for n in notifications if n.is_read]
+    
+    # Create CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="notifications_export_{timezone.now().date()}.csv"'
+    response['X-Content-Type-Options'] = 'nosniff'
+    
+    writer = csv.writer(response)
+    writer.writerow([
+        'ID', 'Title', 'Message', 'Type', 'Status', 
+        'Created At', 'Link'
+    ])
+    
+    for notif in notifications:
+        writer.writerow([
+            notif.id,
+            notif.title,
+            notif.message,
+            notif.notification_type,
+            'Read' if notif.is_read else 'Unread',
+            notif.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            notif.link or ''
+        ])
+    
+    return response
 
 @login_required
 def api_test_real_time_notification(request):
