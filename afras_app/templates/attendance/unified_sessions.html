@@ -252,6 +252,282 @@
     }
 
     /* ============================================
+       AUTO-SESSION STATUS DASHBOARD
+    ============================================ */
+    .status-dashboard {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .status-dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .status-dashboard-header h4 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .status-dashboard-header h4 i {
+        color: #6366f1;
+    }
+
+    .status-badge-dashboard {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 4px 14px;
+        border-radius: 100px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .status-badge-dashboard.running {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .status-badge-dashboard.running i {
+        color: #16a34a;
+        animation: pulse-dot 1.5s infinite;
+    }
+
+    .status-badge-dashboard.stopped {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .status-badge-dashboard.stopped i {
+        color: #dc2626;
+    }
+
+    .status-badge-dashboard.idle {
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    .status-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+
+    .status-card {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid #f1f5f9;
+        transition: all 0.2s;
+    }
+
+    .status-card:hover {
+        border-color: #e2e8f0;
+        background: #fafbfc;
+    }
+
+    .status-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .status-icon.green {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .status-icon.blue {
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
+
+    .status-icon.orange {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .status-icon.red {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .status-icon.gray {
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    .status-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .status-label {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #94a3b8;
+    }
+
+    .status-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.3;
+    }
+
+    .status-sub {
+        font-size: 0.6rem;
+        color: #94a3b8;
+        margin-top: 1px;
+    }
+
+    /* Activity Log */
+    .activity-log {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .activity-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+    }
+
+    .activity-header span:first-child {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .activity-header span:last-child {
+        font-size: 0.65rem;
+        color: #94a3b8;
+    }
+
+    .activity-list {
+        max-height: 120px;
+        overflow-y: auto;
+        font-size: 0.75rem;
+    }
+
+    .activity-list::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .activity-list::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.3rem 0.5rem;
+        border-radius: 6px;
+        margin-bottom: 2px;
+        font-size: 0.75rem;
+        animation: slideInActivity 0.3s ease;
+    }
+
+    .activity-item:hover {
+        background: #f8fafc;
+    }
+
+    .activity-item .time {
+        color: #94a3b8;
+        font-size: 0.6rem;
+        font-family: 'JetBrains Mono', monospace;
+        white-space: nowrap;
+        min-width: 60px;
+    }
+
+    .activity-item .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .activity-item .dot.start {
+        background: #16a34a;
+    }
+
+    .activity-item .dot.end {
+        background: #dc2626;
+    }
+
+    .activity-item .dot.info {
+        background: #6366f1;
+    }
+
+    .activity-item .dot.warning {
+        background: #d97706;
+    }
+
+    .activity-item .message {
+        color: #1e293b;
+        flex: 1;
+    }
+
+    .activity-item .subject {
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .activity-empty {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #94a3b8;
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    .activity-empty i {
+        font-size: 1rem;
+    }
+
+    @keyframes slideInActivity {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ============================================
        STATS ROW
     ============================================ */
     .stats-row {
@@ -972,18 +1248,6 @@
         animation: pulse-dot 1.5s infinite;
     }
 
-    @keyframes pulse-dot {
-
-        0%,
-        100% {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0.3;
-        }
-    }
-
     .status-badge-table.ended {
         background: #f1f5f9;
         color: #94a3b8;
@@ -1004,6 +1268,17 @@
         color: #d97706;
     }
 
+    .status-badge-table.live {
+        background: #dcfce7;
+        color: #16a34a;
+        animation: pulse-badge 2s infinite;
+    }
+
+    @keyframes pulse-badge {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+
     .action-link {
         color: #6366f1;
         text-decoration: none;
@@ -1018,6 +1293,15 @@
 
     .action-link:hover {
         color: #4f46e5;
+    }
+
+    .action-link.monitor-link {
+        color: #16a34a;
+        font-weight: 600;
+    }
+
+    .action-link.monitor-link:hover {
+        color: #15803d;
     }
 
     .action-link.delete-link {
@@ -1036,6 +1320,16 @@
     .text-muted {
         color: #94a3b8;
         font-size: 0.7rem;
+    }
+
+    .live-indicator {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #16a34a;
+        animation: pulse-dot 1.5s infinite;
+        margin-right: 4px;
     }
 
     /* ============================================
@@ -1350,8 +1644,8 @@
        RESPONSIVE BREAKPOINTS
     ============================================ */
     @media (max-width: 1200px) {
-        .stats-row {
-            grid-template-columns: repeat(3, 1fr);
+        .status-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
     }
 
@@ -1479,6 +1773,21 @@
             width: 100%;
             justify-content: flex-start;
         }
+
+        .status-dashboard {
+            padding: 0.75rem 1rem;
+        }
+
+        .status-dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .status-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
     }
 
     @media (max-width: 480px) {
@@ -1547,6 +1856,10 @@
             font-size: 0.65rem;
             padding: 0.35rem;
         }
+
+        .status-grid {
+            grid-template-columns: 1fr;
+        }
     }
 
     /* ============================================
@@ -1563,7 +1876,8 @@
         .upload-zone,
         .btn,
         .extracted-section .actions-row,
-        .auto-schedule-banner {
+        .auto-schedule-banner,
+        .status-dashboard {
             display: none !important;
         }
 
@@ -1651,6 +1965,81 @@
             <button onclick="checkAutoStatus()" class="btn btn-sm" style="background:#e2e8f0; color:#1e293b;">
                 <i class="fas fa-refresh"></i>
             </button>
+        </div>
+    </div>
+
+    <!-- ============================================
+    AUTO-SESSION STATUS DASHBOARD
+    ============================================ -->
+    <div class="status-dashboard">
+        <div class="status-dashboard-header">
+            <h4><i class="fas fa-robot"></i> Automatic Session Manager Status</h4>
+            <span class="status-badge-dashboard" id="liveStatusBadge">
+                <i class="fas fa-circle"></i> Checking...
+            </span>
+        </div>
+        <div class="status-grid">
+            <!-- Scheduler Status -->
+            <div class="status-card">
+                <div class="status-icon" id="schedulerIcon">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <div class="status-info">
+                    <div class="status-label">Scheduler</div>
+                    <div class="status-value" id="schedulerStatusDisplay">Loading...</div>
+                    <div class="status-sub">Last check: <span id="lastCheckTime">--</span></div>
+                </div>
+            </div>
+
+            <!-- Active Sessions -->
+            <div class="status-card">
+                <div class="status-icon" id="activeIcon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="status-info">
+                    <div class="status-label">Active Sessions</div>
+                    <div class="status-value" id="activeSessionsDisplay">0</div>
+                    <div class="status-sub">Currently running</div>
+                </div>
+            </div>
+
+            <!-- Auto-Started Today -->
+            <div class="status-card">
+                <div class="status-icon" id="startedIcon">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="status-info">
+                    <div class="status-label">Auto-Started Today</div>
+                    <div class="status-value" id="startedTodayDisplay">0</div>
+                    <div class="status-sub">Sessions auto-started</div>
+                </div>
+            </div>
+
+            <!-- Auto-Ended Today -->
+            <div class="status-card">
+                <div class="status-icon" id="endedIcon">
+                    <i class="fas fa-stop"></i>
+                </div>
+                <div class="status-info">
+                    <div class="status-label">Auto-Ended Today</div>
+                    <div class="status-value" id="endedTodayDisplay">0</div>
+                    <div class="status-sub">Sessions auto-ended</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Log -->
+        <div class="activity-log">
+            <div class="activity-header">
+                <span><i class="fas fa-history"></i> Recent Activity</span>
+                <span id="activityCount">0 events</span>
+            </div>
+            <div class="activity-list" id="activityList">
+                <div class="activity-empty">
+                    <i class="fas fa-inbox"></i>
+                    <span>No activity yet</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1903,6 +2292,7 @@
                 <option value="ended">Ended</option>
                 <option value="scheduled">Scheduled</option>
                 <option value="auto">Auto-Scheduled</option>
+                <option value="live">Live</option>
             </select>
             <select id="dateFilter" onchange="applyFilters()">
                 <option value="all">All Time</option>
@@ -1936,6 +2326,9 @@
                 <button onclick="refreshSessions()" class="btn btn-sm" style="background:#f1f5f9; color:#1e293b;">
                     <i class="fas fa-refresh"></i>
                 </button>
+                <span style="font-size: 0.6rem; color: #94a3b8;">
+                    <i class="fas fa-sync-alt"></i> Auto-refresh: <span id="autoRefreshStatus">10s</span>
+                </span>
             </div>
         </div>
         <div class="table-scroll">
@@ -2090,6 +2483,9 @@ JAVASCRIPT
     const pageSize = 25;
     let deleteSessionId = null;
     let deleteSessionName = '';
+    let activityLog = [];
+    const MAX_ACTIVITY = 20;
+    let autoRefreshInterval = null;
 
     // ============================================
     // START SESSION FORM - DYNAMIC FILTERING
@@ -2319,6 +2715,9 @@ JAVASCRIPT
         loadSessions();
         loadActiveRoutines();
         checkSchedulerStatus();
+        updateStatusDashboard();
+        checkForActivity();
+        startAutoRefresh();
 
         document.getElementById('startSessionForm')?.addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -2335,6 +2734,50 @@ JAVASCRIPT
             this.submit();
         });
     });
+
+    // ============================================
+    // AUTO REFRESH - EVERY 10 SECONDS
+    // ============================================
+    function startAutoRefresh() {
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+        }
+        
+        autoRefreshInterval = setInterval(() => {
+            // Update sessions without full page reload
+            fetch('/attendance/api/recent/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sessions && data.sessions.length > 0) {
+                        // Check if any session status changed
+                        const oldActive = allSessions.filter(s => s.is_active).length;
+                        const newActive = data.sessions.filter(s => s.is_active).length;
+                        
+                        allSessions = data.sessions;
+                        updateStats();
+                        applyFilters();
+                        updateStatusDashboard();
+                        checkForActivity();
+                        
+                        // Update auto-refresh status
+                        document.getElementById('autoRefreshStatus').textContent = '10s ✓';
+                        document.getElementById('autoRefreshStatus').style.color = '#16a34a';
+                        
+                        // Show notification if session started
+                        if (newActive > oldActive) {
+                            const started = data.sessions.filter(s => s.is_active);
+                            started.forEach(s => {
+                                showNotification(`🚀 Session "${s.subject}" is now LIVE!`, 'success');
+                            });
+                        }
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('autoRefreshStatus').textContent = '10s ⚠️';
+                    document.getElementById('autoRefreshStatus').style.color = '#dc2626';
+                });
+        }, 10000); // 10 seconds
+    }
 
     // ============================================
     // LOAD ACTIVE ROUTINES
@@ -2391,6 +2834,8 @@ JAVASCRIPT
         loadSessions();
         loadActiveRoutines();
         checkSchedulerStatus();
+        updateStatusDashboard();
+        checkForActivity();
         setTimeout(() => {
             showNotification('Status updated!', 'success');
         }, 1000);
@@ -2423,6 +2868,8 @@ JAVASCRIPT
     function refreshSessions() {
         showNotification('Refreshing sessions...', 'info');
         loadSessions();
+        updateStatusDashboard();
+        checkForActivity();
         setTimeout(() => {
             showNotification('Sessions refreshed!', 'success');
         }, 1000);
@@ -2441,6 +2888,8 @@ JAVASCRIPT
                     allSessions = data.sessions;
                     updateStats();
                     applyFilters();
+                    updateStatusDashboard();
+                    checkForActivity();
                 } else {
                     allSessions = [];
                     updateStats();
@@ -2472,7 +2921,219 @@ JAVASCRIPT
     }
 
     // ============================================
-    // APPLY FILTERS
+    // UPDATE STATUS DASHBOARD
+    // ============================================
+    function updateStatusDashboard() {
+        // Get scheduler status
+        fetch('/attendance/api/scheduler/status/')
+            .then(r => r.json())
+            .then(data => {
+                const statusBadge = document.getElementById('liveStatusBadge');
+                const statusDisplay = document.getElementById('schedulerStatusDisplay');
+                const schedulerIcon = document.getElementById('schedulerIcon');
+                
+                if (data.running) {
+                    statusBadge.className = 'status-badge-dashboard running';
+                    statusBadge.innerHTML = '<i class="fas fa-circle"></i> RUNNING';
+                    statusDisplay.textContent = '✅ Running';
+                    statusDisplay.style.color = '#16a34a';
+                    schedulerIcon.className = 'status-icon green';
+                    schedulerIcon.innerHTML = '<i class="fas fa-play-circle"></i>';
+                } else {
+                    statusBadge.className = 'status-badge-dashboard stopped';
+                    statusBadge.innerHTML = '<i class="fas fa-circle"></i> STOPPED';
+                    statusDisplay.textContent = '❌ Stopped';
+                    statusDisplay.style.color = '#dc2626';
+                    schedulerIcon.className = 'status-icon red';
+                    schedulerIcon.innerHTML = '<i class="fas fa-stop-circle"></i>';
+                }
+                document.getElementById('lastCheckTime').textContent = new Date().toLocaleTimeString();
+            })
+            .catch(() => {
+                document.getElementById('schedulerStatusDisplay').textContent = '⚠️ Unknown';
+            });
+
+        // Get session stats
+        fetch('/attendance/api/stats/')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('activeSessionsDisplay').textContent = data.active || 0;
+                const activeIcon = document.getElementById('activeIcon');
+                if (data.active > 0) {
+                    activeIcon.className = 'status-icon green';
+                    activeIcon.innerHTML = '<i class="fas fa-users"></i>';
+                } else {
+                    activeIcon.className = 'status-icon gray';
+                    activeIcon.innerHTML = '<i class="fas fa-users"></i>';
+                }
+            })
+            .catch(() => {
+                document.getElementById('activeSessionsDisplay').textContent = '?';
+            });
+
+        // Get recent sessions for auto-start/end counts
+        fetch('/attendance/api/recent/')
+            .then(r => r.json())
+            .then(data => {
+                if (data.sessions) {
+                    const today = new Date().toDateString();
+                    let startedToday = 0;
+                    let endedToday = 0;
+                    
+                    data.sessions.forEach(s => {
+                        const sessionDate = new Date(s.date).toDateString();
+                        if (sessionDate === today) {
+                            if (s.is_active) startedToday++;
+                            if (s.status === 'Ended') endedToday++;
+                        }
+                    });
+                    
+                    document.getElementById('startedTodayDisplay').textContent = startedToday;
+                    document.getElementById('endedTodayDisplay').textContent = endedToday;
+                }
+            });
+    }
+
+    // ============================================
+    // ACTIVITY LOG - TRACK AUTO-START/END EVENTS
+    // ============================================
+    function renderActivityLog() {
+        const container = document.getElementById('activityList');
+        const countEl = document.getElementById('activityCount');
+        
+        if (!container) return;
+        
+        if (activityLog.length === 0) {
+            container.innerHTML = `
+                <div class="activity-empty">
+                    <i class="fas fa-inbox"></i>
+                    <span>No activity yet. Sessions will appear here when they auto-start or auto-end.</span>
+                </div>
+            `;
+            if (countEl) countEl.textContent = '0 events';
+            return;
+        }
+        
+        if (countEl) countEl.textContent = `${activityLog.length} events`;
+        
+        container.innerHTML = activityLog.map(item => {
+            const dotClass = item.type === 'start' ? 'start' : item.type === 'end' ? 'end' : 'info';
+            const timeStr = item.time ? new Date(item.time).toLocaleTimeString() : '--:--:--';
+            const messageText = item.message || (item.type === 'start' ? 'Auto-started' : 'Auto-ended');
+            
+            return `
+                <div class="activity-item">
+                    <span class="time">${timeStr}</span>
+                    <span class="dot ${dotClass}"></span>
+                    <span class="message">
+                        <span class="subject">${item.subject}</span>
+                        ${messageText}
+                        <span style="color: #94a3b8; font-size: 0.65rem;">(#${item.id})</span>
+                    </span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function checkForActivity() {
+        fetch('/attendance/api/recent/')
+            .then(r => r.json())
+            .then(data => {
+                if (data.sessions && data.sessions.length > 0) {
+                    // Initialize history if not exists
+                    if (!window._sessionHistory) {
+                        window._sessionHistory = {};
+                    }
+                    
+                    const now = new Date();
+                    const prevStates = window._sessionHistory;
+                    let newActivities = [];
+                    let foundActive = false;
+                    
+                    data.sessions.forEach(s => {
+                        const key = s.id;
+                        const prev = prevStates[key];
+                        const isActive = s.is_active || false;
+                        const status = s.status || 'Ended';
+                        
+                        if (isActive) {
+                            foundActive = true;
+                        }
+                        
+                        if (prev) {
+                            // Check for status change
+                            if (prev.is_active !== isActive) {
+                                if (isActive) {
+                                    newActivities.push({
+                                        type: 'start',
+                                        id: s.id,
+                                        subject: s.subject,
+                                        time: now,
+                                        message: 'Auto-started'
+                                    });
+                                } else {
+                                    newActivities.push({
+                                        type: 'end',
+                                        id: s.id,
+                                        subject: s.subject,
+                                        time: now,
+                                        message: 'Auto-ended'
+                                    });
+                                }
+                            }
+                        } else if (isActive) {
+                            // New active session
+                            newActivities.push({
+                                type: 'start',
+                                id: s.id,
+                                subject: s.subject,
+                                time: now,
+                                message: 'Auto-started (new)'
+                            });
+                        }
+                        
+                        prevStates[key] = {
+                            is_active: isActive,
+                            status: status,
+                            last_seen: now
+                        };
+                    });
+                    
+                    // Add info if no active sessions found
+                    if (!foundActive && activityLog.length === 0) {
+                        const idleMessage = {
+                            type: 'info',
+                            id: 0,
+                            subject: 'System',
+                            time: now,
+                            message: 'System idle - no active sessions'
+                        };
+                        if (activityLog.length === 0 || activityLog[0].id !== 0) {
+                            activityLog = [idleMessage, ...activityLog].slice(0, MAX_ACTIVITY);
+                            renderActivityLog();
+                        }
+                    }
+                    
+                    // Add new activities to log
+                    if (newActivities.length > 0) {
+                        activityLog = [...newActivities, ...activityLog].slice(0, MAX_ACTIVITY);
+                        renderActivityLog();
+                        
+                        // Show notification for new activities
+                        newActivities.forEach(a => {
+                            const emoji = a.type === 'start' ? '🚀' : '⏹️';
+                            showNotification(`${emoji} ${a.subject} ${a.message}`, a.type === 'start' ? 'success' : 'warning');
+                        });
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('Activity check error:', err);
+            });
+    }
+
+    // ============================================
+    // APPLY FILTERS - Added "live" filter
     // ============================================
     function applyFilters() {
         const search = document.getElementById('searchInput').value.toLowerCase();
@@ -2489,6 +3150,7 @@ JAVASCRIPT
             else if (status === 'ended') matchStatus = s.status === 'Ended';
             else if (status === 'scheduled') matchStatus = s.status === 'Scheduled';
             else if (status === 'auto') matchStatus = s.is_auto_scheduled === true;
+            else if (status === 'live') matchStatus = s.is_active === true && s.status === 'Active';
 
             let matchDate = true;
             if (date !== 'all') {
@@ -2520,7 +3182,7 @@ JAVASCRIPT
     }
 
     // ============================================
-    // RENDER TABLE
+    // RENDER TABLE - With Manual Monitor Button
     // ============================================
     function renderTable() {
         const tbody = document.getElementById('sessionsTableBody');
@@ -2552,8 +3214,8 @@ JAVASCRIPT
             let statusText = s.status || 'Ended';
 
             if (s.is_active) {
-                statusClass = 'active';
-                statusText = 'Active';
+                statusClass = 'live';
+                statusText = '🔴 LIVE';
             } else if (s.status === 'Scheduled') {
                 statusClass = 'scheduled';
                 statusText = 'Scheduled';
@@ -2571,18 +3233,33 @@ JAVASCRIPT
 
             let actionsHtml = '';
 
+            // MONITOR BUTTON - Appears for LIVE/Active sessions
             if (s.is_active) {
-                actionsHtml = `<a href="/attendance/live/${s.id}/" class="action-link">
-                                <i class="fas fa-video"></i> Monitor
-                            </a>`;
+                actionsHtml = `
+                    <a href="/attendance/live/${s.id}/" class="action-link monitor-link" target="_blank">
+                        <i class="fas fa-video"></i> Monitor
+                    </a>
+                    <span class="action-divider">|</span>
+                    <a href="/attendance/summary/${s.id}/" class="action-link">
+                        <i class="fas fa-chart-bar"></i> Summary
+                    </a>
+                `;
             } else if (s.status === 'Scheduled') {
-                actionsHtml = `<span class="text-muted">
-                                <i class="fas fa-clock"></i> Upcoming
-                            </span>`;
+                actionsHtml = `
+                    <span class="text-muted">
+                        <i class="fas fa-clock"></i> Upcoming
+                    </span>
+                    <span class="action-divider">|</span>
+                    <a href="/attendance/summary/${s.id}/" class="action-link">
+                        <i class="fas fa-chart-bar"></i> Summary
+                    </a>
+                `;
             } else {
-                actionsHtml = `<a href="/attendance/summary/${s.id}/" class="action-link">
-                                <i class="fas fa-chart-bar"></i> Summary
-                            </a>`;
+                actionsHtml = `
+                    <a href="/attendance/summary/${s.id}/" class="action-link">
+                        <i class="fas fa-chart-bar"></i> Summary
+                    </a>
+                `;
             }
 
             if (!s.is_active) {
@@ -2608,6 +3285,7 @@ JAVASCRIPT
                 <td class="session-id">#${s.id}</td>
                 <td>
                     <div class="session-subject" title="${s.subject}">
+                        ${s.is_active ? '<span class="live-indicator"></span>' : ''}
                         ${s.subject}
                         ${isAuto ? '<span class="auto-badge"><i class="fas fa-robot"></i> Auto</span>' : ''}
                     </div>
@@ -2773,7 +3451,7 @@ JAVASCRIPT
 
         let csv = 'Session ID,Subject,Department,Year,Semester,Section,Date,Time Range,Duration,Status,Type\n';
         filteredSessions.forEach(s => {
-            const status = s.is_active ? 'Active' : (s.status || 'Ended');
+            const status = s.is_active ? 'Live' : (s.status || 'Ended');
             const type = s.is_auto_scheduled ? 'Auto-Scheduled' : 'Manual';
             csv += `${s.id},"${s.subject}","${s.department || 'N/A'}",${s.year || 'N/A'},${s.semester || 'N/A'},"${s.section || 'N/A'}",${s.date},"${s.time_range}",${s.duration || 'N/A'} min,${status},${type}\n`;
         });
@@ -2989,6 +3667,11 @@ JAVASCRIPT
         if (e.key === 'Escape') {
             closeDeleteModal();
         }
+        if (e.key === 'r' || e.key === 'R') {
+            if (!e.ctrlKey && !e.metaKey) {
+                refreshSessions();
+            }
+        }
     });
 
     // ============================================
@@ -3001,12 +3684,17 @@ JAVASCRIPT
     });
 
     // ============================================
-    // AUTO-REFRESH
+    // AUTO-REFRESH - Keep checking
     // ============================================
     setInterval(() => {
         loadSessions();
         checkActiveSession();
         checkSchedulerStatus();
+        updateStatusDashboard();
+        checkForActivity();
+        // Update auto-refresh status
+        document.getElementById('autoRefreshStatus').textContent = '10s ✓';
+        document.getElementById('autoRefreshStatus').style.color = '#16a34a';
     }, 30000);
 
     // ============================================
@@ -3041,6 +3729,9 @@ JAVASCRIPT
         loadSessions();
         checkActiveSession();
         checkSchedulerStatus();
+        updateStatusDashboard();
+        checkForActivity();
+        startAutoRefresh();
     });
 
     // ============================================

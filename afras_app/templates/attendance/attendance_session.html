@@ -7,257 +7,405 @@
 {% block extra_css %}
 <style>
     /* ============================================
-       MODERN PROFESSIONAL UI/UX - ATTENDANCE SESSION
-       SINGLE SHOT DETECTION MODE
+       PROFESSIONAL LIVE SESSION STYLES
     ============================================ */
-    
-    /* Google Font */
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
-    .live-wrapper {
-        padding: 24px 28px;
-        background: var(--bg);
-        min-height: calc(100vh - 70px);
-        position: relative;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    .live-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+        padding: 0.5rem;
+        box-sizing: border-box;
     }
 
     /* ============================================
-       SECTION HEADER
+       PAGE HEADER WITH BREADCRUMB
     ============================================ */
-    .section-header {
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .breadcrumb-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .breadcrumb-header a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-header a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .breadcrumb-header .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .breadcrumb-header .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .header-content {
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 16px;
-        margin-bottom: 24px;
-        padding: 16px 24px;
-        background: var(--surface);
-        border-radius: 16px;
-        border: 1px solid var(--border);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        gap: 1rem;
+        width: 100%;
     }
 
-    .section-header .left {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
+    .header-content .header-left {
+        flex: 1;
+        min-width: 150px;
     }
 
-    .section-header .left .status-indicator {
+    .header-content .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 6px 16px;
-        background: rgba(39, 174, 96, 0.08);
-        border-radius: 100px;
-        border: 1px solid rgba(39, 174, 96, 0.15);
+        flex-wrap: wrap;
+        word-break: break-word;
     }
 
-    .section-header .left .status-indicator .pulse {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: var(--success);
-        animation: pulse-dot 1.8s infinite;
-        box-shadow: 0 0 20px rgba(39, 174, 96, 0.3);
+    .header-content .header-left h1 i {
+        color: rgba(255, 255, 255, 0.8);
     }
 
-    @keyframes pulse-dot {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.4; transform: scale(0.7); }
-    }
-
-    .section-header .left .status-indicator span {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--success);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .section-header .left h2 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text-main);
-        margin: 0;
-    }
-
-    .section-header .left h2 small {
-        font-weight: 400;
+    .header-content .header-left .subtitle {
+        color: rgba(255, 255, 255, 0.7);
         font-size: 0.85rem;
-        color: var(--text-dim);
-        margin-left: 8px;
-    }
-
-    .section-header .right {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 8px;
         flex-wrap: wrap;
     }
 
-    .badge-mode {
-        padding: 4px 14px;
+    .header-content .header-left .subtitle .badge-status {
+        padding: 2px 14px;
         border-radius: 100px;
-        font-size: 0.6rem;
-        font-weight: 700;
+        font-size: 0.65rem;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        background: rgba(99, 102, 241, 0.1);
-        color: #818cf8;
-        border: 1px solid rgba(99, 102, 241, 0.15);
+    }
+
+    .badge-status.active {
+        background: rgba(16, 185, 129, 0.2);
+        color: #6ee7b7;
+        border: 1px solid rgba(16, 185, 129, 0.2);
         display: flex;
         align-items: center;
         gap: 6px;
     }
 
-    .badge-mode i {
-        font-size: 0.5rem;
+    .badge-status.active .pulse-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #6ee7b7;
+        animation: pulse-dot 1.5s infinite;
     }
 
-    .btn-end-session {
-        padding: 8px 20px;
-        border-radius: 10px;
-        font-size: 0.8rem;
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.3; transform: scale(0.7); }
+    }
+
+    .badge-mode {
+        padding: 2px 12px;
+        border-radius: 100px;
+        font-size: 0.6rem;
         font-weight: 600;
-        color: #fff;
-        background: linear-gradient(135deg, #dc2626, #b91c1c);
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
+        text-transform: uppercase;
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+        border: 1px solid rgba(99, 102, 241, 0.15);
+        display: inline-flex;
         align-items: center;
-        gap: 8px;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        gap: 4px;
+        white-space: nowrap;
+    }
+
+    .header-content .header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    .btn-outline-light {
+        padding: 0.5rem 1.2rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 500;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    .btn-danger-light {
+        padding: 0.5rem 1.2rem;
+        background: #dc2626;
+        border: none;
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        white-space: nowrap;
         box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
     }
 
-    .btn-end-session:hover {
+    .btn-danger-light:hover {
+        background: #b91c1c;
         transform: translateY(-2px);
         box-shadow: 0 8px 24px rgba(220, 38, 38, 0.35);
     }
 
-    .btn-end-session:active {
-        transform: translateY(0);
+    /* ============================================
+       SESSION INFO CARDS
+    ============================================ */
+    .session-info-cards {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        width: 100%;
     }
 
-    .btn-outline-session {
-        padding: 8px 18px;
+    .info-card {
+        background: #ffffff;
         border-radius: 10px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--primary);
-        background: transparent;
-        border: 1.5px solid var(--border);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        padding: 0.75rem 1rem;
+        border: 1px solid #f1f5f9;
+        text-align: center;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        min-width: 0;
     }
 
-    .btn-outline-session:hover {
-        background: var(--surface-light);
-        border-color: var(--primary);
+    .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        border-color: #e2e8f0;
+    }
+
+    .info-card .label {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        display: block;
+    }
+
+    .info-card .value {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-top: 2px;
+    }
+
+    .info-card .value .badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .badge-dept {
+        color: #4f46e5;
+        background: #eef2ff;
+    }
+
+    .badge-year {
+        color: #2563eb;
+        background: #dbeafe;
+    }
+
+    .badge-sem {
+        color: #d97706;
+        background: #fef3c7;
+    }
+
+    .badge-section {
+        color: #db2777;
+        background: #fce7f3;
     }
 
     /* ============================================
-       VIDEO CARD - Premium Design
+       VIDEO SECTION - With Expand/Collapse
     ============================================ */
-    .video-card {
-        border-radius: 20px;
-        overflow: hidden;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    .video-wrapper {
+        margin-bottom: 1rem;
+        width: 100%;
     }
 
-    .video-card:hover {
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-        transform: translateY(-2px);
+    .video-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        width: 100%;
     }
 
     .video-card .card-header {
-        padding: 18px 24px;
-        background: var(--surface-light);
-        border-bottom: 1px solid var(--border);
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 12px;
+        gap: 0.5rem;
+        background: #f8fafc;
     }
 
-    .video-card .card-header .header-left {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-    }
-
-    .video-card .card-header .header-left .live-badge {
+    .video-card .card-header h3 {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #0f172a;
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 4px 16px;
-        background: rgba(39, 174, 96, 0.1);
-        border-radius: 100px;
-        border: 1px solid rgba(39, 174, 96, 0.15);
+        flex-wrap: wrap;
     }
 
-    .video-card .card-header .header-left .live-badge .dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--success);
-        animation: pulse-dot 1.8s infinite;
-    }
-
-    .video-card .card-header .header-left .live-badge span {
-        color: var(--success);
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-    }
-
-    .video-card .card-header .header-left .subject-title {
-        color: var(--text-main);
-        font-size: 1rem;
-        font-weight: 700;
-    }
-
-    .video-card .card-header .header-left .subject-title .badge-session {
-        display: inline-block;
-        padding: 2px 12px;
-        background: var(--primary);
-        color: #fff;
-        border-radius: 100px;
-        font-size: 0.6rem;
-        font-weight: 600;
-        margin-left: 8px;
+    .video-card .card-header h3 i {
+        color: #6366f1;
     }
 
     .video-card .card-header .header-actions {
         display: flex;
+        gap: 0.5rem;
         align-items: center;
-        gap: 10px;
         flex-wrap: wrap;
     }
 
-    /* VIDEO CONTAINER */
+    .btn-toggle-size {
+        padding: 0.3rem 0.8rem;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #1e293b;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-toggle-size:hover {
+        background: #e2e8f0;
+        border-color: #cbd5e1;
+    }
+
+    .btn-toggle-size i {
+        font-size: 0.7rem;
+    }
+
+    .camera-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 12px;
+        border-radius: 100px;
+        font-size: 0.6rem;
+        font-weight: 600;
+        background: rgba(39, 174, 96, 0.08);
+        color: #16a34a;
+        border: 1px solid rgba(39, 174, 96, 0.1);
+    }
+
+    .camera-status .cam-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #16a34a;
+        display: inline-block;
+        animation: pulse-dot 1.5s infinite;
+    }
+
+    .camera-status.offline {
+        background: rgba(231, 76, 60, 0.08);
+        color: #dc2626;
+        border-color: rgba(231, 76, 60, 0.1);
+    }
+
+    .camera-status.offline .cam-dot {
+        background: #dc2626;
+        animation: none;
+    }
+
+    /* Video Container - FIXED for proper full screen */
     .video-container {
         position: relative;
         background: #0a0e1a;
-        min-height: 460px;
+        min-height: 350px;
+        height: 500px;
+        max-height: 500px;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .video-container:hover {
+        opacity: 0.98;
+    }
+
+    /* Full Screen Mode - NO max-height restriction */
+    .video-container.fullscreen-mode {
+        min-height: 85vh;
+        max-height: 90vh;
+        height: 85vh;
     }
 
     .video-container .video-placeholder {
@@ -266,75 +414,73 @@
     }
 
     .video-container .video-placeholder i {
-        font-size: 64px;
+        font-size: 48px;
         display: block;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
     }
 
+    .video-container .video-placeholder p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Video Feed - FIXED for proper full screen */
     #video-feed {
         width: 100%;
-        max-height: 75vh;
+        height: 100%;
+        min-height: 350px;
+        max-height: 500px;
         object-fit: contain;
-        transition: opacity 0.4s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Video Overlay - Glassmorphism */
+    /* Video Feed - Full screen mode */
+    #video-feed.fullscreen-mode {
+        min-height: 85vh;
+        max-height: 90vh;
+        height: 85vh;
+        object-fit: contain;
+    }
+
+    /* Video Overlay */
     .video-overlay {
         position: absolute;
-        top: 20px;
-        left: 20px;
+        top: 16px;
+        left: 16px;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
         pointer-events: none;
         z-index: 5;
     }
 
     .video-overlay .chip {
-        padding: 6px 14px;
+        padding: 4px 12px;
         background: rgba(0, 0, 0, 0.7);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border-radius: 8px;
+        border-radius: 6px;
         color: rgba(255, 255, 255, 0.7);
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 500;
         border: 1px solid rgba(255, 255, 255, 0.06);
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        gap: 6px;
+        font-family: 'Inter', sans-serif;
     }
 
     .video-overlay .chip i {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
         opacity: 0.6;
     }
 
     .video-overlay .chip .val {
         color: #ffffff;
         font-weight: 600;
-        min-width: 24px;
+        min-width: 20px;
         display: inline-block;
         font-variant-numeric: tabular-nums;
-    }
-
-    .video-overlay .chip.accent {
-        border-color: rgba(26, 86, 148, 0.3);
-        color: #93b3dd;
-    }
-
-    .video-overlay .chip.accent i {
-        color: var(--primary);
-    }
-
-    .video-overlay .chip.success {
-        border-color: rgba(39, 174, 96, 0.2);
-        color: #6ee7b7;
-    }
-
-    .video-overlay .chip.success i {
-        color: var(--success);
     }
 
     .video-overlay .chip.mode {
@@ -346,146 +492,202 @@
         color: #818cf8;
     }
 
-    /* Bottom Right Overlay - Time Remaining */
+    .video-overlay .chip.accent {
+        border-color: rgba(26, 86, 148, 0.3);
+        color: #93b3dd;
+    }
+
+    .video-overlay .chip.success {
+        border-color: rgba(39, 174, 96, 0.2);
+        color: #6ee7b7;
+    }
+
+    .video-overlay .chip.warning {
+        border-color: rgba(243, 156, 18, 0.2);
+        color: #fcd34d;
+    }
+
     .video-overlay-bottom {
         position: absolute;
-        bottom: 20px;
-        right: 20px;
+        bottom: 16px;
+        right: 16px;
         z-index: 5;
         pointer-events: none;
     }
 
     .video-overlay-bottom .time-remaining {
-        padding: 8px 18px;
+        padding: 6px 16px;
         background: rgba(0, 0, 0, 0.7);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         border-radius: 100px;
         color: #ffffff;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 600;
         border: 1px solid rgba(255, 255, 255, 0.06);
         display: flex;
         align-items: center;
-        gap: 10px;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        gap: 8px;
+        font-family: 'Inter', sans-serif;
     }
 
     .video-overlay-bottom .time-remaining i {
-        color: var(--warning);
+        color: #fcd34d;
         font-size: 0.7rem;
     }
 
     .video-overlay-bottom .time-remaining .countdown {
         font-variant-numeric: tabular-nums;
-        min-width: 80px;
+        min-width: 70px;
         display: inline-block;
         text-align: center;
         color: #fcd34d;
     }
 
-    /* INFO BAR - Modern */
-    .info-bar {
-        padding: 14px 24px;
-        background: var(--surface-light);
-        border-top: 1px solid var(--border);
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px 32px;
-        align-items: center;
+    /* Video Click Hint - Shows on hover */
+    .video-click-hint {
+        position: absolute;
+        bottom: 70px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 4;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        padding: 6px 16px;
+        border-radius: 100px;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.6rem;
+        font-weight: 500;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        white-space: nowrap;
+        font-family: 'Inter', sans-serif;
     }
 
-    .info-bar .item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--text-dim);
-        font-size: 0.8rem;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+    .video-container:hover .video-click-hint {
+        opacity: 1;
     }
 
-    .info-bar .item i {
-        opacity: 0.5;
-        font-size: 0.8rem;
-        width: 18px;
+    .video-container.fullscreen-mode .video-click-hint {
+        display: none;
+    }
+
+    /* ============================================
+       SUMMARY CARDS
+    ============================================ */
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+
+    .summary-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        border: 1px solid #f1f5f9;
         text-align: center;
-        color: var(--primary);
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        min-width: 0;
     }
 
-    .info-bar .item strong {
-        color: var(--text-main);
+    .summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        border-color: #e2e8f0;
+    }
+
+    .summary-card .number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: block;
+        line-height: 1.2;
+    }
+
+    .summary-card .label {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
         font-weight: 600;
     }
 
-    .info-bar .divider {
-        width: 1px;
-        height: 24px;
-        background: var(--border);
+    .summary-card .number.green { color: #16a34a; }
+    .summary-card .number.red { color: #dc2626; }
+    .summary-card .number.blue { color: #3b82f6; }
+    .summary-card .number.purple { color: #8b5cf6; }
+    .summary-card .number.orange { color: #d97706; }
+
+    .summary-card .icon {
+        font-size: 1.2rem;
+        display: block;
+        margin-bottom: 2px;
     }
 
     /* ============================================
-       SIDEBAR CARDS - Premium
+       ATTENDANCE LOG - Sidebar Style
     ============================================ */
-    .sidebar-card {
-        border-radius: 16px;
+    .log-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
         overflow: hidden;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        width: 100%;
     }
 
-    .sidebar-card:hover {
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-        transform: translateY(-2px);
-    }
-
-    .sidebar-card .card-header {
-        padding: 14px 20px;
-        background: var(--surface-light);
-        border-bottom: 1px solid var(--border);
+    .log-card .card-header {
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
         display: flex;
-        align-items: center;
         justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #f8fafc;
     }
 
-    .sidebar-card .card-header .title {
+    .log-card .card-header h3 {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #0f172a;
         display: flex;
         align-items: center;
-        gap: 10px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: var(--text-dim);
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        gap: 8px;
+        flex-wrap: wrap;
     }
 
-    .sidebar-card .card-header .title i {
-        color: var(--primary);
-        opacity: 0.7;
-        font-size: 0.8rem;
+    .log-card .card-header h3 i {
+        color: #6366f1;
     }
 
-    .sidebar-card .card-header .count {
+    .log-card .card-header .count {
+        background: #f1f5f9;
         padding: 2px 12px;
-        background: var(--primary);
         border-radius: 100px;
-        font-size: 0.6rem;
-        font-weight: 700;
-        color: #ffffff;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+        white-space: nowrap;
     }
 
-    .sidebar-card .card-header .count.green {
-        background: var(--success);
+    .log-card .card-header .count.active {
+        background: #dcfce7;
+        color: #16a34a;
     }
 
-    /* ============================================
-       LOG LIST - Smooth Animations
-    ============================================ */
+    .log-card .card-header .count.warning {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
     .log-list {
-        max-height: 340px;
+        max-height: 350px;
         overflow-y: auto;
         padding: 4px 0;
     }
@@ -499,7 +701,7 @@
     }
 
     .log-list::-webkit-scrollbar-thumb {
-        background: var(--border);
+        background: #e2e8f0;
         border-radius: 10px;
     }
 
@@ -507,21 +709,27 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 12px 20px;
-        border-bottom: 1px solid var(--border);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 10px 16px;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
         animation: slideIn 0.4s ease-out forwards;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        cursor: default;
     }
 
     .log-item:hover {
-        background: var(--surface-light);
-        padding-left: 24px;
+        background: #f8fafc;
     }
 
     .log-item:last-child {
         border-bottom: none;
+    }
+
+    .log-item.unauthorized {
+        background: #fef2f2;
+        border-left: 3px solid #dc2626;
+    }
+
+    .log-item.unauthorized:hover {
+        background: #fee2e2;
     }
 
     @keyframes slideIn {
@@ -532,36 +740,34 @@
     .log-item .left {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         min-width: 0;
         flex: 1;
     }
 
     .log-item .avatar {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         font-weight: 700;
         color: #ffffff;
         flex-shrink: 0;
-        box-shadow: 0 2px 8px rgba(26, 86, 148, 0.2);
     }
 
     .log-item .avatar.present {
-        background: linear-gradient(135deg, var(--success), #059669);
+        background: linear-gradient(135deg, #16a34a, #059669);
     }
 
     .log-item .avatar.absent {
-        background: linear-gradient(135deg, var(--danger), #b91c1c);
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
     }
 
-    .log-item .avatar.late {
-        background: linear-gradient(135deg, var(--warning), #d97706);
+    .log-item .avatar.unauthorized {
+        background: linear-gradient(135deg, #d97706, #b45309);
     }
 
     .log-item .info {
@@ -570,7 +776,7 @@
     }
 
     .log-item .name {
-        color: var(--text-main);
+        color: #0f172a;
         font-size: 0.85rem;
         font-weight: 600;
         white-space: nowrap;
@@ -580,90 +786,84 @@
 
     .log-item .roll {
         font-size: 0.65rem;
-        color: var(--text-dim);
-        font-weight: 400;
+        color: #94a3b8;
         display: block;
         margin-top: -2px;
-    }
-
-    .log-item .status-badge {
-        font-size: 0.5rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding: 3px 12px;
-        border-radius: 100px;
-        border: 1px solid transparent;
-        flex-shrink: 0;
-    }
-
-    .log-item .status-badge.present {
-        background: rgba(39, 174, 96, 0.08);
-        color: var(--success);
-        border-color: rgba(39, 174, 96, 0.12);
-    }
-
-    .log-item .status-badge.absent {
-        background: rgba(231, 76, 60, 0.08);
-        color: var(--danger);
-        border-color: rgba(231, 76, 60, 0.12);
-    }
-
-    .log-item .status-badge.late {
-        background: rgba(243, 156, 18, 0.08);
-        color: var(--warning);
-        border-color: rgba(243, 156, 18, 0.12);
-    }
-
-    .log-item .status-badge.leave {
-        background: rgba(26, 86, 148, 0.08);
-        color: var(--primary);
-        border-color: rgba(26, 86, 148, 0.12);
     }
 
     .log-item .right {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         flex-shrink: 0;
         margin-left: 8px;
+        flex-wrap: wrap;
     }
 
-    .log-item .confidence {
-        font-size: 0.7rem;
-        font-weight: 700;
+    .status-badge {
+        padding: 2px 12px;
+        border-radius: 100px;
+        font-size: 0.55rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .status-badge.present {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .status-badge.absent {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .status-badge.unauthorized {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .status-badge.not-enrolled {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .confidence-badge {
         padding: 2px 10px;
         border-radius: 100px;
-        min-width: 40px;
-        text-align: center;
+        font-size: 0.55rem;
+        font-weight: 600;
+        white-space: nowrap;
     }
 
-    .log-item .confidence.high {
-        color: var(--success);
-        background: rgba(39, 174, 96, 0.06);
+    .confidence-badge.high {
+        background: #dcfce7;
+        color: #16a34a;
     }
 
-    .log-item .confidence.medium {
-        color: var(--warning);
-        background: rgba(243, 156, 18, 0.06);
+    .confidence-badge.medium {
+        background: #fef3c7;
+        color: #d97706;
     }
 
-    .log-item .confidence.low {
-        color: var(--danger);
-        background: rgba(231, 76, 60, 0.06);
+    .confidence-badge.low {
+        background: #fee2e2;
+        color: #dc2626;
     }
 
     .log-item .time {
         font-size: 0.6rem;
-        color: var(--text-dim);
+        color: #94a3b8;
         font-variant-numeric: tabular-nums;
-        min-width: 65px;
+        min-width: 60px;
         text-align: right;
         font-weight: 500;
     }
 
-    /* Single Shot Badge */
-    .log-item .shot-badge {
+    .shot-badge {
         font-size: 0.45rem;
         font-weight: 600;
         text-transform: uppercase;
@@ -673,595 +873,857 @@
         color: #818cf8;
         border: 1px solid rgba(99, 102, 241, 0.1);
         flex-shrink: 0;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 4px;
+        white-space: nowrap;
     }
 
-    .log-item .shot-badge i {
+    .shot-badge i {
         font-size: 0.4rem;
     }
 
-    /* Empty State - Modern */
-    .empty-state {
-        padding: 48px 20px;
-        text-align: center;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-
-    .empty-state .icon-wrapper {
-        width: 72px;
-        height: 72px;
-        border-radius: 50%;
-        background: var(--surface-light);
-        display: flex;
+    .unauthorized-badge {
+        font-size: 0.45rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 1px 8px;
+        border-radius: 100px;
+        background: #fef3c7;
+        color: #d97706;
+        border: 1px solid #fcd34d;
+        flex-shrink: 0;
+        display: inline-flex;
         align-items: center;
-        justify-content: center;
-        margin: 0 auto 16px;
-        border: 2px dashed var(--border);
+        gap: 4px;
+        white-space: nowrap;
     }
 
-    .empty-state .icon-wrapper i {
-        font-size: 28px;
-        color: var(--text-dim);
-        opacity: 0.3;
+    .unauthorized-badge i {
+        font-size: 0.4rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 2.5rem 0;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 2rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.5rem;
     }
 
     .empty-state h5 {
-        color: var(--text-main);
         font-size: 1rem;
         font-weight: 600;
-        margin: 0 0 4px;
+        color: #1e293b;
+        margin: 0 0 0.25rem 0;
     }
 
     .empty-state p {
-        color: var(--text-dim);
-        font-size: 0.85rem;
         margin: 0;
+        font-size: 0.85rem;
     }
 
     .empty-state small {
-        color: var(--text-dim);
         font-size: 0.7rem;
+        opacity: 0.6;
         display: block;
         margin-top: 4px;
-        opacity: 0.6;
     }
 
     /* ============================================
-       STATS GRID - Premium Cards
+       UNAUTHORIZED ALERT BANNER
     ============================================ */
-    .stats-grid {
+    .unauthorized-alert {
+        display: none;
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-radius: 10px;
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 1rem;
+        color: #dc2626;
+        font-size: 0.85rem;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        animation: slideDown 0.4s ease-out;
+    }
+
+    .unauthorized-alert.show {
+        display: flex;
+    }
+
+    .unauthorized-alert i {
+        font-size: 1.2rem;
+        color: #dc2626;
+    }
+
+    .unauthorized-alert .alert-content {
+        flex: 1;
+    }
+
+    .unauthorized-alert .alert-content strong {
+        font-weight: 700;
+    }
+
+    .unauthorized-alert .alert-close {
+        background: none;
+        border: none;
+        color: #dc2626;
+        cursor: pointer;
+        font-size: 1.1rem;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+        padding: 0 4px;
+    }
+
+    .unauthorized-alert .alert-close:hover {
+        opacity: 1;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================
+       MAIN GRID
+    ============================================ */
+    .main-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        padding: 6px;
-    }
-
-    .stat-box {
-        padding: 14px 10px;
-        text-align: center;
-        background: var(--surface-light);
-        border-radius: 12px;
-        border: 1px solid var(--border);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .stat-box::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: var(--border);
-        transition: all 0.3s ease;
-    }
-
-    .stat-box:hover {
-        background: var(--surface);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-    }
-
-    .stat-box .icon {
-        font-size: 20px;
-        display: block;
-        margin-bottom: 2px;
-    }
-
-    .stat-box .label {
-        font-size: 0.5rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        color: var(--text-dim);
-        display: block;
-        margin-top: 2px;
-    }
-
-    .stat-box .value {
-        font-size: 1.5rem;
-        font-weight: 800;
-        display: block;
-        margin-top: 2px;
-        color: var(--text-main);
-        line-height: 1.2;
-    }
-
-    .stat-box .value.green { color: var(--success); }
-    .stat-box .value.blue { color: var(--primary); }
-    .stat-box .value.cyan { color: #0ea5e9; }
-    .stat-box .value.orange { color: var(--warning); }
-    .stat-box .value.purple { color: #8b5cf6; }
-
-    .stat-box.green::before { background: var(--success); }
-    .stat-box.blue::before { background: var(--primary); }
-    .stat-box.cyan::before { background: #0ea5e9; }
-    .stat-box.orange::before { background: var(--warning); }
-
-    /* ============================================
-       ACTION BUTTON - Premium
-    ============================================ */
-    .btn-action {
+        gap: 1rem;
+        margin-top: 1rem;
         width: 100%;
-        padding: 14px;
-        border-radius: 12px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        color: var(--danger);
-        background: rgba(231, 76, 60, 0.06);
-        border: 1.5px solid rgba(231, 76, 60, 0.12);
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-
-    .btn-action:hover {
-        background: rgba(231, 76, 60, 0.12);
-        border-color: var(--danger);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(231, 76, 60, 0.15);
-    }
-
-    .btn-action:active {
-        transform: translateY(0);
     }
 
     /* ============================================
-       RESPONSIVE
+       RESPONSIVE BREAKPOINTS
     ============================================ */
+    @media (max-width: 1200px) {
+        .session-info-cards {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .summary-cards {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
     @media (max-width: 992px) {
+        .page-header {
+            padding: 0.75rem 1rem;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-content .header-left h1 {
+            font-size: 1.3rem;
+        }
+
+        .header-content .header-actions {
+            width: 100%;
+        }
+
+        .main-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
         .video-container {
-            min-height: 300px;
+            min-height: 250px;
+            height: 400px;
+            max-height: 400px;
         }
-        .log-list {
-            max-height: 240px;
+
+        #video-feed {
+            min-height: 250px;
+            max-height: 400px;
         }
-        .info-bar {
-            gap: 12px 20px;
+
+        .video-container.fullscreen-mode {
+            min-height: 75vh;
+            max-height: 85vh;
+            height: 75vh;
         }
-        .section-header {
-            padding: 14px 18px;
+
+        #video-feed.fullscreen-mode {
+            min-height: 75vh;
+            max-height: 85vh;
+            height: 75vh;
+        }
+
+        .summary-cards {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .summary-card {
+            padding: 0.75rem 1rem;
+        }
+
+        .summary-card .number {
+            font-size: 1.5rem;
         }
     }
 
     @media (max-width: 768px) {
-        .live-wrapper {
-            padding: 12px 16px;
+        .page-header {
+            padding: 0.6rem 0.8rem;
+            border-radius: 12px 12px 0 0;
         }
-        .video-container {
-            min-height: 240px;
+
+        .page-header .header-left h1 {
+            font-size: 1.1rem;
         }
-        .video-overlay {
-            top: 12px;
-            left: 12px;
+
+        .header-content .header-left .subtitle {
+            font-size: 0.7rem;
+            gap: 6px;
+        }
+
+        .breadcrumb-header {
+            font-size: 0.6rem;
             gap: 4px;
         }
-        .video-overlay .chip {
+
+        .session-info-cards {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.4rem;
+        }
+
+        .info-card {
+            padding: 0.5rem 0.6rem;
+        }
+
+        .info-card .value {
+            font-size: 0.75rem;
+        }
+
+        .info-card .value .badge {
+            font-size: 0.6rem;
+            padding: 1px 8px;
+        }
+
+        .summary-cards {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.4rem;
+        }
+
+        .summary-card {
+            padding: 0.5rem 0.6rem;
+        }
+
+        .summary-card .number {
+            font-size: 1.3rem;
+        }
+
+        .summary-card .label {
             font-size: 0.55rem;
-            padding: 4px 10px;
         }
+
+        .video-container {
+            min-height: 200px;
+            height: 350px;
+            max-height: 350px;
+        }
+
+        #video-feed {
+            min-height: 200px;
+            max-height: 350px;
+        }
+
+        .video-container.fullscreen-mode {
+            min-height: 70vh;
+            max-height: 80vh;
+            height: 70vh;
+        }
+
+        #video-feed.fullscreen-mode {
+            min-height: 70vh;
+            max-height: 80vh;
+            height: 70vh;
+        }
+
+        .video-overlay {
+            top: 10px;
+            left: 10px;
+            gap: 4px;
+        }
+
+        .video-overlay .chip {
+            font-size: 0.5rem;
+            padding: 3px 8px;
+        }
+
+        .video-overlay .chip .val {
+            min-width: 16px;
+        }
+
         .video-overlay-bottom {
-            bottom: 12px;
-            right: 12px;
+            bottom: 10px;
+            right: 10px;
         }
+
         .video-overlay-bottom .time-remaining {
-            font-size: 0.7rem;
-            padding: 6px 14px;
+            font-size: 0.65rem;
+            padding: 4px 12px;
         }
-        .video-card .card-header {
-            padding: 12px 16px;
+
+        .video-overlay-bottom .time-remaining .countdown {
+            min-width: 60px;
         }
-        .video-card .card-header .header-left .subject-title {
-            font-size: 0.85rem;
+
+        .log-card .card-header {
+            padding: 0.5rem 0.75rem;
         }
-        .info-bar {
-            padding: 10px 16px;
-            gap: 8px 16px;
-        }
-        .info-bar .item {
-            font-size: 0.7rem;
-        }
-        .info-bar .divider {
-            display: none;
-        }
-        .stat-box .value {
-            font-size: 1.2rem;
-        }
-        .log-item {
-            padding: 10px 14px;
-        }
-        .log-item .name {
+
+        .log-card .card-header h3 {
             font-size: 0.8rem;
         }
-        .section-header {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 12px;
+
+        .log-list {
+            max-height: 250px;
         }
-        .section-header .right {
-            width: 100%;
+
+        .log-item {
+            padding: 8px 12px;
         }
-        .section-header .right .btn-end-session,
-        .section-header .right .btn-outline-session {
-            flex: 1;
-            justify-content: center;
+
+        .log-item .name {
+            font-size: 0.75rem;
+        }
+
+        .status-badge {
+            font-size: 0.45rem;
+            padding: 1px 8px;
+        }
+
+        .confidence-badge {
+            font-size: 0.45rem;
+            padding: 1px 6px;
+        }
+
+        .log-item .time {
+            font-size: 0.5rem;
+            min-width: 50px;
+        }
+
+        .shot-badge {
+            font-size: 0.4rem;
+            padding: 1px 6px;
+        }
+
+        .unauthorized-alert {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .video-click-hint {
+            font-size: 0.5rem;
+            padding: 4px 12px;
+            bottom: 55px;
         }
     }
 
     @media (max-width: 480px) {
-        .live-wrapper {
-            padding: 8px 10px;
+        .page-header {
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px 8px 0 0;
         }
-        .video-container {
-            min-height: 180px;
+
+        .page-header .header-left h1 {
+            font-size: 0.95rem;
         }
-        .video-card .card-header .header-left {
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .video-card .card-header .header-actions {
-            width: 100%;
-        }
-        .video-card .card-header .header-actions .btn-end-session {
-            width: 100%;
-            justify-content: center;
-        }
-        .video-overlay .chip {
-            font-size: 0.5rem;
-            padding: 3px 8px;
-            gap: 4px;
-        }
-        .video-overlay .chip .val {
-            min-width: 16px;
-        }
-        .video-overlay-bottom .time-remaining {
+
+        .header-content .header-left .subtitle {
             font-size: 0.6rem;
-            padding: 4px 10px;
         }
-        .video-overlay-bottom .time-remaining .countdown {
-            min-width: 60px;
+
+        .header-content .header-actions .btn-outline-light,
+        .header-content .header-actions .btn-danger-light {
+            font-size: 0.55rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
         }
-        .stats-grid {
-            gap: 6px;
+
+        .session-info-cards {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.3rem;
         }
-        .stat-box {
-            padding: 10px 6px;
+
+        .info-card {
+            padding: 0.35rem 0.4rem;
         }
-        .stat-box .value {
+
+        .info-card .value {
+            font-size: 0.7rem;
+        }
+
+        .summary-cards {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.3rem;
+        }
+
+        .summary-card {
+            padding: 0.4rem 0.5rem;
+        }
+
+        .summary-card .number {
+            font-size: 1.1rem;
+        }
+
+        .summary-card .label {
+            font-size: 0.5rem;
+        }
+
+        .summary-card .icon {
             font-size: 1rem;
         }
-        .stat-box .icon {
-            font-size: 16px;
+
+        .video-container {
+            min-height: 150px;
+            height: 280px;
+            max-height: 280px;
         }
+
+        #video-feed {
+            min-height: 150px;
+            max-height: 280px;
+        }
+
+        .video-container.fullscreen-mode {
+            min-height: 65vh;
+            max-height: 75vh;
+            height: 65vh;
+        }
+
+        #video-feed.fullscreen-mode {
+            min-height: 65vh;
+            max-height: 75vh;
+            height: 65vh;
+        }
+
+        .video-overlay .chip {
+            font-size: 0.45rem;
+            padding: 2px 6px;
+        }
+
+        .video-overlay .chip i {
+            font-size: 0.4rem;
+        }
+
+        .video-overlay .chip .val {
+            min-width: 12px;
+        }
+
+        .video-overlay-bottom .time-remaining {
+            font-size: 0.55rem;
+            padding: 3px 10px;
+        }
+
+        .video-overlay-bottom .time-remaining .countdown {
+            min-width: 50px;
+        }
+
         .log-item {
-            padding: 8px 10px;
+            padding: 6px 8px;
             flex-wrap: wrap;
             gap: 4px;
         }
+
         .log-item .right {
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 4px;
         }
+
         .log-item .time {
             min-width: auto;
             text-align: left;
         }
-        .section-header .left h2 {
-            font-size: 1rem;
+
+        .video-card .card-header {
+            padding: 0.4rem 0.6rem;
         }
-        .section-header .left .status-indicator {
-            padding: 4px 12px;
+
+        .video-card .card-header h3 {
+            font-size: 0.7rem;
         }
-        .section-header .left .status-indicator span {
-            font-size: 0.65rem;
+
+        .btn-toggle-size {
+            font-size: 0.55rem;
+            padding: 0.2rem 0.5rem;
         }
-        .badge-mode {
+
+        .camera-status {
             font-size: 0.5rem;
-            padding: 2px 10px;
+            padding: 2px 8px;
+        }
+
+        .video-click-hint {
+            font-size: 0.45rem;
+            padding: 3px 10px;
+            bottom: 45px;
+        }
+
+        .unauthorized-alert {
+            font-size: 0.65rem;
+            padding: 0.4rem 0.6rem;
         }
     }
 
     /* ============================================
-       ANIMATIONS
+       PRINT STYLES
     ============================================ */
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+    @media print {
+        .page-header .header-actions,
+        .btn-outline-light,
+        .btn-danger-light,
+        .btn-toggle-size,
+        .video-click-hint {
+            display: none !important;
+        }
 
-    .video-card {
-        animation: fadeInUp 0.5s ease-out;
-    }
+        .page-header {
+            background: #0f172a !important;
+            border-radius: 0 !important;
+        }
 
-    .sidebar-card:nth-child(1) {
-        animation: fadeInUp 0.5s ease-out 0.1s both;
-    }
-    .sidebar-card:nth-child(2) {
-        animation: fadeInUp 0.5s ease-out 0.2s both;
-    }
-    .sidebar-card:nth-child(3) {
-        animation: fadeInUp 0.5s ease-out 0.3s both;
-    }
+        .header-content .header-left h1 {
+            color: #ffffff !important;
+        }
 
-    /* ============================================
-       CAMERA STATUS - NEW
-    ============================================ */
-    .camera-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 12px;
-        border-radius: 100px;
-        font-size: 0.6rem;
-        font-weight: 600;
-        background: rgba(39, 174, 96, 0.08);
-        color: var(--success);
-        border: 1px solid rgba(39, 174, 96, 0.1);
-    }
+        .header-content .header-left .subtitle {
+            color: #94a3b8 !important;
+        }
 
-    .camera-status .cam-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--success);
-        display: inline-block;
-        animation: pulse-dot 1.8s infinite;
-    }
+        .video-container {
+            min-height: 200px !important;
+            max-height: 300px !important;
+        }
 
-    .camera-status.offline {
-        background: rgba(231, 76, 60, 0.08);
-        color: var(--danger);
-        border-color: rgba(231, 76, 60, 0.1);
-    }
+        .summary-card,
+        .log-card,
+        .video-card {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+        }
 
-    .camera-status.offline .cam-dot {
-        background: var(--danger);
-        animation: none;
+        .status-badge {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .log-item:hover {
+            background: transparent !important;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="live-wrapper">
+<div class="live-container">
     <!-- ============================================
-    SECTION HEADER
+    PAGE HEADER WITH BREADCRUMB
     ============================================ -->
-    <div class="section-header">
-        <div class="left">
-            <div class="status-indicator">
-                <span class="pulse"></span>
-                <span>Live</span>
-            </div>
-            <h2>
-                {{ session.subject_name }}
-                <small>Session #{{ session.id }}</small>
-            </h2>
-            <span class="badge-mode">
-                <i class="fas fa-bolt"></i> Single Shot Mode
-            </span>
+    <div class="page-header">
+        <div class="breadcrumb-header">
+            <a href="{% url 'dashboard_home' %}">Dashboard</a>
+            <span class="separator">/</span>
+            <a href="{% url 'attendance:unified_sessions' %}">Session Management</a>
+            <span class="separator">/</span>
+            <span class="current">Live Monitoring</span>
         </div>
-        <div class="right">
-            <span class="camera-status" id="cameraStatus">
-                <span class="cam-dot"></span>
-                <span id="cameraStatusText">Connected</span>
-            </span>
-            <button class="btn-outline-session" onclick="window.location.href='{% url 'attendance:unified_sessions' %}'">
-                <i class="fas fa-arrow-left"></i> All Sessions
-            </button>
-            <button class="btn-end-session" onclick="stopSession()">
-                <i class="fas fa-stop-circle"></i> End Session
-            </button>
+
+        <div class="header-content">
+            <div class="header-left">
+                <h1>
+                    <i class="fas fa-video"></i>
+                    {{ session.subject_name }}
+                    <span class="badge-mode"><i class="fas fa-bolt"></i> Single Shot</span>
+                </h1>
+                <div class="subtitle">
+                    <span><strong>ID:</strong> #{{ session.id }}</span>
+                    <span>•</span>
+                    <span><i class="fas fa-calendar"></i> {{ session.date|date:"F d, Y" }}</span>
+                    <span>•</span>
+                    <span><i class="fas fa-clock"></i> {{ session.start_time|date:"h:i A" }}</span>
+                    <span>•</span>
+                    <span class="badge-status active">
+                        <span class="pulse-dot"></span> Live
+                    </span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'attendance:unified_sessions' %}" class="btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> All Sessions
+                </a>
+                <a href="{% url 'attendance:session_details' session.id %}" class="btn-outline-light">
+                    <i class="fas fa-chart-bar"></i> Details
+                </a>
+                <button class="btn-danger-light" onclick="stopSession()">
+                    <i class="fas fa-stop-circle"></i> End Session
+                </button>
+            </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <!-- ============================================
-        VIDEO FEED COLUMN
-        ============================================ -->
-        <div class="col-lg-8">
-            <div class="video-card">
-                <!-- Card Header -->
-                <div class="card-header">
-                    <div class="header-left">
-                        <div class="live-badge">
-                            <span class="dot"></span>
-                            <span>Live Feed</span>
-                        </div>
-                        <div class="subject-title">
-                            {{ session.subject_name }}
-                            <span class="badge-session">#{{ session.id }}</span>
-                        </div>
-                    </div>
-                    <div class="header-actions">
-                        <span style="font-size:0.7rem; color:var(--text-dim);">
-                            <i class="fas fa-{{ session.routine.department|lower|default:'graduation-cap' }}"></i>
-                            {{ session.routine.department|default:'Engineering' }}
-                        </span>
-                        <span style="font-size:0.7rem; color:var(--text-dim); margin-left:8px;">
-                            <i class="fas fa-camera"></i> Single Shot
-                        </span>
-                    </div>
+    <!-- ============================================
+    UNAUTHORIZED ATTENDANCE ALERT BANNER
+    ============================================ -->
+    <div class="unauthorized-alert" id="unauthorizedAlert">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div class="alert-content">
+            <strong>⚠️ Unauthorized Attendance Detected!</strong>
+            <span id="unauthorizedMessage">A student from another section attempted to attend this session.</span>
+            <span style="font-size: 0.75rem; color: #94a3b8; display: block; margin-top: 2px;">
+                These students will be marked as <strong>NOT ENROLLED</strong> and will not count as present.
+            </span>
+        </div>
+        <button class="alert-close" onclick="dismissAlert()">✕</button>
+    </div>
+
+    <!-- ============================================
+    SESSION INFO CARDS
+    ============================================ -->
+    <div class="session-info-cards">
+        <div class="info-card">
+            <span class="label">Department</span>
+            <span class="value">
+                <span class="badge badge-dept">{{ session.department|default:'N/A' }}</span>
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Year</span>
+            <span class="value">
+                <span class="badge badge-year">{{ session.year|default:'N/A' }}</span>
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Semester</span>
+            <span class="value">
+                <span class="badge badge-sem">{{ session.semester|default:'N/A' }}</span>
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Section</span>
+            <span class="value">
+                <span class="badge badge-section">{{ session.section|default:'N/A' }}</span>
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Duration</span>
+            <span class="value">{{ session.expected_duration }} min</span>
+        </div>
+        <div class="info-card">
+            <span class="label">Mode</span>
+            <span class="value" style="color: #818cf8; font-weight: 600; font-size: 0.75rem;">
+                <i class="fas fa-bolt"></i> Single Shot
+            </span>
+        </div>
+    </div>
+
+    <!-- ============================================
+    VIDEO SECTION
+    ============================================ -->
+    <div class="video-wrapper">
+        <div class="video-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-camera"></i>
+                    Live Feed
+                    <span style="font-size: 0.6rem; font-weight: 400; color: #94a3b8; margin-left: 4px;">
+                        (Single-Shot Detection)
+                    </span>
+                </h3>
+                <div class="header-actions">
+                    <span class="camera-status" id="cameraStatus">
+                        <span class="cam-dot"></span>
+                        <span id="cameraStatusText">Connected</span>
+                    </span>
+                    <button class="btn-toggle-size" onclick="toggleVideoSize()" id="toggleSizeBtn">
+                        <i class="fas fa-expand"></i> Full Screen
+                    </button>
                 </div>
-
-                <!-- Video Container -->
-                <div class="video-container">
-                    {% if hybrid_available %}
-                        <img id="video-feed" 
-                             src="{% url 'attendance:hybrid_video_feed' session.id %}" 
-                             class="img-fluid" 
-                             alt="Live Feed"
-                             onerror="handleVideoError()">
-                    {% else %}
-                        <div class="video-placeholder">
-                            <i class="fas fa-video-slash"></i>
-                            <p>Camera feed unavailable</p>
-                            <small style="color:rgba(255,255,255,0.3);">Please check your camera connection</small>
-                        </div>
-                    {% endif %}
-
-                    <!-- Overlay - Top Left -->
-                    <div class="video-overlay">
-                        <span class="chip mode">
-                            <i class="fas fa-bolt"></i> 
-                            Single Shot Detection
-                        </span>
-                        <span class="chip accent">
-                            <i class="fas fa-microchip"></i> 
-                            {% if hybrid_available %}Hybrid AI{% else %}Basic{% endif %}
-                        </span>
-                        <span class="chip">
-                            <i class="fas fa-chart-line"></i> 
-                            FPS: <span class="val" id="fps-value">0</span>
-                        </span>
-                        <span class="chip">
-                            <i class="fas fa-user"></i> 
-                            Faces: <span class="val" id="face-value">0</span>
-                        </span>
-                        <span class="chip success">
-                            <i class="fas fa-check-circle"></i> 
-                            Marked: <span class="val" id="logged-value">0</span>
-                        </span>
+            </div>
+            <div class="video-container" id="videoContainer">
+                {% if hybrid_available %}
+                    <img id="video-feed" 
+                         src="{% url 'attendance:hybrid_video_feed' session.id %}" 
+                         class="img-fluid" 
+                         alt="Live Feed"
+                         onerror="handleVideoError()">
+                {% else %}
+                    <div class="video-placeholder">
+                        <i class="fas fa-video-slash"></i>
+                        <p>Camera feed unavailable</p>
+                        <small style="color:rgba(255,255,255,0.3);">Please check your camera connection</small>
                     </div>
+                {% endif %}
 
-                    <!-- Overlay - Bottom Right -->
-                    <div class="video-overlay-bottom">
-                        <div class="time-remaining">
-                            <i class="fas fa-hourglass-half"></i>
-                            Time Left: <span class="countdown" id="time-remaining">--:--</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Info Bar -->
-                <div class="info-bar">
-                    <span class="item">
-                        <i class="fas fa-clock"></i> 
-                        Started: <strong>{{ start_time_local|date:"h:i:s A" }}</strong>
-                    </span>
-                    <span class="divider"></span>
-                    <span class="item">
-                        <i class="fas fa-calendar"></i> 
-                        <strong>{{ session.date|date:"M d, Y" }}</strong>
-                    </span>
-                    <span class="divider"></span>
-                    <span class="item">
-                        <i class="fas fa-hourglass-half"></i> 
-                        Duration: <strong>{{ session.expected_duration }} min</strong>
-                    </span>
-                    <span class="divider"></span>
-                    <span class="item">
-                        <i class="fas fa-users"></i> 
-                        Marked: <strong id="total-present">0</strong>
-                    </span>
-                    <span class="divider"></span>
-                    <span class="item">
-                        <i class="fas fa-hourglass-end"></i> 
-                        Ends: <strong>{{ end_time_local|date:"h:i:s A" }}</strong>
-                    </span>
-                    <span class="divider"></span>
-                    <span class="item" style="color: #818cf8;">
+                <!-- Overlay - Top Left -->
+                <div class="video-overlay">
+                    <span class="chip mode">
                         <i class="fas fa-bolt"></i> 
-                        Mode: <strong>Single Shot</strong>
+                        Single Shot
                     </span>
+                    <span class="chip accent">
+                        <i class="fas fa-microchip"></i> 
+                        {% if hybrid_available %}Hybrid AI{% else %}Basic{% endif %}
+                    </span>
+                    <span class="chip">
+                        <i class="fas fa-chart-line"></i> 
+                        FPS: <span class="val" id="fps-value">0</span>
+                    </span>
+                    <span class="chip">
+                        <i class="fas fa-user"></i> 
+                        Faces: <span class="val" id="face-value">0</span>
+                    </span>
+                    <span class="chip success">
+                        <i class="fas fa-check-circle"></i> 
+                        Marked: <span class="val" id="logged-value">0</span>
+                    </span>
+                    <span class="chip warning" id="unauthorizedChip" style="display:none;">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        Unauthorized: <span class="val" id="unauthorized-count">0</span>
+                    </span>
+                </div>
+
+                <!-- Overlay - Bottom Right -->
+                <div class="video-overlay-bottom">
+                    <div class="time-remaining">
+                        <i class="fas fa-hourglass-half"></i>
+                        Time Left: <span class="countdown" id="time-remaining">--:--</span>
+                    </div>
+                </div>
+
+                <!-- Click Hint -->
+                <div class="video-click-hint">
+                    <i class="fas fa-expand"></i> Click to toggle full screen
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- ============================================
-        SIDEBAR
-        ============================================ -->
-        <div class="col-lg-4">
-            <!-- Attendance Log -->
-            <div class="sidebar-card">
-                <div class="card-header">
-                    <span class="title">
-                        <i class="fas fa-list-ul"></i> Attendance Log
+    <!-- ============================================
+    SUMMARY CARDS
+    ============================================ -->
+    <div class="summary-cards">
+        <div class="summary-card">
+            <span class="icon">✅</span>
+            <span class="number green" id="stat-present">0</span>
+            <span class="label">Present</span>
+        </div>
+        <div class="summary-card">
+            <span class="icon">❌</span>
+            <span class="number red" id="stat-absent">0</span>
+            <span class="label">Absent</span>
+        </div>
+        <div class="summary-card">
+            <span class="icon">⚠️</span>
+            <span class="number orange" id="stat-unauthorized">0</span>
+            <span class="label">Not Enrolled</span>
+        </div>
+        <div class="summary-card">
+            <span class="icon">👥</span>
+            <span class="number blue" id="stat-total">0</span>
+            <span class="label">Total Students</span>
+        </div>
+        <div class="summary-card">
+            <span class="icon">🎯</span>
+            <span class="number purple" id="stat-confidence">0%</span>
+            <span class="label">Avg Confidence</span>
+        </div>
+    </div>
+
+    <!-- ============================================
+    MAIN GRID - Logs on Left, Info on Right
+    ============================================ -->
+    <div class="main-grid">
+        <!-- Attendance Log -->
+        <div class="log-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-list-ul" style="color: #6366f1;"></i>
+                    Attendance Log
+                    <span style="font-size: 0.55rem; font-weight: 400; color: #94a3b8; margin-left: 4px;">
+                        (Single-Shot Mode)
                     </span>
-                    <span class="count" id="log-count-badge">0</span>
-                </div>
-                <div class="log-list" id="log-list-container">
-                    <div class="empty-state" id="no-log-message">
-                        <div class="icon-wrapper">
-                            <i class="fas fa-camera"></i>
-                        </div>
-                        <h5>No Detections Yet</h5>
-                        <p>Students will be marked on first detection</p>
-                        <small>Single Shot Mode: One detection = Present</small>
-                    </div>
-                    <div id="log-items" style="display:none;"></div>
-                </div>
+                </h3>
+                <span class="count active" id="log-count-badge">0</span>
             </div>
+            <div class="log-list" id="log-list-container">
+                <div class="empty-state" id="no-log-message">
+                    <i class="fas fa-camera"></i>
+                    <h5>No Detections Yet</h5>
+                    <p>Students will be marked on first detection</p>
+                    <small>Single Shot Mode: One detection = Present</small>
+                </div>
+                <div id="log-items" style="display:none;"></div>
+            </div>
+        </div>
 
-            <!-- Statistics -->
-            <div class="sidebar-card">
-                <div class="card-header">
-                    <span class="title">
-                        <i class="fas fa-chart-pie"></i> Statistics
+        <!-- Session Info -->
+        <div class="log-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-info-circle" style="color: #6366f1;"></i>
+                    Session Information
+                </h3>
+            </div>
+            <div style="padding: 1rem 1.25rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <div>
+                        <div style="font-size: 0.6rem; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px;">Started</div>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">{{ start_time_local|date:"h:i:s A" }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.6rem; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px;">Ends</div>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">{{ end_time_local|date:"h:i:s A" }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.6rem; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px;">Duration</div>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">{{ session.expected_duration }} min</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.6rem; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px;">Mode</div>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: #818cf8;">
+                            <i class="fas fa-bolt"></i> Single Shot
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.6rem; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px;">Department</div>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">{{ session.department|default:'N/A' }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.6rem; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px;">Section</div>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: #0f172a;">{{ session.section|default:'N/A' }}</div>
+                    </div>
+                </div>
+                <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 0.75rem 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                    <span style="font-size: 0.7rem; color: #94a3b8;">
+                        <i class="fas fa-info-circle"></i> Students marked on FIRST detection
                     </span>
-                    <span class="count green">Live</span>
+                    <span style="font-size: 0.7rem; color: #94a3b8;">
+                        <i class="fas fa-shield-alt"></i> Enrolled students only
+                    </span>
                 </div>
-                <div class="card-body p-3">
-                    <div class="stats-grid">
-                        <div class="stat-box green">
-                            <span class="icon">✅</span>
-                            <span class="label">Marked</span>
-                            <span class="value green" id="stat-present">0</span>
-                        </div>
-                        <div class="stat-box blue">
-                            <span class="icon">👥</span>
-                            <span class="label">Total</span>
-                            <span class="value blue" id="stat-total">0</span>
-                        </div>
-                        <div class="stat-box cyan">
-                            <span class="icon">🎯</span>
-                            <span class="label">Avg Conf</span>
-                            <span class="value cyan" id="stat-confidence">0%</span>
-                        </div>
-                        <div class="stat-box purple">
-                            <span class="icon">⚡</span>
-                            <span class="label">Mode</span>
-                            <span class="value purple" id="stat-mode" style="font-size:0.85rem;">Single Shot</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action -->
-            <div class="sidebar-card">
-                <div class="card-body p-3">
-                    <button class="btn-action" onclick="stopSession()">
-                        <i class="fas fa-stop-circle"></i> End Session &amp; Save Records
-                    </button>
+                <div style="margin-top: 0.5rem; padding: 0.5rem 0.75rem; background: #fef2f2; border-radius: 8px; border: 1px solid #fca5a5; display: none;" id="unauthorizedInfoBox">
+                    <span style="font-size: 0.7rem; color: #dc2626;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Not Enrolled Students:</strong>
+                        <span id="unauthorizedInfoText">None</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -1269,7 +1731,7 @@
 </div>
 
 <!-- ============================================
-SESSION ID AND TIME - CRITICAL FOR MINUTE TRACKING
+HIDDEN INPUTS
 ============================================ -->
 <input type="hidden" id="session-id" value="{{ session.id }}">
 <input type="hidden" id="session-end-time" value="{{ session.end_time|date:'U'|default:0 }}">
@@ -1278,11 +1740,89 @@ SESSION ID AND TIME - CRITICAL FOR MINUTE TRACKING
 {% block extra_scripts %}
 <script>
 // ============================================
+// TOGGLE VIDEO SIZE - Click on video or button (FIXED)
+// ============================================
+let isFullscreen = false;
+
+function toggleVideoSize() {
+    const container = document.getElementById('videoContainer');
+    const video = document.getElementById('video-feed');
+    const btn = document.getElementById('toggleSizeBtn');
+    
+    isFullscreen = !isFullscreen;
+    
+    if (isFullscreen) {
+        // Full screen mode - remove all height limits
+        container.classList.add('fullscreen-mode');
+        if (video) {
+            video.classList.add('fullscreen-mode');
+            // Remove inline styles that might limit height
+            video.style.maxHeight = 'none';
+            video.style.height = '85vh';
+        }
+        // Force container to take full height
+        container.style.height = '85vh';
+        container.style.maxHeight = '90vh';
+        container.style.minHeight = '85vh';
+        
+        btn.innerHTML = '<i class="fas fa-compress"></i> Small Screen';
+        btn.style.background = '#e2e8f0';
+        btn.style.color = '#0f172a';
+        
+        // Scroll to video
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        // Small screen mode - restore default sizes
+        container.classList.remove('fullscreen-mode');
+        if (video) {
+            video.classList.remove('fullscreen-mode');
+            video.style.maxHeight = '';
+            video.style.height = '';
+        }
+        container.style.height = '';
+        container.style.maxHeight = '';
+        container.style.minHeight = '';
+        
+        btn.innerHTML = '<i class="fas fa-expand"></i> Full Screen';
+        btn.style.background = '';
+        btn.style.color = '';
+    }
+}
+
+// Click on video to toggle full screen
+document.getElementById('videoContainer')?.addEventListener('click', function(e) {
+    // Don't toggle if clicking on overlay elements
+    if (e.target.closest('.video-overlay') || e.target.closest('.video-overlay-bottom') || e.target.closest('.video-click-hint')) {
+        return;
+    }
+    toggleVideoSize();
+});
+
+// Keyboard shortcut: 'f' for full screen
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'f' || e.key === 'F') {
+        // Check if we're on the live monitoring page
+        if (document.getElementById('videoContainer')) {
+            e.preventDefault();
+            toggleVideoSize();
+        }
+    }
+});
+
+// Double click on video for full screen
+document.getElementById('videoContainer')?.addEventListener('dblclick', function(e) {
+    if (e.target.closest('.video-overlay') || e.target.closest('.video-overlay-bottom')) {
+        return;
+    }
+    toggleVideoSize();
+});
+
+// ============================================
 // MINUTE TRACKING - Single Shot Mode
 // ============================================
 let minuteTracker = {};
 let sessionStartTime = null;
-let currentMinuteOffset = 0;
+let unauthorizedStudents = new Set();
 
 function initMinuteTracker() {
     const startTimeEl = document.getElementById('session-start-time');
@@ -1296,7 +1836,7 @@ function getCurrentMinuteOffset() {
     if (!sessionStartTime) return 0;
     const now = new Date();
     const diffMs = now - sessionStartTime;
-    return Math.floor(diffMs / 60000); // minutes since session start
+    return Math.floor(diffMs / 60000);
 }
 
 function markMinutePresent(studentId, studentName) {
@@ -1310,36 +1850,78 @@ function markMinutePresent(studentId, studentName) {
         };
     }
     
-    // In Single Shot Mode, we only mark the FIRST detection minute
     if (minuteTracker[studentId].minutes.size === 0) {
         minuteTracker[studentId].minutes.add(currentMinute);
         console.log(`✅ Single Shot: ${studentName} marked at minute ${currentMinute}`);
     }
 }
 
-// Call this when a student is detected in the video feed
-function onStudentDetected(studentId, studentName) {
-    markMinutePresent(studentId, studentName);
-}
-
 // ============================================
-// UPDATE LOGS - Single Shot Mode
+// UPDATE LOGS - Single Shot Mode (PRESENT/ABSENT/UNAUTHORIZED)
 // ============================================
 function updateLogs() {
     const sessionId = document.getElementById('session-id').value;
-    const timestamp = Date.now(); // Add cache-busting
+    const timestamp = Date.now();
     
-    fetch(`/attendance/api/logs/${sessionId}/?_=${timestamp}`)
+    // First, get all student statuses including absent students
+    fetch(`/attendance/api/student-status/${sessionId}/?_=${timestamp}`)
         .then(r => r.json())
         .then(data => {
-            console.log('📊 Logs data:', data); // Debug log
-            if (data.logs) {
-                updateTable(data.logs);
-                updateStats(data.logs);
-                updateFaces(data.logs);
+            if (data.students) {
+                // Convert statuses for display
+                const logs = data.students.map(student => {
+                    let status = student.status;
+                    let isUnauthorized = student.is_unauthorized || false;
+                    
+                    // If student has validation error, mark as UNAUTHORIZED
+                    if (student.validation_error) {
+                        status = 'UNAUTHORIZED';
+                        isUnauthorized = true;
+                    }
+                    
+                    return {
+                        name: student.full_name,
+                        status: status,
+                        confidence: student.confidence || 0,
+                        time: student.first_seen || '--:--:--',
+                        detections: student.detection_count || 0,
+                        roll_number: student.roll_number,
+                        is_unauthorized: isUnauthorized,
+                        validation_error: student.validation_error || null,
+                        is_validated: student.is_validated !== false,
+                    };
+                });
+                
+                updateTable(logs);
+                updateStats(logs);
+                updateFaces(logs);
+                updateUnauthorizedAlert(logs);
             }
         })
-        .catch(err => console.log('Error fetching logs:', err));
+        .catch(err => {
+            // Fallback to old API
+            fetch(`/attendance/api/logs/${sessionId}/?_=${timestamp}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.logs) {
+                        const logs = data.logs.map(log => {
+                            if (log.status === 'LATE' || log.status === 'PARTIAL') {
+                                log.status = 'PRESENT';
+                            }
+                            if (log.validation_error && log.status === 'ABSENT') {
+                                log.status = 'UNAUTHORIZED';
+                                log.is_unauthorized = true;
+                            }
+                            return log;
+                        });
+                        updateTable(logs);
+                        updateStats(logs);
+                        updateFaces(logs);
+                        updateUnauthorizedAlert(logs);
+                    }
+                })
+                .catch(err => console.log('Error fetching logs:', err));
+        });
 }
 
 function updateTable(logs) {
@@ -1347,9 +1929,14 @@ function updateTable(logs) {
     const empty = document.getElementById('no-log-message');
     const badge = document.getElementById('log-count-badge');
     
-    badge.textContent = logs.length;
+    // Separate into authorized and unauthorized
+    const authorized = logs.filter(l => !l.is_unauthorized);
+    const unauthorized = logs.filter(l => l.is_unauthorized);
+    const total = logs.length;
     
-    if (logs.length === 0) {
+    badge.textContent = total;
+    
+    if (total === 0) {
         empty.style.display = 'block';
         container.style.display = 'none';
         return;
@@ -1364,6 +1951,7 @@ function updateTable(logs) {
     }
     
     function getStatusClass(status) { 
+        if (status === 'UNAUTHORIZED') return 'unauthorized';
         return status ? status.toLowerCase() : 'absent'; 
     }
     
@@ -1372,37 +1960,55 @@ function updateTable(logs) {
     }
     
     function getAvatarClass(status) {
+        if (status === 'UNAUTHORIZED') return 'unauthorized';
         return status ? status.toLowerCase() : 'absent';
     }
     
-    container.innerHTML = logs.map(log => `
-        <div class="log-item">
+    // Sort: Unauthorized first, then Present, then Absent
+    const sortedLogs = [...logs].sort((a, b) => {
+        if (a.is_unauthorized && !b.is_unauthorized) return -1;
+        if (!a.is_unauthorized && b.is_unauthorized) return 1;
+        if (a.status === 'PRESENT' && b.status !== 'PRESENT') return -1;
+        if (a.status !== 'PRESENT' && b.status === 'PRESENT') return 1;
+        return 0;
+    });
+    
+    container.innerHTML = sortedLogs.map(log => {
+        const isUnauthorized = log.is_unauthorized || log.status === 'UNAUTHORIZED';
+        const statusDisplay = isUnauthorized ? 'NOT ENROLLED' : (log.status || 'ABSENT');
+        const itemClass = isUnauthorized ? 'log-item unauthorized' : 'log-item';
+        const avatarClass = isUnauthorized ? 'unauthorized' : getAvatarClass(log.status);
+        
+        return `
+        <div class="${itemClass}">
             <div class="left">
-                <div class="avatar ${getAvatarClass(log.status)}">${getInitials(log.name)}</div>
+                <div class="avatar ${avatarClass}">${getInitials(log.name)}</div>
                 <div class="info">
                     <span class="name">${log.name || 'Unknown'}</span>
-                    <span class="roll">${log.detections || 1} detection(s)</span>
+                    <span class="roll">${log.roll_number || ''} • ${log.detections || 0} detection(s)</span>
+                    ${isUnauthorized ? `<span style="font-size: 0.55rem; color: #d97706; display: block;">⚠️ ${log.validation_error || 'Not enrolled in this section'}</span>` : ''}
                 </div>
-                <span class="status-badge ${getStatusClass(log.status)}">${log.status || 'ABSENT'}</span>
-                <span class="shot-badge"><i class="fas fa-bolt"></i> 1st</span>
+                <span class="status-badge ${getStatusClass(log.status)}">${statusDisplay}</span>
+                ${isUnauthorized ? '<span class="unauthorized-badge"><i class="fas fa-exclamation-triangle"></i> Unauthorized</span>' : '<span class="shot-badge"><i class="fas fa-bolt"></i> 1st</span>'}
             </div>
             <div class="right">
-                <span class="confidence ${getConfClass(log.confidence)}">${log.confidence || 0}%</span>
+                <span class="confidence-badge ${getConfClass(log.confidence)}">${log.confidence || 0}%</span>
                 <span class="time">${log.time || 'N/A'}</span>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function updateStats(logs) {
     const present = logs.filter(l => l.status === 'PRESENT').length;
-    const absent = logs.filter(l => l.status === 'ABSENT').length;
-    const late = logs.filter(l => l.status === 'LATE').length;
-    const leave = logs.filter(l => l.status === 'LEAVE').length;
+    const absent = logs.filter(l => l.status === 'ABSENT' && !l.is_unauthorized).length;
+    const unauthorized = logs.filter(l => l.status === 'UNAUTHORIZED' || l.is_unauthorized).length;
+    const total = logs.length;
     
     document.getElementById('stat-present').textContent = present;
-    document.getElementById('stat-total').textContent = logs.length;
-    document.getElementById('total-present').textContent = present;
+    document.getElementById('stat-absent').textContent = absent;
+    document.getElementById('stat-unauthorized').textContent = unauthorized;
+    document.getElementById('stat-total').textContent = total;
     
     if (logs.length > 0) {
         const avg = logs.reduce((s, l) => s + (l.confidence || 0), 0) / logs.length;
@@ -1411,13 +2017,44 @@ function updateStats(logs) {
         document.getElementById('stat-confidence').textContent = '0%';
     }
     
-    // Show mode in stats
-    document.getElementById('stat-mode').textContent = 'Single Shot';
+    // Update unauthorized chip
+    const chip = document.getElementById('unauthorizedChip');
+    const countEl = document.getElementById('unauthorized-count');
+    if (unauthorized > 0) {
+        chip.style.display = 'flex';
+        countEl.textContent = unauthorized;
+    } else {
+        chip.style.display = 'none';
+    }
 }
 
 function updateFaces(logs) {
     document.getElementById('face-value').textContent = logs.length;
-    document.getElementById('logged-value').textContent = logs.length;
+    document.getElementById('logged-value').textContent = logs.filter(l => l.status === 'PRESENT').length;
+}
+
+function updateUnauthorizedAlert(logs) {
+    const unauthorized = logs.filter(l => l.status === 'UNAUTHORIZED' || l.is_unauthorized);
+    const alert = document.getElementById('unauthorizedAlert');
+    const message = document.getElementById('unauthorizedMessage');
+    const infoBox = document.getElementById('unauthorizedInfoBox');
+    const infoText = document.getElementById('unauthorizedInfoText');
+    
+    if (unauthorized.length > 0) {
+        alert.classList.add('show');
+        const names = unauthorized.map(l => l.name).join(', ');
+        message.textContent = `${unauthorized.length} student(s) from other sections attempted to attend: ${names}`;
+        
+        infoBox.style.display = 'block';
+        infoText.textContent = unauthorized.map(l => `${l.name} (${l.validation_error || 'Not enrolled'})`).join('; ');
+    } else {
+        alert.classList.remove('show');
+        infoBox.style.display = 'none';
+    }
+}
+
+function dismissAlert() {
+    document.getElementById('unauthorizedAlert').classList.remove('show');
 }
 
 // ============================================
@@ -1468,7 +2105,6 @@ document.getElementById('video-feed')?.addEventListener('load', function() {
     }
 });
 
-// Fallback FPS
 setInterval(() => {
     const fpsEl = document.getElementById('fps-value');
     if (fpsEl.textContent === '0') {
@@ -1488,7 +2124,6 @@ function handleVideoError() {
     statusEl.className = 'camera-status offline';
     statusText.textContent = 'Disconnected';
     
-    // Show reconnect message
     const container = document.querySelector('.video-container');
     const placeholder = document.createElement('div');
     placeholder.className = 'video-placeholder';
@@ -1513,16 +2148,6 @@ setInterval(() => {
 }, 30000);
 
 // ============================================
-// MINUTE TRACKER STATUS - Log to console
-// ============================================
-setInterval(() => {
-    console.log('📊 Minute Tracker Status:', {
-        totalTracked: Object.keys(minuteTracker).length,
-        data: minuteTracker
-    });
-}, 10000);
-
-// ============================================
 // START
 // ============================================
 initMinuteTracker();
@@ -1533,7 +2158,9 @@ updateCountdown();
 
 console.log('🎥 Live monitoring started (Single Shot Mode) for session:', document.getElementById('session-id').value);
 console.log('⚡ Students will be marked on FIRST detection only');
+console.log('⚠️ Students from other sections will be shown as NOT ENROLLED');
 console.log('📅 Session Start Time:', sessionStartTime);
+console.log('💡 Click on video or press "F" key for full screen');
 </script>
 {% endblock %}
 {% endblock %}

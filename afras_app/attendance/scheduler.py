@@ -218,12 +218,13 @@ def sync_routines_and_sessions():
 class SessionScheduler:
     """
     Background scheduler for automatic session management
-    Runs every 30 seconds to check and update session status
     """
     def __init__(self):
         self.running = False
         self.thread = None
-        self.interval = 30  # Check every 30 seconds for precise timing
+        self.interval = 30
+        self.last_check = None
+        self.status = 'stopped'
     
     def start(self):
         """Start the scheduler in a background thread"""
@@ -231,34 +232,39 @@ class SessionScheduler:
             return
         
         self.running = True
+        self.status = 'starting'
         self.thread = threading.Thread(target=self._run, daemon=True)
         self.thread.start()
-        print("🔄 Session Scheduler started (checking every 30 seconds)")
+        print(f"🔄 Session Scheduler started (checking every {self.interval} seconds)")
+        self.status = 'running'
     
     def stop(self):
         """Stop the scheduler"""
         self.running = False
+        self.status = 'stopping'
         if self.thread:
             self.thread.join(timeout=2)
+        self.status = 'stopped'
         print("⏹️ Session Scheduler stopped")
     
     def _run(self):
-        """Main scheduler loop - runs every 30 seconds"""
+        """Main scheduler loop - runs every interval seconds"""
         last_sync_time = timezone.now()
-        sync_interval = timedelta(hours=1)  # Sync routines once per hour
+        sync_interval = timedelta(hours=1)
         
         while self.running:
             try:
+                self.last_check = timezone.now()
                 current_time = timezone.now()
                 
-                # Always check for sessions to start/end (every 30 seconds)
+                # Check for sessions to start/end
                 start_result = auto_start_scheduled_sessions()
                 end_result = auto_end_completed_sessions()
                 
                 if start_result['started_count'] > 0 or end_result['ended_count'] > 0:
                     print(f"📊 Auto-updated: {start_result['started_count']} started, {end_result['ended_count']} ended")
                 
-                # Sync routines once per hour (to generate new sessions)
+                # Sync routines once per hour
                 if current_time - last_sync_time > sync_interval:
                     print("🔄 Syncing routines...")
                     result = sync_routines_and_sessions()
@@ -271,7 +277,7 @@ class SessionScheduler:
                 import traceback
                 traceback.print_exc()
             
-            # Sleep for interval (30 seconds)
+            # Sleep for interval
             for _ in range(self.interval):
                 if not self.running:
                     break
@@ -288,10 +294,12 @@ def get_scheduler():
         _scheduler = SessionScheduler()
     return _scheduler
 
-def start_scheduler():
+def start_scheduler(interval=30):
     """Start the global scheduler"""
     scheduler = get_scheduler()
+    scheduler.interval = interval
     scheduler.start()
+    return scheduler
 
 def stop_scheduler():
     """Stop the global scheduler"""
