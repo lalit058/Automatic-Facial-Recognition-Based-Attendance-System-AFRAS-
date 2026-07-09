@@ -22,7 +22,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import AttendanceSession, AttendanceLog
 from accounts.models import Student, StaffProfile
 from recognition import HybridFaceRecognizer, FaceUtils, RECOGNITION_CONFIG
-
+from attendance.utils import auto_schedule_session
 
 # ========== HELPER FUNCTIONS ==========
 
@@ -176,7 +176,7 @@ def get_sections_by_year():
 
 @login_required
 def start_session(request):
-    """Start a new attendance session"""
+    """Start a new attendance session with auto-scheduling (backend only)"""
     if request.method == "POST":
         subject = request.POST.get("subject")
         department = request.POST.get("department")
@@ -213,6 +213,10 @@ def start_session(request):
             start_time = timezone.make_aware(naive_start_time)
             end_time = start_time + timedelta(minutes=int(duration))
             
+            # ============================================================
+            # CREATE THE MAIN SESSION (Visible in template)
+            # is_manual=True so it shows in the template
+            # ============================================================
             session = AttendanceSession.objects.create(
                 subject_name=subject,
                 department=department,
@@ -225,28 +229,62 @@ def start_session(request):
                 start_time=start_time,
                 end_time=end_time,
                 date=start_time.date(),
+                is_manual=True,  # ← This makes it visible in template
             )
             
-            print(f"✅ Session created: ID={session.id}")
-            print(f"   Department: {session.department}, Year: {session.year}, Semester: {session.semester}, Section: {session.section}")
-            print(f"   Start Time (Local): {get_local_time(session.start_time)}")
-            print(f"   End Time (Local): {get_local_time(session.end_time)}")
+            print(f"\n✅ Main session created: ID={session.id} (is_manual=True)")
+            print(f"   Subject: {session.subject_name}")
+            print(f"   Date: {session.date} ({session.date.strftime('%A')})")
+            print(f"   Time: {session.start_time.strftime('%I:%M %p')}")
+            print(f"   Duration: {session.expected_duration} minutes")
+            
+            # ============================================================
+            # AUTO-SCHEDULE IN BACKEND
+            # Creates routines for ALL days and generates sessions
+            # Generated sessions have is_manual=False (hidden)
+            # ============================================================
+            print("\n" + "="*60)
+            print("🔄 BACKEND AUTO-SCHEDULING")
+            print("="*60)
+            
+            auto_result = auto_schedule_session(session)
+            
+            if auto_result.get('status') == 'success':
+                print("\n📊 Auto-schedule Results:")
+                print(f"   ✅ Routines created: {auto_result['routines_created']}")
+                print(f"   ✅ Sessions generated: {auto_result['sessions_created']}")
+                print(f"   🎯 All generated sessions are hidden (is_manual=False)")
+                print(f"   📌 Only the main session will show in template (is_manual=True)")
+            else:
+                print(f"\n⚠️ Auto-schedule status: {auto_result.get('status')}")
+            
+            print("="*60)
             
             # Check if session should start immediately
             current_time = timezone.now()
             if current_time >= session.start_time:
                 # If start time is in the past or now, start immediately
                 session.is_active = True
-                session.start_time = current_time  # Reset start time to now
-                session.end_time = current_time + timedelta(minutes=int(duration))  # Reset end time
+                session.start_time = current_time
+                session.end_time = current_time + timedelta(minutes=int(duration))
                 session.save()
                 print(f"   ✅ Session started immediately at {get_local_time(current_time)}!")
+                messages.success(
+                    request, 
+                    f'Session "{subject}" started successfully with weekly auto-schedule! '
+                    f'Weekly sessions auto-generated for all days in the background.'
+                )
                 return redirect(f'/attendance/live/{session.id}/')
             else:
                 # Session is scheduled for the future
                 time_diff = session.start_time - current_time
                 minutes_diff = int(time_diff.total_seconds() // 60)
                 print(f"   ⏰ Session scheduled in {minutes_diff} minutes")
+                messages.success(
+                    request, 
+                    f'Session "{subject}" created and will auto-start at {get_local_time(session.start_time).strftime("%I:%M %p")}. '
+                    f'Weekly sessions auto-generated for all days in the background!'
+                )
                 return redirect('attendance:all_sessions')
             
         except Exception as e:
@@ -334,7 +372,7 @@ _processing_lock = False
 def check_and_update_sessions():
     """
     Check all sessions and update their status
-    FIXED: Prevents duplicate processing and logging
+    FIXED: Prevents re-starting already ended sessions
     """
     global _last_check_time, _processing_lock
     
@@ -354,11 +392,12 @@ def check_and_update_sessions():
     try:
         # ============================================================
         # AUTO-START SESSIONS
-        # Get sessions that need to be started (not active, start_time passed)
+        # FIX: Only start if end_time is in the future
         # ============================================================
         scheduled_sessions = AttendanceSession.objects.filter(
             is_active=False,
-            start_time__lte=current_time
+            start_time__lte=current_time,
+            end_time__gt=current_time  # ← ADD THIS LINE - CRITICAL FIX!
         ).distinct()
         
         for session in scheduled_sessions:
@@ -367,7 +406,7 @@ def check_and_update_sessions():
                 session.is_active = True
                 session.save(update_fields=['is_active'])
                 updated_count += 1
-                print(f"✅ Auto-started session: {session.subject_name} (ID: {session.id}) at {get_local_time(current_time)}")
+                print(f"🚀 Auto-started session: {session.subject_name} (ID: {session.id}) at {get_local_time(current_time)}")
         
         # ============================================================
         # AUTO-STOP SESSIONS
@@ -384,7 +423,7 @@ def check_and_update_sessions():
                 session.is_active = False
                 session.save(update_fields=['is_active'])
                 updated_count += 1
-                print(f"⏰ Auto-stopped session: {session.subject_name} (ID: {session.id}) at {get_local_time(current_time)}")
+                print(f"⏹️ Auto-ended session: {session.subject_name} (ID: {session.id}) at {get_local_time(current_time)}")
         
         _last_check_time = current_time
         
@@ -408,20 +447,26 @@ def check_session_status(session):
     current_time = timezone.now()
     status_changed = False
     
-    # Auto-start: If session is not active but start_time has arrived
+    # Auto-start: Only if start_time has arrived AND end_time is in future
     if not session.is_active and current_time >= session.start_time:
-        session.is_active = True
-        session.save(update_fields=['is_active'])
-        status_changed = True
-        print(f"✅ Auto-started session: {session.subject_name} (ID: {session.id}) at {get_local_time(current_time)}")
-        return True
+        # CRITICAL FIX: Only start if end_time is in the future
+        if session.end_time and session.end_time > current_time:
+            session.is_active = True
+            session.save(update_fields=['is_active'])
+            status_changed = True
+            print(f"🚀 Auto-started session: {session.subject_name} (ID: {session.id}) at {get_local_time(current_time)}")
+            return True
+        else:
+            # Session has already ended, don't start it
+            print(f"⏭️ Skipping already ended session: {session.subject_name} (ID: {session.id})")
+            return False
     
     # Auto-stop: If session is active and end_time has passed
     if session.is_active and session.end_time and current_time >= session.end_time:
         session.is_active = False
         session.save(update_fields=['is_active'])
         status_changed = True
-        print(f"⏰ Auto-stopped session: {session.subject_name} (ID: {session.id}) at {get_local_time(current_time)}")
+        print(f"⏹️ Auto-ended session: {session.subject_name} (ID: {session.id}) at {get_local_time(current_time)}")
         return True
     
     return False
@@ -680,28 +725,48 @@ def session_stats_api(request):
 
 @require_GET
 def recent_sessions_api(request):
-    """API endpoint to get ALL attendance sessions with department info"""
+    """API endpoint to get attendance sessions - show ONLY manual sessions"""
     try:
         # Auto-update sessions
         check_and_update_sessions()
         
-        sessions = AttendanceSession.objects.all().order_by('-start_time')
+        # ============================================================
+        # SHOW ONLY MANUAL SESSIONS (is_manual=True)
+        # ============================================================
+        sessions = AttendanceSession.objects.filter(is_manual=True).order_by('-start_time')
         
         sessions_data = []
         current_time = timezone.now()
+        nepal_now = get_local_time(current_time)
+        today = nepal_now.date()
+        
+        # ============================================================
+        # CALCULATE NEXT SESSION FOR EACH SUBJECT
+        # ============================================================
+        from attendance.scheduler import get_next_session_for_subject
+        
+        subjects = sessions.values_list('subject_name', flat=True).distinct()
+        next_session_map = {}
+        
+        for subject in subjects:
+            try:
+                next_session = get_next_session_for_subject(subject, today, current_time)
+                if next_session:
+                    next_session_map[subject] = next_session
+            except Exception as e:
+                print(f"⚠️ Next session error for {subject}: {e}")
         
         for session in sessions:
             start_time = session.start_time
             end_time = session.end_time or (start_time + timedelta(minutes=session.expected_duration))
             
-            # Convert to local time for display
             start_local = get_local_time(start_time)
             end_local = get_local_time(end_time)
             
             start_formatted = start_local.strftime("%I:%M %p").lstrip("0")
             end_formatted = end_local.strftime("%I:%M %p").lstrip("0")
             
-            # Determine correct status
+            # Determine status
             if session.is_active:
                 status = "Active"
             elif session.end_time and session.end_time <= current_time:
@@ -709,24 +774,18 @@ def recent_sessions_api(request):
             elif session.start_time > current_time:
                 status = "Scheduled"
             else:
-                if session.start_time <= current_time:
-                    status = "Ended"
-                else:
-                    status = "Scheduled"
+                status = "Ended" if session.start_time <= current_time else "Scheduled"
             
-            # Get department info (with fallback)
-            department = getattr(session, 'department', 'N/A')
-            year = getattr(session, 'year', '')
-            semester = getattr(session, 'semester', '')
-            section = getattr(session, 'section', '')
+            # Get next session for this subject
+            next_session_info = next_session_map.get(session.subject_name)
             
             sessions_data.append({
                 "id": session.id,
                 "subject": session.subject_name,
-                "department": department if department else 'N/A',
-                "year": year if year else '',
-                "semester": semester if semester else '',
-                "section": section if section else '',
+                "department": session.department or 'N/A',
+                "year": session.year or '',
+                "semester": session.semester or '',
+                "section": session.section or '',
                 "date": session.date.strftime("%Y-%m-%d"),
                 "start_time": start_formatted,
                 "end_time": end_formatted,
@@ -734,11 +793,22 @@ def recent_sessions_api(request):
                 "is_active": session.is_active,
                 "duration": session.expected_duration,
                 "status": status,
+                "is_manual": session.is_manual,
+                "is_auto_scheduled": session.routine is not None,
+                "next_session": next_session_info,
             })
         
-        return JsonResponse({"sessions": sessions_data})
+        return JsonResponse({
+            "sessions": sessions_data,
+            "total": len(sessions_data),
+            "message": "Showing manual sessions only"
+        })
+        
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        print(f"❌ recent_sessions_api error: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'error': str(e), 'sessions': []}, status=500)
 
 
 # ========== VIDEO FEED ==========
@@ -1909,8 +1979,8 @@ def attendance_records(request):
 @login_required
 def weekly_attendance_report(request):
     """
-    Attendance report showing registered students for selected subject/session
-    Shows students based on the actual session data (Year, Semester, Section)
+    Attendance report showing REAL attendance data from database
+    According to scheduler: Sunday-Friday sessions, Saturday OFF
     """
     # Get filter parameters
     year_filter = request.GET.get('year', '')
@@ -1923,19 +1993,11 @@ def weekly_attendance_report(request):
     end_date_str = request.GET.get('end_date', '')
     
     today = timezone.now().date()
+    current_time = timezone.now()
     
     # ============================================================
-    # GET FIRST SCHEDULED DATE FOR THE SUBJECT
+    # CALCULATE DATE RANGE - SUNDAY TO SATURDAY (Saturday = OFF)
     # ============================================================
-    first_session_date = None
-    if subject_filter:
-        first_session = AttendanceSession.objects.filter(
-            subject_name__iexact=subject_filter
-        ).order_by('date', 'start_time').first()
-        if first_session:
-            first_session_date = first_session.date
-    
-    # Calculate date range
     if start_date_str and end_date_str:
         try:
             start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
@@ -1948,8 +2010,9 @@ def weekly_attendance_report(request):
             start_date = today
             end_date = today
         elif date_range_type == 'week':
-            start_date = today - timedelta(days=today.weekday())
-            end_date = start_date + timedelta(days=4)
+            days_to_sunday = (today.weekday() + 1) % 7
+            start_date = today - timedelta(days=days_to_sunday)
+            end_date = start_date + timedelta(days=6)
         elif date_range_type == 'month':
             start_date = today.replace(day=1)
             if today.month == 12:
@@ -1957,10 +2020,13 @@ def weekly_attendance_report(request):
             else:
                 end_date = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
         else:
-            start_date = today - timedelta(days=today.weekday())
-            end_date = start_date + timedelta(days=4)
+            days_to_sunday = (today.weekday() + 1) % 7
+            start_date = today - timedelta(days=days_to_sunday)
+            end_date = start_date + timedelta(days=6)
     
-    # Generate date list
+    # ============================================================
+    # GENERATE DATE LIST - Show Sunday to Saturday (Saturday = OFF)
+    # ============================================================
     date_list = []
     current = start_date
     while current <= end_date:
@@ -1968,31 +2034,36 @@ def weekly_attendance_report(request):
         current += timedelta(days=1)
     
     # ============================================================
-    # GET STUDENTS - Based on filters
+    # GET FIRST SESSION DATE FOR SUBJECT
+    # ============================================================
+    first_session_date = None
+    if subject_filter:
+        first_session = AttendanceSession.objects.filter(
+            subject_name__iexact=subject_filter
+        ).order_by('date', 'start_time').first()
+        if first_session:
+            first_session_date = first_session.date
+    
+    # ============================================================
+    # GET STUDENTS
     # ============================================================
     students = Student.objects.all().order_by('full_name')
     
-    # Apply year/semester filters if provided directly
     if semester_filter:
         students = students.filter(semester=semester_filter)
     if year_filter:
         students = students.filter(year=year_filter)
     
     # ============================================================
-    # SUBJECT FILTER - Get students from the subject's sessions
+    # SUBJECT FILTER
     # ============================================================
     if subject_filter:
-        # Get all sessions for this subject
         subject_sessions = AttendanceSession.objects.filter(
             subject_name__iexact=subject_filter
         ).order_by('-date', '-start_time')
         
         if subject_sessions.exists():
-            # Get the session details (use the most recent session or first)
-            # We'll use the session's semester, year, department, section
             session = subject_sessions.first()
-            
-            # Build filter from session data
             session_filters = {}
             if session.semester:
                 session_filters['semester'] = session.semester
@@ -2003,12 +2074,9 @@ def weekly_attendance_report(request):
             if session.section:
                 session_filters['section'] = session.section
             
-            # Apply these filters to students
             if session_filters:
-                # If we have session filters, use them
                 students = Student.objects.filter(**session_filters).order_by('full_name')
             else:
-                # Fallback: get students from enrolled students of all sessions
                 enrolled_student_ids = set()
                 for s in subject_sessions:
                     for student in s.get_enrolled_students():
@@ -2016,7 +2084,6 @@ def weekly_attendance_report(request):
                 if enrolled_student_ids:
                     students = Student.objects.filter(id__in=enrolled_student_ids).order_by('full_name')
         else:
-            # No sessions found, use semester/year filters or return empty
             if not semester_filter and not year_filter:
                 students = Student.objects.none()
     
@@ -2039,12 +2106,31 @@ def weekly_attendance_report(request):
         student__in=students
     ).select_related('student', 'session')
     
-    # Create log map: (student_id, date) -> status
+    # ============================================================
+    # BUILD LOG MAP
+    # ============================================================
     log_map = {}
     for log in logs:
         key = (log.student_id, log.session.date)
-        if key not in log_map or log.status in ['PRESENT', 'PARTIAL']:
-            log_map[key] = log.status
+        is_validated = getattr(log, 'is_validated', True)
+        
+        if not is_validated:
+            log_map[key] = {
+                'status': 'UNAUTHORIZED',
+                'is_manual': log.is_manual,
+                'confidence': log.confidence,
+                'validation_error': getattr(log, 'validation_error', 'Not validated'),
+                'reason': None
+            }
+        else:
+            log_map[key] = {
+                'status': log.status,
+                'is_manual': log.is_manual,
+                'confidence': log.confidence,
+                'first_seen': log.first_seen,
+                'last_seen': log.last_seen,
+                'reason': getattr(log, 'reason', None)
+            }
     
     # ============================================================
     # BUILD ATTENDANCE DATA
@@ -2055,10 +2141,18 @@ def weekly_attendance_report(request):
         'total_days': len(date_list),
         'present_counts': {},
         'absent_counts': {},
+        'leave_counts': {},
+        'late_counts': {},
         'no_session_counts': {},
+        'unauthorized_counts': {},
         'total_present': 0,
         'total_absent': 0,
+        'total_leave': 0,        
+        'total_late': 0,
         'total_no_session': 0,
+        'total_unauthorized': 0,
+        'total_auto_marked': 0,      # ← ADD THIS
+        'total_manual_changes': 0,    # ← ADD THIS
         'attendance_percentage': 0
     }
     
@@ -2067,40 +2161,113 @@ def weekly_attendance_report(request):
         date_str = date_obj.strftime('%Y-%m-%d')
         summary_stats['present_counts'][date_str] = 0
         summary_stats['absent_counts'][date_str] = 0
+        summary_stats['leave_counts'][date_str] = 0
+        summary_stats['late_counts'][date_str] = 0
         summary_stats['no_session_counts'][date_str] = 0
+        summary_stats['unauthorized_counts'][date_str] = 0
     
     for student in students:
         student_data = {
             'student': student,
-            'days': []
+            'days': [],
+            'attendance_percentage': 0,
+            'present_count': 0,
+            'total_days': len(date_list)
         }
         
         for date_obj in date_list:
             date_str = date_obj.strftime('%Y-%m-%d')
+            is_saturday = (date_obj.weekday() == 5)  # Saturday = 5
             
-            # Check if this student has a session on this date
+            # ============================================================
+            # CHECK SESSION STATUS FOR THIS DATE
+            # ============================================================
             has_session = False
-            for session in all_sessions.filter(date=date_obj):
-                if session.is_student_enrolled(student.id):
-                    has_session = True
-                    break
+            session_started = False
+            session_completed = False
             
-            # Check if student has attendance log
+            if not is_saturday:
+                for session in all_sessions.filter(date=date_obj):
+                    if session.is_student_enrolled(student.id):
+                        has_session = True
+                        if session.start_time <= current_time:
+                            session_started = True
+                        if session.end_time and session.end_time <= current_time:
+                            session_completed = True
+                        break
+            
+            # ============================================================
+            # CHECK IF STUDENT HAS ATTENDANCE LOG
+            # ============================================================
             key = (student.id, date_obj)
-            log_status = log_map.get(key)
+            log_data = log_map.get(key)
             
-            # Determine status
-            if log_status in ['PRESENT', 'PARTIAL']:
-                status = 'PRESENT'
-                summary_stats['present_counts'][date_str] += 1
-                summary_stats['total_present'] += 1
-            elif has_session:
-                # Student has a session but no log = ABSENT
-                status = 'ABSENT'
-                summary_stats['absent_counts'][date_str] += 1
-                summary_stats['total_absent'] += 1
+            # ============================================================
+            # DETERMINE STATUS - FIXED VERSION
+            # ============================================================
+            status = 'NO_SESSION'
+            
+            if is_saturday:
+                status = 'OFF'
+            elif has_session and session_completed:
+                if log_data:
+                    if log_data['status'] == 'PRESENT':
+                        status = 'PRESENT'
+                        summary_stats['present_counts'][date_str] += 1
+                        summary_stats['total_present'] += 1
+                        student_data['present_count'] += 1
+                    elif log_data['status'] == 'LEAVE':
+                        status = 'LEAVE'
+                        summary_stats['leave_counts'][date_str] += 1
+                        summary_stats['total_leave'] += 1
+                    elif log_data['status'] == 'LATE':
+                        status = 'LATE'
+                        summary_stats['late_counts'][date_str] += 1
+                        summary_stats['total_late'] += 1
+                    elif log_data['status'] == 'UNAUTHORIZED':
+                        status = 'UNAUTHORIZED'
+                        summary_stats['unauthorized_counts'][date_str] += 1
+                        summary_stats['total_unauthorized'] += 1
+                    elif log_data['status'] == 'ABSENT':
+                        status = 'ABSENT'
+                        summary_stats['absent_counts'][date_str] += 1
+                        summary_stats['total_absent'] += 1
+                    elif log_data['status'] == 'PARTIAL':
+                        status = 'PRESENT'
+                        summary_stats['present_counts'][date_str] += 1
+                        summary_stats['total_present'] += 1
+                        student_data['present_count'] += 1
+                    else:
+                        status = 'ABSENT'
+                        summary_stats['absent_counts'][date_str] += 1
+                        summary_stats['total_absent'] += 1
+                    
+                    # ============================================================
+                    # COUNT AUTO AND MANUAL CHANGES
+                    # ============================================================
+                    if log_data.get('is_manual'):
+                        summary_stats['total_manual_changes'] += 1
+                    elif log_data.get('is_manual') is False:
+                        summary_stats['total_auto_marked'] += 1
+                else:
+                    status = 'ABSENT'
+                    summary_stats['absent_counts'][date_str] += 1
+                    summary_stats['total_absent'] += 1
+            elif has_session and session_started and not session_completed:
+                if log_data and log_data['status'] == 'PRESENT':
+                    status = 'PRESENT'
+                    summary_stats['present_counts'][date_str] += 1
+                    summary_stats['total_present'] += 1
+                    student_data['present_count'] += 1
+                elif log_data and log_data['status'] == 'UNAUTHORIZED':
+                    status = 'UNAUTHORIZED'
+                    summary_stats['unauthorized_counts'][date_str] += 1
+                    summary_stats['total_unauthorized'] += 1
+                else:
+                    status = 'NO_SESSION'
+                    summary_stats['no_session_counts'][date_str] += 1
+                    summary_stats['total_no_session'] += 1
             else:
-                # No session for this student on this date
                 status = 'NO_SESSION'
                 summary_stats['no_session_counts'][date_str] += 1
                 summary_stats['total_no_session'] += 1
@@ -2109,16 +2276,33 @@ def weekly_attendance_report(request):
                 'date': date_str,
                 'day_name': date_obj.strftime('%a'),
                 'full_date': date_obj.strftime('%b %d, %Y'),
-                'status': status
+                'status': status,
+                'is_saturday': is_saturday,
+                'is_auto': (log_data and not log_data.get('is_manual', True)),
+                'confidence': log_data.get('confidence') if log_data else None,
+                'reason': log_data.get('reason') if log_data else None,
+                'is_manual': (log_data and log_data.get('is_manual', False)) if log_data else False,
             })
+        
+        # Calculate student's attendance percentage
+        total_possible = 0
+        for day in student_data['days']:
+            if day['status'] not in ['NO_SESSION', 'OFF']:
+                total_possible += 1
+        
+        if total_possible > 0:
+            student_data['attendance_percentage'] = round(
+                (student_data['present_count'] / total_possible) * 100, 1
+            )
+        else:
+            student_data['attendance_percentage'] = 0
         
         attendance_data.append(student_data)
     
     # Calculate summary
-    total_students = students.count()
-    summary_stats['total_students'] = total_students
+    summary_stats['total_students'] = students.count()
     
-    total_possible_attendances = total_students * len(date_list)
+    total_possible_attendances = summary_stats['total_students'] * len(date_list)
     total_actual_present = summary_stats['total_present']
     
     if total_possible_attendances > 0:
@@ -2126,7 +2310,9 @@ def weekly_attendance_report(request):
             (total_actual_present / total_possible_attendances) * 100, 1
         )
     
-    # Get filter options
+    # ============================================================
+    # GET FILTER OPTIONS
+    # ============================================================
     years = Student.objects.filter(
         year__isnull=False
     ).values_list('year', flat=True).distinct().order_by('year')
@@ -2141,7 +2327,19 @@ def weekly_attendance_report(request):
         subject_name=''
     ).values_list('subject_name', flat=True).distinct().order_by('subject_name')
     
-    # Date range display
+    # ============================================================
+    # AUTO-SESSION COUNT
+    # ============================================================
+    auto_session_count = AttendanceSession.objects.filter(
+        subject_name=subject_filter,
+        is_manual=False,
+        date__gte=start_date,
+        date__lte=end_date
+    ).count() if subject_filter else 0
+    
+    # ============================================================
+    # PREPARE CONTEXT
+    # ============================================================
     if start_date == end_date:
         date_range_display = start_date.strftime('%B %d, %Y')
     else:
@@ -2167,9 +2365,122 @@ def weekly_attendance_report(request):
         'semester_filter': semester_filter,
         'subject_filter': subject_filter,
         'first_session_date': first_session_date,
+        'auto_session_count': auto_session_count,
     }
     
     return render(request, 'attendance/attendance_report.html', context)
+
+
+# attendance/views.py
+
+@csrf_exempt
+@login_required
+@user_passes_test(is_staff_or_admin)
+def update_attendance_manual(request):
+    """
+    API endpoint to manually update attendance for a student
+    (For approved leaves, manual correction, etc.)
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        student_id = data.get('student_id')
+        date_str = data.get('date')
+        status = data.get('status')
+        subject_name = data.get('subject')
+        reason = data.get('reason', 'Manual update')
+        
+        if not all([student_id, date_str, status]):
+            return JsonResponse({'success': False, 'message': 'Missing required fields'})
+        
+        # Parse date
+        try:
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return JsonResponse({'success': False, 'message': 'Invalid date format'})
+        
+        # Find the student
+        try:
+            student = Student.objects.get(id=student_id)
+        except Student.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Student not found'})
+        
+        # Find the session
+        session = None
+        if subject_name:
+            session = AttendanceSession.objects.filter(
+                subject_name__iexact=subject_name,
+                date=date_obj
+            ).first()
+        
+        if not session:
+            date_sessions = AttendanceSession.objects.filter(date=date_obj)
+            for s in date_sessions:
+                if s.is_student_enrolled(student.id):
+                    session = s
+                    break
+        
+        if not session:
+            return JsonResponse({
+                'success': False, 
+                'message': f'No session found for {student.full_name} on {date_str}'
+            })
+        
+        if not session.is_student_enrolled(student.id):
+            return JsonResponse({
+                'success': False, 
+                'message': f'{student.full_name} is not enrolled in this session'
+            })
+        
+        # Update or create attendance log with reason
+        log, created = AttendanceLog.objects.get_or_create(
+            session=session,
+            student=student,
+            defaults={
+                'status': status,
+                'confidence': 100,
+                'is_manual': True,
+                'first_seen': timezone.now(),
+                'last_seen': timezone.now(),
+                'is_validated': True,
+                'detection_count': 1,
+                'validation_error': None,
+                'reason': reason  # ← Store the reason
+            }
+        )
+        
+        if not created:
+            log.status = status
+            log.is_manual = True
+            log.confidence = 100
+            log.is_validated = True
+            log.last_seen = timezone.now()
+            log.detection_count += 1
+            log.validation_error = None
+            log.reason = reason  # ← Update the reason
+            log.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Attendance updated to {status} for {student.full_name}',
+            'log_id': log.id,
+            'status': status,
+            'student': student.full_name,
+            'date': date_str,
+            'reason': reason
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        print(f"❌ update_attendance_manual error: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+    
+
 
 
 @login_required
