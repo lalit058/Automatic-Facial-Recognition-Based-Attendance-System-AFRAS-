@@ -521,6 +521,7 @@
             opacity: 0;
             transform: translateY(-10px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -876,12 +877,12 @@
     }
 
     .btn {
-        padding: 0.4rem 1rem;
         border-radius: 8px;
         font-weight: 600;
         font-size: 0.75rem;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 6px;
         transition: all 0.3s ease;
         border: none;
@@ -904,11 +905,6 @@
     .btn-block {
         width: 100%;
         justify-content: center;
-    }
-
-    .btn-sm {
-        padding: 0.25rem 0.7rem;
-        font-size: 0.65rem;
     }
 
     .btn-success {
@@ -1134,9 +1130,8 @@
     .session-subject {
         font-weight: 600;
         color: #0f172a;
-        max-width: 150px;
+        max-width: 250px;
         overflow: hidden;
-        text-overflow: ellipsis;
         white-space: nowrap;
         display: block;
     }
@@ -1165,7 +1160,6 @@
         font-size: 0.55rem;
         font-weight: 600;
         color: #4f46e5;
-        background: #eef2ff;
         white-space: nowrap;
     }
 
@@ -1176,7 +1170,6 @@
         font-size: 0.55rem;
         font-weight: 600;
         color: #2563eb;
-        background: #dbeafe;
         white-space: nowrap;
     }
 
@@ -1187,7 +1180,6 @@
         font-size: 0.55rem;
         font-weight: 600;
         color: #d97706;
-        background: #fef3c7;
         white-space: nowrap;
     }
 
@@ -1198,7 +1190,6 @@
         font-size: 0.55rem;
         font-weight: 600;
         color: #db2777;
-        background: #fce7f3;
         white-space: nowrap;
     }
 
@@ -1259,7 +1250,6 @@
     }
 
     .status-badge-table.auto-started {
-        background: #dbeafe;
         color: #2563eb;
     }
 
@@ -1269,14 +1259,20 @@
     }
 
     .status-badge-table.live {
-        background: #dcfce7;
         color: #16a34a;
         animation: pulse-badge 2s infinite;
     }
 
     @keyframes pulse-badge {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.6; }
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.6;
+        }
     }
 
     .action-link {
@@ -1330,6 +1326,68 @@
         background: #16a34a;
         animation: pulse-dot 1.5s infinite;
         margin-right: 4px;
+    }
+
+    /* ============================================
+       AUTO-STATUS COLUMN STYLES
+    ============================================ */
+    .auto-status-cell {
+        font-size: 0.65rem;
+        min-width: 110px;
+        white-space: nowrap;
+    }
+
+    .auto-status-cell .status-start {
+        display: block;
+        font-size: 0.6rem;
+    }
+
+    .auto-status-cell .status-start.started {
+        color: #16a34a;
+    }
+
+    .auto-status-cell .status-start.waiting {
+        color: #6366f1;
+    }
+
+    .auto-status-cell .status-start.missed {
+        color: #dc2626;
+    }
+
+    .auto-status-cell .status-end {
+        display: block;
+        font-size: 0.55rem;
+        color: #94a3b8;
+        margin-top: 1px;
+    }
+
+    .auto-status-cell .status-end.running {
+        color: #d97706;
+    }
+
+    .auto-status-cell .status-end.ended {
+        color: #94a3b8;
+    }
+
+    .auto-status-cell .status-end.scheduled {
+        color: #6366f1;
+    }
+
+    .auto-status-cell .countdown-badge {
+        display: inline-block;
+        padding: 1px 8px;
+        border-radius: 4px;
+        font-size: 0.5rem;
+        font-weight: 600;
+        background: #fef3c7;
+        color: #d97706;
+        margin-top: 1px;
+    }
+
+    .auto-status-cell .countdown-badge.urgent {
+        background: #fee2e2;
+        color: #dc2626;
+        animation: pulse-badge 1s infinite;
     }
 
     /* ============================================
@@ -2323,11 +2381,10 @@
                 <span class="table-badge-count">{{ all_sessions.count }}</span>
             </h3>
             <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <button onclick="refreshSessions()" class="btn btn-sm" style="background:#f1f5f9; color:#1e293b;">
+                <button onclick="refreshSessions()" class="btn btn-sm">
                     <i class="fas fa-refresh"></i>
                 </button>
-                <span style="font-size: 0.6rem; color: #94a3b8;">
-                    <i class="fas fa-sync-alt"></i> Auto-refresh: <span id="autoRefreshStatus">10s</span>
+                <span style="font-size: 0.6rem; color: #94a3b8;"> <span id="autoRefreshStatus">10s</span>
                 </span>
             </div>
         </div>
@@ -2341,13 +2398,15 @@
                         <th style="min-width: 100px;">Date</th>
                         <th style="min-width: 120px;">Time</th>
                         <th style="min-width: 70px;">Duration</th>
+                        <th style="min-width: 140px;">Auto-Status</th>
+                        <th style="min-width: 120px;">Next Session</th>
                         <th style="min-width: 90px;">Status</th>
                         <th style="min-width: 200px; text-align: right;">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="sessionsTableBody">
                     <tr>
-                        <td colspan="8" style="text-align:center; padding: 3rem 0;">
+                        <td colspan="10" style="text-align:center; padding: 3rem 0;">
                             <div class="empty-state" style="padding:0;">
                                 <i class="fas fa-spinner fa-spin"></i>
                                 <h3>Loading...</h3>
@@ -2742,7 +2801,7 @@ JAVASCRIPT
         if (autoRefreshInterval) {
             clearInterval(autoRefreshInterval);
         }
-        
+
         autoRefreshInterval = setInterval(() => {
             // Update sessions without full page reload
             fetch('/attendance/api/recent/')
@@ -2752,17 +2811,17 @@ JAVASCRIPT
                         // Check if any session status changed
                         const oldActive = allSessions.filter(s => s.is_active).length;
                         const newActive = data.sessions.filter(s => s.is_active).length;
-                        
+
                         allSessions = data.sessions;
                         updateStats();
                         applyFilters();
                         updateStatusDashboard();
                         checkForActivity();
-                        
+
                         // Update auto-refresh status
                         document.getElementById('autoRefreshStatus').textContent = '10s ✓';
                         document.getElementById('autoRefreshStatus').style.color = '#16a34a';
-                        
+
                         // Show notification if session started
                         if (newActive > oldActive) {
                             const started = data.sessions.filter(s => s.is_active);
@@ -2931,7 +2990,7 @@ JAVASCRIPT
                 const statusBadge = document.getElementById('liveStatusBadge');
                 const statusDisplay = document.getElementById('schedulerStatusDisplay');
                 const schedulerIcon = document.getElementById('schedulerIcon');
-                
+
                 if (data.running) {
                     statusBadge.className = 'status-badge-dashboard running';
                     statusBadge.innerHTML = '<i class="fas fa-circle"></i> RUNNING';
@@ -2979,7 +3038,7 @@ JAVASCRIPT
                     const today = new Date().toDateString();
                     let startedToday = 0;
                     let endedToday = 0;
-                    
+
                     data.sessions.forEach(s => {
                         const sessionDate = new Date(s.date).toDateString();
                         if (sessionDate === today) {
@@ -2987,7 +3046,7 @@ JAVASCRIPT
                             if (s.status === 'Ended') endedToday++;
                         }
                     });
-                    
+
                     document.getElementById('startedTodayDisplay').textContent = startedToday;
                     document.getElementById('endedTodayDisplay').textContent = endedToday;
                 }
@@ -3000,9 +3059,9 @@ JAVASCRIPT
     function renderActivityLog() {
         const container = document.getElementById('activityList');
         const countEl = document.getElementById('activityCount');
-        
+
         if (!container) return;
-        
+
         if (activityLog.length === 0) {
             container.innerHTML = `
                 <div class="activity-empty">
@@ -3013,14 +3072,14 @@ JAVASCRIPT
             if (countEl) countEl.textContent = '0 events';
             return;
         }
-        
+
         if (countEl) countEl.textContent = `${activityLog.length} events`;
-        
+
         container.innerHTML = activityLog.map(item => {
             const dotClass = item.type === 'start' ? 'start' : item.type === 'end' ? 'end' : 'info';
             const timeStr = item.time ? new Date(item.time).toLocaleTimeString() : '--:--:--';
             const messageText = item.message || (item.type === 'start' ? 'Auto-started' : 'Auto-ended');
-            
+
             return `
                 <div class="activity-item">
                     <span class="time">${timeStr}</span>
@@ -3044,22 +3103,22 @@ JAVASCRIPT
                     if (!window._sessionHistory) {
                         window._sessionHistory = {};
                     }
-                    
+
                     const now = new Date();
                     const prevStates = window._sessionHistory;
                     let newActivities = [];
                     let foundActive = false;
-                    
+
                     data.sessions.forEach(s => {
                         const key = s.id;
                         const prev = prevStates[key];
                         const isActive = s.is_active || false;
                         const status = s.status || 'Ended';
-                        
+
                         if (isActive) {
                             foundActive = true;
                         }
-                        
+
                         if (prev) {
                             // Check for status change
                             if (prev.is_active !== isActive) {
@@ -3091,14 +3150,14 @@ JAVASCRIPT
                                 message: 'Auto-started (new)'
                             });
                         }
-                        
+
                         prevStates[key] = {
                             is_active: isActive,
                             status: status,
                             last_seen: now
                         };
                     });
-                    
+
                     // Add info if no active sessions found
                     if (!foundActive && activityLog.length === 0) {
                         const idleMessage = {
@@ -3113,12 +3172,12 @@ JAVASCRIPT
                             renderActivityLog();
                         }
                     }
-                    
+
                     // Add new activities to log
                     if (newActivities.length > 0) {
                         activityLog = [...newActivities, ...activityLog].slice(0, MAX_ACTIVITY);
                         renderActivityLog();
-                        
+
                         // Show notification for new activities
                         newActivities.forEach(a => {
                             const emoji = a.type === 'start' ? '🚀' : '⏹️';
@@ -3173,17 +3232,6 @@ JAVASCRIPT
     // ============================================
     // CLEAR FILTERS
     // ============================================
-    function clearFilters() {
-        document.getElementById('searchInput').value = '';
-        document.getElementById('statusFilter').value = 'all';
-        document.getElementById('dateFilter').value = 'all';
-        document.getElementById('departmentFilter').value = 'all';
-        applyFilters();
-    }
-
-    // ============================================
-    // RENDER TABLE - With Manual Monitor Button
-    // ============================================
     function renderTable() {
         const tbody = document.getElementById('sessionsTableBody');
         const total = filteredSessions.length;
@@ -3208,6 +3256,31 @@ JAVASCRIPT
             return;
         }
 
+        // Helper function to parse time safely
+        function parseSessionTime(dateStr, timeStr) {
+            if (!timeStr) return null;
+
+            const ampmMatch = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+            if (ampmMatch) {
+                let hours = parseInt(ampmMatch[1]);
+                const minutes = parseInt(ampmMatch[2]);
+                const ampm = ampmMatch[3].toUpperCase();
+
+                if (ampm === 'PM' && hours !== 12) hours += 12;
+                if (ampm === 'AM' && hours === 12) hours = 0;
+
+                const date = new Date(dateStr);
+                date.setHours(hours, minutes, 0, 0);
+                return date;
+            }
+
+            try {
+                return new Date(`${dateStr}T${timeStr}`);
+            } catch {
+                return null;
+            }
+        }
+
         tbody.innerHTML = pageSessions.map((s) => {
             const duration = s.duration || 'N/A';
             let statusClass = 'ended';
@@ -3224,6 +3297,176 @@ JAVASCRIPT
                 statusText = 'Auto';
             }
 
+            // ============================================================
+            // AUTO-STATUS CALCULATION
+            // ============================================================
+            const now = new Date();
+            const startTime = parseSessionTime(s.date, s.start_time);
+            const endTime = parseSessionTime(s.date, s.end_time);
+
+            let autoStatusHtml = '';
+
+            if (!startTime || !endTime) {
+                autoStatusHtml = `
+                <span class="auto-status-cell">
+                    <span class="status-start" style="color:#94a3b8;">
+                        <i class="fas fa-clock"></i> Time unavailable
+                    </span>
+                </span>
+            `;
+            } else if (s.is_active) {
+                const remainingMs = endTime - now;
+                if (remainingMs > 0) {
+                    const remainingMin = Math.ceil(remainingMs / 60000);
+                    autoStatusHtml = `
+                    <span class="auto-status-cell">
+                        <span class="status-start started">
+                            <i class="fas fa-play-circle"></i> Started ${s.start_time}
+                        </span>
+                        <span class="status-end running">
+                            ⏱️ ${remainingMin}m remaining
+                        </span>
+                    </span>
+                `;
+                } else {
+                    autoStatusHtml = `
+                    <span class="auto-status-cell">
+                        <span class="status-start started">
+                            <i class="fas fa-play-circle"></i> Started ${s.start_time}
+                        </span>
+                        <span class="status-end ended" style="color:#dc2626;">
+                            <i class="fas fa-exclamation-triangle"></i> Should have ended
+                        </span>
+                    </span>
+                `;
+                }
+            } else if (s.status === 'Scheduled' || (startTime && startTime > now)) {
+                const startMs = startTime - now;
+                if (startMs > 0) {
+                    const days = Math.floor(startMs / 86400000);
+                    const hours = Math.floor((startMs % 86400000) / 3600000);
+                    const mins = Math.floor((startMs % 3600000) / 60000);
+
+                    let countdownStr = '';
+                    if (days > 0) countdownStr += `${days}d `;
+                    if (hours > 0 || days > 0) countdownStr += `${hours}h `;
+                    countdownStr += `${mins}m`;
+
+                    const isUrgent = mins < 5 && days === 0 && hours === 0;
+
+                    autoStatusHtml = `
+                    <span class="auto-status-cell">
+                        <span class="status-start waiting">
+                            <i class="fas fa-clock"></i> Starts in ${countdownStr}
+                        </span>
+                        <span class="status-end scheduled">
+                            At ${s.start_time}
+                        </span>
+                        ${isUrgent ? '<span class="countdown-badge urgent">Starting soon!</span>' : ''}
+                    </span>
+                `;
+                } else {
+                    autoStatusHtml = `
+                    <span class="auto-status-cell">
+                        <span class="status-start waiting">
+                            <i class="fas fa-hourglass-start"></i> Starting soon...
+                        </span>
+                    </span>
+                `;
+                }
+            } else {
+                const endedMs = now - endTime;
+                const endedMin = Math.floor(endedMs / 60000);
+                const endedHours = Math.floor(endedMin / 60);
+                const endedMins = endedMin % 60;
+
+                let endedStr = '';
+                if (endedHours > 0) endedStr += `${endedHours}h `;
+                endedStr += `${endedMins}m`;
+
+                if (endedMs < 0 || isNaN(endedMs)) {
+                    autoStatusHtml = `
+                    <span class="auto-status-cell">
+                        <span class="status-start started" style="color:#94a3b8;">
+                            <i class="fas fa-check-circle"></i> Recently ended
+                        </span>
+                        <span class="status-end ended">
+                            At ${s.end_time}
+                        </span>
+                    </span>
+                `;
+                } else if (endedHours === 0 && endedMins === 0) {
+                    autoStatusHtml = `
+                    <span class="auto-status-cell">
+                        <span class="status-start started" style="color:#94a3b8;">
+                            <i class="fas fa-check-circle"></i> Just ended
+                        </span>
+                        <span class="status-end ended">
+                            At ${s.end_time}
+                        </span>
+                    </span>
+                `;
+                } else {
+                    autoStatusHtml = `
+                    <span class="auto-status-cell">
+                        <span class="status-start started" style="color:#94a3b8;">
+                            <i class="fas fa-check-circle"></i> Ended ${endedStr} ago
+                        </span>
+                        <span class="status-end ended">
+                            At ${s.end_time}
+                        </span>
+                    </span>
+                `;
+                }
+            }
+
+            // ============================================================
+            // NEXT SESSION CALCULATION
+            // ============================================================
+            let nextSessionHtml = '';
+
+            if (s.next_session) {
+                const next = s.next_session;
+
+                if (next.is_current) {
+                    nextSessionHtml = `
+                    <span style="color: #16a34a; font-size: 0.6rem; font-weight: 600;">
+                        <i class="fas fa-play-circle"></i> Current session
+                    </span>
+                `;
+                } else if (next.is_today) {
+                    nextSessionHtml = `
+                    <span style="color: #d97706; font-size: 0.6rem; font-weight: 600;">
+                        <i class="fas fa-calendar-day"></i> Today at ${next.time}
+                    </span>
+                `;
+                } else if (next.is_tomorrow) {
+                    nextSessionHtml = `
+                    <span style="color: #6366f1; font-size: 0.6rem; font-weight: 600;">
+                        <i class="fas fa-calendar-plus"></i> Tomorrow at ${next.time}
+                    </span>
+                `;
+                } else {
+                    const dateObj = new Date(next.date);
+                    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+                    const monthDay = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                    nextSessionHtml = `
+                    <span style="color: #64748b; font-size: 0.6rem;">
+                        <i class="fas fa-calendar-alt"></i> ${dayName}, ${monthDay}
+                        <br>
+                        <span style="font-weight: 500; color: #0f172a;">${next.time}</span>
+                    </span>
+                `;
+                }
+            } else {
+                nextSessionHtml = `
+                <span style="color: #94a3b8; font-size: 0.55rem;">
+                    <i class="fas fa-minus-circle"></i> No upcoming
+                </span>
+            `;
+            }
+
             const isAuto = s.is_auto_scheduled || false;
 
             const yearText = s.year ? `${s.year}${s.year === 1 ? 'st' : s.year === 2 ? 'nd' : s.year === 3 ? 'rd' : 'th'}` : 'N/A';
@@ -3233,85 +3476,86 @@ JAVASCRIPT
 
             let actionsHtml = '';
 
-            // MONITOR BUTTON - Appears for LIVE/Active sessions
             if (s.is_active) {
                 actionsHtml = `
-                    <a href="/attendance/live/${s.id}/" class="action-link monitor-link" target="_blank">
-                        <i class="fas fa-video"></i> Monitor
-                    </a>
-                    <span class="action-divider">|</span>
-                    <a href="/attendance/summary/${s.id}/" class="action-link">
-                        <i class="fas fa-chart-bar"></i> Summary
-                    </a>
-                `;
+                <a href="/attendance/live/${s.id}/" class="action-link monitor-link" target="_blank">
+                    <i class="fas fa-video"></i> Monitor
+                </a>
+                <span class="action-divider">|</span>
+                <a href="/attendance/summary/${s.id}/" class="action-link">
+                    <i class="fas fa-chart-bar"></i> Summary
+                </a>
+            `;
             } else if (s.status === 'Scheduled') {
                 actionsHtml = `
-                    <span class="text-muted">
-                        <i class="fas fa-clock"></i> Upcoming
-                    </span>
-                    <span class="action-divider">|</span>
-                    <a href="/attendance/summary/${s.id}/" class="action-link">
-                        <i class="fas fa-chart-bar"></i> Summary
-                    </a>
-                `;
+                <span class="text-muted">
+                    <i class="fas fa-clock"></i> Upcoming
+                </span>
+                <span class="action-divider">|</span>
+                <a href="/attendance/summary/${s.id}/" class="action-link">
+                    <i class="fas fa-chart-bar"></i> Summary
+                </a>
+            `;
             } else {
                 actionsHtml = `
-                    <a href="/attendance/summary/${s.id}/" class="action-link">
-                        <i class="fas fa-chart-bar"></i> Summary
-                    </a>
-                `;
+                <a href="/attendance/summary/${s.id}/" class="action-link">
+                    <i class="fas fa-chart-bar"></i> Summary
+                </a>
+            `;
             }
 
             if (!s.is_active) {
                 actionsHtml += `
-                    <span class="action-divider">|</span>
-                    <a href="/attendance/edit-session/${s.id}/" class="action-link" style="color: #6366f1;">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                `;
+                <span class="action-divider">|</span>
+                <a href="/attendance/edit-session/${s.id}/" class="action-link" style="color: #6366f1;">
+                    <i class="fas fa-edit"></i>
+                </a>
+            `;
             }
 
             if (canDelete && !s.is_active) {
                 actionsHtml += `
-                    <span class="action-divider">|</span>
-                    <a href="#" class="action-link delete-link" onclick="event.preventDefault(); openDeleteModal(${s.id}, '${s.subject}')">
-                        <i class="fas fa-trash"></i>
-                    </a>
-                `;
+                <span class="action-divider">|</span>
+                <a href="#" class="action-link delete-link" onclick="event.preventDefault(); openDeleteModal(${s.id}, '${s.subject.replace(/'/g, "\\'")}')">
+                    <i class="fas fa-trash"></i>
+                </a>
+            `;
             }
 
             return `
-            <tr>
-                <td class="session-id">#${s.id}</td>
-                <td>
-                    <div class="session-subject" title="${s.subject}">
-                        ${s.is_active ? '<span class="live-indicator"></span>' : ''}
-                        ${s.subject}
-                        ${isAuto ? '<span class="auto-badge"><i class="fas fa-robot"></i> Auto</span>' : ''}
-                    </div>
-                </td>
-                <td>
-                    <div class="session-detail-cell">
-                        <span class="dept-badge">${deptText}</span>
-                        <span class="year-badge">${yearText}</span>
-                        <span class="sem-badge">Sem ${semText}</span>
-                        <span class="section-badge">Sec ${secText}</span>
-                    </div>
-                </td>
-                <td class="session-date">${s.date}</td>
-                <td class="session-time">${s.time_range}</td>
-                <td class="session-duration">${duration} min</td>
-                <td>
-                    <span class="status-badge-table ${statusClass}">
-                        ${s.is_active ? '<span class="dot"></span>' : ''}
-                        ${statusText}
-                    </span>
-                </td>
-                <td style="text-align: right; white-space: nowrap;">
-                    ${actionsHtml}
-                </td>
-            </tr>
-        `}).join('');
+        <tr>
+            <td class="session-id">#${s.id}</td>
+            <td>
+                <div class="session-subject" title="${s.subject}">
+                    ${s.is_active ? '<span class="live-indicator"></span>' : ''}
+                    ${s.subject}
+                    ${isAuto ? '<span class="auto-badge"><i class="fas fa-robot"></i> Auto</span>' : ''}
+                </div>
+            </td>
+            <td>
+                <div class="session-detail-cell">
+                    <span class="dept-badge">${deptText}</span>
+                    <span class="year-badge">${yearText}</span>
+                    <span class="sem-badge">Sem ${semText}</span>
+                    <span class="section-badge">Sec ${secText}</span>
+                </div>
+            </td>
+            <td class="session-date">${s.date}</td>
+            <td class="session-time">${s.time_range}</td>
+            <td class="session-duration">${duration} min</td>
+            <td>${autoStatusHtml}</td>
+            <td>${nextSessionHtml}</td>
+            <td>
+                <span class="status-badge-table ${statusClass}">
+                    ${s.is_active ? '<span class="dot"></span>' : ''}
+                    ${statusText}
+                </span>
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+                ${actionsHtml}
+            </td>
+        </tr>
+    `}).join('');
     }
 
     // ============================================
@@ -3320,16 +3564,16 @@ JAVASCRIPT
     function showEmptyState(title, message) {
         const tbody = document.getElementById('sessionsTableBody');
         tbody.innerHTML = `
-            <tr>
-                <td colspan="8">
-                    <div class="empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <h3>${title}</h3>
-                        <p>${message}</p>
-                    </div>
-                </td>
-            </tr>
-        `;
+        <tr>
+            <td colspan="10">  <!-- Updated from 9 to 10 -->
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>${title}</h3>
+                    <p>${message}</p>
+                </div>
+            </td>
+        </tr>
+    `;
         document.getElementById('paginationContainer').style.display = 'none';
     }
 

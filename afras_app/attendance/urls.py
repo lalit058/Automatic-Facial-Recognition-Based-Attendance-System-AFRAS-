@@ -33,6 +33,7 @@ urlpatterns = [
     path('student-attendance/<int:student_id>/', views.student_attendance_record, name='student_attendance_record'),
     path('records/', views.attendance_records, name='attendance_records'),
     path('attendance-report/', views.weekly_attendance_report, name='attendance_report'),
+    path('api/update-attendance/', views.update_attendance_manual, name='update_attendance_manual'),
     path('attendance-report/export-csv/', views.export_attendance_report_csv, name='export_attendance_report_csv'),
     
     

@@ -5,7 +5,9 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 from accounts.models import Student, StaffProfile
 from dashboard.models import Routine
-from datetime import timedelta  # ADD THIS IMPORT
+from datetime import timedelta
+import random
+import string
 
 
 class AttendanceSession(models.Model):
@@ -23,17 +25,34 @@ class AttendanceSession(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True, blank=True)
     
-    # Session identifier for tracking
+    # NEW FIELD: Track manual vs auto-generated sessions
+    is_manual = models.BooleanField(
+        default=False,
+        help_text="True if session was manually created by user (shows in template)"
+    )
+    
+    # Session identifier for tracking - FIXED to prevent duplicates
     session_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
 
     def __str__(self):
         dept_info = f"{self.department} - " if self.department else ""
         sem_info = f"Sem {self.semester}" if self.semester else ""
-        return f"{self.subject_name} ({self.date}) - {dept_info}{sem_info}"
+        manual = " [Manual]" if self.is_manual else ""
+        return f"{self.subject_name} ({self.date}) - {dept_info}{sem_info}{manual}"
     
     def save(self, *args, **kwargs):
+        """Generate unique session_id with timestamp and random suffix"""
         if not self.session_id and not self.pk:
-            self.session_id = f"S{timezone.now().strftime('%Y%m%d%H%M%S')}"
+            # Generate unique session_id with timestamp and random component
+            timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
+            random_suffix = ''.join(random.choices(string.digits, k=4))
+            self.session_id = f"S{timestamp}{random_suffix}"
+            
+            # Check if this session_id already exists (very unlikely, but possible)
+            while AttendanceSession.objects.filter(session_id=self.session_id).exists():
+                random_suffix = ''.join(random.choices(string.digits, k=4))
+                self.session_id = f"S{timestamp}{random_suffix}"
+        
         super().save(*args, **kwargs)
     
     def get_enrolled_students(self):
@@ -88,7 +107,9 @@ class AttendanceSession(models.Model):
             models.Index(fields=['is_active']),
             models.Index(fields=['date']),
             models.Index(fields=['department', 'semester', 'year']),
+            models.Index(fields=['is_manual']),  # NEW: Index for filtering manual sessions
         ]
+
 
 
 class AttendanceLog(models.Model):
@@ -109,6 +130,13 @@ class AttendanceLog(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="ABSENT")
     is_manual = models.BooleanField(default=False)
     confidence = models.FloatField(null=True, blank=True)
+    
+    # Add this field to store the reason for manual changes
+    reason = models.TextField(
+        blank=True, 
+        null=True, 
+        help_text="Reason for manual attendance change (e.g., Approved leave, Technical issue)"
+    )
     
     # Minute-by-minute tracking fields
     minute_presence = models.JSONField(default=list, blank=True)
@@ -291,7 +319,7 @@ class AttendanceLog(models.Model):
             self.detection_count += 1
         
         # ============================================================
-        # STEP 5: Get config - Use 80% as default (REMOVED SystemConfiguration)
+        # STEP 5: Get config - Use 80% as default
         # ============================================================
         min_retention = 80.0
         
