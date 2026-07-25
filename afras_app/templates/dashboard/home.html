@@ -2169,11 +2169,9 @@
         <!-- Row 3: Attendance Table -->
         <div class="card">
             <div class="card-header">
-                <h3><i class="fas fa-table-list"></i> {% if request.user.is_superuser %}Recent Attendance Logs{% else
-                    %}Today's Attendance Feed{% endif %}</h3>
+                <h3><i class="fas fa-table-list"></i> {% if request.user.is_superuser %}Recent Attendance Logs{% else %}Today's Attendance Feed{% endif %}</h3>
                 <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-                    <span class="badge-info"><i class="fas fa-database"></i> <span id="faceDataCount2">{{
-                            total_students_with_face|default:"0" }}</span> with Face Data</span>
+                    <span class="badge-info"><i class="fas fa-database"></i> <span id="faceDataCount2">{{ total_students_with_face|default:"0" }}</span> with Face Data</span>
                     <button class="refresh-btn" id="refreshTableBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
                 </div>
             </div>
