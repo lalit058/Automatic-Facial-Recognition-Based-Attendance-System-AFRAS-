@@ -1,48 +1,50 @@
 import os
 from pathlib import Path
-import pytz
-
-CSRF_COOKIE_SECURE = False
-CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'lalitnegi2058@gmail.com'  
-EMAIL_HOST_PASSWORD = 'smevauphghfajojw'  # App Password 
-DEFAULT_FROM_EMAIL = 'AFRAS System <lalitnegi2058@gmail.com>'
+# ==========================================
+# 1. SECURITY & HOSTS (Environment Variable Powered)
+# ==========================================
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-local-fallback-key')
 
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Kathmandu'  
-USE_TZ = True 
-USE_I18N = True
-USE_L10N = True
-SECRET_KEY = 'your-secret-key'
-DEBUG = True
-ALLOWED_HOSTS = ['192.168.100.18', '127.0.0.1', 'localhost']
+# Set DEBUG=False on Render, keeps True locally if DEBUG env var is set
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-# Installed apps
+ALLOWED_HOSTS = ['192.168.100.18', '127.0.0.1', 'localhost', '.onrender.com']
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'https://*.onrender.com',
+]
+
+# ==========================================
+# 2. INSTALLED APPS
+# ==========================================
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
-    "django_browser_reload",
+    'django_browser_reload',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Your Apps
     'accounts',
     'attendance',
     'dashboard',
     'recognition',
 ]
 
+# ==========================================
+# 3. MIDDLEWARE (WhiteNoise added for static files)
+# ==========================================
 MIDDLEWARE = [
-    "django_browser_reload.middleware.BrowserReloadMiddleware",
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # REQUIRED for Render static files
+    'django_browser_reload.middleware.BrowserReloadMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -72,31 +74,45 @@ TEMPLATES = [
 WSGI_APPLICATION = 'afras_backend.wsgi.application'
 ASGI_APPLICATION = 'afras_backend.asgi.application'
 
-# Database
+# ==========================================
+# 4. DATABASE (Uses DATABASE_URL on Render, local MySQL as fallback)
+# ==========================================
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'afras_db',
-        'USER': 'root',
-        'PASSWORD': 'Lalit@98',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-    }
+    'default': dj_database_url.config(
+        default='mysql://root:Lalit%4098@127.0.0.1:3306/afras_db',
+        conn_max_age=600,
+    )
 }
 
-# Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
-]
+# ==========================================
+# 5. EMAIL CONFIGURATION
+# ==========================================
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'lalitnegi2058@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'smevauphghfajojw')
+DEFAULT_FROM_EMAIL = 'AFRAS System <lalitnegi2058@gmail.com>'
 
-# Static files
+# ==========================================
+# 6. INTERNATIONALIZATION
+# ==========================================
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'Asia/Kathmandu'
+USE_TZ = True
+USE_I18N = True
+USE_L10N = True
+
+# ==========================================
+# 7. STATIC & MEDIA FILES (Fixed for production)
+# ==========================================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+# REQUIRED for collectstatic to work on Render
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
