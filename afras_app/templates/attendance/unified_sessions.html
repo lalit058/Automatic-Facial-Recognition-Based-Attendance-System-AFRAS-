@@ -2579,8 +2579,9 @@ JAVASCRIPT
     // ============================================
     // NOTIFICATION SYSTEM
     // ============================================
-    function showNotification(message, type = 'info') {
-        let container = document.getElementById('django-messages');
+    function showNotification(message, type) {
+        type = type || 'info';
+        var container = document.getElementById('django-messages');
 
         if (!container) {
             container = document.createElement('div');
@@ -2589,16 +2590,16 @@ JAVASCRIPT
             document.body.appendChild(container);
         }
 
-        const notification = document.createElement('div');
-        const icon = type === 'success' ? 'fa-check-circle' :
+        var notification = document.createElement('div');
+        var icon = type === 'success' ? 'fa-check-circle' :
             type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
-        notification.className = `msg ${type}`;
-        notification.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+        notification.className = 'msg ' + type;
+        notification.innerHTML = '<i class="fas ' + icon + '"></i><span>' + message + '</span>';
         container.appendChild(notification);
 
-        setTimeout(() => {
+        setTimeout(function() {
             notification.style.animation = 'slideUp 0.4s ease-in forwards';
-            setTimeout(() => {
+            setTimeout(function() {
                 if (notification.parentNode) {
                     notification.remove();
                 }
@@ -2610,19 +2611,19 @@ JAVASCRIPT
     // DUPLICATE SESSION CHECK
     // ============================================
     async function checkDuplicateSession() {
-        const subject = document.getElementById('subject')?.value;
-        const department = document.getElementById('department')?.value;
-        const year = document.getElementById('year')?.value;
-        const semester = document.getElementById('semester')?.value;
-        const section = document.getElementById('section')?.value || '';
-        const datetime = document.getElementById('session_datetime')?.value;
+        var subject = document.getElementById('subject')?.value;
+        var department = document.getElementById('department')?.value;
+        var year = document.getElementById('year')?.value;
+        var semester = document.getElementById('semester')?.value;
+        var section = document.getElementById('section')?.value || '';
+        var datetime = document.getElementById('session_datetime')?.value;
 
         if (!subject || !department || !year || !semester || !datetime) {
             return;
         }
 
         try {
-            const response = await fetch('/attendance/check-session/', {
+            var response = await fetch('/attendance/check-session/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -2637,20 +2638,20 @@ JAVASCRIPT
                     session_datetime: datetime
                 })
             });
-            const result = await response.json();
+            var result = await response.json();
 
-            const hint = document.getElementById('datetimeHint');
-            const submitBtn = document.getElementById('submitBtn');
+            var hint = document.getElementById('datetimeHint');
+            var submitBtn = document.getElementById('submitBtn');
 
             if (result.exists) {
                 hint.className = 'form-hint error';
-                hint.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message}`;
+                hint.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + result.message;
                 submitBtn.disabled = true;
                 submitBtn.style.opacity = '0.5';
                 return false;
             } else {
                 hint.className = 'form-hint success';
-                hint.innerHTML = `<i class="fas fa-check-circle"></i> Session available for this slot`;
+                hint.innerHTML = '<i class="fas fa-check-circle"></i> Session available for this slot';
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = '1';
                 return true;
@@ -2664,30 +2665,31 @@ JAVASCRIPT
     // ============================================
     // START SESSION FORM - EVENT LISTENERS
     // ============================================
-    document.addEventListener('DOMContentLoaded', function () {
-        const yearSelect = document.getElementById('year');
-        const semesterSelect = document.getElementById('semester');
-        const sectionSelect = document.getElementById('section');
-        const departmentSelect = document.getElementById('department');
-        const subjectInput = document.getElementById('subject');
-        const durationInput = document.getElementById('duration');
-        const datetimeInput = document.getElementById('session_datetime');
-        const preview = document.getElementById('session-preview');
+    document.addEventListener('DOMContentLoaded', function() {
+        var yearSelect = document.getElementById('year');
+        var semesterSelect = document.getElementById('semester');
+        var sectionSelect = document.getElementById('section');
+        var departmentSelect = document.getElementById('department');
+        var subjectInput = document.getElementById('subject');
+        var durationInput = document.getElementById('duration');
+        var datetimeInput = document.getElementById('session_datetime');
+        var preview = document.getElementById('session-preview');
 
-        const initialSemester = "{{ request.POST.semester|default:'' }}";
-        const initialSection = "{{ request.POST.section|default:'' }}";
+        var initialSemester = "{{ request.POST.semester|default:'' }}";
+        var initialSection = "{{ request.POST.section|default:'' }}";
 
         function updateSemesters() {
-            const year = yearSelect?.value;
+            var year = yearSelect?.value;
             if (!semesterSelect) return;
             semesterSelect.innerHTML = '<option value="">Select Semester</option>';
 
             if (year && yearSemesterMap[year]) {
-                const semesters = yearSemesterMap[year];
-                semesters.forEach(function (sem) {
-                    const option = document.createElement('option');
+                var semesters = yearSemesterMap[year];
+                semesters.forEach(function(sem) {
+                    var option = document.createElement('option');
                     option.value = sem;
-                    option.textContent = sem + (sem === 1 ? 'st' : sem === 2 ? 'nd' : sem === 3 ? 'rd' : 'th');
+                    var suffix = sem === 1 ? 'st' : sem === 2 ? 'nd' : sem === 3 ? 'rd' : 'th';
+                    option.textContent = sem + suffix;
                     if (initialSemester && parseInt(initialSemester) === sem) {
                         option.selected = true;
                     }
@@ -2698,14 +2700,14 @@ JAVASCRIPT
         }
 
         function updateSections() {
-            const year = yearSelect?.value;
+            var year = yearSelect?.value;
             if (!sectionSelect) return;
             sectionSelect.innerHTML = '<option value="">Select Section</option>';
 
             if (year && yearSectionMap[year]) {
-                const sections = yearSectionMap[year];
-                sections.forEach(function (sec) {
-                    const option = document.createElement('option');
+                var sections = yearSectionMap[year];
+                sections.forEach(function(sec) {
+                    var option = document.createElement('option');
                     option.value = sec;
                     option.textContent = sec;
                     if (initialSection === sec) {
@@ -2719,30 +2721,31 @@ JAVASCRIPT
 
         function updatePreview() {
             if (!preview) return;
-            const subject = subjectInput?.value || '[Subject]';
-            const dept = departmentSelect?.value || '[Department]';
-            const year = yearSelect?.value || '?';
-            const sem = semesterSelect?.value || '?';
-            const section = sectionSelect?.value || 'N/A';
-            const duration = durationInput?.value || '60';
+            var subject = subjectInput?.value || '[Subject]';
+            var dept = departmentSelect?.value || '[Department]';
+            var year = yearSelect?.value || '?';
+            var sem = semesterSelect?.value || '?';
+            var section = sectionSelect?.value || 'N/A';
+            var duration = durationInput?.value || '60';
 
-            const yearNames = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' };
-            const yearText = yearNames[year] || year;
+            var yearNames = {1: '1st', 2: '2nd', 3: '3rd', 4: '4th'};
+            var yearText = yearNames[year] || year;
 
-            preview.textContent = `${subject} | ${dept} | ${yearText} Year, ${sem}th Sem | Section ${section} | ${duration} min`;
+            preview.textContent = subject + ' | ' + dept + ' | ' + yearText + ' Year, ' + sem + 'th Sem | Section ' + section + ' | ' + duration + ' min';
         }
 
         if (yearSelect) {
-            yearSelect.addEventListener('change', function () {
+            yearSelect.addEventListener('change', function() {
                 updateSemesters();
                 updateSections();
                 checkDuplicateSession();
             });
         }
 
-        [departmentSelect, subjectInput, durationInput, semesterSelect, sectionSelect, datetimeInput].forEach(function (el) {
+        var fields = [departmentSelect, subjectInput, durationInput, semesterSelect, sectionSelect, datetimeInput];
+        fields.forEach(function(el) {
             if (el) {
-                el.addEventListener('change', function () {
+                el.addEventListener('change', function() {
                     updatePreview();
                     if (el.id !== 'duration' && el.id !== 'subject') {
                         checkDuplicateSession();
@@ -2756,18 +2759,18 @@ JAVASCRIPT
         updateSections();
 
         if (datetimeInput && !datetimeInput.value) {
-            const now = new Date();
-            const minutes = Math.ceil(now.getMinutes() / 5) * 5;
+            var now = new Date();
+            var minutes = Math.ceil(now.getMinutes() / 5) * 5;
             now.setMinutes(minutes);
             now.setSeconds(0);
             now.setMilliseconds(0);
 
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const mins = String(now.getMinutes()).padStart(2, '0');
-            const formatted = `${year}-${month}-${day}T${hours}:${mins}`;
+            var year = now.getFullYear();
+            var month = String(now.getMonth() + 1).padStart(2, '0');
+            var day = String(now.getDate()).padStart(2, '0');
+            var hours = String(now.getHours()).padStart(2, '0');
+            var mins = String(now.getMinutes()).padStart(2, '0');
+            var formatted = year + '-' + month + '-' + day + 'T' + hours + ':' + mins;
             datetimeInput.value = formatted;
         }
 
@@ -2778,20 +2781,23 @@ JAVASCRIPT
         checkForActivity();
         startAutoRefresh();
 
-        document.getElementById('startSessionForm')?.addEventListener('submit', async function (e) {
-            e.preventDefault();
+        var form = document.getElementById('startSessionForm');
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
 
-            const isValid = await checkDuplicateSession();
-            if (!isValid) {
-                showNotification('A session with these details already exists. Please check the date and time.', 'error');
-                return;
-            }
+                var isValid = await checkDuplicateSession();
+                if (!isValid) {
+                    showNotification('A session with these details already exists. Please check the date and time.', 'error');
+                    return;
+                }
 
-            const btn = document.getElementById('submitBtn');
-            btn.classList.add('loading');
-            btn.disabled = true;
-            this.submit();
-        });
+                var btn = document.getElementById('submitBtn');
+                btn.classList.add('loading');
+                btn.disabled = true;
+                this.submit();
+            });
+        }
     });
 
     // ============================================
@@ -2802,15 +2808,13 @@ JAVASCRIPT
             clearInterval(autoRefreshInterval);
         }
 
-        autoRefreshInterval = setInterval(() => {
-            // Update sessions without full page reload
+        autoRefreshInterval = setInterval(function() {
             fetch('/attendance/api/recent/')
-                .then(response => response.json())
-                .then(data => {
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
                     if (data.sessions && data.sessions.length > 0) {
-                        // Check if any session status changed
-                        const oldActive = allSessions.filter(s => s.is_active).length;
-                        const newActive = data.sessions.filter(s => s.is_active).length;
+                        var oldActive = allSessions.filter(function(s) { return s.is_active; }).length;
+                        var newActive = data.sessions.filter(function(s) { return s.is_active; }).length;
 
                         allSessions = data.sessions;
                         updateStats();
@@ -2818,24 +2822,22 @@ JAVASCRIPT
                         updateStatusDashboard();
                         checkForActivity();
 
-                        // Update auto-refresh status
                         document.getElementById('autoRefreshStatus').textContent = '10s ✓';
                         document.getElementById('autoRefreshStatus').style.color = '#16a34a';
 
-                        // Show notification if session started
                         if (newActive > oldActive) {
-                            const started = data.sessions.filter(s => s.is_active);
-                            started.forEach(s => {
-                                showNotification(`🚀 Session "${s.subject}" is now LIVE!`, 'success');
+                            var started = data.sessions.filter(function(s) { return s.is_active; });
+                            started.forEach(function(s) {
+                                showNotification('🚀 Session "' + s.subject + '" is now LIVE!', 'success');
                             });
                         }
                     }
                 })
-                .catch(() => {
+                .catch(function() {
                     document.getElementById('autoRefreshStatus').textContent = '10s ⚠️';
                     document.getElementById('autoRefreshStatus').style.color = '#dc2626';
                 });
-        }, 10000); // 10 seconds
+        }, 10000);
     }
 
     // ============================================
@@ -2843,23 +2845,24 @@ JAVASCRIPT
     // ============================================
     function loadActiveRoutines() {
         fetch('/dashboard/api/active-routines/')
-            .then(response => response.json())
-            .then(data => {
-                const container = document.getElementById('activeRoutinesList');
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                var container = document.getElementById('activeRoutinesList');
                 if (data.routines && data.routines.length > 0) {
-                    container.innerHTML = data.routines.map(r => `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0; border-bottom: 1px solid #f1f5f9; font-size: 0.7rem;">
-                            <span><strong>${r.subject}</strong> - ${r.day_of_week} ${r.start_time}</span>
-                            <span class="badge badge-info">${r.duration}min</span>
-                        </div>
-                    `).join('');
+                    var html = '';
+                    data.routines.forEach(function(r) {
+                        html += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0; border-bottom: 1px solid #f1f5f9; font-size: 0.7rem;">';
+                        html += '<span><strong>' + r.subject + '</strong> - ' + r.day_of_week + ' ' + r.start_time + '</span>';
+                        html += '<span class="badge badge-info">' + r.duration + 'min</span>';
+                        html += '</div>';
+                    });
+                    container.innerHTML = html;
                 } else {
-                    container.innerHTML = `<p style="font-size: 0.7rem; color: #94a3b8;">No active routines found. Create one to auto-schedule sessions.</p>`;
+                    container.innerHTML = '<p style="font-size: 0.7rem; color: #94a3b8;">No active routines found. Create one to auto-schedule sessions.</p>';
                 }
             })
-            .catch(() => {
-                document.getElementById('activeRoutinesList').innerHTML =
-                    `<p style="font-size: 0.7rem; color: #94a3b8;">Could not load routines</p>`;
+            .catch(function() {
+                document.getElementById('activeRoutinesList').innerHTML = '<p style="font-size: 0.7rem; color: #94a3b8;">Could not load routines</p>';
             });
     }
 
@@ -2868,10 +2871,10 @@ JAVASCRIPT
     // ============================================
     function checkSchedulerStatus() {
         fetch('/attendance/api/scheduler/status/')
-            .then(response => response.json())
-            .then(data => {
-                const statusEl = document.getElementById('schedulerStatus');
-                const textEl = document.getElementById('schedulerStatusText');
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                var statusEl = document.getElementById('schedulerStatus');
+                var textEl = document.getElementById('schedulerStatusText');
                 if (data.running) {
                     statusEl.className = 'scheduler-status running';
                     textEl.textContent = 'Running';
@@ -2880,7 +2883,7 @@ JAVASCRIPT
                     textEl.textContent = 'Stopped';
                 }
             })
-            .catch(() => {
+            .catch(function() {
                 document.getElementById('schedulerStatusText').textContent = 'Unknown';
             });
     }
@@ -2895,7 +2898,7 @@ JAVASCRIPT
         checkSchedulerStatus();
         updateStatusDashboard();
         checkForActivity();
-        setTimeout(() => {
+        setTimeout(function() {
             showNotification('Status updated!', 'success');
         }, 1000);
     }
@@ -2905,9 +2908,9 @@ JAVASCRIPT
     // ============================================
     async function checkActiveSession() {
         try {
-            const response = await fetch('/attendance/api/stats/');
-            const data = await response.json();
-            const statusBadge = document.getElementById('system-status');
+            var response = await fetch('/attendance/api/stats/');
+            var data = await response.json();
+            var statusBadge = document.getElementById('system-status');
 
             if (data.active > 0) {
                 statusBadge.className = 'status-badge active';
@@ -2929,7 +2932,7 @@ JAVASCRIPT
         loadSessions();
         updateStatusDashboard();
         checkForActivity();
-        setTimeout(() => {
+        setTimeout(function() {
             showNotification('Sessions refreshed!', 'success');
         }, 1000);
     }
@@ -2938,11 +2941,11 @@ JAVASCRIPT
     // LOAD SESSIONS
     // ============================================
     function loadSessions() {
-        const container = document.getElementById('sessionsTableBody');
+        var container = document.getElementById('sessionsTableBody');
 
         fetch('/attendance/api/recent/')
-            .then(response => response.json())
-            .then(data => {
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
                 if (data.sessions && data.sessions.length > 0) {
                     allSessions = data.sessions;
                     updateStats();
@@ -2955,7 +2958,7 @@ JAVASCRIPT
                     showEmptyState('No sessions found', 'Start your first session or upload a routine');
                 }
             })
-            .catch((error) => {
+            .catch(function(error) {
                 console.error('Error loading sessions:', error);
                 showEmptyState('Could not load sessions', 'Please refresh the page or try again later');
             });
@@ -2965,31 +2968,30 @@ JAVASCRIPT
     // UPDATE STATS
     // ============================================
     function updateStats() {
-        const total = allSessions.length;
-        const active = allSessions.filter(s => s.is_active).length;
-        const scheduled = allSessions.filter(s => s.status === 'Scheduled').length;
-        const ended = allSessions.filter(s => s.status === 'Ended' && !s.is_active).length;
-        const auto = allSessions.filter(s => s.is_auto_scheduled).length;
+        var total = allSessions.length;
+        var active = allSessions.filter(function(s) { return s.is_active; }).length;
+        var scheduled = allSessions.filter(function(s) { return s.status === 'Scheduled'; }).length;
+        var ended = allSessions.filter(function(s) { return s.status === 'Ended' && !s.is_active; }).length;
+        var auto = allSessions.filter(function(s) { return s.is_auto_scheduled; }).length;
 
         document.getElementById('totalSessions').textContent = total;
         document.getElementById('activeSessions').textContent = active;
-        document.getElementById('todaySessions').textContent = allSessions.filter(s => new Date(s.date).toDateString() === new Date().toDateString()).length;
+        document.getElementById('todaySessions').textContent = allSessions.filter(function(s) { return new Date(s.date).toDateString() === new Date().toDateString(); }).length;
         document.getElementById('endedSessions').textContent = ended;
         document.getElementById('autoSessions').textContent = auto;
-        document.getElementById('autoSessionsCount').textContent = `${auto} Auto`;
+        document.getElementById('autoSessionsCount').textContent = auto + ' Auto';
     }
 
     // ============================================
     // UPDATE STATUS DASHBOARD
     // ============================================
     function updateStatusDashboard() {
-        // Get scheduler status
         fetch('/attendance/api/scheduler/status/')
-            .then(r => r.json())
-            .then(data => {
-                const statusBadge = document.getElementById('liveStatusBadge');
-                const statusDisplay = document.getElementById('schedulerStatusDisplay');
-                const schedulerIcon = document.getElementById('schedulerIcon');
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var statusBadge = document.getElementById('liveStatusBadge');
+                var statusDisplay = document.getElementById('schedulerStatusDisplay');
+                var schedulerIcon = document.getElementById('schedulerIcon');
 
                 if (data.running) {
                     statusBadge.className = 'status-badge-dashboard running';
@@ -3008,16 +3010,15 @@ JAVASCRIPT
                 }
                 document.getElementById('lastCheckTime').textContent = new Date().toLocaleTimeString();
             })
-            .catch(() => {
+            .catch(function() {
                 document.getElementById('schedulerStatusDisplay').textContent = '⚠️ Unknown';
             });
 
-        // Get session stats
         fetch('/attendance/api/stats/')
-            .then(r => r.json())
-            .then(data => {
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
                 document.getElementById('activeSessionsDisplay').textContent = data.active || 0;
-                const activeIcon = document.getElementById('activeIcon');
+                var activeIcon = document.getElementById('activeIcon');
                 if (data.active > 0) {
                     activeIcon.className = 'status-icon green';
                     activeIcon.innerHTML = '<i class="fas fa-users"></i>';
@@ -3026,21 +3027,20 @@ JAVASCRIPT
                     activeIcon.innerHTML = '<i class="fas fa-users"></i>';
                 }
             })
-            .catch(() => {
+            .catch(function() {
                 document.getElementById('activeSessionsDisplay').textContent = '?';
             });
 
-        // Get recent sessions for auto-start/end counts
         fetch('/attendance/api/recent/')
-            .then(r => r.json())
-            .then(data => {
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
                 if (data.sessions) {
-                    const today = new Date().toDateString();
-                    let startedToday = 0;
-                    let endedToday = 0;
+                    var today = new Date().toDateString();
+                    var startedToday = 0;
+                    var endedToday = 0;
 
-                    data.sessions.forEach(s => {
-                        const sessionDate = new Date(s.date).toDateString();
+                    data.sessions.forEach(function(s) {
+                        var sessionDate = new Date(s.date).toDateString();
                         if (sessionDate === today) {
                             if (s.is_active) startedToday++;
                             if (s.status === 'Ended') endedToday++;
@@ -3054,73 +3054,62 @@ JAVASCRIPT
     }
 
     // ============================================
-    // ACTIVITY LOG - TRACK AUTO-START/END EVENTS
+    // ACTIVITY LOG
     // ============================================
     function renderActivityLog() {
-        const container = document.getElementById('activityList');
-        const countEl = document.getElementById('activityCount');
+        var container = document.getElementById('activityList');
+        var countEl = document.getElementById('activityCount');
 
         if (!container) return;
 
         if (activityLog.length === 0) {
-            container.innerHTML = `
-                <div class="activity-empty">
-                    <i class="fas fa-inbox"></i>
-                    <span>No activity yet. Sessions will appear here when they auto-start or auto-end.</span>
-                </div>
-            `;
+            container.innerHTML = '<div class="activity-empty"><i class="fas fa-inbox"></i><span>No activity yet. Sessions will appear here when they auto-start or auto-end.</span></div>';
             if (countEl) countEl.textContent = '0 events';
             return;
         }
 
-        if (countEl) countEl.textContent = `${activityLog.length} events`;
+        if (countEl) countEl.textContent = activityLog.length + ' events';
 
-        container.innerHTML = activityLog.map(item => {
-            const dotClass = item.type === 'start' ? 'start' : item.type === 'end' ? 'end' : 'info';
-            const timeStr = item.time ? new Date(item.time).toLocaleTimeString() : '--:--:--';
-            const messageText = item.message || (item.type === 'start' ? 'Auto-started' : 'Auto-ended');
+        var html = '';
+        activityLog.forEach(function(item) {
+            var dotClass = item.type === 'start' ? 'start' : item.type === 'end' ? 'end' : 'info';
+            var timeStr = item.time ? new Date(item.time).toLocaleTimeString() : '--:--:--';
+            var messageText = item.message || (item.type === 'start' ? 'Auto-started' : 'Auto-ended');
 
-            return `
-                <div class="activity-item">
-                    <span class="time">${timeStr}</span>
-                    <span class="dot ${dotClass}"></span>
-                    <span class="message">
-                        <span class="subject">${item.subject}</span>
-                        ${messageText}
-                        <span style="color: #94a3b8; font-size: 0.65rem;">(#${item.id})</span>
-                    </span>
-                </div>
-            `;
-        }).join('');
+            html += '<div class="activity-item">';
+            html += '<span class="time">' + timeStr + '</span>';
+            html += '<span class="dot ' + dotClass + '"></span>';
+            html += '<span class="message"><span class="subject">' + item.subject + '</span> ' + messageText + ' <span style="color: #94a3b8; font-size: 0.65rem;">(#' + item.id + ')</span></span>';
+            html += '</div>';
+        });
+        container.innerHTML = html;
     }
 
     function checkForActivity() {
         fetch('/attendance/api/recent/')
-            .then(r => r.json())
-            .then(data => {
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
                 if (data.sessions && data.sessions.length > 0) {
-                    // Initialize history if not exists
                     if (!window._sessionHistory) {
                         window._sessionHistory = {};
                     }
 
-                    const now = new Date();
-                    const prevStates = window._sessionHistory;
-                    let newActivities = [];
-                    let foundActive = false;
+                    var now = new Date();
+                    var prevStates = window._sessionHistory;
+                    var newActivities = [];
+                    var foundActive = false;
 
-                    data.sessions.forEach(s => {
-                        const key = s.id;
-                        const prev = prevStates[key];
-                        const isActive = s.is_active || false;
-                        const status = s.status || 'Ended';
+                    data.sessions.forEach(function(s) {
+                        var key = s.id;
+                        var prev = prevStates[key];
+                        var isActive = s.is_active || false;
+                        var status = s.status || 'Ended';
 
                         if (isActive) {
                             foundActive = true;
                         }
 
                         if (prev) {
-                            // Check for status change
                             if (prev.is_active !== isActive) {
                                 if (isActive) {
                                     newActivities.push({
@@ -3141,7 +3130,6 @@ JAVASCRIPT
                                 }
                             }
                         } else if (isActive) {
-                            // New active session
                             newActivities.push({
                                 type: 'start',
                                 id: s.id,
@@ -3158,9 +3146,8 @@ JAVASCRIPT
                         };
                     });
 
-                    // Add info if no active sessions found
                     if (!foundActive && activityLog.length === 0) {
-                        const idleMessage = {
+                        var idleMessage = {
                             type: 'info',
                             id: 0,
                             subject: 'System',
@@ -3168,58 +3155,55 @@ JAVASCRIPT
                             message: 'System idle - no active sessions'
                         };
                         if (activityLog.length === 0 || activityLog[0].id !== 0) {
-                            activityLog = [idleMessage, ...activityLog].slice(0, MAX_ACTIVITY);
+                            activityLog = [idleMessage].concat(activityLog).slice(0, MAX_ACTIVITY);
                             renderActivityLog();
                         }
                     }
 
-                    // Add new activities to log
                     if (newActivities.length > 0) {
-                        activityLog = [...newActivities, ...activityLog].slice(0, MAX_ACTIVITY);
+                        activityLog = newActivities.concat(activityLog).slice(0, MAX_ACTIVITY);
                         renderActivityLog();
 
-                        // Show notification for new activities
-                        newActivities.forEach(a => {
-                            const emoji = a.type === 'start' ? '🚀' : '⏹️';
-                            showNotification(`${emoji} ${a.subject} ${a.message}`, a.type === 'start' ? 'success' : 'warning');
+                        newActivities.forEach(function(a) {
+                            var emoji = a.type === 'start' ? '🚀' : '⏹️';
+                            showNotification(emoji + ' ' + a.subject + ' ' + a.message, a.type === 'start' ? 'success' : 'warning');
                         });
                     }
                 }
             })
-            .catch(err => {
+            .catch(function(err) {
                 console.error('Activity check error:', err);
             });
     }
 
     // ============================================
-    // APPLY FILTERS - Added "live" filter
+    // APPLY FILTERS
     // ============================================
     function applyFilters() {
-        const search = document.getElementById('searchInput').value.toLowerCase();
-        const status = document.getElementById('statusFilter').value;
-        const date = document.getElementById('dateFilter').value;
-        const dept = document.getElementById('departmentFilter').value;
+        var search = document.getElementById('searchInput').value.toLowerCase();
+        var status = document.getElementById('statusFilter').value;
+        var date = document.getElementById('dateFilter').value;
+        var dept = document.getElementById('departmentFilter').value;
 
-        filteredSessions = allSessions.filter(s => {
-            const matchSearch = s.subject.toLowerCase().includes(search) ||
-                s.id.toString().includes(search);
+        filteredSessions = allSessions.filter(function(s) {
+            var matchSearch = s.subject.toLowerCase().includes(search) || s.id.toString().includes(search);
 
-            let matchStatus = true;
+            var matchStatus = true;
             if (status === 'active') matchStatus = s.is_active === true;
             else if (status === 'ended') matchStatus = s.status === 'Ended';
             else if (status === 'scheduled') matchStatus = s.status === 'Scheduled';
             else if (status === 'auto') matchStatus = s.is_auto_scheduled === true;
             else if (status === 'live') matchStatus = s.is_active === true && s.status === 'Active';
 
-            let matchDate = true;
+            var matchDate = true;
             if (date !== 'all') {
-                const days = parseInt(date);
-                const cutoff = new Date();
+                var days = parseInt(date);
+                var cutoff = new Date();
                 cutoff.setDate(cutoff.getDate() - days);
                 matchDate = new Date(s.date) >= cutoff;
             }
 
-            let matchDept = true;
+            var matchDept = true;
             if (dept !== 'all') matchDept = s.department === dept;
 
             return matchSearch && matchStatus && matchDate && matchDept;
@@ -3230,15 +3214,15 @@ JAVASCRIPT
     }
 
     // ============================================
-    // CLEAR FILTERS
+    // RENDER TABLE
     // ============================================
     function renderTable() {
-        const tbody = document.getElementById('sessionsTableBody');
-        const total = filteredSessions.length;
-        const totalPages = Math.ceil(total / pageSize) || 1;
-        const start = (currentPage - 1) * pageSize;
-        const end = Math.min(start + pageSize, total);
-        const pageSessions = filteredSessions.slice(start, end);
+        var tbody = document.getElementById('sessionsTableBody');
+        var total = filteredSessions.length;
+        var totalPages = Math.ceil(total / pageSize) || 1;
+        var start = (currentPage - 1) * pageSize;
+        var end = Math.min(start + pageSize, total);
+        var pageSessions = filteredSessions.slice(start, end);
 
         document.getElementById('startRange').textContent = total > 0 ? start + 1 : 0;
         document.getElementById('endRange').textContent = end;
@@ -3256,35 +3240,35 @@ JAVASCRIPT
             return;
         }
 
-        // Helper function to parse time safely
         function parseSessionTime(dateStr, timeStr) {
             if (!timeStr) return null;
 
-            const ampmMatch = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+            var ampmMatch = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
             if (ampmMatch) {
-                let hours = parseInt(ampmMatch[1]);
-                const minutes = parseInt(ampmMatch[2]);
-                const ampm = ampmMatch[3].toUpperCase();
+                var hours = parseInt(ampmMatch[1]);
+                var minutes = parseInt(ampmMatch[2]);
+                var ampm = ampmMatch[3].toUpperCase();
 
                 if (ampm === 'PM' && hours !== 12) hours += 12;
                 if (ampm === 'AM' && hours === 12) hours = 0;
 
-                const date = new Date(dateStr);
+                var date = new Date(dateStr);
                 date.setHours(hours, minutes, 0, 0);
                 return date;
             }
 
             try {
-                return new Date(`${dateStr}T${timeStr}`);
+                return new Date(dateStr + 'T' + timeStr);
             } catch {
                 return null;
             }
         }
 
-        tbody.innerHTML = pageSessions.map((s) => {
-            const duration = s.duration || 'N/A';
-            let statusClass = 'ended';
-            let statusText = s.status || 'Ended';
+        var html = '';
+        pageSessions.forEach(function(s) {
+            var duration = s.duration || 'N/A';
+            var statusClass = 'ended';
+            var statusText = s.status || 'Ended';
 
             if (s.is_active) {
                 statusClass = 'live';
@@ -3297,283 +3281,118 @@ JAVASCRIPT
                 statusText = 'Auto';
             }
 
-            // ============================================================
-            // AUTO-STATUS CALCULATION
-            // ============================================================
-            const now = new Date();
-            const startTime = parseSessionTime(s.date, s.start_time);
-            const endTime = parseSessionTime(s.date, s.end_time);
+            var now = new Date();
+            var startTime = parseSessionTime(s.date, s.start_time);
+            var endTime = parseSessionTime(s.date, s.end_time);
 
-            let autoStatusHtml = '';
+            var autoStatusHtml = '';
 
             if (!startTime || !endTime) {
-                autoStatusHtml = `
-                <span class="auto-status-cell">
-                    <span class="status-start" style="color:#94a3b8;">
-                        <i class="fas fa-clock"></i> Time unavailable
-                    </span>
-                </span>
-            `;
+                autoStatusHtml = '<span class="auto-status-cell"><span class="status-start" style="color:#94a3b8;"><i class="fas fa-clock"></i> Time unavailable</span></span>';
             } else if (s.is_active) {
-                const remainingMs = endTime - now;
+                var remainingMs = endTime - now;
                 if (remainingMs > 0) {
-                    const remainingMin = Math.ceil(remainingMs / 60000);
-                    autoStatusHtml = `
-                    <span class="auto-status-cell">
-                        <span class="status-start started">
-                            <i class="fas fa-play-circle"></i> Started ${s.start_time}
-                        </span>
-                        <span class="status-end running">
-                            ⏱️ ${remainingMin}m remaining
-                        </span>
-                    </span>
-                `;
+                    var remainingMin = Math.ceil(remainingMs / 60000);
+                    autoStatusHtml = '<span class="auto-status-cell"><span class="status-start started"><i class="fas fa-play-circle"></i> Started ' + s.start_time + '</span><span class="status-end running">⏱️ ' + remainingMin + 'm remaining</span></span>';
                 } else {
-                    autoStatusHtml = `
-                    <span class="auto-status-cell">
-                        <span class="status-start started">
-                            <i class="fas fa-play-circle"></i> Started ${s.start_time}
-                        </span>
-                        <span class="status-end ended" style="color:#dc2626;">
-                            <i class="fas fa-exclamation-triangle"></i> Should have ended
-                        </span>
-                    </span>
-                `;
+                    autoStatusHtml = '<span class="auto-status-cell"><span class="status-start started"><i class="fas fa-play-circle"></i> Started ' + s.start_time + '</span><span class="status-end ended" style="color:#dc2626;"><i class="fas fa-exclamation-triangle"></i> Should have ended</span></span>';
                 }
             } else if (s.status === 'Scheduled' || (startTime && startTime > now)) {
-                const startMs = startTime - now;
+                var startMs = startTime - now;
                 if (startMs > 0) {
-                    const days = Math.floor(startMs / 86400000);
-                    const hours = Math.floor((startMs % 86400000) / 3600000);
-                    const mins = Math.floor((startMs % 3600000) / 60000);
+                    var days = Math.floor(startMs / 86400000);
+                    var hours = Math.floor((startMs % 86400000) / 3600000);
+                    var mins = Math.floor((startMs % 3600000) / 60000);
 
-                    let countdownStr = '';
-                    if (days > 0) countdownStr += `${days}d `;
-                    if (hours > 0 || days > 0) countdownStr += `${hours}h `;
-                    countdownStr += `${mins}m`;
+                    var countdownStr = '';
+                    if (days > 0) countdownStr += days + 'd ';
+                    if (hours > 0 || days > 0) countdownStr += hours + 'h ';
+                    countdownStr += mins + 'm';
 
-                    const isUrgent = mins < 5 && days === 0 && hours === 0;
+                    var isUrgent = mins < 5 && days === 0 && hours === 0;
 
-                    autoStatusHtml = `
-                    <span class="auto-status-cell">
-                        <span class="status-start waiting">
-                            <i class="fas fa-clock"></i> Starts in ${countdownStr}
-                        </span>
-                        <span class="status-end scheduled">
-                            At ${s.start_time}
-                        </span>
-                        ${isUrgent ? '<span class="countdown-badge urgent">Starting soon!</span>' : ''}
-                    </span>
-                `;
+                    autoStatusHtml = '<span class="auto-status-cell"><span class="status-start waiting"><i class="fas fa-clock"></i> Starts in ' + countdownStr + '</span><span class="status-end scheduled">At ' + s.start_time + '</span>' + (isUrgent ? '<span class="countdown-badge urgent">Starting soon!</span>' : '') + '</span>';
                 } else {
-                    autoStatusHtml = `
-                    <span class="auto-status-cell">
-                        <span class="status-start waiting">
-                            <i class="fas fa-hourglass-start"></i> Starting soon...
-                        </span>
-                    </span>
-                `;
+                    autoStatusHtml = '<span class="auto-status-cell"><span class="status-start waiting"><i class="fas fa-hourglass-start"></i> Starting soon...</span></span>';
                 }
             } else {
-                const endedMs = now - endTime;
-                const endedMin = Math.floor(endedMs / 60000);
-                const endedHours = Math.floor(endedMin / 60);
-                const endedMins = endedMin % 60;
-
-                let endedStr = '';
-                if (endedHours > 0) endedStr += `${endedHours}h `;
-                endedStr += `${endedMins}m`;
-
-                if (endedMs < 0 || isNaN(endedMs)) {
-                    autoStatusHtml = `
-                    <span class="auto-status-cell">
-                        <span class="status-start started" style="color:#94a3b8;">
-                            <i class="fas fa-check-circle"></i> Recently ended
-                        </span>
-                        <span class="status-end ended">
-                            At ${s.end_time}
-                        </span>
-                    </span>
-                `;
-                } else if (endedHours === 0 && endedMins === 0) {
-                    autoStatusHtml = `
-                    <span class="auto-status-cell">
-                        <span class="status-start started" style="color:#94a3b8;">
-                            <i class="fas fa-check-circle"></i> Just ended
-                        </span>
-                        <span class="status-end ended">
-                            At ${s.end_time}
-                        </span>
-                    </span>
-                `;
-                } else {
-                    autoStatusHtml = `
-                    <span class="auto-status-cell">
-                        <span class="status-start started" style="color:#94a3b8;">
-                            <i class="fas fa-check-circle"></i> Ended ${endedStr} ago
-                        </span>
-                        <span class="status-end ended">
-                            At ${s.end_time}
-                        </span>
-                    </span>
-                `;
-                }
+                autoStatusHtml = '<span class="auto-status-cell"><span class="status-start started" style="color:#94a3b8;"><i class="fas fa-check-circle"></i> Ended</span><span class="status-end ended">At ' + s.end_time + '</span></span>';
             }
 
-            // ============================================================
-            // NEXT SESSION CALCULATION
-            // ============================================================
-            let nextSessionHtml = '';
+            var nextSessionHtml = '';
 
             if (s.next_session) {
-                const next = s.next_session;
+                var next = s.next_session;
+                var nextDate = new Date(next.date);
+                var today = new Date();
+                today.setHours(0, 0, 0, 0);
 
-                if (next.is_current) {
-                    nextSessionHtml = `
-                    <span style="color: #16a34a; font-size: 0.6rem; font-weight: 600;">
-                        <i class="fas fa-play-circle"></i> Current session
-                    </span>
-                `;
+                if (nextDate < today) {
+                    nextSessionHtml = '<span style="color: #94a3b8; font-size: 0.55rem;"><i class="fas fa-minus-circle"></i> No upcoming</span>';
+                } else if (next.is_current) {
+                    nextSessionHtml = '<span style="color: #16a34a; font-size: 0.6rem; font-weight: 600;"><i class="fas fa-play-circle"></i> Current session</span>';
                 } else if (next.is_today) {
-                    nextSessionHtml = `
-                    <span style="color: #d97706; font-size: 0.6rem; font-weight: 600;">
-                        <i class="fas fa-calendar-day"></i> Today at ${next.time}
-                    </span>
-                `;
+                    nextSessionHtml = '<span style="color: #d97706; font-size: 0.6rem; font-weight: 600;"><i class="fas fa-calendar-day"></i> Today at ' + next.time + '</span>';
                 } else if (next.is_tomorrow) {
-                    nextSessionHtml = `
-                    <span style="color: #6366f1; font-size: 0.6rem; font-weight: 600;">
-                        <i class="fas fa-calendar-plus"></i> Tomorrow at ${next.time}
-                    </span>
-                `;
+                    nextSessionHtml = '<span style="color: #6366f1; font-size: 0.6rem; font-weight: 600;"><i class="fas fa-calendar-plus"></i> Tomorrow at ' + next.time + '</span>';
                 } else {
-                    const dateObj = new Date(next.date);
-                    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-                    const monthDay = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-                    nextSessionHtml = `
-                    <span style="color: #64748b; font-size: 0.6rem;">
-                        <i class="fas fa-calendar-alt"></i> ${dayName}, ${monthDay}
-                        <br>
-                        <span style="font-weight: 500; color: #0f172a;">${next.time}</span>
-                    </span>
-                `;
+                    var dateObj = new Date(next.date);
+                    var dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+                    var monthDay = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    nextSessionHtml = '<span style="color: #64748b; font-size: 0.6rem;"><i class="fas fa-calendar-alt"></i> ' + dayName + ', ' + monthDay + '<br><span style="font-weight: 500; color: #0f172a;">' + next.time + '</span></span>';
                 }
             } else {
-                nextSessionHtml = `
-                <span style="color: #94a3b8; font-size: 0.55rem;">
-                    <i class="fas fa-minus-circle"></i> No upcoming
-                </span>
-            `;
+                nextSessionHtml = '<span style="color: #94a3b8; font-size: 0.55rem;"><i class="fas fa-minus-circle"></i> No upcoming</span>';
             }
 
-            const isAuto = s.is_auto_scheduled || false;
+            var isAuto = s.is_auto_scheduled || false;
 
-            const yearText = s.year ? `${s.year}${s.year === 1 ? 'st' : s.year === 2 ? 'nd' : s.year === 3 ? 'rd' : 'th'}` : 'N/A';
-            const semText = s.semester ? `${s.semester}${s.semester === 1 ? 'st' : s.semester === 2 ? 'nd' : s.semester === 3 ? 'rd' : 'th'}` : 'N/A';
-            const secText = s.section || 'N/A';
-            const deptText = s.department || 'N/A';
+            var yearText = s.year ? s.year + (s.year === 1 ? 'st' : s.year === 2 ? 'nd' : s.year === 3 ? 'rd' : 'th') : 'N/A';
+            var semText = s.semester ? s.semester + (s.semester === 1 ? 'st' : s.semester === 2 ? 'nd' : s.semester === 3 ? 'rd' : 'th') : 'N/A';
+            var secText = s.section || 'N/A';
+            var deptText = s.department || 'N/A';
 
-            let actionsHtml = '';
+            var actionsHtml = '';
 
             if (s.is_active) {
-                actionsHtml = `
-                <a href="/attendance/live/${s.id}/" class="action-link monitor-link" target="_blank">
-                    <i class="fas fa-video"></i> Monitor
-                </a>
-                <span class="action-divider">|</span>
-                <a href="/attendance/summary/${s.id}/" class="action-link">
-                    <i class="fas fa-chart-bar"></i> Summary
-                </a>
-            `;
+                actionsHtml = '<a href="/attendance/live/' + s.id + '/" class="action-link monitor-link" target="_blank"><i class="fas fa-video"></i> Monitor</a><span class="action-divider">|</span><a href="/attendance/summary/' + s.id + '/" class="action-link"><i class="fas fa-chart-bar"></i> Summary</a>';
             } else if (s.status === 'Scheduled') {
-                actionsHtml = `
-                <span class="text-muted">
-                    <i class="fas fa-clock"></i> Upcoming
-                </span>
-                <span class="action-divider">|</span>
-                <a href="/attendance/summary/${s.id}/" class="action-link">
-                    <i class="fas fa-chart-bar"></i> Summary
-                </a>
-            `;
+                actionsHtml = '<span class="text-muted"><i class="fas fa-clock"></i> Upcoming</span><span class="action-divider">|</span><a href="/attendance/summary/' + s.id + '/" class="action-link"><i class="fas fa-chart-bar"></i> Summary</a>';
             } else {
-                actionsHtml = `
-                <a href="/attendance/summary/${s.id}/" class="action-link">
-                    <i class="fas fa-chart-bar"></i> Summary
-                </a>
-            `;
+                actionsHtml = '<a href="/attendance/summary/' + s.id + '/" class="action-link"><i class="fas fa-chart-bar"></i> Summary</a>';
             }
 
             if (!s.is_active) {
-                actionsHtml += `
-                <span class="action-divider">|</span>
-                <a href="/attendance/edit-session/${s.id}/" class="action-link" style="color: #6366f1;">
-                    <i class="fas fa-edit"></i>
-                </a>
-            `;
+                actionsHtml += '<span class="action-divider">|</span><a href="/attendance/edit-session/' + s.id + '/" class="action-link" style="color: #6366f1;"><i class="fas fa-edit"></i></a>';
             }
 
             if (canDelete && !s.is_active) {
-                actionsHtml += `
-                <span class="action-divider">|</span>
-                <a href="#" class="action-link delete-link" onclick="event.preventDefault(); openDeleteModal(${s.id}, '${s.subject.replace(/'/g, "\\'")}')">
-                    <i class="fas fa-trash"></i>
-                </a>
-            `;
+                actionsHtml += '<span class="action-divider">|</span><a href="#" class="action-link delete-link" onclick="event.preventDefault(); openDeleteModal(' + s.id + ', \'' + s.subject.replace(/'/g, "\\'") + '\')"><i class="fas fa-trash"></i></a>';
             }
 
-            return `
-        <tr>
-            <td class="session-id">#${s.id}</td>
-            <td>
-                <div class="session-subject" title="${s.subject}">
-                    ${s.is_active ? '<span class="live-indicator"></span>' : ''}
-                    ${s.subject}
-                    ${isAuto ? '<span class="auto-badge"><i class="fas fa-robot"></i> Auto</span>' : ''}
-                </div>
-            </td>
-            <td>
-                <div class="session-detail-cell">
-                    <span class="dept-badge">${deptText}</span>
-                    <span class="year-badge">${yearText}</span>
-                    <span class="sem-badge">Sem ${semText}</span>
-                    <span class="section-badge">Sec ${secText}</span>
-                </div>
-            </td>
-            <td class="session-date">${s.date}</td>
-            <td class="session-time">${s.time_range}</td>
-            <td class="session-duration">${duration} min</td>
-            <td>${autoStatusHtml}</td>
-            <td>${nextSessionHtml}</td>
-            <td>
-                <span class="status-badge-table ${statusClass}">
-                    ${s.is_active ? '<span class="dot"></span>' : ''}
-                    ${statusText}
-                </span>
-            </td>
-            <td style="text-align: right; white-space: nowrap;">
-                ${actionsHtml}
-            </td>
-        </tr>
-    `}).join('');
+            html += '<tr>';
+            html += '<td class="session-id">#' + s.id + '</td>';
+            html += '<td><div class="session-subject" title="' + s.subject + '">' + (s.is_active ? '<span class="live-indicator"></span>' : '') + s.subject + (isAuto ? '<span class="auto-badge"><i class="fas fa-robot"></i> Auto</span>' : '') + '</div></td>';
+            html += '<td><div class="session-detail-cell"><span class="dept-badge">' + deptText + '</span><span class="year-badge">' + yearText + '</span><span class="sem-badge">Sem ' + semText + '</span><span class="section-badge">Sec ' + secText + '</span></div></td>';
+            html += '<td class="session-date">' + s.date + '</td>';
+            html += '<td class="session-time">' + s.time_range + '</td>';
+            html += '<td class="session-duration">' + duration + ' min</td>';
+            html += '<td>' + autoStatusHtml + '</td>';
+            html += '<td>' + nextSessionHtml + '</td>';
+            html += '<td><span class="status-badge-table ' + statusClass + '">' + (s.is_active ? '<span class="dot"></span>' : '') + statusText + '</span></td>';
+            html += '<td style="text-align: right; white-space: nowrap;">' + actionsHtml + '</td>';
+            html += '</tr>';
+        });
+
+        tbody.innerHTML = html;
     }
 
     // ============================================
     // SHOW EMPTY STATE
     // ============================================
     function showEmptyState(title, message) {
-        const tbody = document.getElementById('sessionsTableBody');
-        tbody.innerHTML = `
-        <tr>
-            <td colspan="10">  <!-- Updated from 9 to 10 -->
-                <div class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <h3>${title}</h3>
-                    <p>${message}</p>
-                </div>
-            </td>
-        </tr>
-    `;
+        var tbody = document.getElementById('sessionsTableBody');
+        tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-inbox"></i><h3>' + title + '</h3><p>' + message + '</p></div></td></tr>';
         document.getElementById('paginationContainer').style.display = 'none';
     }
 
@@ -3581,32 +3400,32 @@ JAVASCRIPT
     // RENDER PAGE NUMBERS
     // ============================================
     function renderPageNumbers(totalPages) {
-        const container = document.getElementById('pageNumbers');
-        let html = '';
+        var container = document.getElementById('pageNumbers');
+        var html = '';
 
         if (totalPages <= 7) {
-            for (let i = 1; i <= totalPages; i++) {
-                html += `<button class="${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            for (var i = 1; i <= totalPages; i++) {
+                html += '<button class="' + (i === currentPage ? 'active' : '') + '" onclick="goToPage(' + i + ')">' + i + '</button>';
             }
         } else {
-            html += `<button class="${1 === currentPage ? 'active' : ''}" onclick="goToPage(1)">1</button>`;
+            html += '<button class="' + (1 === currentPage ? 'active' : '') + '" onclick="goToPage(1)">1</button>';
 
             if (currentPage > 3) {
-                html += `<span class="dots">…</span>`;
+                html += '<span class="dots">…</span>';
             }
 
-            let startPage = Math.max(2, currentPage - 1);
-            let endPage = Math.min(totalPages - 1, currentPage + 1);
+            var startPage = Math.max(2, currentPage - 1);
+            var endPage = Math.min(totalPages - 1, currentPage + 1);
 
-            for (let i = startPage; i <= endPage; i++) {
-                html += `<button class="${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            for (var j = startPage; j <= endPage; j++) {
+                html += '<button class="' + (j === currentPage ? 'active' : '') + '" onclick="goToPage(' + j + ')">' + j + '</button>';
             }
 
             if (currentPage < totalPages - 2) {
-                html += `<span class="dots">…</span>`;
+                html += '<span class="dots">…</span>';
             }
 
-            html += `<button class="${totalPages === currentPage ? 'active' : ''}" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+            html += '<button class="' + (totalPages === currentPage ? 'active' : '') + '" onclick="goToPage(' + totalPages + ')">' + totalPages + '</button>';
         }
 
         container.innerHTML = html;
@@ -3616,7 +3435,7 @@ JAVASCRIPT
     // GO TO PAGE
     // ============================================
     function goToPage(page) {
-        const totalPages = Math.ceil(filteredSessions.length / pageSize) || 1;
+        var totalPages = Math.ceil(filteredSessions.length / pageSize) || 1;
         if (page < 1 || page > totalPages) return;
         currentPage = page;
         renderTable();
@@ -3642,31 +3461,31 @@ JAVASCRIPT
     function confirmDelete() {
         if (!deleteSessionId) return;
 
-        const btn = document.getElementById('confirmDeleteBtn');
+        var btn = document.getElementById('confirmDeleteBtn');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
 
-        const csrfToken = getCsrfToken();
+        var csrfToken = getCsrfToken();
 
-        fetch(`/attendance/delete-session/${deleteSessionId}/`, {
+        fetch('/attendance/delete-session/' + deleteSessionId + '/', {
             method: 'DELETE',
             headers: {
                 'X-CSRFToken': csrfToken,
                 'Content-Type': 'application/json'
             }
         })
-            .then(response => {
+            .then(function(response) {
                 if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.message || `HTTP ${response.status}`);
+                    return response.json().then(function(data) {
+                        throw new Error(data.message || 'HTTP ' + response.status);
                     });
                 }
                 return response.json();
             })
-            .then(data => {
+            .then(function(data) {
                 if (data.success) {
                     showNotification(data.message || 'Session deleted successfully', 'success');
-                    allSessions = allSessions.filter(s => s.id !== deleteSessionId);
+                    allSessions = allSessions.filter(function(s) { return s.id !== deleteSessionId; });
                     updateStats();
                     applyFilters();
                     closeDeleteModal();
@@ -3674,11 +3493,11 @@ JAVASCRIPT
                     showNotification(data.message || 'Failed to delete session', 'error');
                 }
             })
-            .catch(err => {
+            .catch(function(err) {
                 console.error('Delete error:', err);
                 showNotification('Error: ' + err.message, 'error');
             })
-            .finally(() => {
+            .finally(function() {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-trash"></i> Delete Permanently';
             });
@@ -3693,17 +3512,17 @@ JAVASCRIPT
             return;
         }
 
-        let csv = 'Session ID,Subject,Department,Year,Semester,Section,Date,Time Range,Duration,Status,Type\n';
-        filteredSessions.forEach(s => {
-            const status = s.is_active ? 'Live' : (s.status || 'Ended');
-            const type = s.is_auto_scheduled ? 'Auto-Scheduled' : 'Manual';
-            csv += `${s.id},"${s.subject}","${s.department || 'N/A'}",${s.year || 'N/A'},${s.semester || 'N/A'},"${s.section || 'N/A'}",${s.date},"${s.time_range}",${s.duration || 'N/A'} min,${status},${type}\n`;
+        var csv = 'Session ID,Subject,Department,Year,Semester,Section,Date,Time Range,Duration,Status,Type\n';
+        filteredSessions.forEach(function(s) {
+            var status = s.is_active ? 'Live' : (s.status || 'Ended');
+            var type = s.is_auto_scheduled ? 'Auto-Scheduled' : 'Manual';
+            csv += s.id + ',"' + s.subject + '","' + (s.department || 'N/A') + '",' + (s.year || 'N/A') + ',' + (s.semester || 'N/A') + ',"' + (s.section || 'N/A') + '",' + s.date + ',"' + s.time_range + '",' + (s.duration || 'N/A') + ' min,' + status + ',' + type + '\n';
         });
 
-        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
+        var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        var link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `sessions_export_${new Date().toISOString().slice(0, 10)}.csv`;
+        link.download = 'sessions_export_' + new Date().toISOString().slice(0, 10) + '.csv';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -3715,9 +3534,9 @@ JAVASCRIPT
     // ============================================
     // FILE UPLOAD HANDLERS
     // ============================================
-    window.updateFileLabel = function (input) {
+    window.updateFileLabel = function(input) {
         if (input.files && input.files[0]) {
-            document.getElementById('file-name').innerText = `📎 ${input.files[0].name}`;
+            document.getElementById('file-name').innerText = '📎 ' + input.files[0].name;
             document.getElementById('extraction-actions').style.display = 'block';
             document.getElementById('file-label-container').style.opacity = '0.3';
         }
@@ -3726,19 +3545,19 @@ JAVASCRIPT
     // ============================================
     // EXTRACTION SUBMISSION
     // ============================================
-    window.handleExtractionSubmit = function () {
-        const form = document.getElementById('extraction-form');
-        const submitBtn = document.querySelector('button[onclick="handleExtractionSubmit()"]');
-        const formData = new FormData(form);
+    window.handleExtractionSubmit = function() {
+        var form = document.getElementById('extraction-form');
+        var submitBtn = document.querySelector('button[onclick="handleExtractionSubmit()"]');
+        var formData = new FormData(form);
 
-        const fileInput = document.getElementById('routine-file');
+        var fileInput = document.getElementById('routine-file');
         if (!fileInput.files || !fileInput.files[0]) {
             showNotification('Please select a file first', 'error');
             return;
         }
 
-        const fileName = fileInput.files[0].name;
-        const fileExt = fileName.split('.').pop().toLowerCase();
+        var fileName = fileInput.files[0].name;
+        var fileExt = fileName.split('.').pop().toLowerCase();
         if (!['pdf', 'xlsx', 'xls', 'csv'].includes(fileExt)) {
             showNotification('Please select a valid PDF or Excel file', 'error');
             return;
@@ -3758,37 +3577,39 @@ JAVASCRIPT
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-            .then(async response => {
-                const text = await response.text();
+            .then(async function(response) {
+                var text = await response.text();
                 try {
-                    const data = JSON.parse(text);
-                    return { response, data };
+                    var data = JSON.parse(text);
+                    return { response: response, data: data };
                 } catch (e) {
                     console.error('❌ Failed to parse JSON:', e);
-                    throw new Error(`Invalid response from server (Status: ${response.status})`);
+                    throw new Error('Invalid response from server (Status: ' + response.status + ')');
                 }
             })
-            .then(({ response, data }) => {
+            .then(function(result) {
+                var response = result.response;
+                var data = result.data;
                 if (response.ok && data.success) {
-                    let message = `✅ Extraction Complete! Found ${data.classes_count || 0} scheduled sessions.`;
+                    var message = '✅ Extraction Complete! Found ' + (data.classes_count || 0) + ' scheduled sessions.';
                     if (data.created_count) {
-                        message += ` Created ${data.created_count} new sessions.`;
+                        message += ' Created ' + data.created_count + ' new sessions.';
                     }
                     if (data.existing_count) {
-                        message += ` Found ${data.existing_count} existing sessions.`;
+                        message += ' Found ' + data.existing_count + ' existing sessions.';
                     }
                     showNotification(message, 'success');
                     loadSessions();
                 } else {
-                    const errorMsg = data?.message || 'Extraction failed';
+                    var errorMsg = data?.message || 'Extraction failed';
                     showNotification('❌ Extraction Failed: ' + errorMsg, 'error');
                 }
             })
-            .catch(err => {
+            .catch(function(err) {
                 console.error('❌ Error:', err);
                 showNotification('❌ Error: ' + err.message, 'error');
             })
-            .finally(() => {
+            .finally(function() {
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
@@ -3810,17 +3631,17 @@ JAVASCRIPT
                 'Content-Type': 'application/json'
             }
         })
-            .then(response => response.json())
-            .then(data => {
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
                 if (data.success) {
                     showNotification('Extracted routines cleared', 'success');
-                    const section = document.getElementById('extracted-routines-section');
+                    var section = document.getElementById('extracted-routines-section');
                     if (section) section.remove();
                 } else {
                     showNotification('Error clearing routines', 'error');
                 }
             })
-            .catch(err => {
+            .catch(function(err) {
                 console.error('Error:', err);
                 showNotification('Error clearing routines', 'error');
             });
@@ -3829,7 +3650,7 @@ JAVASCRIPT
     function syncSessions() {
         if (!confirm('This will generate sessions from active routines. Continue?')) return;
 
-        const btn = document.querySelector('button[onclick="syncSessions()"]');
+        var btn = document.querySelector('button[onclick="syncSessions()"]');
         if (btn) {
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
@@ -3842,8 +3663,8 @@ JAVASCRIPT
                 'Content-Type': 'application/json'
             }
         })
-            .then(response => response.json())
-            .then(data => {
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
                 if (data.success) {
                     showNotification(data.message || 'Sessions synced successfully!', 'success');
                     loadSessions();
@@ -3851,11 +3672,11 @@ JAVASCRIPT
                     showNotification(data.error || 'Failed to sync sessions', 'error');
                 }
             })
-            .catch(err => {
+            .catch(function(err) {
                 console.error('Sync error:', err);
                 showNotification('Error syncing sessions', 'error');
             })
-            .finally(() => {
+            .finally(function() {
                 if (btn) {
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sync Schedule';
@@ -3866,7 +3687,7 @@ JAVASCRIPT
     function applyExtractedRoutines() {
         if (!confirm('Apply all extracted routines to create attendance sessions?')) return;
 
-        const btn = document.querySelector('button[onclick="applyExtractedRoutines()"]');
+        var btn = document.querySelector('button[onclick="applyExtractedRoutines()"]');
         if (btn) {
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Applying...';
@@ -3881,22 +3702,22 @@ JAVASCRIPT
                 'Content-Type': 'application/json'
             }
         })
-            .then(response => response.json())
-            .then(data => {
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
                 if (data.success) {
-                    showNotification(`${data.created} sessions created successfully!`, 'success');
+                    showNotification(data.created + ' sessions created successfully!', 'success');
                     loadSessions();
-                    const section = document.getElementById('extracted-routines-section');
+                    var section = document.getElementById('extracted-routines-section');
                     if (section) section.remove();
                 } else {
                     showNotification(data.message || 'Error applying routines', 'error');
                 }
             })
-            .catch(err => {
+            .catch(function(err) {
                 console.error('Error:', err);
                 showNotification('Error applying routines', 'error');
             })
-            .finally(() => {
+            .finally(function() {
                 if (btn) {
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-play"></i> Apply All Sessions';
@@ -3907,7 +3728,7 @@ JAVASCRIPT
     // ============================================
     // KEYBOARD SHORTCUTS
     // ============================================
-    document.addEventListener('keydown', function (e) {
+    document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeDeleteModal();
         }
@@ -3921,7 +3742,7 @@ JAVASCRIPT
     // ============================================
     // CLOSE MODAL ON CLICK OUTSIDE
     // ============================================
-    document.getElementById('deleteModal').addEventListener('click', function (e) {
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
         if (e.target === this) {
             closeDeleteModal();
         }
@@ -3930,13 +3751,12 @@ JAVASCRIPT
     // ============================================
     // AUTO-REFRESH - Keep checking
     // ============================================
-    setInterval(() => {
+    setInterval(function() {
         loadSessions();
         checkActiveSession();
         checkSchedulerStatus();
         updateStatusDashboard();
         checkForActivity();
-        // Update auto-refresh status
         document.getElementById('autoRefreshStatus').textContent = '10s ✓';
         document.getElementById('autoRefreshStatus').style.color = '#16a34a';
     }, 30000);
@@ -3944,25 +3764,25 @@ JAVASCRIPT
     // ============================================
     // DRAG & DROP SETUP
     // ============================================
-    document.addEventListener('DOMContentLoaded', function () {
-        const uploadZone = document.getElementById('upload-zone');
-        const fileInput = document.getElementById('routine-file');
+    document.addEventListener('DOMContentLoaded', function() {
+        var uploadZone = document.getElementById('upload-zone');
+        var fileInput = document.getElementById('routine-file');
 
         if (uploadZone) {
-            uploadZone.addEventListener('dragover', (e) => {
+            uploadZone.addEventListener('dragover', function(e) {
                 e.preventDefault();
                 uploadZone.classList.add('dragover');
             });
 
-            uploadZone.addEventListener('dragleave', () => {
+            uploadZone.addEventListener('dragleave', function() {
                 uploadZone.classList.remove('dragover');
             });
 
-            uploadZone.addEventListener('drop', (e) => {
+            uploadZone.addEventListener('drop', function(e) {
                 e.preventDefault();
                 uploadZone.classList.remove('dragover');
 
-                const files = e.dataTransfer.files;
+                var files = e.dataTransfer.files;
                 if (files.length > 0) {
                     fileInput.files = files;
                     updateFileLabel(fileInput);
@@ -3985,7 +3805,7 @@ JAVASCRIPT
     {% for message in messages %}
     console.log('📢 Message from server: {{ message }}');
     {% endfor %}
-    setTimeout(function () {
+    setTimeout(function() {
         location.reload();
     }, 2000);
     {% endif %}
