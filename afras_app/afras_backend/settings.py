@@ -77,12 +77,28 @@ ASGI_APPLICATION = 'afras_backend.asgi.application'
 # ==========================================
 # 4. DATABASE (Uses DATABASE_URL on Render, local MySQL as fallback)
 # ==========================================
-DATABASES = {
-    'default': dj_database_url.config(
-        default='mysql://root:Lalit%4098@127.0.0.1:3306/afras_db',
-        conn_max_age=600,
-    )
-}
+IS_RENDER = 'RENDER' in os.environ
+
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config(conn_max_age=600)
+    }
+elif IS_RENDER:
+    # Safe fallback during Render build/deploy
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+            conn_max_age=600,
+        )
+    }
+else:
+    # Local development fallback (MySQL)
+    DATABASES = {
+        'default': dj_database_url.config(
+            default='mysql://root:Lalit%4098@127.0.0.1:3306/afras_db',
+            conn_max_age=600,
+        )
+    }
 
 # ==========================================
 # 5. EMAIL CONFIGURATION
