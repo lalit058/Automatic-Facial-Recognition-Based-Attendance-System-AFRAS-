@@ -16,9 +16,9 @@ pip install dlib-bin
 echo "📦 Installing face-recognition-models..."
 pip install face-recognition-models
 
-# Install face-recognition WITHOUT dependencies (we already have dlib-bin)
+# Install face-recognition
 echo "📦 Installing face-recognition..."
-pip install face-recognition --no-deps
+pip install face-recognition
 
 # Install remaining requirements
 echo "📦 Installing requirements..."
