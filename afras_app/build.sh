@@ -1,38 +1,23 @@
 set -o errexit
 
-echo "🚀 Starting build..."
-
-# Navigate to app directory
+# Navigate to the app directory
 cd afras_app || exit 1
 
-# Upgrade pip
-echo "Upgrading pip..."
 pip install --upgrade pip
 
-# Install cmake (required for dlib)
-echo "Installing cmake..."
-pip install cmake
-
-# Install dlib with pre-compiled binary
-echo "Installing dlib..."
+# Install pre-compiled binary wheel for dlib (bypasses C++ compilation & RAM spike)
 pip install dlib-bin
-
-# Install face_recognition dependencies
-echo "Installing face_recognition..."
 pip install face-recognition-models
 pip install face-recognition --no-deps
 
-# Install remaining requirements
-echo "Installing requirements..."
+# Install remaining requirements from requirements.txt
 pip install --no-cache-dir -r requirements.txt
 
-# Run Django commands
-echo "Collecting static files..."
+# Run Django management commands
 python manage.py collectstatic --no-input
+python manage.py migrate
 
-echo "Applying migrations..."
-python manage.py migrate --noinput
-
+# Go back to root
 cd ..
 
-echo "✅ Build completed!"
+echo "✅ Build completed successfully!"
