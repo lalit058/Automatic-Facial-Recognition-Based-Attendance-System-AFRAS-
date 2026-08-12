@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 set -o errexit
 
 echo "🚀 Starting build..."
@@ -6,23 +5,31 @@ echo "🚀 Starting build..."
 # Navigate to the app directory
 cd afras_app || exit 1
 
+# Upgrade pip
 pip install --upgrade pip
 
-# Install dlib-bin (pre-compiled binary, no cmake needed)
+# Install dlib-bin (pre-compiled)
+echo "📦 Installing dlib-bin..."
 pip install dlib-bin
 
-# Install face-recognition-models (required for face_recognition)
+# Install face-recognition-models
+echo "📦 Installing face-recognition-models..."
 pip install face-recognition-models
 
-# Install face-recognition without dependencies (deps handled by requirements)
+# Install face-recognition WITHOUT dependencies (we already have dlib-bin)
+echo "📦 Installing face-recognition..."
 pip install face-recognition --no-deps
 
 # Install remaining requirements
+echo "📦 Installing requirements..."
 pip install --no-cache-dir -r requirements.txt
 
 # Run Django management commands
+echo "📁 Collecting static files..."
 python manage.py collectstatic --no-input
-python manage.py migrate
+
+echo "🗄️ Applying migrations..."
+python manage.py migrate --noinput
 
 # Go back to root
 cd ..
