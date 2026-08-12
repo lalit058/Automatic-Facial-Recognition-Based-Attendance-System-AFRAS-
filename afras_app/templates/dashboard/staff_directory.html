@@ -1,0 +1,1731 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Staff Directory{% endblock %}
+
+{% block content %}
+<style>
+    .page-container {
+        max-width: 1400px;
+    }
+
+    /* ============================================
+       PAGE HEADER
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        display: flex;
+        padding: 1rem 1.5rem;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        color: var(--primary-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+    }
+
+    .page-header .header-left p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0;
+    }
+
+    .page-header .header-left .breadcrumb {
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .page-header .header-left .breadcrumb a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .page-header .header-left .breadcrumb a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .page-header .header-left .breadcrumb .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .page-header .header-left .breadcrumb .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .page-header .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        padding: 0.6rem 1.5rem;
+        background: #16a34a;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-secondary {
+        padding: 0.6rem 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    /* ============================================
+       FILTER CONTAINER
+    ============================================ */
+    .filter-container {
+        background: transparent;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .filter-container .search-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8fafc;
+        padding: 0.3rem 0.8rem;
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        transition: all 0.2s;
+        flex: 1;
+        min-width: 200px;
+        max-width: 350px;
+    }
+
+    .filter-container .search-box:focus-within {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06);
+        background: #fff;
+    }
+
+    .filter-container .search-box i {
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+
+    .filter-container .search-box input {
+        border: none;
+        background: transparent;
+        padding: 0.2rem 0;
+        font-size: 0.85rem;
+        color: #1e293b;
+        width: 100%;
+        outline: none;
+    }
+
+    .filter-container .search-box input::placeholder {
+        color: #94a3b8;
+    }
+
+    .filter-container .filter-group {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-container .filter-group select {
+        padding: 0.4rem 0.8rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        background: #fafbfc;
+        color: #1e293b;
+        outline: none;
+        cursor: pointer;
+        min-width: 120px;
+    }
+
+    .filter-container .filter-group select:focus {
+        border-color: #6366f1;
+    }
+
+    .filter-container .filter-group .clear-btn {
+        padding: 0.3rem 1rem;
+        border: none;
+        background: #f1f5f9;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .filter-container .filter-group .clear-btn:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+    /* ============================================
+       FILTER TAGS
+    ============================================ */
+    .filter-tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .filter-tag {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #1e293b;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .filter-tag:hover {
+        background: #e2e8f0;
+    }
+
+    .filter-tag i {
+        font-size: 0.6rem;
+        color: #94a3b8;
+    }
+
+    .filter-tag:hover i {
+        color: #dc2626;
+    }
+
+    /* ============================================
+       TABLE CARD
+    ============================================ */
+    .table-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+    }
+
+    .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        min-width: 800px;
+    }
+
+    thead {
+        background: #f8fafc;
+    }
+
+    thead th {
+        padding: 0.75rem 1.5rem;
+        text-align: left;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        border-bottom: 2px solid #f1f5f9;
+        white-space: nowrap;
+    }
+
+    thead th:last-child {
+        text-align: right;
+    }
+
+    tbody td {
+        padding: 0.6rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+        vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    /* ============================================
+       STAFF PROFILE
+    ============================================ */
+    .staff-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 150px;
+    }
+
+    .staff-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 2px solid #e2e8f0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .staff-avatar:hover {
+        transform: scale(1.05);
+        border-color: #6366f1;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    }
+
+    .staff-info .staff-name {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        word-break: break-word;
+    }
+
+    .staff-info .staff-meta {
+        font-size: 0.7rem;
+        color: #94a3b8;
+    }
+
+    /* ============================================
+       BADGES
+    ============================================ */
+    .role-badge {
+        font-size: 0.55rem;
+        font-weight: 600;
+        padding: 2px 10px;
+        border-radius: 100px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+    }
+
+    .role-badge.admin {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .role-badge.staff {
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
+
+    .dept-tag {
+        color: #4f46e5;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .id-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: #64748b;
+        word-break: break-all;
+    }
+
+    /* ============================================
+       ACTION BUTTONS
+    ============================================ */
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        font-size: 0.8rem;
+        text-decoration: none;
+        flex-shrink: 0;
+    }
+
+    .action-btn.view {
+        background: rgba(16, 185, 129, 0.1);
+        color: #16a34a;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .action-btn.view:hover {
+        background: #16a34a;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .action-btn.edit {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .action-btn.edit:hover {
+        background: #6366f1;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .action-btn.delete {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .action-btn.delete:hover {
+        background: #dc2626;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    /* ============================================
+       PAGINATION
+    ============================================ */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.75rem;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .pagination-container .info {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .pagination-container .info strong {
+        color: #0f172a;
+    }
+
+    .pagination-controls {
+        display: flex;
+        gap: 0.3rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .pagination-controls button {
+        padding: 0.3rem 0.8rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #fff;
+        color: #1e293b;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pagination-controls button:hover:not(:disabled):not(.active) {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+
+    .pagination-controls button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .pagination-controls button.active {
+        background: #0f172a;
+        color: #fff;
+        border-color: #0f172a;
+    }
+
+    .pagination-controls button.active:hover {
+        background: #1e293b;
+    }
+
+    .pagination-controls .page-numbers {
+        display: flex;
+        gap: 0.2rem;
+        flex-wrap: wrap;
+    }
+
+    .pagination-controls .page-numbers button {
+        min-width: 32px;
+        justify-content: center;
+    }
+
+    .pagination-controls .dots {
+        padding: 0 0.3rem;
+        color: #94a3b8;
+    }
+
+    /* ============================================
+       EMPTY STATE
+    ============================================ */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .empty-state p {
+        margin: 0;
+    }
+
+    /* ============================================
+       DELETE MODAL
+    ============================================ */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    .delete-modal {
+        background: #fff;
+        border-radius: 16px;
+        max-width: 480px;
+        width: 100%;
+        padding: 2rem;
+        animation: modalSlideIn 0.3s ease-out;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-30px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .delete-modal .modal-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #fee2e2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 2rem;
+        color: #dc2626;
+        flex-shrink: 0;
+    }
+
+    .delete-modal h3 {
+        text-align: center;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 0.5rem 0;
+        word-break: break-word;
+    }
+
+    .delete-modal p {
+        text-align: center;
+        color: #64748b;
+        font-size: 0.9rem;
+        margin: 0 0 1.5rem 0;
+        line-height: 1.6;
+    }
+
+    .delete-modal .staff-details {
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .delete-modal .staff-details p {
+        text-align: left;
+        font-size: 0.85rem;
+        margin: 4px 0;
+        color: #1e293b;
+        word-break: break-word;
+    }
+
+    .delete-modal .staff-details p strong {
+        color: #0f172a;
+    }
+
+    .delete-modal .modal-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .delete-modal .modal-actions button {
+        padding: 0.6rem 2rem;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        flex: 1;
+        min-width: 100px;
+        white-space: nowrap;
+    }
+
+    .delete-modal .modal-actions .btn-cancel {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .delete-modal .modal-actions .btn-cancel:hover {
+        background: #e2e8f0;
+    }
+
+    .delete-modal .modal-actions .btn-danger {
+        background: #dc2626;
+        color: #fff;
+    }
+
+    .delete-modal .modal-actions .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
+    }
+
+    .delete-modal .modal-actions .btn-danger:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ============================================
+       RESPONSIVE BREAKPOINTS
+    ============================================ */
+
+    /* Tablets and small laptops */
+    @media (max-width: 992px) {
+        .filter-container {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 1rem;
+        }
+
+        .filter-container .search-box {
+            max-width: 100%;
+        }
+
+        .filter-container .filter-group {
+            justify-content: stretch;
+            gap: 0.5rem;
+        }
+
+        .filter-container .filter-group select {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1.5rem;
+        }
+
+        .page-header .header-actions {
+            width: 100%;
+        }
+
+        .page-header .header-actions .btn-primary {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .table-scroll {
+            margin: 0 -0.5rem;
+            padding: 0 0.5rem;
+        }
+
+        table {
+            font-size: 0.8rem;
+            min-width: 700px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.5rem 1rem;
+        }
+
+        .staff-profile {
+            min-width: 120px;
+        }
+
+        .staff-avatar {
+            width: 35px;
+            height: 35px;
+        }
+
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            font-size: 0.75rem;
+        }
+    }
+
+    /* Mobile devices */
+    @media (max-width: 768px) {
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0.75rem 1rem;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1.25rem;
+        }
+
+        .page-header .header-left p {
+            font-size: 0.8rem;
+        }
+
+        .page-header .header-left .breadcrumb {
+            font-size: 0.65rem;
+        }
+
+        .page-header .header-actions .btn-primary {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .filter-container {
+            padding: 0.75rem 1rem;
+            gap: 0.5rem;
+        }
+
+        .filter-container .search-box {
+            padding: 0.2rem 0.6rem;
+        }
+
+        .filter-container .search-box input {
+            font-size: 0.8rem;
+        }
+
+        .filter-container .filter-group {
+            flex-direction: column;
+            width: 100%;
+            gap: 0.5rem;
+        }
+
+        .filter-container .filter-group select {
+            width: 100%;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.7rem;
+        }
+
+        .filter-container .filter-group .clear-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 0.4rem;
+        }
+
+        .filter-tags {
+            gap: 4px;
+        }
+
+        .filter-tag {
+            font-size: 0.65rem;
+            padding: 3px 8px;
+        }
+
+        .table-card {
+            border-radius: 8px;
+        }
+
+        .table-scroll {
+            margin: 0 -0.75rem;
+            padding: 0 0.75rem;
+        }
+
+        table {
+            font-size: 0.7rem;
+            min-width: 600px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.4rem 0.6rem;
+        }
+
+        thead th {
+            font-size: 0.6rem;
+        }
+
+        .staff-profile {
+            min-width: 100px;
+            gap: 8px;
+        }
+
+        .staff-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+        }
+
+        .staff-info .staff-name {
+            font-size: 0.75rem;
+        }
+
+        .staff-info .staff-meta {
+            font-size: 0.6rem;
+        }
+
+        .role-badge {
+            font-size: 0.5rem;
+            padding: 1px 6px;
+        }
+
+        .id-badge {
+            font-size: 0.65rem;
+        }
+
+        .dept-tag {
+            font-size: 0.6rem;
+            padding: 2px 6px;
+        }
+
+        .action-btn {
+            width: 26px;
+            height: 26px;
+            font-size: 0.65rem;
+            border-radius: 6px;
+        }
+
+        .pagination-container {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0.75rem 1rem;
+            gap: 0.5rem;
+        }
+
+        .pagination-container .info {
+            font-size: 0.7rem;
+        }
+
+        .pagination-controls {
+            gap: 0.2rem;
+        }
+
+        .pagination-controls button {
+            padding: 0.2rem 0.6rem;
+            font-size: 0.7rem;
+        }
+
+        .pagination-controls .page-numbers button {
+            min-width: 28px;
+        }
+
+        .delete-modal {
+            padding: 1.5rem;
+            margin: 0.5rem;
+        }
+
+        .delete-modal .modal-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
+        }
+
+        .delete-modal h3 {
+            font-size: 1.1rem;
+        }
+
+        .delete-modal p {
+            font-size: 0.8rem;
+        }
+
+        .delete-modal .modal-actions button {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            min-width: 80px;
+        }
+    }
+
+    /* Small mobile devices */
+    @media (max-width: 480px) {
+        .page-header {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1rem;
+        }
+
+        .page-header .header-left p {
+            font-size: 0.7rem;
+        }
+
+        .page-header .header-actions .btn-primary {
+            font-size: 0.65rem;
+            padding: 0.3rem 0.6rem;
+        }
+
+        .filter-container {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .filter-container .search-box input {
+            font-size: 0.7rem;
+        }
+
+        .table-scroll {
+            margin: 0 -0.5rem;
+            padding: 0 0.5rem;
+        }
+
+        table {
+            font-size: 0.6rem;
+            min-width: 500px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.3rem 0.4rem;
+        }
+
+        .staff-profile {
+            min-width: 80px;
+            gap: 6px;
+        }
+
+        .staff-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+        }
+
+        .staff-info .staff-name {
+            font-size: 0.65rem;
+        }
+
+        .staff-info .staff-meta {
+            font-size: 0.5rem;
+        }
+
+        .role-badge {
+            font-size: 0.45rem;
+            padding: 1px 4px;
+        }
+
+        .id-badge {
+            font-size: 0.55rem;
+        }
+
+        .dept-tag {
+            font-size: 0.5rem;
+            padding: 1px 4px;
+        }
+
+        .action-btn {
+            width: 22px;
+            height: 22px;
+            font-size: 0.55rem;
+            border-radius: 4px;
+        }
+
+        .pagination-container .info {
+            font-size: 0.6rem;
+        }
+
+        .pagination-controls button {
+            padding: 0.15rem 0.4rem;
+            font-size: 0.6rem;
+        }
+
+        .pagination-controls .page-numbers button {
+            min-width: 24px;
+        }
+
+        .delete-modal {
+            padding: 1rem;
+        }
+
+        .delete-modal .modal-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+
+        .delete-modal h3 {
+            font-size: 1rem;
+        }
+
+        .delete-modal p {
+            font-size: 0.75rem;
+        }
+
+        .delete-modal .staff-details p {
+            font-size: 0.75rem;
+        }
+
+        .delete-modal .modal-actions {
+            flex-direction: column;
+        }
+
+        .delete-modal .modal-actions button {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .empty-state {
+            padding: 2rem 0.5rem;
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+        }
+
+        .empty-state h3 {
+            font-size: 0.9rem;
+        }
+
+        .empty-state p {
+            font-size: 0.8rem;
+        }
+    }
+
+    /* Extra small devices */
+    @media (max-width: 360px) {
+        table {
+            min-width: 400px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.2rem 0.3rem;
+        }
+
+        .staff-profile {
+            min-width: 60px;
+            gap: 4px;
+        }
+
+        .staff-avatar {
+            width: 20px;
+            height: 20px;
+        }
+
+        .staff-info .staff-name {
+            font-size: 0.55rem;
+        }
+
+        .action-btn {
+            width: 20px;
+            height: 20px;
+            font-size: 0.45rem;
+        }
+
+        .pagination-controls .page-numbers button {
+            min-width: 20px;
+            font-size: 0.5rem;
+        }
+    }
+
+    /* Print Styles */
+    @media print {
+        .filter-container,
+        .filter-tags,
+        .pagination-container,
+        .action-buttons,
+        .page-header .header-actions {
+            display: none !important;
+        }
+
+        .page-header {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border: 1px solid #e2e8f0;
+        }
+
+        .page-header .header-left h1 {
+            color: #0f172a !important;
+        }
+
+        .page-header .header-left p {
+            color: #64748b !important;
+        }
+
+        .page-header .header-left .breadcrumb a,
+        .page-header .header-left .breadcrumb .current {
+            color: #0f172a !important;
+        }
+
+        .table-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        thead {
+            background: #f1f5f9 !important;
+        }
+
+        thead th {
+            color: #0f172a !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+
+        tbody td {
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+
+        tbody tr:hover {
+            background: none !important;
+        }
+
+        .staff-avatar {
+            border-color: #cbd5e1 !important;
+        }
+    }
+</style>
+
+<div class="page-container">
+    <!-- ============================================
+    PAGE HEADER
+    ============================================ -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="breadcrumb">
+                <a href="{% url 'dashboard_home' %}">Dashboard</a>
+                <span class="separator">/</span>
+                <span class="current">Staff Directory</span>
+            </div>
+            <h1>Staff Directory</h1>
+            <p>Authenticated personnel currently in the AFRAS ecosystem</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'register-staff' %}" class="btn-primary">
+                <i class="fas fa-plus"></i> Enroll Staff
+            </a>
+        </div>
+    </div>
+
+    <!-- ============================================
+    FILTER CONTAINER
+    ============================================ -->
+    <div class="filter-container">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="staffSearch" placeholder="Search by name, ID, department, or designation...">
+        </div>
+        <div class="filter-group">
+            <select id="roleFilter">
+                <option value="all">All Roles</option>
+                <option value="admin">Administrators</option>
+                <option value="staff">Staff Only</option>
+            </select>
+            <button class="clear-btn" id="clearFilters">
+                <i class="fas fa-times"></i> Clear
+            </button>
+        </div>
+        <div class="results-count">
+            Showing <strong id="visibleCount">{{ page_obj|length }}</strong> of <strong>{{ total_staff }}</strong> staff members
+        </div>
+    </div>
+
+    <!-- ============================================
+    FILTER TAGS
+    ============================================ -->
+    <div class="filter-tags" id="filterTags"></div>
+
+    <!-- ============================================
+    TABLE CARD
+    ============================================ -->
+    <div class="table-card">
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Personnel</th>
+                        <th>Staff ID</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Contact</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="staffTableBody">
+                    {% for staff in page_obj %}
+                    <tr data-staff-id="{{ staff.id }}" data-staff-name="{{ staff.full_name|lower }}"
+                        data-staff-username="{{ staff.user.username|lower }}"
+                        data-staff-department="{{ staff.department|lower|default:'' }}"
+                        data-staff-designation="{{ staff.designation|lower|default:'' }}"
+                        data-staff-role="{% if staff.user.is_superuser %}admin{% else %}staff{% endif %}">
+                        <td>
+                            <div class="staff-profile">
+                                {% if staff.photo %}
+                                <img src="{{ staff.photo.url }}" class="staff-avatar" alt="{{ staff.full_name }}"
+                                    onclick="openStaffPhotoModal('{{ staff.photo.url }}', '{{ staff.full_name }}', '{{ staff.designation }}')"
+                                    title="Click to view full size" loading="lazy">
+                                {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ staff.full_name|urlencode }}&background=6366f1&color=fff&length=2&rounded=false&size=128&bold=true"
+                                    class="staff-avatar" alt="{{ staff.full_name }}"
+                                    onclick="openStaffPhotoModal('https://ui-avatars.com/api/?name={{ staff.full_name|urlencode }}&background=6366f1&color=fff&length=2&rounded=false&size=512&bold=true', '{{ staff.full_name }}', '{{ staff.designation }}')"
+                                    title="Click to view full size" loading="lazy">
+                                {% endif %}
+                                <div class="staff-info">
+                                    <div class="staff-name">
+                                        {{ staff.full_name }}
+                                        {% if staff.user.is_superuser %}
+                                        <span class="role-badge admin">
+                                            <i class="fas fa-crown"></i> Admin
+                                        </span>
+                                        {% else %}
+                                        <span class="role-badge staff">
+                                            <i class="fas fa-user-tie"></i> Staff
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="staff-meta">
+                                        Joined: {{ staff.user.date_joined|date:"d M Y" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="id-badge">{{ staff.user.username }}</span></td>
+                        <td><span class="dept-tag">{{ staff.department|default:"Not Assigned" }}</span></td>
+                        <td>
+                            <div style="font-weight: 500; font-size: 0.8rem;">{{ staff.designation|default:"Staff" }}</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8;">{{ staff.degree|default:"" }}</div>
+                        </td>
+                        <td>
+                            <div style="font-size: 0.75rem; line-height: 1.6;">
+                                <div><i class="fas fa-phone" style="color: #6366f1; width: 16px;"></i> {{ staff.phone_number|default:"-" }}</div>
+                                <div><i class="fas fa-envelope" style="color: #6366f1; width: 16px;"></i> {{ staff.user.email|truncatechars:20 }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'staff-profile' staff.id %}" class="action-btn view" title="View Profile">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if request.user.is_superuser %}
+                                <a href="{% url 'edit-staff' staff.id %}" class="action-btn edit" title="Edit Staff">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="action-btn delete" title="Delete Staff"
+                                    onclick="showDeleteConfirmation('{{ staff.id }}', '{{ staff.full_name }}', '{{ staff.user.email }}', '{{ staff.department|default:"Not Assigned" }}')">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <i class="fas fa-folder-open"></i>
+                                <h3>No staff records found</h3>
+                                <p>Start by enrolling your first staff member</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <div class="info">
+                Showing <strong>{{ page_obj.start_index }}</strong> to <strong>{{ page_obj.end_index }}</strong> of <strong>{{ total_staff }}</strong> entries
+            </div>
+            <div class="pagination-controls">
+                {% if page_obj.has_previous %}
+                <button onclick="goToPage({{ page_obj.previous_page_number }})">
+                    <i class="fas fa-chevron-left"></i> Prev
+                </button>
+                {% else %}
+                <button disabled>
+                    <i class="fas fa-chevron-left"></i> Prev
+                </button>
+                {% endif %}
+
+                <div class="page-numbers">
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                        <button class="active">{{ num }}</button>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <button onclick="goToPage({{ num }})">{{ num }}</button>
+                        {% elif num == page_obj.number|add:'3' and num < page_obj.paginator.num_pages %}
+                        <span class="dots">…</span>
+                        {% elif num == page_obj.number|add:'-3' and num > 1 %}
+                        <span class="dots">…</span>
+                        {% elif num == page_obj.paginator.num_pages and num > page_obj.number|add:'2' %}
+                        <button onclick="goToPage({{ num }})">{{ num }}</button>
+                        {% elif num == 1 and num < page_obj.number|add:'-2' %}
+                        <button onclick="goToPage(1)">1</button>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if page_obj.has_next %}
+                <button onclick="goToPage({{ page_obj.next_page_number }})">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+                {% else %}
+                <button disabled>
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+DELETE CONFIRMATION MODAL
+============================================ -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="delete-modal">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Delete Staff Member?</h3>
+        <p>
+            Are you sure you want to delete <strong id="deleteStaffName">this staff member</strong>?
+            <br>
+            <span style="color: #dc2626; font-size: 0.8rem;">
+                This action cannot be undone. All associated data will be permanently removed.
+            </span>
+        </p>
+        <div class="staff-details" id="staffDetails"></div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <button class="btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">
+                <i class="fas fa-trash"></i> Delete Permanently
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================
+    // PERMISSIONS
+    // ============================================
+    const isSuperuser = {{ request.user.is_superuser| lower }};
+
+    // ============================================
+    // GLOBALS
+    // ============================================
+    let deleteStaffId = null;
+    let deleteStaffName = '';
+
+    // ============================================
+    // MESSAGE SYSTEM
+    // ============================================
+    function showMessage(message, type = 'success') {
+        let container = document.getElementById('django-messages');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'django-messages';
+            container.className = 'msg-container';
+            document.body.appendChild(container);
+        }
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg ${type}`;
+        msgDiv.setAttribute('data-auto-dismiss', 'true');
+
+        let iconClass = 'fa-info-circle';
+        if (type === 'success') iconClass = 'fa-check-circle';
+        else if (type === 'error' || type === 'warning') iconClass = 'fa-exclamation-circle';
+
+        msgDiv.innerHTML = `
+            <i class="fas ${iconClass}"></i>
+            <span>${message}</span>
+        `;
+
+        container.appendChild(msgDiv);
+
+        setTimeout(() => {
+            if (msgDiv.parentNode) {
+                msgDiv.style.animation = 'slideUp 0.4s ease-in forwards';
+                setTimeout(() => {
+                    if (msgDiv.parentNode) {
+                        msgDiv.remove();
+                    }
+                }, 400);
+            }
+        }, 5000);
+    }
+
+    // ============================================
+    // DELETE MODAL
+    // ============================================
+    function showDeleteConfirmation(staffId, staffName, staffEmail, staffDept) {
+        deleteStaffId = staffId;
+        deleteStaffName = staffName;
+
+        document.getElementById('deleteStaffName').textContent = staffName;
+        document.getElementById('staffDetails').innerHTML = `
+            <p><strong>Name:</strong> ${staffName}</p>
+            <p><strong>Email:</strong> ${staffEmail}</p>
+            <p><strong>Department:</strong> ${staffDept}</p>
+        `;
+
+        document.getElementById('deleteModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+        document.body.style.overflow = '';
+        deleteStaffId = null;
+    }
+
+    function confirmDelete() {
+        if (!deleteStaffId) return;
+
+        const btn = document.getElementById('confirmDeleteBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+
+        fetch(`/dashboard/staff/${deleteStaffId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(data.message || 'Staff member deleted successfully', 'success');
+                    
+                    // Remove row from table
+                    const row = document.querySelector(`tr[data-staff-id="${deleteStaffId}"]`);
+                    if (row) {
+                        row.style.transition = 'all 0.3s ease';
+                        row.style.opacity = '0';
+                        setTimeout(() => {
+                            row.remove();
+                            updateCounts();
+                        }, 300);
+                    }
+                    
+                    closeDeleteModal();
+                } else {
+                    showMessage(data.message || 'Failed to delete staff member', 'error');
+                }
+            })
+            .catch(() => {
+                showMessage('An error occurred while deleting the staff member', 'error');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-trash"></i> Delete Permanently';
+            });
+    }
+
+    function updateCounts() {
+        const visibleRows = document.querySelectorAll('#staffTableBody tr:not([style*="display: none"])').length;
+        const visibleCount = document.getElementById('visibleCount');
+        if (visibleCount) {
+            visibleCount.textContent = visibleRows;
+        }
+        
+        // Update total count
+        const totalSpan = document.querySelector('.results-count strong:last-child');
+        if (totalSpan) {
+            const currentTotal = parseInt(totalSpan.textContent) || 0;
+            totalSpan.textContent = currentTotal - 1;
+        }
+    }
+
+    // ============================================
+    // PAGINATION
+    // ============================================
+    function goToPage(page) {
+        const totalPages = {{ page_obj.paginator.num_pages }};
+        if (page < 1 || page > totalPages) return;
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', page);
+        window.location.href = url.toString();
+    }
+
+    // ============================================
+    // SEARCH & FILTER
+    // ============================================
+    const searchInput = document.getElementById('staffSearch');
+    const roleFilter = document.getElementById('roleFilter');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+    const filterTags = document.getElementById('filterTags');
+    const visibleCount = document.getElementById('visibleCount');
+
+    const allRows = document.querySelectorAll('#staffTableBody tr');
+
+    const filterState = {
+        search: '',
+        role: 'all'
+    };
+
+    function applyFilters() {
+        let visibleRows = 0;
+
+        allRows.forEach(row => {
+            const rowRole = row.getAttribute('data-staff-role');
+            const rowName = row.getAttribute('data-staff-name');
+            const rowUsername = row.getAttribute('data-staff-username');
+            const rowDept = row.getAttribute('data-staff-department');
+            const rowDesignation = row.getAttribute('data-staff-designation');
+            const rowText = row.textContent.toLowerCase();
+
+            let matchesSearch = true;
+            if (filterState.search) {
+                const searchLower = filterState.search.toLowerCase();
+                matchesSearch =
+                    (rowName && rowName.includes(searchLower)) ||
+                    (rowUsername && rowUsername.includes(searchLower)) ||
+                    (rowDept && rowDept.includes(searchLower)) ||
+                    (rowDesignation && rowDesignation.includes(searchLower)) ||
+                    rowText.includes(searchLower);
+            }
+
+            let matchesRole = filterState.role === 'all' || rowRole === filterState.role;
+
+            if (matchesSearch && matchesRole) {
+                row.style.display = '';
+                visibleRows++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        visibleCount.textContent = visibleRows;
+        updateFilterTags();
+    }
+
+    function updateFilterTags() {
+        filterTags.innerHTML = '';
+
+        if (filterState.search) {
+            filterTags.appendChild(createFilterTag('search', `Search: "${filterState.search}"`));
+        }
+
+        if (filterState.role !== 'all') {
+            const roleText = filterState.role === 'admin' ? 'Administrators' : 'Staff Only';
+            filterTags.appendChild(createFilterTag('role', `Role: ${roleText}`));
+        }
+
+        filterTags.style.display = filterTags.children.length > 0 ? 'flex' : 'none';
+    }
+
+    function createFilterTag(type, text) {
+        const tag = document.createElement('div');
+        tag.className = 'filter-tag';
+        tag.innerHTML = `${text} <i class="fas fa-times" onclick="removeFilter('${type}')"></i>`;
+        return tag;
+    }
+
+    function removeFilter(type) {
+        if (type === 'search') {
+            searchInput.value = '';
+            filterState.search = '';
+        } else if (type === 'role') {
+            roleFilter.value = 'all';
+            filterState.role = 'all';
+        }
+        applyFilters();
+    }
+
+    // ============================================
+    // EVENT LISTENERS
+    // ============================================
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            filterState.search = this.value.trim().toLowerCase();
+            applyFilters();
+        }, 300);
+    });
+
+    roleFilter.addEventListener('change', function() {
+        filterState.role = this.value;
+        applyFilters();
+    });
+
+    clearFiltersBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        roleFilter.value = 'all';
+        filterState.search = '';
+        filterState.role = 'all';
+        applyFilters();
+    });
+
+    // ============================================
+    // PHOTO MODAL
+    // ============================================
+    function openStaffPhotoModal(photoUrl, staffName, staffDesignation) {
+        if (window.photoModal && typeof window.photoModal.open === 'function') {
+            window.photoModal.open(photoUrl, staffName, staffDesignation);
+        } else {
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <html>
+                <head><title>${staffName}</title>
+                <style>
+                    body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #000; }
+                    img { max-width: 95vw; max-height: 95vh; object-fit: contain; }
+                </style>
+                </head>
+                <body><img src="${photoUrl}" alt="${staffName}"></body>
+                </html>
+            `);
+            win.document.close();
+        }
+    }
+
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
+            if (window.photoModal && typeof window.photoModal.close === 'function') {
+                window.photoModal.close();
+            }
+        }
+    });
+
+    // ============================================
+    // CLOSE MODAL ON CLICK OUTSIDE
+    // ============================================
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        applyFilters();
+    });
+
+    // Handle resize events for better responsiveness
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            // Any resize-specific logic if needed
+        }, 250);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,3813 @@
+<!-- templates/attendance/unified_sessions.html -->
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Session Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       UNIFIED SESSION MANAGEMENT
+    ============================================ */
+
+    .page-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* ============================================
+       PAGE HEADER
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        display: flex;
+        padding: 1rem 1.5rem;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        color: var(--primary-text);
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+
+    .page-header .header-left {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .page-header .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+        word-break: break-word;
+    }
+
+    .page-header .header-left p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0;
+    }
+
+    .page-header .header-left .breadcrumb {
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .page-header .header-left .breadcrumb a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .page-header .header-left .breadcrumb a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .page-header .header-left .breadcrumb .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .page-header .header-left .breadcrumb .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .page-header .header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+
+    .status-badge {
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 4px 16px;
+        border-radius: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        white-space: nowrap;
+    }
+
+    .status-badge.active {
+        background: rgba(16, 185, 129, 0.2);
+        border-color: rgba(16, 185, 129, 0.3);
+        color: #34d399;
+        display: flex;
+        align-items: center;
+    }
+
+    .status-badge.idle {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+    }
+
+    .btn-primary {
+        padding: 0.5rem 1.2rem;
+        background: #16a34a;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-export {
+        padding: 0.5rem 1.2rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-export:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    /* ============================================
+       AUTO-SCHEDULE INFO BANNER
+    ============================================ */
+    .auto-schedule-banner {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .auto-schedule-banner .banner-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .auto-schedule-banner .banner-left i {
+        font-size: 1.5rem;
+        color: #16a34a;
+    }
+
+    .auto-schedule-banner .banner-left .title {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 0.9rem;
+    }
+
+    .auto-schedule-banner .banner-left .desc {
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+
+    .auto-schedule-banner .banner-right {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .auto-schedule-banner .banner-right .badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 100px;
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .badge-warning {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .badge-info {
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
+
+    .btn-purple {
+        background: #7c3aed;
+        color: #fff;
+        border: none;
+        padding: 0.35rem 1rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-purple:hover {
+        background: #6d28d9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+
+    /* ============================================
+       AUTO-SESSION STATUS DASHBOARD
+    ============================================ */
+    .status-dashboard {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .status-dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .status-dashboard-header h4 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .status-dashboard-header h4 i {
+        color: #6366f1;
+    }
+
+    .status-badge-dashboard {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 4px 14px;
+        border-radius: 100px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .status-badge-dashboard.running {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .status-badge-dashboard.running i {
+        color: #16a34a;
+        animation: pulse-dot 1.5s infinite;
+    }
+
+    .status-badge-dashboard.stopped {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .status-badge-dashboard.stopped i {
+        color: #dc2626;
+    }
+
+    .status-badge-dashboard.idle {
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    .status-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+
+    .status-card {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid #f1f5f9;
+        transition: all 0.2s;
+    }
+
+    .status-card:hover {
+        border-color: #e2e8f0;
+        background: #fafbfc;
+    }
+
+    .status-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .status-icon.green {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .status-icon.blue {
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
+
+    .status-icon.orange {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .status-icon.red {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .status-icon.gray {
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    .status-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .status-label {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #94a3b8;
+    }
+
+    .status-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.3;
+    }
+
+    .status-sub {
+        font-size: 0.6rem;
+        color: #94a3b8;
+        margin-top: 1px;
+    }
+
+    /* Activity Log */
+    .activity-log {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .activity-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+    }
+
+    .activity-header span:first-child {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .activity-header span:last-child {
+        font-size: 0.65rem;
+        color: #94a3b8;
+    }
+
+    .activity-list {
+        max-height: 120px;
+        overflow-y: auto;
+        font-size: 0.75rem;
+    }
+
+    .activity-list::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .activity-list::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.3rem 0.5rem;
+        border-radius: 6px;
+        margin-bottom: 2px;
+        font-size: 0.75rem;
+        animation: slideInActivity 0.3s ease;
+    }
+
+    .activity-item:hover {
+        background: #f8fafc;
+    }
+
+    .activity-item .time {
+        color: #94a3b8;
+        font-size: 0.6rem;
+        font-family: 'JetBrains Mono', monospace;
+        white-space: nowrap;
+        min-width: 60px;
+    }
+
+    .activity-item .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .activity-item .dot.start {
+        background: #16a34a;
+    }
+
+    .activity-item .dot.end {
+        background: #dc2626;
+    }
+
+    .activity-item .dot.info {
+        background: #6366f1;
+    }
+
+    .activity-item .dot.warning {
+        background: #d97706;
+    }
+
+    .activity-item .message {
+        color: #1e293b;
+        flex: 1;
+    }
+
+    .activity-item .subject {
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .activity-empty {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #94a3b8;
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    .activity-empty i {
+        font-size: 1rem;
+    }
+
+    @keyframes slideInActivity {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ============================================
+       STATS ROW
+    ============================================ */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+
+    .stat-item {
+        background: #fff;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.2s;
+        min-width: 0;
+    }
+
+    .stat-item:hover {
+        border-color: #e2e8f0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .stat-item .icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .stat-item .icon.blue {
+        background: #eef2ff;
+        color: #4f46e5;
+    }
+
+    .stat-item .icon.green {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .stat-item .icon.orange {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .stat-item .icon.purple {
+        background: #f3e8ff;
+        color: #7c3aed;
+    }
+
+    .stat-item .icon.gray {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .stat-item .info {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .stat-item .info .label {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #94a3b8;
+    }
+
+    .stat-item .info .value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+
+    /* ============================================
+       MAIN GRID - Two Columns
+    ============================================ */
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .viz-container {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        padding: 1.5rem;
+        transition: all 0.2s;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .viz-container:hover {
+        border-color: #e2e8f0;
+    }
+
+    .viz-container h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 0.25rem 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .viz-container h4 i {
+        color: #6366f1;
+    }
+
+    .viz-container .help-text {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        margin-bottom: 1rem;
+    }
+
+    /* ============================================
+       START SESSION FORM
+    ============================================ */
+    .form-group {
+        margin-bottom: 0.75rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.7rem;
+        color: #1e293b;
+        margin-bottom: 0.3rem;
+    }
+
+    .form-group label .required {
+        color: #ef4444;
+        margin-left: 2px;
+    }
+
+    .form-group label .optional {
+        font-weight: 400;
+        font-size: 0.6rem;
+        color: #94a3b8;
+        margin-left: 6px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.5rem 0.8rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        transition: all 0.2s ease;
+        background: #fafbfc;
+        color: #0f172a;
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        border-color: #6366f1;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
+    }
+
+    .form-control::placeholder {
+        color: #94a3b8;
+        font-size: 0.75rem;
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc2626;
+        background: #fef2f2;
+    }
+
+    .form-control.is-valid {
+        border-color: #16a34a;
+        background: #f0fdf4;
+    }
+
+    .form-hint {
+        font-size: 0.6rem;
+        color: #94a3b8;
+        margin-top: 0.2rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .form-hint i {
+        font-size: 0.5rem;
+        opacity: 0.6;
+    }
+
+    .form-hint.error {
+        color: #dc2626;
+    }
+
+    .form-hint.success {
+        color: #16a34a;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0;
+    }
+
+    .col-md-4 {
+        flex: 1 1 calc(33.333% - 0.5rem);
+        min-width: 80px;
+    }
+
+    .btn-submit {
+        width: 30%;
+        padding: 0.6rem;
+        background: var(--primary);
+        border: none;
+        border-radius: 8px;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 0.25rem;
+        font-family: 'Inter', sans-serif;
+        margin-left: 8rem;
+    }
+
+    .btn-submit:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-submit .spinner {
+        display: none;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    .btn-submit.loading .btn-text {
+        visibility: hidden;
+    }
+
+    .btn-submit.loading .spinner {
+        display: inline-block;
+        position: absolute;
+    }
+
+    .btn-submit.loading {
+        position: relative;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .session-preview {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 0.5rem 0.8rem;
+        margin-top: 0.25rem;
+        font-size: 0.65rem;
+        color: #64748b;
+        border: 1px solid #f1f5f9;
+    }
+
+    .session-preview i {
+        color: #6366f1;
+        margin-right: 4px;
+    }
+
+    /* ============================================
+       UPLOAD ZONE (Auto-Schedule)
+    ============================================ */
+    .upload-zone {
+        border: 2px dashed #e2e8f0;
+        padding: 1.5rem 1rem;
+        border-radius: 12px;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: #fafbfc;
+        cursor: pointer;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .upload-zone:hover {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.02);
+    }
+
+    .upload-zone.dragover {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.05);
+    }
+
+    .upload-zone i {
+        font-size: 1.8rem;
+        color: #94a3b8;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-zone p {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin: 0;
+    }
+
+    .upload-zone .file-name {
+        font-size: 0.65rem;
+        font-family: 'JetBrains Mono', monospace;
+        color: #6366f1;
+        margin-top: 0.5rem;
+        word-break: break-all;
+    }
+
+    .btn {
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: #64748b;
+        border: 1.5px solid #e2e8f0;
+    }
+
+    .btn-outline:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    .btn-block {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-success {
+        background: #16a34a;
+        color: #fff;
+    }
+
+    .btn-success:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-danger-outline {
+        background: transparent;
+        color: #dc2626;
+        border: 1.5px solid #e2e8f0;
+    }
+
+    .btn-danger-outline:hover {
+        background: #fee2e2;
+        border-color: #dc2626;
+    }
+
+    /* ============================================
+       TOOLBAR
+    ============================================ */
+    .toolbar {
+        background: transparent;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        width: 100%;
+    }
+
+    .toolbar .search-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8fafc;
+        padding: 0.25rem 0.7rem;
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        transition: all 0.2s;
+        min-width: 150px;
+        max-width: 350px;
+        flex: 1;
+    }
+
+    .toolbar .search-box:focus-within {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06);
+        background: #fff;
+    }
+
+    .toolbar .search-box i {
+        color: #94a3b8;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    .toolbar .search-box input {
+        border: none;
+        background: transparent;
+        padding: 0.15rem 0;
+        font-size: 0.8rem;
+        color: #1e293b;
+        width: 100%;
+        outline: none;
+    }
+
+    .toolbar .search-box input::placeholder {
+        color: #94a3b8;
+        font-size: 0.75rem;
+    }
+
+    .toolbar .filter-group {
+        display: flex;
+        gap: 0.4rem;
+        align-items: center;
+        flex-wrap: wrap;
+        flex: 1 1 auto;
+    }
+
+    .toolbar .filter-group select {
+        padding: 0.3rem 0.6rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        background: #fafbfc;
+        color: #1e293b;
+        outline: none;
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        padding-right: 28px;
+        min-width: 90px;
+        flex: 1 1 auto;
+    }
+
+    .toolbar .filter-group select:focus {
+        border-color: #6366f1;
+    }
+
+    .toolbar .filter-group .clear-btn {
+        padding: 0.25rem 0.8rem;
+        border: none;
+        background: #f1f5f9;
+        border-radius: 8px;
+        font-size: 0.65rem;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .toolbar .filter-group .clear-btn:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+    /* ============================================
+       SESSION TABLE
+    ============================================ */
+    .table-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .table-card .table-header {
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #f8fafc;
+    }
+
+    .table-card .table-header h3 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .table-card .table-header h3 i {
+        color: #6366f1;
+    }
+
+    .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0;
+        width: 100%;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+        min-width: 800px;
+    }
+
+    thead {
+        background: #f8fafc;
+    }
+
+    thead th {
+        padding: 0.6rem 0.8rem;
+        text-align: left;
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #94a3b8;
+        border-bottom: 2px solid #f1f5f9;
+        white-space: nowrap;
+    }
+
+    thead th:last-child {
+        text-align: right;
+    }
+
+    tbody td {
+        padding: 0.4rem 0.8rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+        vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .session-id {
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 0.7rem;
+        white-space: nowrap;
+    }
+
+    .session-subject {
+        font-weight: 600;
+        color: #0f172a;
+        max-width: 250px;
+        overflow: hidden;
+        white-space: nowrap;
+        display: block;
+    }
+
+    .session-subject .auto-badge {
+        display: inline-block;
+        padding: 1px 8px;
+        border-radius: 4px;
+        font-size: 0.5rem;
+        font-weight: 600;
+        background: #f3e8ff;
+        color: #7c3aed;
+        margin-left: 4px;
+    }
+
+    .session-detail-cell {
+        font-size: 0.65rem;
+        color: #64748b;
+        white-space: nowrap;
+    }
+
+    .session-detail-cell .dept-badge {
+        display: inline-block;
+        padding: 1px 10px;
+        border-radius: 12px;
+        font-size: 0.55rem;
+        font-weight: 600;
+        color: #4f46e5;
+        white-space: nowrap;
+    }
+
+    .session-detail-cell .year-badge {
+        display: inline-block;
+        padding: 1px 8px;
+        border-radius: 12px;
+        font-size: 0.55rem;
+        font-weight: 600;
+        color: #2563eb;
+        white-space: nowrap;
+    }
+
+    .session-detail-cell .sem-badge {
+        display: inline-block;
+        padding: 1px 8px;
+        border-radius: 12px;
+        font-size: 0.55rem;
+        font-weight: 600;
+        color: #d97706;
+        white-space: nowrap;
+    }
+
+    .session-detail-cell .section-badge {
+        display: inline-block;
+        padding: 1px 8px;
+        border-radius: 12px;
+        font-size: 0.55rem;
+        font-weight: 600;
+        color: #db2777;
+        white-space: nowrap;
+    }
+
+    .session-date {
+        color: #64748b;
+        font-size: 0.7rem;
+        white-space: nowrap;
+    }
+
+    .session-time {
+        color: #64748b;
+        font-size: 0.7rem;
+        white-space: nowrap;
+    }
+
+    .session-duration {
+        color: #64748b;
+        font-size: 0.7rem;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .status-badge-table {
+        font-size: 0.55rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        padding: 2px 10px;
+        border-radius: 100px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+    }
+
+    .status-badge-table.active {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .status-badge-table.active .dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #16a34a;
+        display: inline-block;
+        animation: pulse-dot 1.5s infinite;
+    }
+
+    .status-badge-table.ended {
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    .status-badge-table.scheduled {
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
+
+    .status-badge-table.auto-started {
+        color: #2563eb;
+    }
+
+    .status-badge-table.auto-ended {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .status-badge-table.live {
+        color: #16a34a;
+        animation: pulse-badge 2s infinite;
+    }
+
+    @keyframes pulse-badge {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.6;
+        }
+    }
+
+    .action-link {
+        color: #6366f1;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.7rem;
+        transition: color 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+    }
+
+    .action-link:hover {
+        color: #4f46e5;
+    }
+
+    .action-link.monitor-link {
+        color: #16a34a;
+        font-weight: 600;
+    }
+
+    .action-link.monitor-link:hover {
+        color: #15803d;
+    }
+
+    .action-link.delete-link {
+        color: #dc2626;
+    }
+
+    .action-link.delete-link:hover {
+        color: #b91c1c;
+    }
+
+    .action-divider {
+        color: #e2e8f0;
+        margin: 0 4px;
+    }
+
+    .text-muted {
+        color: #94a3b8;
+        font-size: 0.7rem;
+    }
+
+    .live-indicator {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #16a34a;
+        animation: pulse-dot 1.5s infinite;
+        margin-right: 4px;
+    }
+
+    /* ============================================
+       AUTO-STATUS COLUMN STYLES
+    ============================================ */
+    .auto-status-cell {
+        font-size: 0.65rem;
+        min-width: 110px;
+        white-space: nowrap;
+    }
+
+    .auto-status-cell .status-start {
+        display: block;
+        font-size: 0.6rem;
+    }
+
+    .auto-status-cell .status-start.started {
+        color: #16a34a;
+    }
+
+    .auto-status-cell .status-start.waiting {
+        color: #6366f1;
+    }
+
+    .auto-status-cell .status-start.missed {
+        color: #dc2626;
+    }
+
+    .auto-status-cell .status-end {
+        display: block;
+        font-size: 0.55rem;
+        color: #94a3b8;
+        margin-top: 1px;
+    }
+
+    .auto-status-cell .status-end.running {
+        color: #d97706;
+    }
+
+    .auto-status-cell .status-end.ended {
+        color: #94a3b8;
+    }
+
+    .auto-status-cell .status-end.scheduled {
+        color: #6366f1;
+    }
+
+    .auto-status-cell .countdown-badge {
+        display: inline-block;
+        padding: 1px 8px;
+        border-radius: 4px;
+        font-size: 0.5rem;
+        font-weight: 600;
+        background: #fef3c7;
+        color: #d97706;
+        margin-top: 1px;
+    }
+
+    .auto-status-cell .countdown-badge.urgent {
+        background: #fee2e2;
+        color: #dc2626;
+        animation: pulse-badge 1s infinite;
+    }
+
+    /* ============================================
+       EXTRACTED ROUTINES
+    ============================================ */
+    .extracted-section {
+        margin-top: 1.5rem;
+    }
+
+    .extracted-section .actions-row {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        padding: 0.75rem 1.25rem;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+    }
+
+    .session-created {
+        background: #dcfce7;
+        color: #16a34a;
+        padding: 3px 12px;
+        border-radius: 100px;
+        font-size: 0.6rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+    }
+
+    .session-exists {
+        background: #fef3c7;
+        color: #d97706;
+        padding: 3px 12px;
+        border-radius: 100px;
+        font-size: 0.6rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+    }
+
+    .table-badge-count {
+        font-size: 0.6rem;
+        background: #16a34a;
+        color: #fff;
+        padding: 1px 10px;
+        border-radius: 100px;
+        margin-left: 8px;
+    }
+
+    /* ============================================
+       PAGINATION
+    ============================================ */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .pagination-container .info {
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+
+    .pagination-container .info strong {
+        color: #0f172a;
+    }
+
+    .pagination-controls {
+        display: flex;
+        gap: 0.25rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .pagination-controls button {
+        padding: 0.2rem 0.6rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #fff;
+        color: #1e293b;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        min-height: 28px;
+        white-space: nowrap;
+    }
+
+    .pagination-controls button:hover:not(:disabled):not(.active) {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+
+    .pagination-controls button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .pagination-controls button.active {
+        background: #0f172a;
+        color: #fff;
+        border-color: #0f172a;
+    }
+
+    .pagination-controls .page-numbers {
+        display: flex;
+        gap: 0.15rem;
+        flex-wrap: wrap;
+    }
+
+    .pagination-controls .page-numbers button {
+        min-width: 28px;
+        justify-content: center;
+    }
+
+    .pagination-controls .dots {
+        padding: 0 0.2rem;
+        color: #94a3b8;
+        font-size: 0.7rem;
+    }
+
+    /* ============================================
+       EMPTY STATE
+    ============================================ */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 0;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+    /* ============================================
+       DELETE MODAL
+    ============================================ */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    .delete-modal {
+        background: #fff;
+        border-radius: 16px;
+        max-width: 480px;
+        width: 100%;
+        padding: 1.5rem;
+        animation: modalSlideIn 0.3s ease-out;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-30px) scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .delete-modal .modal-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #fee2e2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+        font-size: 1.75rem;
+        color: #dc2626;
+    }
+
+    .delete-modal h3 {
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 0.3rem 0;
+    }
+
+    .delete-modal p {
+        text-align: center;
+        color: #64748b;
+        font-size: 0.85rem;
+        margin: 0 0 1.25rem 0;
+        line-height: 1.6;
+    }
+
+    .delete-modal .modal-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .delete-modal .modal-actions button {
+        padding: 0.5rem 1.5rem;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        flex: 1;
+        min-width: 100px;
+        justify-content: center;
+    }
+
+    .delete-modal .modal-actions .btn-cancel {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .delete-modal .modal-actions .btn-cancel:hover {
+        background: #e2e8f0;
+    }
+
+    .delete-modal .modal-actions .btn-danger {
+        background: #dc2626;
+        color: #fff;
+    }
+
+    .delete-modal .modal-actions .btn-danger:hover {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
+    }
+
+    /* ============================================
+       SCHEDULER STATUS INDICATOR
+    ============================================ */
+    .scheduler-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 100px;
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+
+    .scheduler-status.running {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .scheduler-status.running .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #16a34a;
+        animation: pulse-dot 1.5s infinite;
+    }
+
+    .scheduler-status.stopped {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .scheduler-status.stopped .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #dc2626;
+    }
+
+    /* ============================================
+       RESPONSIVE BREAKPOINTS
+    ============================================ */
+    @media (max-width: 1200px) {
+        .status-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .page-header {
+            padding: 0.75rem 1rem;
+            border-radius: 16px 16px 0 0;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1.3rem;
+        }
+
+        .page-header .header-actions {
+            width: 100%;
+        }
+
+        .main-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .stats-row {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        .toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+
+        .toolbar .search-box {
+            max-width: 100%;
+        }
+
+        .toolbar .filter-group {
+            justify-content: stretch;
+        }
+
+        table {
+            font-size: 0.7rem;
+            min-width: 650px;
+        }
+
+        .pagination-container {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .row {
+            gap: 0.4rem;
+        }
+
+        .col-md-4 {
+            flex: 1 1 calc(50% - 0.4rem);
+            min-width: 70px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 0.6rem 0.8rem;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1.1rem;
+        }
+
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.4rem;
+        }
+
+        .stat-item {
+            padding: 0.5rem 0.6rem;
+        }
+
+        .viz-container {
+            padding: 1rem;
+        }
+
+        .upload-zone {
+            padding: 1.5rem 1rem;
+        }
+
+        .row {
+            gap: 0.3rem;
+        }
+
+        .col-md-4 {
+            flex: 1 1 calc(50% - 0.3rem);
+            min-width: 60px;
+        }
+
+        table {
+            font-size: 0.6rem;
+            min-width: 550px;
+        }
+
+        .extracted-section .actions-row {
+            flex-direction: column;
+        }
+
+        .extracted-section .actions-row .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .delete-modal {
+            padding: 1rem;
+        }
+
+        .auto-schedule-banner {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .auto-schedule-banner .banner-right {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .status-dashboard {
+            padding: 0.75rem 1rem;
+        }
+
+        .status-dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .status-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-header {
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 0.95rem;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.3rem;
+        }
+
+        .stat-item {
+            padding: 0.35rem 0.4rem;
+        }
+
+        .toolbar .filter-group {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .toolbar .filter-group select {
+            width: 100%;
+            font-size: 0.55rem;
+        }
+
+        .viz-container {
+            padding: 0.75rem;
+        }
+
+        .upload-zone {
+            padding: 1rem 0.75rem;
+        }
+
+        .col-md-4 {
+            flex: 1 1 100%;
+            min-width: 0;
+        }
+
+        table {
+            font-size: 0.55rem;
+            min-width: 450px;
+        }
+
+        .status-badge-table {
+            font-size: 0.45rem;
+            padding: 1px 6px;
+        }
+
+        .delete-modal {
+            padding: 0.75rem;
+        }
+
+        .delete-modal .modal-actions {
+            flex-direction: column;
+        }
+
+        .delete-modal .modal-actions button {
+            width: 100%;
+            justify-content: center;
+            font-size: 0.65rem;
+            padding: 0.35rem;
+        }
+
+        .status-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+
+        .page-header .header-actions,
+        .toolbar,
+        .pagination-container,
+        .action-link,
+        .action-divider,
+        .delete-link,
+        .upload-zone,
+        .btn,
+        .extracted-section .actions-row,
+        .auto-schedule-banner,
+        .status-dashboard {
+            display: none !important;
+        }
+
+        .page-header {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-item,
+        .viz-container,
+        .table-card {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+        }
+
+        table {
+            font-size: 0.7rem !important;
+        }
+
+        thead {
+            background: #f1f5f9 !important;
+        }
+
+        .status-badge-table {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- ============================================
+    PAGE HEADER
+    ============================================ -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="breadcrumb">
+                <a href="{% url 'dashboard_home' %}">Dashboard</a>
+                <span class="separator">/</span>
+                <span class="current">Session Management</span>
+            </div>
+            <h1>Session Management</h1>
+            <p>Manage all attendance sessions - manual, auto-scheduled, and routine extraction</p>
+        </div>
+        <div class="header-actions">
+            <span class="status-badge idle" id="system-status">
+                <i class="fas fa-circle" style="font-size: 0.5rem; margin-right: 4px;"></i>
+                SYSTEM_IDLE
+            </span>
+            <span class="scheduler-status running" id="schedulerStatus">
+                <span class="dot"></span>
+                Scheduler: <span id="schedulerStatusText">Running</span>
+            </span>
+            <button onclick="syncSessions()" class="btn btn-primary"
+                style="background: #7c3aed; padding: 0.4rem 1rem; border: none; border-radius: 10px; color: #fff; font-weight: 600; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fas fa-sync-alt"></i> Sync Schedule
+            </button>
+            <a href="#" class="btn-export" onclick="exportSessions()">
+                <i class="fas fa-file-export"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <!-- ============================================
+    AUTO-SCHEDULE INFO BANNER
+    ============================================ -->
+    <div class="auto-schedule-banner">
+        <div class="banner-left">
+            <i class="fas fa-clock"></i>
+            <div>
+                <div class="title">Automatic Session Scheduling</div>
+                <div class="desc">
+                    Sessions are automatically created from active routines and start/end at scheduled times.
+                    <span id="nextSessionInfo"></span>
+                </div>
+            </div>
+        </div>
+        <div class="banner-right">
+            <span class="badge badge-success" id="autoSessionsCount">
+                <i class="fas fa-robot"></i> {{ auto_sessions }} Auto
+            </span>
+            <button onclick="checkAutoStatus()" class="btn btn-sm" style="background:#e2e8f0; color:#1e293b;">
+                <i class="fas fa-refresh"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================
+    AUTO-SESSION STATUS DASHBOARD
+    ============================================ -->
+    <div class="status-dashboard">
+        <div class="status-dashboard-header">
+            <h4><i class="fas fa-robot"></i> Automatic Session Manager Status</h4>
+            <span class="status-badge-dashboard" id="liveStatusBadge">
+                <i class="fas fa-circle"></i> Checking...
+            </span>
+        </div>
+        <div class="status-grid">
+            <!-- Scheduler Status -->
+            <div class="status-card">
+                <div class="status-icon" id="schedulerIcon">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <div class="status-info">
+                    <div class="status-label">Scheduler</div>
+                    <div class="status-value" id="schedulerStatusDisplay">Loading...</div>
+                    <div class="status-sub">Last check: <span id="lastCheckTime">--</span></div>
+                </div>
+            </div>
+
+            <!-- Active Sessions -->
+            <div class="status-card">
+                <div class="status-icon" id="activeIcon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="status-info">
+                    <div class="status-label">Active Sessions</div>
+                    <div class="status-value" id="activeSessionsDisplay">0</div>
+                    <div class="status-sub">Currently running</div>
+                </div>
+            </div>
+
+            <!-- Auto-Started Today -->
+            <div class="status-card">
+                <div class="status-icon" id="startedIcon">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="status-info">
+                    <div class="status-label">Auto-Started Today</div>
+                    <div class="status-value" id="startedTodayDisplay">0</div>
+                    <div class="status-sub">Sessions auto-started</div>
+                </div>
+            </div>
+
+            <!-- Auto-Ended Today -->
+            <div class="status-card">
+                <div class="status-icon" id="endedIcon">
+                    <i class="fas fa-stop"></i>
+                </div>
+                <div class="status-info">
+                    <div class="status-label">Auto-Ended Today</div>
+                    <div class="status-value" id="endedTodayDisplay">0</div>
+                    <div class="status-sub">Sessions auto-ended</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Log -->
+        <div class="activity-log">
+            <div class="activity-header">
+                <span><i class="fas fa-history"></i> Recent Activity</span>
+                <span id="activityCount">0 events</span>
+            </div>
+            <div class="activity-list" id="activityList">
+                <div class="activity-empty">
+                    <i class="fas fa-inbox"></i>
+                    <span>No activity yet</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    STATS ROW
+    ============================================ -->
+    <div class="stats-row">
+        <div class="stat-item">
+            <div class="icon blue"><i class="fas fa-calendar-alt"></i></div>
+            <div class="info">
+                <div class="label">Total Sessions</div>
+                <div class="value" id="totalSessions">{{ total_sessions }}</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon green"><i class="fas fa-play-circle"></i></div>
+            <div class="info">
+                <div class="label">Active</div>
+                <div class="value" id="activeSessions">{{ active_sessions }}</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon orange"><i class="fas fa-clock"></i></div>
+            <div class="info">
+                <div class="label">Today</div>
+                <div class="value" id="todaySessions">{{ today_sessions }}</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon gray"><i class="fas fa-stop-circle"></i></div>
+            <div class="info">
+                <div class="label">Ended</div>
+                <div class="value" id="endedSessions">{{ ended_sessions }}</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div class="icon purple"><i class="fas fa-robot"></i></div>
+            <div class="info">
+                <div class="label">Auto-Scheduled</div>
+                <div class="value" id="autoSessions">{{ auto_sessions }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    MAIN GRID - Two Columns
+    ============================================ -->
+    <div class="main-grid">
+        <!-- Left: Start Session Form -->
+        <div class="viz-container">
+            <h4>
+                <i class="fas fa-play-circle" style="color: #16a34a;"></i>
+                Start New Session
+            </h4>
+            <p class="help-text">Initialize a class attendance session with custom details</p>
+
+            <form method="POST" action="{% url 'attendance:start_session' %}" id="startSessionForm" novalidate>
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="subject">
+                        Subject Name <span class="required">*</span>
+                        <span class="optional">(e.g., Computer Architecture)</span>
+                    </label>
+                    <input type="text" class="form-control" id="subject" name="subject" required
+                        placeholder="Enter subject name" value="{{ request.POST.subject }}" autofocus>
+                    <div class="form-hint" id="subjectHint">
+                        <i class="fas fa-book"></i>
+                        The subject name will appear on attendance reports
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="department">
+                        Department <span class="required">*</span>
+                        <span class="optional">(from registered students)</span>
+                    </label>
+                    <select class="form-control" id="department" name="department" required>
+                        <option value="">Select Department...</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept }}" {% if request.POST.department == dept %}selected{% endif %}>
+                            {{ dept }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="year">
+                                Year <span class="required">*</span>
+                            </label>
+                            <select class="form-control" id="year" name="year" required>
+                                <option value="">Select Year</option>
+                                {% for yr in years %}
+                                <option value="{{ yr }}" {% if request.POST.year == yr %}selected{% endif %}>
+                                    {{ yr }}{% if yr == 1 %}st{% elif yr == 2 %}nd{% elif yr == 3 %}rd{% else %}th{% endif %} Year
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="semester">
+                                Semester <span class="required">*</span>
+                            </label>
+                            <select class="form-control" id="semester" name="semester" required>
+                                <option value="">Select Semester</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="section">
+                                Section <span class="optional">(optional)</span>
+                            </label>
+                            <select class="form-control" id="section" name="section">
+                                <option value="">Select Section</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="session_datetime">
+                        Session Date &amp; Time <span class="required">*</span>
+                        <span class="optional">(when the class starts)</span>
+                    </label>
+                    <input type="datetime-local" class="form-control" id="session_datetime" name="session_datetime"
+                        required value="{{ now }}">
+                    <div class="form-hint" id="datetimeHint">
+                        <i class="fas fa-calendar-clock"></i>
+                        Select the date and time when the class starts
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="duration">
+                        Class Duration <span class="required">*</span>
+                        <span class="optional">(minutes)</span>
+                    </label>
+                    <input type="number" class="form-control" id="duration" name="duration" required placeholder="60"
+                        min="5" max="180" value="{{ request.POST.duration|default:'60' }}">
+                    <div class="form-hint">
+                        <i class="fas fa-clock"></i>
+                        Set between 5 and 180 minutes
+                    </div>
+                </div>
+
+                <div class="session-preview">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="session-preview">Session will be created for the selected class</span>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span class="btn-text"><i class="fas fa-play"></i> Start Session</span>
+                    <span class="spinner"></span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Right: AI Document Extraction (Auto-Schedule) -->
+        <div class="viz-container">
+            <h4>
+                <i class="fas fa-file-invoice" style="color: #6366f1;"></i>
+                Auto-Schedule from Routine
+            </h4>
+            <p class="help-text">Upload a PDF/Excel routine to automatically schedule sessions</p>
+
+            <form id="extraction-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="upload-zone" id="upload-zone">
+                    <input type="file" name="routine_file" id="routine-file" hidden onchange="updateFileLabel(this)"
+                        accept=".pdf,.xlsx,.xls,.csv">
+                    <div id="file-label-container">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & Drop or</p>
+                        <button type="button" onclick="document.getElementById('routine-file').click()"
+                            class="btn btn-outline btn-sm" style="margin-top: 0.5rem;">
+                            <i class="fas fa-folder-open"></i> Select File
+                        </button>
+                    </div>
+                    <p id="file-name" class="file-name"></p>
+                </div>
+
+                <div id="extraction-actions" style="display: none; margin-top: 1rem;">
+                    <button type="button" onclick="handleExtractionSubmit()" class="btn btn-primary btn-block"
+                        style="background: #7c3aed;">
+                        <i class="fas fa-brain"></i> Extract & Schedule
+                    </button>
+                </div>
+            </form>
+
+            <!-- Active Routines List - Rendered from server -->
+            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #f1f5f9;">
+                <h5
+                    style="font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 0.5rem 0;">
+                    <i class="fas fa-list"></i> Active Routines
+                </h5>
+                <div id="activeRoutinesList">
+                    {% if active_routines %}
+                    {% for routine in active_routines %}
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0; border-bottom: 1px solid #f1f5f9; font-size: 0.7rem;">
+                        <span>
+                            <strong>{{ routine.subject }}</strong>
+                            <span style="color: #64748b; font-size: 0.6rem;">{{ routine.day_of_week }} {{
+                                routine.start_time|time:"g:i A" }}</span>
+                        </span>
+                        <span style="display: flex; gap: 0.5rem; align-items: center;">
+                            <span class="badge badge-info"
+                                style="font-size: 0.55rem; padding: 1px 8px; background: #e0e7ff; color: #4f46e5; border-radius: 4px;">{{
+                                routine.duration }}min</span>
+                            <span style="color: #16a34a; font-size: 0.5rem;"><i class="fas fa-circle"></i></span>
+                        </span>
+                    </div>
+                    {% empty %}
+                    <p style="font-size: 0.7rem; color: #94a3b8;">
+                        <i class="fas fa-info-circle"></i> No active routines found.
+                        <a href="/admin/dashboard/routine/add/"
+                            style="color: #6366f1; text-decoration: underline;">Create one</a>
+                    </p>
+                    {% endfor %}
+                    {% else %}
+                    <p style="font-size: 0.7rem; color: #94a3b8;">
+                        <i class="fas fa-info-circle"></i> No active routines found.
+                        <a href="/admin/dashboard/routine/add/"
+                            style="color: #6366f1; text-decoration: underline;">Create one</a>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    TOOLBAR
+    ============================================ -->
+    <div class="toolbar">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search by subject or ID..." onkeyup="applyFilters()">
+        </div>
+        <div class="filter-group">
+            <select id="statusFilter" onchange="applyFilters()">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="ended">Ended</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="auto">Auto-Scheduled</option>
+                <option value="live">Live</option>
+            </select>
+            <select id="dateFilter" onchange="applyFilters()">
+                <option value="all">All Time</option>
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+            </select>
+            <select id="departmentFilter" onchange="applyFilters()">
+                <option value="all">All Departments</option>
+                {% for dept in departments %}
+                <option value="{{ dept }}">{{ dept }}</option>
+                {% endfor %}
+            </select>
+            <button class="clear-btn" onclick="clearFilters()">
+                <i class="fas fa-times"></i> Clear
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================
+    SESSION TABLE - WITH COMPLETE SUBJECT INFO
+    ============================================ -->
+    <div class="table-card">
+        <div class="table-header">
+            <h3>
+                <i class="fas fa-list-ul"></i>
+                All Sessions
+                <span class="table-badge-count">{{ all_sessions.count }}</span>
+            </h3>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button onclick="refreshSessions()" class="btn btn-sm">
+                    <i class="fas fa-refresh"></i>
+                </button>
+                <span style="font-size: 0.6rem; color: #94a3b8;"> <span id="autoRefreshStatus">10s</span>
+                </span>
+            </div>
+        </div>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 50px;">ID</th>
+                        <th style="min-width: 180px;">Subject</th>
+                        <th style="min-width: 120px;">Details</th>
+                        <th style="min-width: 100px;">Date</th>
+                        <th style="min-width: 120px;">Time</th>
+                        <th style="min-width: 70px;">Duration</th>
+                        <th style="min-width: 140px;">Auto-Status</th>
+                        <th style="min-width: 120px;">Next Session</th>
+                        <th style="min-width: 90px;">Status</th>
+                        <th style="min-width: 200px; text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="sessionsTableBody">
+                    <tr>
+                        <td colspan="10" style="text-align:center; padding: 3rem 0;">
+                            <div class="empty-state" style="padding:0;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <h3>Loading...</h3>
+                                <p>Please wait while sessions are loaded</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container" id="paginationContainer">
+            <div class="info" id="paginationInfo">
+                Showing <strong id="startRange">0</strong> - <strong id="endRange">0</strong> of <strong
+                    id="totalSessionsCount">0</strong> sessions
+            </div>
+            <div class="pagination-controls">
+                <button id="prevPage" onclick="goToPage(currentPage - 1)" disabled>
+                    <i class="fas fa-chevron-left"></i> Prev
+                </button>
+                <div class="page-numbers" id="pageNumbers"></div>
+                <button id="nextPage" onclick="goToPage(currentPage + 1)">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    EXTRACTED ROUTINES SECTION
+    ============================================ -->
+    {% if extracted_routines %}
+    <div id="extracted-routines-section" class="extracted-section">
+        <div class="table-card">
+            <div class="table-header">
+                <h3>
+                    <i class="fas fa-robot"></i>
+                    AI Extracted Routines
+                    <span class="table-badge-count">{{ extracted_routines|length }} sessions</span>
+                </h3>
+            </div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for routine in extracted_routines %}
+                        <tr>
+                            <td style="font-weight: 500;">{{ routine.subject }}</td>
+                            <td>{{ routine.date }}</td>
+                            <td style="font-family: 'JetBrains Mono', monospace;">{{ routine.time }}</td>
+                            <td>{{ routine.duration }} mins</td>
+                            <td>
+                                <span
+                                    class="{% if routine.status == 'created' %}session-created{% else %}session-exists{% endif %}">
+                                    <i
+                                        class="fas fa-{% if routine.status == 'created' %}check-circle{% else %}clock{% endif %}"></i>
+                                    {% if routine.status == 'created' %}
+                                    Created
+                                    {% else %}
+                                    Already Exists
+                                    {% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="actions-row">
+                <button onclick="clearExtractedRoutines()" class="btn btn-danger-outline btn-sm">
+                    <i class="fas fa-times"></i> Clear All
+                </button>
+                <button onclick="applyExtractedRoutines()" class="btn btn-success btn-sm">
+                    <i class="fas fa-play"></i> Apply All Sessions
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ============================================
+DELETE CONFIRMATION MODAL
+============================================ -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="delete-modal">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Delete Session?</h3>
+        <p>
+            Are you sure you want to delete <strong id="deleteSessionName">this session</strong>?
+            <br>
+            <span style="color: #dc2626; font-size: 0.75rem;">
+                This action cannot be undone. All attendance records for this session will be permanently removed.
+            </span>
+        </p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <button class="btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">
+                <i class="fas fa-trash"></i> Delete Permanently
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+JAVASCRIPT
+============================================ -->
+<script>
+    // ============================================
+    // PERMISSIONS
+    // ============================================
+    const isStaff = {{ user.is_staff| lower }};
+    const isSuperuser = {{ user.is_superuser| lower }};
+    const canDelete = isStaff || isSuperuser;
+
+    // ============================================
+    // GLOBALS
+    // ============================================
+    let allSessions = [];
+    let filteredSessions = [];
+    let currentPage = 1;
+    const pageSize = 25;
+    let deleteSessionId = null;
+    let deleteSessionName = '';
+    let activityLog = [];
+    const MAX_ACTIVITY = 20;
+    let autoRefreshInterval = null;
+
+    // ============================================
+    // START SESSION FORM - DYNAMIC FILTERING
+    // ============================================
+    const yearSemesterMap = {{ year_semester_map| safe }};
+    const yearSectionMap = {{ year_section_map| safe }};
+
+    // ============================================
+    // CSRF TOKEN HELPER
+    // ============================================
+    function getCsrfToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 'csrftoken'.length + 1) === ('csrftoken' + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring('csrftoken'.length + 1));
+                    break;
+                }
+            }
+        }
+        if (!cookieValue) {
+            const meta = document.querySelector('meta[name="csrf-token"]');
+            if (meta) {
+                cookieValue = meta.getAttribute('content');
+            }
+        }
+        return cookieValue;
+    }
+
+    // ============================================
+    // NOTIFICATION SYSTEM
+    // ============================================
+    function showNotification(message, type) {
+        type = type || 'info';
+        var container = document.getElementById('django-messages');
+
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'django-messages';
+            container.className = 'msg-container';
+            document.body.appendChild(container);
+        }
+
+        var notification = document.createElement('div');
+        var icon = type === 'success' ? 'fa-check-circle' :
+            type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+        notification.className = 'msg ' + type;
+        notification.innerHTML = '<i class="fas ' + icon + '"></i><span>' + message + '</span>';
+        container.appendChild(notification);
+
+        setTimeout(function() {
+            notification.style.animation = 'slideUp 0.4s ease-in forwards';
+            setTimeout(function() {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 400);
+        }, 5000);
+    }
+
+    // ============================================
+    // DUPLICATE SESSION CHECK
+    // ============================================
+    async function checkDuplicateSession() {
+        var subject = document.getElementById('subject')?.value;
+        var department = document.getElementById('department')?.value;
+        var year = document.getElementById('year')?.value;
+        var semester = document.getElementById('semester')?.value;
+        var section = document.getElementById('section')?.value || '';
+        var datetime = document.getElementById('session_datetime')?.value;
+
+        if (!subject || !department || !year || !semester || !datetime) {
+            return;
+        }
+
+        try {
+            var response = await fetch('/attendance/check-session/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    subject: subject,
+                    department: department,
+                    year: parseInt(year),
+                    semester: parseInt(semester),
+                    section: section,
+                    session_datetime: datetime
+                })
+            });
+            var result = await response.json();
+
+            var hint = document.getElementById('datetimeHint');
+            var submitBtn = document.getElementById('submitBtn');
+
+            if (result.exists) {
+                hint.className = 'form-hint error';
+                hint.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + result.message;
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+                return false;
+            } else {
+                hint.className = 'form-hint success';
+                hint.innerHTML = '<i class="fas fa-check-circle"></i> Session available for this slot';
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                return true;
+            }
+        } catch (e) {
+            console.error('Error checking duplicate:', e);
+            return true;
+        }
+    }
+
+    // ============================================
+    // START SESSION FORM - EVENT LISTENERS
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        var yearSelect = document.getElementById('year');
+        var semesterSelect = document.getElementById('semester');
+        var sectionSelect = document.getElementById('section');
+        var departmentSelect = document.getElementById('department');
+        var subjectInput = document.getElementById('subject');
+        var durationInput = document.getElementById('duration');
+        var datetimeInput = document.getElementById('session_datetime');
+        var preview = document.getElementById('session-preview');
+
+        var initialSemester = "{{ request.POST.semester|default:'' }}";
+        var initialSection = "{{ request.POST.section|default:'' }}";
+
+        function updateSemesters() {
+            var year = yearSelect?.value;
+            if (!semesterSelect) return;
+            semesterSelect.innerHTML = '<option value="">Select Semester</option>';
+
+            if (year && yearSemesterMap[year]) {
+                var semesters = yearSemesterMap[year];
+                semesters.forEach(function(sem) {
+                    var option = document.createElement('option');
+                    option.value = sem;
+                    var suffix = sem === 1 ? 'st' : sem === 2 ? 'nd' : sem === 3 ? 'rd' : 'th';
+                    option.textContent = sem + suffix;
+                    if (initialSemester && parseInt(initialSemester) === sem) {
+                        option.selected = true;
+                    }
+                    semesterSelect.appendChild(option);
+                });
+            }
+            updatePreview();
+        }
+
+        function updateSections() {
+            var year = yearSelect?.value;
+            if (!sectionSelect) return;
+            sectionSelect.innerHTML = '<option value="">Select Section</option>';
+
+            if (year && yearSectionMap[year]) {
+                var sections = yearSectionMap[year];
+                sections.forEach(function(sec) {
+                    var option = document.createElement('option');
+                    option.value = sec;
+                    option.textContent = sec;
+                    if (initialSection === sec) {
+                        option.selected = true;
+                    }
+                    sectionSelect.appendChild(option);
+                });
+            }
+            updatePreview();
+        }
+
+        function updatePreview() {
+            if (!preview) return;
+            var subject = subjectInput?.value || '[Subject]';
+            var dept = departmentSelect?.value || '[Department]';
+            var year = yearSelect?.value || '?';
+            var sem = semesterSelect?.value || '?';
+            var section = sectionSelect?.value || 'N/A';
+            var duration = durationInput?.value || '60';
+
+            var yearNames = {1: '1st', 2: '2nd', 3: '3rd', 4: '4th'};
+            var yearText = yearNames[year] || year;
+
+            preview.textContent = subject + ' | ' + dept + ' | ' + yearText + ' Year, ' + sem + 'th Sem | Section ' + section + ' | ' + duration + ' min';
+        }
+
+        if (yearSelect) {
+            yearSelect.addEventListener('change', function() {
+                updateSemesters();
+                updateSections();
+                checkDuplicateSession();
+            });
+        }
+
+        var fields = [departmentSelect, subjectInput, durationInput, semesterSelect, sectionSelect, datetimeInput];
+        fields.forEach(function(el) {
+            if (el) {
+                el.addEventListener('change', function() {
+                    updatePreview();
+                    if (el.id !== 'duration' && el.id !== 'subject') {
+                        checkDuplicateSession();
+                    }
+                });
+                el.addEventListener('input', updatePreview);
+            }
+        });
+
+        updateSemesters();
+        updateSections();
+
+        if (datetimeInput && !datetimeInput.value) {
+            var now = new Date();
+            var minutes = Math.ceil(now.getMinutes() / 5) * 5;
+            now.setMinutes(minutes);
+            now.setSeconds(0);
+            now.setMilliseconds(0);
+
+            var year = now.getFullYear();
+            var month = String(now.getMonth() + 1).padStart(2, '0');
+            var day = String(now.getDate()).padStart(2, '0');
+            var hours = String(now.getHours()).padStart(2, '0');
+            var mins = String(now.getMinutes()).padStart(2, '0');
+            var formatted = year + '-' + month + '-' + day + 'T' + hours + ':' + mins;
+            datetimeInput.value = formatted;
+        }
+
+        loadSessions();
+        loadActiveRoutines();
+        checkSchedulerStatus();
+        updateStatusDashboard();
+        checkForActivity();
+        startAutoRefresh();
+
+        var form = document.getElementById('startSessionForm');
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                var isValid = await checkDuplicateSession();
+                if (!isValid) {
+                    showNotification('A session with these details already exists. Please check the date and time.', 'error');
+                    return;
+                }
+
+                var btn = document.getElementById('submitBtn');
+                btn.classList.add('loading');
+                btn.disabled = true;
+                this.submit();
+            });
+        }
+    });
+
+    // ============================================
+    // AUTO REFRESH - EVERY 10 SECONDS
+    // ============================================
+    function startAutoRefresh() {
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+        }
+
+        autoRefreshInterval = setInterval(function() {
+            fetch('/attendance/api/recent/')
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.sessions && data.sessions.length > 0) {
+                        var oldActive = allSessions.filter(function(s) { return s.is_active; }).length;
+                        var newActive = data.sessions.filter(function(s) { return s.is_active; }).length;
+
+                        allSessions = data.sessions;
+                        updateStats();
+                        applyFilters();
+                        updateStatusDashboard();
+                        checkForActivity();
+
+                        document.getElementById('autoRefreshStatus').textContent = '10s ✓';
+                        document.getElementById('autoRefreshStatus').style.color = '#16a34a';
+
+                        if (newActive > oldActive) {
+                            var started = data.sessions.filter(function(s) { return s.is_active; });
+                            started.forEach(function(s) {
+                                showNotification('🚀 Session "' + s.subject + '" is now LIVE!', 'success');
+                            });
+                        }
+                    }
+                })
+                .catch(function() {
+                    document.getElementById('autoRefreshStatus').textContent = '10s ⚠️';
+                    document.getElementById('autoRefreshStatus').style.color = '#dc2626';
+                });
+        }, 10000);
+    }
+
+    // ============================================
+    // LOAD ACTIVE ROUTINES
+    // ============================================
+    function loadActiveRoutines() {
+        fetch('/dashboard/api/active-routines/')
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                var container = document.getElementById('activeRoutinesList');
+                if (data.routines && data.routines.length > 0) {
+                    var html = '';
+                    data.routines.forEach(function(r) {
+                        html += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0; border-bottom: 1px solid #f1f5f9; font-size: 0.7rem;">';
+                        html += '<span><strong>' + r.subject + '</strong> - ' + r.day_of_week + ' ' + r.start_time + '</span>';
+                        html += '<span class="badge badge-info">' + r.duration + 'min</span>';
+                        html += '</div>';
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p style="font-size: 0.7rem; color: #94a3b8;">No active routines found. Create one to auto-schedule sessions.</p>';
+                }
+            })
+            .catch(function() {
+                document.getElementById('activeRoutinesList').innerHTML = '<p style="font-size: 0.7rem; color: #94a3b8;">Could not load routines</p>';
+            });
+    }
+
+    // ============================================
+    // CHECK SCHEDULER STATUS
+    // ============================================
+    function checkSchedulerStatus() {
+        fetch('/attendance/api/scheduler/status/')
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                var statusEl = document.getElementById('schedulerStatus');
+                var textEl = document.getElementById('schedulerStatusText');
+                if (data.running) {
+                    statusEl.className = 'scheduler-status running';
+                    textEl.textContent = 'Running';
+                } else {
+                    statusEl.className = 'scheduler-status stopped';
+                    textEl.textContent = 'Stopped';
+                }
+            })
+            .catch(function() {
+                document.getElementById('schedulerStatusText').textContent = 'Unknown';
+            });
+    }
+
+    // ============================================
+    // CHECK AUTO STATUS
+    // ============================================
+    function checkAutoStatus() {
+        showNotification('Checking auto-schedule status...', 'info');
+        loadSessions();
+        loadActiveRoutines();
+        checkSchedulerStatus();
+        updateStatusDashboard();
+        checkForActivity();
+        setTimeout(function() {
+            showNotification('Status updated!', 'success');
+        }, 1000);
+    }
+
+    // ============================================
+    // ACTIVE SESSION CHECK
+    // ============================================
+    async function checkActiveSession() {
+        try {
+            var response = await fetch('/attendance/api/stats/');
+            var data = await response.json();
+            var statusBadge = document.getElementById('system-status');
+
+            if (data.active > 0) {
+                statusBadge.className = 'status-badge active';
+                statusBadge.innerHTML = '<i class="fas fa-circle" style="font-size: 0.5rem; margin-right: 4px;"></i> SESSION_ACTIVE';
+            } else {
+                statusBadge.className = 'status-badge idle';
+                statusBadge.innerHTML = '<i class="fas fa-circle" style="font-size: 0.5rem; margin-right: 4px;"></i> SYSTEM_IDLE';
+            }
+        } catch (err) {
+            console.error('Error checking active session:', err);
+        }
+    }
+
+    // ============================================
+    // REFRESH SESSIONS
+    // ============================================
+    function refreshSessions() {
+        showNotification('Refreshing sessions...', 'info');
+        loadSessions();
+        updateStatusDashboard();
+        checkForActivity();
+        setTimeout(function() {
+            showNotification('Sessions refreshed!', 'success');
+        }, 1000);
+    }
+
+    // ============================================
+    // LOAD SESSIONS
+    // ============================================
+    function loadSessions() {
+        var container = document.getElementById('sessionsTableBody');
+
+        fetch('/attendance/api/recent/')
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.sessions && data.sessions.length > 0) {
+                    allSessions = data.sessions;
+                    updateStats();
+                    applyFilters();
+                    updateStatusDashboard();
+                    checkForActivity();
+                } else {
+                    allSessions = [];
+                    updateStats();
+                    showEmptyState('No sessions found', 'Start your first session or upload a routine');
+                }
+            })
+            .catch(function(error) {
+                console.error('Error loading sessions:', error);
+                showEmptyState('Could not load sessions', 'Please refresh the page or try again later');
+            });
+    }
+
+    // ============================================
+    // UPDATE STATS
+    // ============================================
+    function updateStats() {
+        var total = allSessions.length;
+        var active = allSessions.filter(function(s) { return s.is_active; }).length;
+        var scheduled = allSessions.filter(function(s) { return s.status === 'Scheduled'; }).length;
+        var ended = allSessions.filter(function(s) { return s.status === 'Ended' && !s.is_active; }).length;
+        var auto = allSessions.filter(function(s) { return s.is_auto_scheduled; }).length;
+
+        document.getElementById('totalSessions').textContent = total;
+        document.getElementById('activeSessions').textContent = active;
+        document.getElementById('todaySessions').textContent = allSessions.filter(function(s) { return new Date(s.date).toDateString() === new Date().toDateString(); }).length;
+        document.getElementById('endedSessions').textContent = ended;
+        document.getElementById('autoSessions').textContent = auto;
+        document.getElementById('autoSessionsCount').textContent = auto + ' Auto';
+    }
+
+    // ============================================
+    // UPDATE STATUS DASHBOARD
+    // ============================================
+    function updateStatusDashboard() {
+        fetch('/attendance/api/scheduler/status/')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var statusBadge = document.getElementById('liveStatusBadge');
+                var statusDisplay = document.getElementById('schedulerStatusDisplay');
+                var schedulerIcon = document.getElementById('schedulerIcon');
+
+                if (data.running) {
+                    statusBadge.className = 'status-badge-dashboard running';
+                    statusBadge.innerHTML = '<i class="fas fa-circle"></i> RUNNING';
+                    statusDisplay.textContent = '✅ Running';
+                    statusDisplay.style.color = '#16a34a';
+                    schedulerIcon.className = 'status-icon green';
+                    schedulerIcon.innerHTML = '<i class="fas fa-play-circle"></i>';
+                } else {
+                    statusBadge.className = 'status-badge-dashboard stopped';
+                    statusBadge.innerHTML = '<i class="fas fa-circle"></i> STOPPED';
+                    statusDisplay.textContent = '❌ Stopped';
+                    statusDisplay.style.color = '#dc2626';
+                    schedulerIcon.className = 'status-icon red';
+                    schedulerIcon.innerHTML = '<i class="fas fa-stop-circle"></i>';
+                }
+                document.getElementById('lastCheckTime').textContent = new Date().toLocaleTimeString();
+            })
+            .catch(function() {
+                document.getElementById('schedulerStatusDisplay').textContent = '⚠️ Unknown';
+            });
+
+        fetch('/attendance/api/stats/')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                document.getElementById('activeSessionsDisplay').textContent = data.active || 0;
+                var activeIcon = document.getElementById('activeIcon');
+                if (data.active > 0) {
+                    activeIcon.className = 'status-icon green';
+                    activeIcon.innerHTML = '<i class="fas fa-users"></i>';
+                } else {
+                    activeIcon.className = 'status-icon gray';
+                    activeIcon.innerHTML = '<i class="fas fa-users"></i>';
+                }
+            })
+            .catch(function() {
+                document.getElementById('activeSessionsDisplay').textContent = '?';
+            });
+
+        fetch('/attendance/api/recent/')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.sessions) {
+                    var today = new Date().toDateString();
+                    var startedToday = 0;
+                    var endedToday = 0;
+
+                    data.sessions.forEach(function(s) {
+                        var sessionDate = new Date(s.date).toDateString();
+                        if (sessionDate === today) {
+                            if (s.is_active) startedToday++;
+                            if (s.status === 'Ended') endedToday++;
+                        }
+                    });
+
+                    document.getElementById('startedTodayDisplay').textContent = startedToday;
+                    document.getElementById('endedTodayDisplay').textContent = endedToday;
+                }
+            });
+    }
+
+    // ============================================
+    // ACTIVITY LOG
+    // ============================================
+    function renderActivityLog() {
+        var container = document.getElementById('activityList');
+        var countEl = document.getElementById('activityCount');
+
+        if (!container) return;
+
+        if (activityLog.length === 0) {
+            container.innerHTML = '<div class="activity-empty"><i class="fas fa-inbox"></i><span>No activity yet. Sessions will appear here when they auto-start or auto-end.</span></div>';
+            if (countEl) countEl.textContent = '0 events';
+            return;
+        }
+
+        if (countEl) countEl.textContent = activityLog.length + ' events';
+
+        var html = '';
+        activityLog.forEach(function(item) {
+            var dotClass = item.type === 'start' ? 'start' : item.type === 'end' ? 'end' : 'info';
+            var timeStr = item.time ? new Date(item.time).toLocaleTimeString() : '--:--:--';
+            var messageText = item.message || (item.type === 'start' ? 'Auto-started' : 'Auto-ended');
+
+            html += '<div class="activity-item">';
+            html += '<span class="time">' + timeStr + '</span>';
+            html += '<span class="dot ' + dotClass + '"></span>';
+            html += '<span class="message"><span class="subject">' + item.subject + '</span> ' + messageText + ' <span style="color: #94a3b8; font-size: 0.65rem;">(#' + item.id + ')</span></span>';
+            html += '</div>';
+        });
+        container.innerHTML = html;
+    }
+
+    function checkForActivity() {
+        fetch('/attendance/api/recent/')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.sessions && data.sessions.length > 0) {
+                    if (!window._sessionHistory) {
+                        window._sessionHistory = {};
+                    }
+
+                    var now = new Date();
+                    var prevStates = window._sessionHistory;
+                    var newActivities = [];
+                    var foundActive = false;
+
+                    data.sessions.forEach(function(s) {
+                        var key = s.id;
+                        var prev = prevStates[key];
+                        var isActive = s.is_active || false;
+                        var status = s.status || 'Ended';
+
+                        if (isActive) {
+                            foundActive = true;
+                        }
+
+                        if (prev) {
+                            if (prev.is_active !== isActive) {
+                                if (isActive) {
+                                    newActivities.push({
+                                        type: 'start',
+                                        id: s.id,
+                                        subject: s.subject,
+                                        time: now,
+                                        message: 'Auto-started'
+                                    });
+                                } else {
+                                    newActivities.push({
+                                        type: 'end',
+                                        id: s.id,
+                                        subject: s.subject,
+                                        time: now,
+                                        message: 'Auto-ended'
+                                    });
+                                }
+                            }
+                        } else if (isActive) {
+                            newActivities.push({
+                                type: 'start',
+                                id: s.id,
+                                subject: s.subject,
+                                time: now,
+                                message: 'Auto-started (new)'
+                            });
+                        }
+
+                        prevStates[key] = {
+                            is_active: isActive,
+                            status: status,
+                            last_seen: now
+                        };
+                    });
+
+                    if (!foundActive && activityLog.length === 0) {
+                        var idleMessage = {
+                            type: 'info',
+                            id: 0,
+                            subject: 'System',
+                            time: now,
+                            message: 'System idle - no active sessions'
+                        };
+                        if (activityLog.length === 0 || activityLog[0].id !== 0) {
+                            activityLog = [idleMessage].concat(activityLog).slice(0, MAX_ACTIVITY);
+                            renderActivityLog();
+                        }
+                    }
+
+                    if (newActivities.length > 0) {
+                        activityLog = newActivities.concat(activityLog).slice(0, MAX_ACTIVITY);
+                        renderActivityLog();
+
+                        newActivities.forEach(function(a) {
+                            var emoji = a.type === 'start' ? '🚀' : '⏹️';
+                            showNotification(emoji + ' ' + a.subject + ' ' + a.message, a.type === 'start' ? 'success' : 'warning');
+                        });
+                    }
+                }
+            })
+            .catch(function(err) {
+                console.error('Activity check error:', err);
+            });
+    }
+
+    // ============================================
+    // APPLY FILTERS
+    // ============================================
+    function applyFilters() {
+        var search = document.getElementById('searchInput').value.toLowerCase();
+        var status = document.getElementById('statusFilter').value;
+        var date = document.getElementById('dateFilter').value;
+        var dept = document.getElementById('departmentFilter').value;
+
+        filteredSessions = allSessions.filter(function(s) {
+            var matchSearch = s.subject.toLowerCase().includes(search) || s.id.toString().includes(search);
+
+            var matchStatus = true;
+            if (status === 'active') matchStatus = s.is_active === true;
+            else if (status === 'ended') matchStatus = s.status === 'Ended';
+            else if (status === 'scheduled') matchStatus = s.status === 'Scheduled';
+            else if (status === 'auto') matchStatus = s.is_auto_scheduled === true;
+            else if (status === 'live') matchStatus = s.is_active === true && s.status === 'Active';
+
+            var matchDate = true;
+            if (date !== 'all') {
+                var days = parseInt(date);
+                var cutoff = new Date();
+                cutoff.setDate(cutoff.getDate() - days);
+                matchDate = new Date(s.date) >= cutoff;
+            }
+
+            var matchDept = true;
+            if (dept !== 'all') matchDept = s.department === dept;
+
+            return matchSearch && matchStatus && matchDate && matchDept;
+        });
+
+        currentPage = 1;
+        renderTable();
+    }
+
+    // ============================================
+    // RENDER TABLE
+    // ============================================
+    function renderTable() {
+        var tbody = document.getElementById('sessionsTableBody');
+        var total = filteredSessions.length;
+        var totalPages = Math.ceil(total / pageSize) || 1;
+        var start = (currentPage - 1) * pageSize;
+        var end = Math.min(start + pageSize, total);
+        var pageSessions = filteredSessions.slice(start, end);
+
+        document.getElementById('startRange').textContent = total > 0 ? start + 1 : 0;
+        document.getElementById('endRange').textContent = end;
+        document.getElementById('totalSessionsCount').textContent = total;
+
+        document.getElementById('paginationContainer').style.display = total > pageSize ? 'flex' : 'none';
+
+        document.getElementById('prevPage').disabled = currentPage <= 1;
+        document.getElementById('nextPage').disabled = currentPage >= totalPages;
+
+        renderPageNumbers(totalPages);
+
+        if (pageSessions.length === 0) {
+            showEmptyState('No sessions match your filters', 'Try adjusting your search or filter criteria');
+            return;
+        }
+
+        function parseSessionTime(dateStr, timeStr) {
+            if (!timeStr) return null;
+
+            var ampmMatch = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+            if (ampmMatch) {
+                var hours = parseInt(ampmMatch[1]);
+                var minutes = parseInt(ampmMatch[2]);
+                var ampm = ampmMatch[3].toUpperCase();
+
+                if (ampm === 'PM' && hours !== 12) hours += 12;
+                if (ampm === 'AM' && hours === 12) hours = 0;
+
+                var date = new Date(dateStr);
+                date.setHours(hours, minutes, 0, 0);
+                return date;
+            }
+
+            try {
+                return new Date(dateStr + 'T' + timeStr);
+            } catch {
+                return null;
+            }
+        }
+
+        var html = '';
+        pageSessions.forEach(function(s) {
+            var duration = s.duration || 'N/A';
+            var statusClass = 'ended';
+            var statusText = s.status || 'Ended';
+
+            if (s.is_active) {
+                statusClass = 'live';
+                statusText = '🔴 LIVE';
+            } else if (s.status === 'Scheduled') {
+                statusClass = 'scheduled';
+                statusText = 'Scheduled';
+            } else if (s.is_auto_scheduled) {
+                statusClass = 'auto-started';
+                statusText = 'Auto';
+            }
+
+            var now = new Date();
+            var startTime = parseSessionTime(s.date, s.start_time);
+            var endTime = parseSessionTime(s.date, s.end_time);
+
+            var autoStatusHtml = '';
+
+            if (!startTime || !endTime) {
+                autoStatusHtml = '<span class="auto-status-cell"><span class="status-start" style="color:#94a3b8;"><i class="fas fa-clock"></i> Time unavailable</span></span>';
+            } else if (s.is_active) {
+                var remainingMs = endTime - now;
+                if (remainingMs > 0) {
+                    var remainingMin = Math.ceil(remainingMs / 60000);
+                    autoStatusHtml = '<span class="auto-status-cell"><span class="status-start started"><i class="fas fa-play-circle"></i> Started ' + s.start_time + '</span><span class="status-end running">⏱️ ' + remainingMin + 'm remaining</span></span>';
+                } else {
+                    autoStatusHtml = '<span class="auto-status-cell"><span class="status-start started"><i class="fas fa-play-circle"></i> Started ' + s.start_time + '</span><span class="status-end ended" style="color:#dc2626;"><i class="fas fa-exclamation-triangle"></i> Should have ended</span></span>';
+                }
+            } else if (s.status === 'Scheduled' || (startTime && startTime > now)) {
+                var startMs = startTime - now;
+                if (startMs > 0) {
+                    var days = Math.floor(startMs / 86400000);
+                    var hours = Math.floor((startMs % 86400000) / 3600000);
+                    var mins = Math.floor((startMs % 3600000) / 60000);
+
+                    var countdownStr = '';
+                    if (days > 0) countdownStr += days + 'd ';
+                    if (hours > 0 || days > 0) countdownStr += hours + 'h ';
+                    countdownStr += mins + 'm';
+
+                    var isUrgent = mins < 5 && days === 0 && hours === 0;
+
+                    autoStatusHtml = '<span class="auto-status-cell"><span class="status-start waiting"><i class="fas fa-clock"></i> Starts in ' + countdownStr + '</span><span class="status-end scheduled">At ' + s.start_time + '</span>' + (isUrgent ? '<span class="countdown-badge urgent">Starting soon!</span>' : '') + '</span>';
+                } else {
+                    autoStatusHtml = '<span class="auto-status-cell"><span class="status-start waiting"><i class="fas fa-hourglass-start"></i> Starting soon...</span></span>';
+                }
+            } else {
+                autoStatusHtml = '<span class="auto-status-cell"><span class="status-start started" style="color:#94a3b8;"><i class="fas fa-check-circle"></i> Ended</span><span class="status-end ended">At ' + s.end_time + '</span></span>';
+            }
+
+            var nextSessionHtml = '';
+
+            if (s.next_session) {
+                var next = s.next_session;
+                var nextDate = new Date(next.date);
+                var today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (nextDate < today) {
+                    nextSessionHtml = '<span style="color: #94a3b8; font-size: 0.55rem;"><i class="fas fa-minus-circle"></i> No upcoming</span>';
+                } else if (next.is_current) {
+                    nextSessionHtml = '<span style="color: #16a34a; font-size: 0.6rem; font-weight: 600;"><i class="fas fa-play-circle"></i> Current session</span>';
+                } else if (next.is_today) {
+                    nextSessionHtml = '<span style="color: #d97706; font-size: 0.6rem; font-weight: 600;"><i class="fas fa-calendar-day"></i> Today at ' + next.time + '</span>';
+                } else if (next.is_tomorrow) {
+                    nextSessionHtml = '<span style="color: #6366f1; font-size: 0.6rem; font-weight: 600;"><i class="fas fa-calendar-plus"></i> Tomorrow at ' + next.time + '</span>';
+                } else {
+                    var dateObj = new Date(next.date);
+                    var dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+                    var monthDay = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    nextSessionHtml = '<span style="color: #64748b; font-size: 0.6rem;"><i class="fas fa-calendar-alt"></i> ' + dayName + ', ' + monthDay + '<br><span style="font-weight: 500; color: #0f172a;">' + next.time + '</span></span>';
+                }
+            } else {
+                nextSessionHtml = '<span style="color: #94a3b8; font-size: 0.55rem;"><i class="fas fa-minus-circle"></i> No upcoming</span>';
+            }
+
+            var isAuto = s.is_auto_scheduled || false;
+
+            var yearText = s.year ? s.year + (s.year === 1 ? 'st' : s.year === 2 ? 'nd' : s.year === 3 ? 'rd' : 'th') : 'N/A';
+            var semText = s.semester ? s.semester + (s.semester === 1 ? 'st' : s.semester === 2 ? 'nd' : s.semester === 3 ? 'rd' : 'th') : 'N/A';
+            var secText = s.section || 'N/A';
+            var deptText = s.department || 'N/A';
+
+            var actionsHtml = '';
+
+            if (s.is_active) {
+                actionsHtml = '<a href="/attendance/live/' + s.id + '/" class="action-link monitor-link" target="_blank"><i class="fas fa-video"></i> Monitor</a><span class="action-divider">|</span><a href="/attendance/summary/' + s.id + '/" class="action-link"><i class="fas fa-chart-bar"></i> Summary</a>';
+            } else if (s.status === 'Scheduled') {
+                actionsHtml = '<span class="text-muted"><i class="fas fa-clock"></i> Upcoming</span><span class="action-divider">|</span><a href="/attendance/summary/' + s.id + '/" class="action-link"><i class="fas fa-chart-bar"></i> Summary</a>';
+            } else {
+                actionsHtml = '<a href="/attendance/summary/' + s.id + '/" class="action-link"><i class="fas fa-chart-bar"></i> Summary</a>';
+            }
+
+            if (!s.is_active) {
+                actionsHtml += '<span class="action-divider">|</span><a href="/attendance/edit-session/' + s.id + '/" class="action-link" style="color: #6366f1;"><i class="fas fa-edit"></i></a>';
+            }
+
+            if (canDelete && !s.is_active) {
+                actionsHtml += '<span class="action-divider">|</span><a href="#" class="action-link delete-link" onclick="event.preventDefault(); openDeleteModal(' + s.id + ', \'' + s.subject.replace(/'/g, "\\'") + '\')"><i class="fas fa-trash"></i></a>';
+            }
+
+            html += '<tr>';
+            html += '<td class="session-id">#' + s.id + '</td>';
+            html += '<td><div class="session-subject" title="' + s.subject + '">' + (s.is_active ? '<span class="live-indicator"></span>' : '') + s.subject + (isAuto ? '<span class="auto-badge"><i class="fas fa-robot"></i> Auto</span>' : '') + '</div></td>';
+            html += '<td><div class="session-detail-cell"><span class="dept-badge">' + deptText + '</span><span class="year-badge">' + yearText + '</span><span class="sem-badge">Sem ' + semText + '</span><span class="section-badge">Sec ' + secText + '</span></div></td>';
+            html += '<td class="session-date">' + s.date + '</td>';
+            html += '<td class="session-time">' + s.time_range + '</td>';
+            html += '<td class="session-duration">' + duration + ' min</td>';
+            html += '<td>' + autoStatusHtml + '</td>';
+            html += '<td>' + nextSessionHtml + '</td>';
+            html += '<td><span class="status-badge-table ' + statusClass + '">' + (s.is_active ? '<span class="dot"></span>' : '') + statusText + '</span></td>';
+            html += '<td style="text-align: right; white-space: nowrap;">' + actionsHtml + '</td>';
+            html += '</tr>';
+        });
+
+        tbody.innerHTML = html;
+    }
+
+    // ============================================
+    // SHOW EMPTY STATE
+    // ============================================
+    function showEmptyState(title, message) {
+        var tbody = document.getElementById('sessionsTableBody');
+        tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><i class="fas fa-inbox"></i><h3>' + title + '</h3><p>' + message + '</p></div></td></tr>';
+        document.getElementById('paginationContainer').style.display = 'none';
+    }
+
+    // ============================================
+    // RENDER PAGE NUMBERS
+    // ============================================
+    function renderPageNumbers(totalPages) {
+        var container = document.getElementById('pageNumbers');
+        var html = '';
+
+        if (totalPages <= 7) {
+            for (var i = 1; i <= totalPages; i++) {
+                html += '<button class="' + (i === currentPage ? 'active' : '') + '" onclick="goToPage(' + i + ')">' + i + '</button>';
+            }
+        } else {
+            html += '<button class="' + (1 === currentPage ? 'active' : '') + '" onclick="goToPage(1)">1</button>';
+
+            if (currentPage > 3) {
+                html += '<span class="dots">…</span>';
+            }
+
+            var startPage = Math.max(2, currentPage - 1);
+            var endPage = Math.min(totalPages - 1, currentPage + 1);
+
+            for (var j = startPage; j <= endPage; j++) {
+                html += '<button class="' + (j === currentPage ? 'active' : '') + '" onclick="goToPage(' + j + ')">' + j + '</button>';
+            }
+
+            if (currentPage < totalPages - 2) {
+                html += '<span class="dots">…</span>';
+            }
+
+            html += '<button class="' + (totalPages === currentPage ? 'active' : '') + '" onclick="goToPage(' + totalPages + ')">' + totalPages + '</button>';
+        }
+
+        container.innerHTML = html;
+    }
+
+    // ============================================
+    // GO TO PAGE
+    // ============================================
+    function goToPage(page) {
+        var totalPages = Math.ceil(filteredSessions.length / pageSize) || 1;
+        if (page < 1 || page > totalPages) return;
+        currentPage = page;
+        renderTable();
+    }
+
+    // ============================================
+    // DELETE MODAL FUNCTIONS
+    // ============================================
+    function openDeleteModal(sessionId, sessionName) {
+        deleteSessionId = sessionId;
+        deleteSessionName = sessionName;
+        document.getElementById('deleteSessionName').textContent = sessionName;
+        document.getElementById('deleteModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+        document.body.style.overflow = '';
+        deleteSessionId = null;
+    }
+
+    function confirmDelete() {
+        if (!deleteSessionId) return;
+
+        var btn = document.getElementById('confirmDeleteBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+
+        var csrfToken = getCsrfToken();
+
+        fetch('/attendance/delete-session/' + deleteSessionId + '/', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(function(response) {
+                if (!response.ok) {
+                    return response.json().then(function(data) {
+                        throw new Error(data.message || 'HTTP ' + response.status);
+                    });
+                }
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.success) {
+                    showNotification(data.message || 'Session deleted successfully', 'success');
+                    allSessions = allSessions.filter(function(s) { return s.id !== deleteSessionId; });
+                    updateStats();
+                    applyFilters();
+                    closeDeleteModal();
+                } else {
+                    showNotification(data.message || 'Failed to delete session', 'error');
+                }
+            })
+            .catch(function(err) {
+                console.error('Delete error:', err);
+                showNotification('Error: ' + err.message, 'error');
+            })
+            .finally(function() {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-trash"></i> Delete Permanently';
+            });
+    }
+
+    // ============================================
+    // EXPORT SESSIONS
+    // ============================================
+    function exportSessions() {
+        if (filteredSessions.length === 0) {
+            showNotification('No sessions to export', 'warning');
+            return;
+        }
+
+        var csv = 'Session ID,Subject,Department,Year,Semester,Section,Date,Time Range,Duration,Status,Type\n';
+        filteredSessions.forEach(function(s) {
+            var status = s.is_active ? 'Live' : (s.status || 'Ended');
+            var type = s.is_auto_scheduled ? 'Auto-Scheduled' : 'Manual';
+            csv += s.id + ',"' + s.subject + '","' + (s.department || 'N/A') + '",' + (s.year || 'N/A') + ',' + (s.semester || 'N/A') + ',"' + (s.section || 'N/A') + '",' + s.date + ',"' + s.time_range + '",' + (s.duration || 'N/A') + ' min,' + status + ',' + type + '\n';
+        });
+
+        var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        var link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'sessions_export_' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+
+        showNotification('Sessions exported successfully', 'success');
+    }
+
+    // ============================================
+    // FILE UPLOAD HANDLERS
+    // ============================================
+    window.updateFileLabel = function(input) {
+        if (input.files && input.files[0]) {
+            document.getElementById('file-name').innerText = '📎 ' + input.files[0].name;
+            document.getElementById('extraction-actions').style.display = 'block';
+            document.getElementById('file-label-container').style.opacity = '0.3';
+        }
+    };
+
+    // ============================================
+    // EXTRACTION SUBMISSION
+    // ============================================
+    window.handleExtractionSubmit = function() {
+        var form = document.getElementById('extraction-form');
+        var submitBtn = document.querySelector('button[onclick="handleExtractionSubmit()"]');
+        var formData = new FormData(form);
+
+        var fileInput = document.getElementById('routine-file');
+        if (!fileInput.files || !fileInput.files[0]) {
+            showNotification('Please select a file first', 'error');
+            return;
+        }
+
+        var fileName = fileInput.files[0].name;
+        var fileExt = fileName.split('.').pop().toLowerCase();
+        if (!['pdf', 'xlsx', 'xls', 'csv'].includes(fileExt)) {
+            showNotification('Please select a valid PDF or Excel file', 'error');
+            return;
+        }
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            var originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Extracting...';
+        }
+
+        fetch('/attendance/extract-routine/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(async function(response) {
+                var text = await response.text();
+                try {
+                    var data = JSON.parse(text);
+                    return { response: response, data: data };
+                } catch (e) {
+                    console.error('❌ Failed to parse JSON:', e);
+                    throw new Error('Invalid response from server (Status: ' + response.status + ')');
+                }
+            })
+            .then(function(result) {
+                var response = result.response;
+                var data = result.data;
+                if (response.ok && data.success) {
+                    var message = '✅ Extraction Complete! Found ' + (data.classes_count || 0) + ' scheduled sessions.';
+                    if (data.created_count) {
+                        message += ' Created ' + data.created_count + ' new sessions.';
+                    }
+                    if (data.existing_count) {
+                        message += ' Found ' + data.existing_count + ' existing sessions.';
+                    }
+                    showNotification(message, 'success');
+                    loadSessions();
+                } else {
+                    var errorMsg = data?.message || 'Extraction failed';
+                    showNotification('❌ Extraction Failed: ' + errorMsg, 'error');
+                }
+            })
+            .catch(function(err) {
+                console.error('❌ Error:', err);
+                showNotification('❌ Error: ' + err.message, 'error');
+            })
+            .finally(function() {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+                checkActiveSession();
+            });
+    };
+
+    // ============================================
+    // EXTRACTED ROUTINES FUNCTIONS
+    // ============================================
+    function clearExtractedRoutines() {
+        if (!confirm('Clear all extracted routines from this session?')) return;
+
+        fetch('/dashboard/api/clear-extracted-routines/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showNotification('Extracted routines cleared', 'success');
+                    var section = document.getElementById('extracted-routines-section');
+                    if (section) section.remove();
+                } else {
+                    showNotification('Error clearing routines', 'error');
+                }
+            })
+            .catch(function(err) {
+                console.error('Error:', err);
+                showNotification('Error clearing routines', 'error');
+            });
+    }
+
+    function syncSessions() {
+        if (!confirm('This will generate sessions from active routines. Continue?')) return;
+
+        var btn = document.querySelector('button[onclick="syncSessions()"]');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+        }
+
+        fetch('/attendance/sync-sessions/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showNotification(data.message || 'Sessions synced successfully!', 'success');
+                    loadSessions();
+                } else {
+                    showNotification(data.error || 'Failed to sync sessions', 'error');
+                }
+            })
+            .catch(function(err) {
+                console.error('Sync error:', err);
+                showNotification('Error syncing sessions', 'error');
+            })
+            .finally(function() {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sync Schedule';
+                }
+            });
+    }
+
+    function applyExtractedRoutines() {
+        if (!confirm('Apply all extracted routines to create attendance sessions?')) return;
+
+        var btn = document.querySelector('button[onclick="applyExtractedRoutines()"]');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Applying...';
+        }
+
+        showNotification('Applying routines...', 'info');
+
+        fetch('/dashboard/api/apply-extracted-routines/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showNotification(data.created + ' sessions created successfully!', 'success');
+                    loadSessions();
+                    var section = document.getElementById('extracted-routines-section');
+                    if (section) section.remove();
+                } else {
+                    showNotification(data.message || 'Error applying routines', 'error');
+                }
+            })
+            .catch(function(err) {
+                console.error('Error:', err);
+                showNotification('Error applying routines', 'error');
+            })
+            .finally(function() {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-play"></i> Apply All Sessions';
+                }
+            });
+    }
+
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
+        }
+        if (e.key === 'r' || e.key === 'R') {
+            if (!e.ctrlKey && !e.metaKey) {
+                refreshSessions();
+            }
+        }
+    });
+
+    // ============================================
+    // CLOSE MODAL ON CLICK OUTSIDE
+    // ============================================
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    // ============================================
+    // AUTO-REFRESH - Keep checking
+    // ============================================
+    setInterval(function() {
+        loadSessions();
+        checkActiveSession();
+        checkSchedulerStatus();
+        updateStatusDashboard();
+        checkForActivity();
+        document.getElementById('autoRefreshStatus').textContent = '10s ✓';
+        document.getElementById('autoRefreshStatus').style.color = '#16a34a';
+    }, 30000);
+
+    // ============================================
+    // DRAG & DROP SETUP
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        var uploadZone = document.getElementById('upload-zone');
+        var fileInput = document.getElementById('routine-file');
+
+        if (uploadZone) {
+            uploadZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            });
+
+            uploadZone.addEventListener('dragleave', function() {
+                uploadZone.classList.remove('dragover');
+            });
+
+            uploadZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+
+                var files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    updateFileLabel(fileInput);
+                }
+            });
+        }
+
+        loadSessions();
+        checkActiveSession();
+        checkSchedulerStatus();
+        updateStatusDashboard();
+        checkForActivity();
+        startAutoRefresh();
+    });
+
+    // ============================================
+    // AUTO-RELOAD AFTER OPERATIONS
+    // ============================================
+    {% if messages %}
+    {% for message in messages %}
+    console.log('📢 Message from server: {{ message }}');
+    {% endfor %}
+    setTimeout(function() {
+        location.reload();
+    }, 2000);
+    {% endif %}
+</script>
+{% endblock %}

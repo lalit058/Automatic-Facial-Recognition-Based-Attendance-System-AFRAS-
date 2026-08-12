@@ -1,0 +1,1894 @@
+<!-- templates/dashboard/register_student.html -->
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Register Student | AFRAS{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* ============================================
+       PROFESSIONAL REGISTER STUDENT STYLES
+       (Same style as session_details.html)
+    ============================================ */
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    .register-container {
+        padding: 0.5rem;
+        max-width: 1400px;
+    }
+
+    /* ============================================
+       PAGE HEADER WITH BREADCRUMB
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .breadcrumb-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.5rem;
+        padding: 0;
+    }
+
+    .breadcrumb-header a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-header a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .breadcrumb-header .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .breadcrumb-header .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-content .header-left h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .header-content .header-left h1 i {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .header-content .header-left .subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+    }
+
+    .header-content .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-outline-light {
+        padding: 0.6rem 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    /* ============================================
+       REGISTRATION CARD
+    ============================================ */
+    .register-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .register-card .card-header {
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #f8fafc;
+    }
+
+    .register-card .card-header h3 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .register-card .card-header h3 i {
+        color: #6366f1;
+    }
+
+    .register-card .card-header .count {
+        background: #f1f5f9;
+        padding: 2px 12px;
+        border-radius: 100px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .register-card .card-body {
+        padding: 1.25rem;
+    }
+
+    /* ============================================
+       MESSAGES
+    ============================================ */
+    .msg-container {
+        margin-bottom: 1.5rem;
+    }
+
+    .msg {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid transparent;
+        font-weight: 500;
+        margin-bottom: 8px;
+        animation: slideDown 0.4s ease-out forwards;
+    }
+
+    .msg.success {
+        background: rgba(16, 185, 129, 0.1);
+        color: #16a34a;
+        border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .msg.error {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .msg.info {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ============================================
+       FACE CAPTURE SECTION
+    ============================================ */
+    .face-capture-section {
+        background: #f8fafc;
+        border: 2px dashed #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .face-capture-section.active {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.03);
+    }
+
+    .face-capture-section.success {
+        border-color: #16a34a;
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .face-capture-section.error {
+        border-color: #dc2626;
+        background: rgba(239, 68, 68, 0.05);
+    }
+
+    /* Photo Upload Option Tabs */
+    .capture-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 2px;
+    }
+
+    .capture-tab {
+        padding: 8px 20px;
+        border: none;
+        background: transparent;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #94a3b8;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+    }
+
+    .capture-tab:hover {
+        color: #6366f1;
+    }
+
+    .capture-tab.active {
+        color: #6366f1;
+        border-bottom-color: #6366f1;
+    }
+
+    .capture-tab i {
+        margin-right: 6px;
+    }
+
+    .capture-panel {
+        display: none;
+    }
+
+    .capture-panel.active {
+        display: block;
+    }
+
+    .face-capture-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    .face-capture-header h4 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #0f172a;
+    }
+
+    .face-capture-header h4 i {
+        color: #6366f1;
+    }
+
+    .status-badge {
+        font-size: 0.65rem;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    .status-badge.active {
+        background: rgba(99, 102, 241, 0.15);
+        color: #6366f1;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .status-badge.success {
+        background: rgba(16, 185, 129, 0.15);
+        color: #16a34a;
+    }
+
+    .status-badge.error {
+        background: rgba(239, 68, 68, 0.15);
+        color: #dc2626;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* Video Container */
+    .video-container {
+        position: relative;
+        width: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #0f172a;
+        aspect-ratio: 4/3;
+        min-height: 250px;
+    }
+
+    #video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scaleX(-1);
+    }
+
+    #overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        transform: scaleX(-1);
+    }
+
+    /* Progress Ring */
+    #progress-ring {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+        z-index: 5;
+    }
+
+    #progress-ring.visible {
+        display: block;
+    }
+
+    #progress-ring svg {
+        width: 80px;
+        height: 80px;
+        transform: rotate(-90deg);
+    }
+
+    #progress-ring circle {
+        fill: none;
+        stroke: #00ff00;
+        stroke-width: 4;
+        stroke-linecap: round;
+        stroke-dasharray: 188.5;
+        stroke-dashoffset: 188.5;
+        transition: stroke-dashoffset 0.1s ease;
+    }
+
+    #progress-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #fff;
+        font-weight: 800;
+        font-size: 18px;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+    }
+
+    /* Captured Preview */
+    .captured-preview {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover;
+        border-radius: 8px;
+        z-index: 3;
+        display: none;
+    }
+
+    .captured-preview.show {
+        display: block;
+    }
+
+    /* Face Status */
+    .face-status {
+        margin-top: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-align: center;
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    .face-status.success {
+        background: rgba(16, 185, 129, 0.1);
+        color: #16a34a;
+    }
+
+    .face-status.error {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+    }
+
+    .face-status.info {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+    }
+
+    /* Face Controls */
+    .face-controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+    }
+
+    .face-controls button {
+        flex: 1;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 100px;
+    }
+
+    .face-controls button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-start-camera {
+        background: #6366f1;
+        color: white;
+    }
+
+    .btn-start-camera:hover:not(:disabled) {
+        background: #4f46e5;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-retake {
+        background: #dc2626;
+        color: white;
+        display: none;
+    }
+
+    .btn-retake:hover:not(:disabled) {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-confirm {
+        background: #16a34a;
+        color: white;
+        display: none;
+    }
+
+    .btn-confirm:hover:not(:disabled) {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    }
+
+    /* Manual Photo Upload */
+    .manual-upload-area {
+        border: 2px dashed #e2e8f0;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .manual-upload-area:hover {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.03);
+    }
+
+    .manual-upload-area i {
+        font-size: 3rem;
+        color: #94a3b8;
+        margin-bottom: 10px;
+    }
+
+    .manual-upload-area h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0 0 5px 0;
+    }
+
+    .manual-upload-area p {
+        font-size: 0.85rem;
+        color: #94a3b8;
+        margin: 0;
+    }
+
+    .manual-upload-area .upload-preview {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 12px;
+        margin-top: 10px;
+        display: none;
+        border: 2px solid #e2e8f0;
+        object-fit: cover;
+    }
+
+    .manual-upload-area .upload-preview.show {
+        display: block;
+    }
+
+    .manual-upload-area .file-name {
+        font-size: 0.8rem;
+        color: #6366f1;
+        font-weight: 600;
+        margin-top: 5px;
+        display: none;
+    }
+
+    .manual-upload-area .file-name.show {
+        display: block;
+    }
+
+    .manual-upload-area.has-image {
+        border-color: #16a34a;
+        background: rgba(16, 185, 129, 0.03);
+    }
+
+    .manual-upload-area .upload-actions {
+        display: none;
+        gap: 10px;
+        margin-top: 15px;
+        justify-content: center;
+    }
+
+    .manual-upload-area .upload-actions.show {
+        display: flex;
+    }
+
+    .manual-upload-area .btn-remove {
+        background: #dc2626;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .manual-upload-area .btn-remove:hover {
+        background: #b91c1c;
+        transform: translateY(-2px);
+    }
+
+    .manual-upload-area .btn-process {
+        background: #6366f1;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .manual-upload-area .btn-process:hover {
+        background: #4f46e5;
+        transform: translateY(-2px);
+    }
+
+    /* ============================================
+       FORM STYLES
+    ============================================ */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .full-width {
+        grid-column: span 2;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .input-group label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .input-group label i {
+        color: #6366f1;
+        font-size: 0.7rem;
+        width: 16px;
+        text-align: center;
+    }
+
+    .input-group label .required {
+        color: #dc2626;
+        font-size: 0.9rem;
+    }
+
+    .input-group input,
+    .input-group select {
+        padding: 0.6rem 0.8rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        color: #0f172a;
+        background: #ffffff;
+        transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
+        width: 100%;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .input-group input::placeholder {
+        color: #94a3b8;
+    }
+
+    /* Encoding Display */
+    .encoding-wrapper {
+        position: relative;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: 0.3s;
+        min-height: 60px;
+    }
+
+    .encoding-wrapper.active {
+        border-color: #16a34a;
+        background: rgba(16, 185, 129, 0.03);
+    }
+
+    .encoding-box {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        color: #94a3b8;
+        max-height: 100px;
+        overflow-y: auto;
+        line-height: 1.4;
+        padding-right: 30px;
+        word-break: break-all;
+    }
+
+    .encoding-wrapper.active .encoding-box {
+        color: #16a34a;
+    }
+
+    .copy-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: #f1f5f9;
+        border: none;
+        color: #64748b;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+    }
+
+    .copy-btn:hover {
+        background: #e2e8f0;
+    }
+
+    /* ID Proof Upload */
+    .file-upload {
+        border: 2px dashed #e2e8f0;
+        padding: 1rem;
+        text-align: center;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+        background: #f8fafc;
+    }
+
+    .file-upload:hover {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.03);
+    }
+
+    .file-upload i {
+        font-size: 1.5rem;
+        color: #6366f1;
+        margin-bottom: 4px;
+    }
+
+    .file-upload p {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin: 0;
+    }
+
+    .preview-img {
+        width: 100%;
+        max-height: 100px;
+        object-fit: contain;
+        border-radius: 6px;
+        margin-top: 8px;
+        display: none;
+        border: 1px solid #e2e8f0;
+    }
+
+    .pdf-preview-chip {
+        display: none;
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        margin-top: 8px;
+        font-weight: 600;
+        align-items: center;
+        gap: 6px;
+        justify-content: center;
+    }
+
+    .pdf-preview-chip.show {
+        display: inline-flex;
+    }
+
+    /* ============================================
+       SUBMIT BUTTON
+    ============================================ */
+    .form-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+    }
+
+    .btn-submit {
+        padding: 0.6rem 2rem;
+        background: #6366f1;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+        background: #4f46e5;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-cancel {
+        padding: 0.6rem 2rem;
+        background: transparent;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-cancel:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        transform: translateY(-2px);
+    }
+
+    /* ============================================
+       FOOTER
+    ============================================ */
+    .footer-link {
+        text-align: center;
+        color: #94a3b8;
+        margin-top: 1.5rem;
+        font-size: 0.8rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .footer-link a {
+        color: #6366f1;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .footer-link a:hover {
+        color: #4f46e5;
+        text-decoration: underline;
+    }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 768px) {
+        .register-container {
+            padding: 0.25rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .full-width {
+            grid-column: span 1;
+        }
+
+        .header-content {
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .header-content .header-actions {
+            width: 100%;
+        }
+
+        .header-content .header-actions .btn-outline-light {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .face-controls button {
+            min-width: 80px;
+            font-size: 0.75rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-submit,
+        .btn-cancel {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .capture-tabs {
+            flex-wrap: wrap;
+        }
+
+        .capture-tab {
+            flex: 1;
+            text-align: center;
+            font-size: 0.75rem;
+            padding: 6px 10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .register-card .card-body {
+            padding: 0.75rem;
+        }
+
+        .input-group input,
+        .input-group select {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.6rem;
+        }
+
+        .header-content .header-left h1 {
+            font-size: 1.2rem;
+        }
+
+        .header-content .header-left .subtitle {
+            font-size: 0.7rem;
+        }
+
+        .video-container {
+            min-height: 200px;
+        }
+
+        .manual-upload-area {
+            padding: 1rem;
+            min-height: 150px;
+        }
+
+        .manual-upload-area i {
+            font-size: 2rem;
+        }
+
+        .manual-upload-area h4 {
+            font-size: 0.85rem;
+        }
+    }
+
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+        .header-content .header-actions,
+        .btn-outline-light,
+        .face-controls,
+        .btn-submit,
+        .btn-cancel {
+            display: none !important;
+        }
+
+        .page-header {
+            background: #0f172a !important;
+            border-radius: 0 !important;
+        }
+
+        .header-content .header-left h1 {
+            color: #ffffff !important;
+        }
+
+        .header-content .header-left .subtitle {
+            color: #94a3b8 !important;
+        }
+
+        .register-card {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+        }
+
+        .face-capture-section {
+            border: 1px solid #e2e8f0 !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <!-- ============================================
+    PAGE HEADER WITH BREADCRUMB
+    ============================================ -->
+    <div class="page-header">
+        <div class="breadcrumb-header">
+            <a href="{% url 'dashboard_home' %}">Dashboard</a>
+            <span class="separator">/</span>
+            <a href="{% url 'student-directory' %}">Student Directory</a>
+            <span class="separator">/</span>
+            <span class="current">Register Student</span>
+        </div>
+
+        <div class="header-content">
+            <div class="header-left">
+                <h1>
+                    <i class="fas fa-user-graduate"></i>
+                    Academic Enrollment
+                </h1>
+                <div class="subtitle">
+                    <span><i class="fas fa-id-card"></i> Secure Student Onboarding</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'student-directory' %}" class="btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Back to Directory
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    REGISTRATION FORM
+    ============================================ -->
+    <div class="register-card">
+        <div class="card-header">
+            <h3>
+                <i class="fas fa-user-plus"></i>
+                Student Registration Form
+            </h3>
+            <span class="count">All fields are required</span>
+        </div>
+        <div class="card-body">
+            <!-- Messages Container -->
+            <div class="msg-container" id="django-messages">
+                {% if messages %}
+                {% for message in messages %}
+                <div class="msg {{ message.tags }}">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <form id="reg-form" method="post" action="{% url 'register-student' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- ==========================================
+                FACE CAPTURE SECTION WITH TABS
+                ========================================== -->
+                <div class="face-capture-section" id="face-section">
+                    <div class="face-capture-header">
+                        <h4><i class="fas fa-face-smile"></i> Face Capture</h4>
+                        <span class="status-badge" id="status-badge">Not Started</span>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="capture-tabs">
+                        <button class="capture-tab active" data-tab="camera-tab">
+                            <i class="fas fa-camera"></i> Camera
+                        </button>
+                        <button class="capture-tab" data-tab="upload-tab">
+                            <i class="fas fa-upload"></i> Upload Photo
+                        </button>
+                    </div>
+
+                    <!-- Camera Tab -->
+                    <div class="capture-panel active" id="camera-tab">
+                        <div class="video-container" id="video-container">
+                            <video id="video" autoplay playsinline></video>
+                            <canvas id="overlay"></canvas>
+                            <img id="captured-preview" class="captured-preview">
+                            
+                            <div id="progress-ring">
+                                <svg viewBox="0 0 60 60">
+                                    <circle cx="30" cy="30" r="25" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/>
+                                    <circle cx="30" cy="30" r="25" id="progress-circle" fill="none" stroke="#00ff00" stroke-width="4"/>
+                                </svg>
+                                <div id="progress-text">0%</div>
+                            </div>
+                        </div>
+
+                        <div class="face-status" id="face-status">
+                            <i class="fas fa-info-circle"></i> Click "Start Camera" to begin face capture
+                        </div>
+
+                        <div class="face-controls">
+                            <button type="button" class="btn-start-camera" id="btn-start-camera">
+                                <i class="fas fa-camera"></i> Start Camera
+                            </button>
+                            <button type="button" class="btn-retake" id="btn-retake">
+                                <i class="fas fa-redo"></i> Retake
+                            </button>
+                            <button type="button" class="btn-confirm" id="btn-confirm">
+                                <i class="fas fa-check"></i> Confirm
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Upload Tab -->
+                    <div class="capture-panel" id="upload-tab">
+                        <div class="manual-upload-area" id="manual-upload-area">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h4>Upload Photo</h4>
+                            <p>Click to upload or drag & drop</p>
+                            <img id="manual-preview" class="upload-preview">
+                            <div class="file-name" id="file-name"></div>
+                            <div class="upload-actions" id="upload-actions">
+                                <button type="button" class="btn-remove" id="btn-remove-photo">
+                                    <i class="fas fa-times"></i> Remove
+                                </button>
+                                <button type="button" class="btn-process" id="btn-process-photo">
+                                    <i class="fas fa-robot"></i> Process Face
+                                </button>
+                            </div>
+                            <input type="file" id="manual-photo-input" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="face-status" id="upload-status">
+                            <i class="fas fa-info-circle"></i> Upload a clear photo of the student's face
+                        </div>
+                    </div>
+
+                    <!-- Hidden Inputs for Face Data -->
+                    <div class="face-hidden-inputs">
+                        <input type="hidden" name="face_encoding" id="face-encoding">
+                        <input type="hidden" name="photo_data" id="photo-data">
+                    </div>
+                </div>
+
+                <!-- ==========================================
+                STUDENT DETAILS FORM
+                ========================================== -->
+                <div class="form-grid">
+                    <div class="input-group full-width">
+                        <label><i class="fas fa-user"></i> Full Name <span class="required">*</span></label>
+                        <input type="text" name="name" placeholder="John Doe" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-id-card"></i> Roll Number <span class="required">*</span></label>
+                        <input type="text" name="roll_number" placeholder="2024-CS-101" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-phone"></i> Phone Number <span class="required">*</span></label>
+                        <input type="tel" name="phone_number" pattern="[0-9]{10}" maxlength="10" placeholder="98XXXXXXXX" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-envelope"></i> Email Address <span class="required">*</span></label>
+                        <input type="email" name="email" placeholder="john.doe@example.com" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-location-dot"></i> Address <span class="required">*</span></label>
+                        <input type="text" name="address" placeholder="Enter your address" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-sitemap"></i> Department</label>
+                        <input type="text" name="department" placeholder="Computer Science">
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar"></i> Year</label>
+                        <input type="number" name="year" min="1" max="4" value="1">
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-layer-group"></i> Semester <span class="required">*</span></label>
+                        <input type="number" name="semester" min="1" max="8" value="1" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label><i class="fas fa-users"></i> Section</label>
+                        <input type="text" name="section" placeholder="A, B, C...">
+                    </div>
+
+                    <!-- Face Encoding Display -->
+                    <div class="input-group full-width">
+                        <label><i class="fas fa-microchip"></i> Face Encoding</label>
+                        <div class="encoding-wrapper" id="enc-wrapper">
+                            <button type="button" class="copy-btn" id="copy-btn" title="Copy Vector">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <div class="encoding-box" id="encoding-display">
+                                Capture face to generate encoding...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ID Proof Upload -->
+                    <div class="input-group full-width">
+                        <label><i class="fas fa-file-pdf"></i> ID Proof (Optional)</label>
+                        <div class="file-upload" onclick="document.getElementById('doc-input').click()">
+                            <i class="fas fa-file-pdf"></i>
+                            <p>Upload PDF or Image</p>
+                            <img id="doc-preview" class="preview-img">
+                            <div id="pdf-chip" class="pdf-preview-chip">
+                                <i class="fas fa-file-pdf"></i> <span id="pdf-name">PDF Selected</span>
+                            </div>
+                            <input type="file" id="doc-input" name="id_proof" accept=".pdf,image/*" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit" id="submit-btn" disabled>
+                        <i class="fas fa-user-check"></i> CAPTURE FACE FIRST
+                    </button>
+                    <a href="{% url 'student-directory' %}" class="btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+
+            <div class="footer-link">
+                <i class="fas fa-arrow-right"></i>
+                Already registered? <a href="{% url 'login' %}">Access Portal</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+SCRIPTS - ORIGINAL + MANUAL UPLOAD
+============================================ -->
+<script>
+    // ============================================
+    // DOM Elements
+    // ============================================
+    const video = document.getElementById('video');
+    const overlay = document.getElementById('overlay');
+    const faceSection = document.getElementById('face-section');
+    const statusBadge = document.getElementById('status-badge');
+    const faceStatus = document.getElementById('face-status');
+    const uploadStatus = document.getElementById('upload-status');
+    const progressRing = document.getElementById('progress-ring');
+    const progressCircle = document.getElementById('progress-circle');
+    const progressText = document.getElementById('progress-text');
+    const capturedPreview = document.getElementById('captured-preview');
+    const btnStartCamera = document.getElementById('btn-start-camera');
+    const btnRetake = document.getElementById('btn-retake');
+    const btnConfirm = document.getElementById('btn-confirm');
+    const submitBtn = document.getElementById('submit-btn');
+    const faceEncodingInput = document.getElementById('face-encoding');
+    const photoDataInput = document.getElementById('photo-data');
+    const encodingDisplay = document.getElementById('encoding-display');
+    const encWrapper = document.getElementById('enc-wrapper');
+    const copyBtn = document.getElementById('copy-btn');
+    const form = document.getElementById('reg-form');
+
+    // Manual Upload Elements
+    const manualUploadArea = document.getElementById('manual-upload-area');
+    const manualPhotoInput = document.getElementById('manual-photo-input');
+    const manualPreview = document.getElementById('manual-preview');
+    const fileName = document.getElementById('file-name');
+    const uploadActions = document.getElementById('upload-actions');
+    const btnRemovePhoto = document.getElementById('btn-remove-photo');
+    const btnProcessPhoto = document.getElementById('btn-process-photo');
+
+    // Tab Elements
+    const tabs = document.querySelectorAll('.capture-tab');
+    const panels = {
+        camera: document.getElementById('camera-tab'),
+        upload: document.getElementById('upload-tab')
+    };
+
+    // ============================================
+    // State Variables
+    // ============================================
+    let stream = null;
+    let faceDetected = false;
+    let detectionCount = 0;
+    let requiredDetections = 30;
+    let isCapturing = false;
+    let faceEncoding = null;
+    let capturedPhotoData = null;
+    let animationId = null;
+    let manualPhotoFile = null;
+    let isManualMode = false;
+
+    // ============================================
+    // Tab Switching
+    // ============================================
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            tabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            const tabId = this.dataset.tab;
+            
+            // Hide all panels
+            Object.values(panels).forEach(p => p.classList.remove('active'));
+            
+            if (tabId === 'camera-tab') {
+                panels.camera.classList.add('active');
+                isManualMode = false;
+                // If camera was stopped, allow restart
+                if (!stream && !isCapturing) {
+                    btnStartCamera.disabled = false;
+                    btnStartCamera.innerHTML = '<i class="fas fa-camera"></i> Start Camera';
+                }
+            } else {
+                panels.upload.classList.add('active');
+                isManualMode = true;
+                // Stop camera if running
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                    btnStartCamera.disabled = false;
+                    btnStartCamera.innerHTML = '<i class="fas fa-camera"></i> Start Camera';
+                }
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+            }
+        });
+    });
+
+    // ============================================
+    // Manual Photo Upload
+    // ============================================
+    manualUploadArea.addEventListener('click', function(e) {
+        if (e.target.closest('.upload-actions')) return;
+        manualPhotoInput.click();
+    });
+
+    manualPhotoInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+        
+        manualPhotoFile = file;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            manualPreview.src = e.target.result;
+            manualPreview.classList.add('show');
+            fileName.textContent = file.name;
+            fileName.classList.add('show');
+            uploadActions.classList.add('show');
+            manualUploadArea.classList.add('has-image');
+            
+            // Update status
+            uploadStatus.className = 'face-status info';
+            uploadStatus.innerHTML = '<i class="fas fa-info-circle"></i> Photo uploaded. Click "Process Face" to extract encoding.';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    btnRemovePhoto.addEventListener('click', function() {
+        manualPhotoFile = null;
+        manualPreview.classList.remove('show');
+        fileName.classList.remove('show');
+        uploadActions.classList.remove('show');
+        manualUploadArea.classList.remove('has-image');
+        manualPhotoInput.value = '';
+        
+        uploadStatus.className = 'face-status';
+        uploadStatus.innerHTML = '<i class="fas fa-info-circle"></i> Upload a clear photo of the student\'s face';
+        
+        // Clear face data
+        faceEncoding = null;
+        capturedPhotoData = null;
+        faceEncodingInput.value = '';
+        photoDataInput.value = '';
+        encodingDisplay.textContent = 'Capture face to generate encoding...';
+        encWrapper.classList.remove('active');
+        copyBtn.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-user-check"></i> CAPTURE FACE FIRST';
+        statusBadge.textContent = 'Not Started';
+        statusBadge.className = 'status-badge';
+        faceSection.classList.remove('success', 'error');
+    });
+
+    btnProcessPhoto.addEventListener('click', async function() {
+        if (!manualPhotoFile) {
+            uploadStatus.className = 'face-status error';
+            uploadStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please upload a photo first.';
+            return;
+        }
+
+        uploadStatus.className = 'face-status info';
+        uploadStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing face...';
+        this.disabled = true;
+
+        try {
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const imageData = e.target.result;
+                
+                const formData = new FormData();
+                formData.append('photo_data', imageData);
+
+                const response = await fetch('/process-face/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    faceEncoding = data.encoding;
+                    capturedPhotoData = imageData;
+
+                    faceEncodingInput.value = JSON.stringify(faceEncoding);
+                    photoDataInput.value = imageData;
+
+                    const vectorStr = '[' + faceEncoding.slice(0, 10).map(v => v.toFixed(6)).join(', ') + ' ...]';
+                    encodingDisplay.textContent = vectorStr;
+                    encWrapper.classList.add('active');
+                    copyBtn.style.display = 'flex';
+
+                    uploadStatus.className = 'face-status success';
+                    uploadStatus.innerHTML = '✅ Face processed successfully!';
+                    statusBadge.textContent = 'Captured ✓';
+                    statusBadge.className = 'status-badge success';
+                    faceSection.classList.add('success');
+
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-user-check"></i> AUTHORIZE & ENROLL';
+
+                    // Also update camera preview if needed
+                    capturedPreview.src = imageData;
+                    capturedPreview.classList.add('show');
+
+                    console.log('✅ Manual face processed successfully!');
+                } else {
+                    throw new Error(data.error || 'Face processing failed');
+                }
+            };
+            reader.readAsDataURL(manualPhotoFile);
+            
+        } catch (error) {
+            console.error('Manual processing error:', error);
+            uploadStatus.className = 'face-status error';
+            uploadStatus.innerHTML = '❌ ' + error.message;
+            faceSection.classList.add('error');
+        } finally {
+            this.disabled = false;
+        }
+    });
+
+    // ============================================
+    // Set Canvas Size
+    // ============================================
+    function resizeCanvas() {
+        const rect = video.getBoundingClientRect();
+        overlay.width = rect.width || 640;
+        overlay.height = rect.height || 480;
+    }
+
+    // ============================================
+    // Start Camera
+    // ============================================
+    async function startCamera() {
+        if (isManualMode) {
+            // Switch to camera tab if in manual mode
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector('[data-tab="camera-tab"]').classList.add('active');
+            panels.camera.classList.add('active');
+            panels.upload.classList.remove('active');
+            isManualMode = false;
+        }
+
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'user',
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                },
+                audio: false
+            });
+
+            video.srcObject = stream;
+            await video.play();
+
+            resizeCanvas();
+            updateStatus('info', 'Looking for face...', 'active');
+            btnStartCamera.disabled = true;
+            btnStartCamera.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting...';
+            faceSection.classList.add('active');
+
+            detectFace();
+
+        } catch (error) {
+            console.error('Camera Error:', error);
+            updateStatus('error', '❌ Camera access denied. Please allow camera permissions.');
+            btnStartCamera.disabled = false;
+            btnStartCamera.innerHTML = '<i class="fas fa-camera"></i> Start Camera';
+            statusBadge.textContent = 'Error';
+            statusBadge.className = 'status-badge error';
+        }
+    }
+
+    // ============================================
+    // Face Detection Loop
+    // ============================================
+    async function detectFace() {
+        if (!stream || isCapturing) return;
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/jpeg', 0.8);
+
+        try {
+            const formData = new FormData();
+            formData.append('photo_data', imageData);
+
+            const response = await fetch('/process-face/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.face_count > 0) {
+                if (!faceDetected) {
+                    faceDetected = true;
+                    detectionCount = 0;
+                    updateStatus('info', '✅ Face detected! Hold still...', 'active');
+                    progressRing.classList.add('visible');
+                }
+
+                detectionCount++;
+                const progress = Math.min((detectionCount / requiredDetections) * 100, 100);
+                const circumference = 157.08;
+                const offset = circumference - (progress / 100) * circumference;
+                progressCircle.style.strokeDasharray = circumference;
+                progressCircle.style.strokeDashoffset = offset;
+                progressText.textContent = Math.round(progress) + '%';
+
+                if (detectionCount >= requiredDetections && !isCapturing) {
+                    await captureFace(imageData);
+                }
+
+                drawFaceBox(true);
+
+            } else {
+                if (faceDetected) {
+                    faceDetected = false;
+                    detectionCount = 0;
+                    progressRing.classList.remove('visible');
+                    updateStatus('info', '⚠️ Face lost. Please look at camera.', 'active');
+                    progressCircle.style.strokeDashoffset = 157.08;
+                    progressText.textContent = '0%';
+                }
+                drawFaceBox(false);
+            }
+
+        } catch (error) {
+            console.error('Detection error:', error);
+        }
+
+        if (!isCapturing) {
+            animationId = requestAnimationFrame(detectFace);
+        }
+    }
+
+    // ============================================
+    // Draw Face Box on Overlay
+    // ============================================
+    function drawFaceBox(detected) {
+        const ctx = overlay.getContext('2d');
+        ctx.clearRect(0, 0, overlay.width, overlay.height);
+
+        if (detected) {
+            const size = Math.min(overlay.width, overlay.height) * 0.6;
+            const x = (overlay.width - size) / 2;
+            const y = (overlay.height - size) / 2;
+
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 4;
+            ctx.shadowColor = 'rgba(0, 255, 0, 0.5)';
+            ctx.shadowBlur = 20;
+            ctx.strokeRect(x, y, size, size);
+
+            const cornerLength = 20;
+            ctx.shadowBlur = 0;
+            ctx.lineWidth = 3;
+
+            ctx.beginPath();
+            ctx.moveTo(x, y + cornerLength);
+            ctx.lineTo(x, y);
+            ctx.lineTo(x + cornerLength, y);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(x + size - cornerLength, y);
+            ctx.lineTo(x + size, y);
+            ctx.lineTo(x + size, y + cornerLength);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(x, y + size - cornerLength);
+            ctx.lineTo(x, y + size);
+            ctx.lineTo(x + cornerLength, y + size);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(x + size - cornerLength, y + size);
+            ctx.lineTo(x + size, y + size);
+            ctx.lineTo(x + size, y + size - cornerLength);
+            ctx.stroke();
+        }
+    }
+
+    // ============================================
+    // Capture Face
+    // ============================================
+    async function captureFace(imageData) {
+        isCapturing = true;
+        detectionCount = 0;
+        faceDetected = false;
+
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('photo_data', imageData);
+
+            const response = await fetch('/process-face/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                faceEncoding = data.encoding;
+                capturedPhotoData = imageData;
+
+                faceEncodingInput.value = JSON.stringify(faceEncoding);
+                photoDataInput.value = imageData;
+
+                capturedPreview.src = imageData;
+                capturedPreview.classList.add('show');
+
+                const vectorStr = '[' + faceEncoding.slice(0, 10).map(v => v.toFixed(6)).join(', ') + ' ...]';
+                encodingDisplay.textContent = vectorStr;
+                encWrapper.classList.add('active');
+                copyBtn.style.display = 'flex';
+
+                updateStatus('success', '✅ Face captured successfully!', 'success');
+                statusBadge.textContent = 'Captured ✓';
+                statusBadge.className = 'status-badge success';
+                faceSection.classList.remove('active');
+                faceSection.classList.add('success');
+
+                btnConfirm.style.display = 'flex';
+                btnRetake.style.display = 'flex';
+                btnStartCamera.style.display = 'none';
+                progressRing.classList.remove('visible');
+
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-user-check"></i> AUTHORIZE & ENROLL';
+
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+
+                console.log('✅ Face captured successfully!');
+            } else {
+                throw new Error(data.error || 'Face processing failed');
+            }
+
+        } catch (error) {
+            console.error('Capture error:', error);
+            updateStatus('error', '❌ ' + error.message);
+            statusBadge.textContent = 'Error';
+            statusBadge.className = 'status-badge error';
+            isCapturing = false;
+
+            if (!stream) {
+                await startCamera();
+            } else {
+                detectFace();
+            }
+        }
+    }
+
+    // ============================================
+    // Retake Face
+    // ============================================
+    async function retakeFace() {
+        isCapturing = false;
+        faceDetected = false;
+        detectionCount = 0;
+        faceEncoding = null;
+        capturedPhotoData = null;
+
+        capturedPreview.classList.remove('show');
+        encWrapper.classList.remove('active');
+        encodingDisplay.textContent = 'Capture face to generate encoding...';
+        copyBtn.style.display = 'none';
+        faceEncodingInput.value = '';
+        photoDataInput.value = '';
+
+        btnConfirm.style.display = 'none';
+        btnRetake.style.display = 'none';
+        btnStartCamera.style.display = 'flex';
+        btnStartCamera.disabled = false;
+        btnStartCamera.innerHTML = '<i class="fas fa-camera"></i> Start Camera';
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-user-check"></i> CAPTURE FACE FIRST';
+
+        faceSection.classList.remove('success', 'error');
+        faceSection.classList.add('active');
+
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+
+        progressRing.classList.remove('visible');
+        progressCircle.style.strokeDashoffset = 157.08;
+        progressText.textContent = '0%';
+
+        updateStatus('info', 'Click "Start Camera" to begin face capture', '');
+        statusBadge.textContent = 'Not Started';
+        statusBadge.className = 'status-badge';
+    }
+
+    // ============================================
+    // Confirm and Submit
+    // ============================================
+    function confirmAndSubmit() {
+        if (!faceEncoding) {
+            alert('❌ Please capture your face first.');
+            return;
+        }
+        form.submit();
+    }
+
+    // ============================================
+    // Update Status
+    // ============================================
+    function updateStatus(type, message, badgeClass = '') {
+        faceStatus.className = 'face-status ' + type;
+        faceStatus.innerHTML = message;
+
+        if (badgeClass) {
+            statusBadge.className = 'status-badge ' + badgeClass;
+        }
+    }
+
+    // ============================================
+    // Copy Encoding
+    // ============================================
+    function copyEncoding() {
+        if (!faceEncoding) return;
+        navigator.clipboard.writeText(JSON.stringify(faceEncoding)).then(() => {
+            copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+            copyBtn.style.background = '#16a34a';
+            setTimeout(() => {
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                copyBtn.style.background = '';
+            }, 2000);
+        });
+    }
+
+    // ============================================
+    // ID Proof Preview
+    // ============================================
+    function handlePreview(input) {
+        const file = input.files[0];
+        const preview = document.getElementById('doc-preview');
+        const chip = document.getElementById('pdf-chip');
+        const pdfName = document.getElementById('pdf-name');
+
+        if (!file) return;
+
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                chip.classList.remove('show');
+            };
+            reader.readAsDataURL(file);
+        } else if (file.type === 'application/pdf') {
+            preview.style.display = 'none';
+            pdfName.textContent = file.name.substring(0, 20) + (file.name.length > 20 ? '...' : '');
+            chip.classList.add('show');
+        }
+    }
+
+    // ============================================
+    // Event Listeners
+    // ============================================
+    btnStartCamera.addEventListener('click', startCamera);
+    btnRetake.addEventListener('click', retakeFace);
+    btnConfirm.addEventListener('click', confirmAndSubmit);
+    copyBtn.addEventListener('click', copyEncoding);
+    document.getElementById('doc-input').addEventListener('change', function() {
+        handlePreview(this);
+    });
+
+    form.addEventListener('submit', function(e) {
+        if (!faceEncoding) {
+            e.preventDefault();
+            alert('❌ Please capture your face first before submitting.');
+            return false;
+        }
+    });
+
+    // Auto-dismiss messages
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('django-messages');
+        if (container) {
+            setTimeout(() => {
+                const msgs = container.querySelectorAll('.msg');
+                msgs.forEach(m => {
+                    m.style.transition = "all 0.6s ease";
+                    m.style.opacity = "0";
+                    m.style.transform = "translateX(20px)";
+                    setTimeout(() => m.remove(), 600);
+                });
+            }, 5000);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+    });
+
+    window.addEventListener('beforeunload', function() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+        }
+    });
+</script>
+{% endblock %}

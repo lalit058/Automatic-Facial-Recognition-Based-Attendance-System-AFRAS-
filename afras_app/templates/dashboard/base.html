@@ -1,0 +1,309 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFRAS | {% block title %}{% endblock %}</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{% static 'css/photo-modal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}?v={% now 'U' %}">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}?v={% now 'U' %}">
+
+    <script src="{% static 'js/photo-model.js' %}"></script>
+    {% block extra_head %}{% endblock %}
+
+    {% block extra_css %}{% endblock %}
+
+    <!-- Base Styles -->
+    <style>
+        :root {
+            --primary: #1a5694;
+            --primary-glow: rgba(26, 86, 148, 0.2);
+            --bg: #f0f2f5;
+            --surface: #ffffff;
+            --border: #93b3dd;
+            --main-text: #000000;
+            --text-main: #34395e;
+            --primary-text: #ffffff;
+            --primary-dark: #0d2b4a;
+            --text-dim: #64748b;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --surface-light: #f8f9fa;
+            --surface-hover: #e9ecef;
+            --sidebar-width: 215px;
+            --sidebar-collapsed: 70px;
+            --sidebar-expanded: 240px;
+            --transition-speed: 0.3s;
+            --tooltip-bg: #ffffff;
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+
+            /* for home template */
+            --stat-staff: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            --stat-students: linear-gradient(135deg, #134e5e 0%, #71b280 100%);
+            --stat-attendance: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+            --stat-scans: linear-gradient(135deg, #360033 0%, #0b8793 100%);
+            --stat-dept: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
+            --stat-proxy: linear-gradient(135deg, #f12711 0%, #f5af19 100%);
+
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: flex;
+            min-height: 100vh;
+            transition: padding-left var(--transition-speed) ease;
+            overflow-x: hidden;
+        }
+
+        /* Main Content */
+
+        main {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 0.5rem;
+            width: calc(100% - var(--sidebar-width));
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Target sidebar by ID, not generic aside */
+        #sidebar.collapsed~main {
+            margin-left: var(--sidebar-collapsed);
+            width: calc(100% - var(--sidebar-collapsed));
+        }
+
+        main>*:not(.dashboard-footer):not(.system-status-bar):not(.notifications-container) {
+            flex: 1 0 auto;
+        }
+
+        /* Or set a minimum height for content */
+        .main-content-wrapper {
+            min-height: calc(100vh - 200px);
+        }
+
+        .dashboard-footer {
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        /* Mobile Overlay */
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+        }
+
+        /* Message Styles */
+
+        .msg-container {
+            position: fixed;
+            top: 5px;
+            left: 60%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .msg {
+            padding: 10px 25px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            width: auto;
+            min-width: 350px;
+            max-width: 500px;
+            animation: slideDown 0.4s ease-out forwards;
+            position: relative;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        .msg.success {
+            color: var(--success);
+        }
+
+        .msg.error {
+            color: var(--danger);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+        }
+
+        /* FIXED: Ensure no other aside elements cause issues */
+
+        aside:not(#sidebar) {
+            display: none !important;
+        }
+
+        /* But allow modal asides if needed */
+
+        .modal-overlay aside,
+        #photoModal aside {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    {% include 'dashboard/sidebar.html' %}
+
+    <main>
+        <div class="msg-container" id="django-messages">
+            {% if messages %} {% for msg in messages %}
+            <div class="msg {{ msg.tags }}" data-auto-dismiss="true">
+                <i class="fas 
+                    {% if msg.tags == 'success' %}fa-check-circle
+                    {% elif msg.tags == 'error' or msg.tags == 'warning' %}fa-exclamation-circle
+                    {% else %}fa-info-circle{% endif %}">
+                </i>
+                <span>{{ msg }}</span>
+            </div>
+            {% endfor %} {% endif %}
+        </div>
+
+        {% block content %}{% endblock %} {% include 'dashboard/footer.html' %}
+    </main>
+
+    <!-- JavaScript files loaded at the bottom -->
+    <script src="{% static 'js/sidebar.js' %}?v={% now 'U' %}"></script>
+    {% block extra_scripts %}{% endblock %}
+
+
+    <script>
+        // dashboard/home.html
+        window.showFaceEncoding = function () {
+            console.log('showFaceEncoding called from parent');
+            // Find modal in the injected content
+            var container = document.getElementById('studentProfileContainer');
+            var modal = container ? container.querySelector('#faceEncodingModal') : null;
+
+            if (!modal) {
+                modal = document.getElementById('faceEncodingModal');
+            }
+
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            } else {
+                console.error('Face encoding modal not found');
+                alert('Face encoding modal not found');
+            }
+        };
+
+        window.closeFaceEncodingModal = function () {
+            var container = document.getElementById('studentProfileContainer');
+            var modal = container ? container.querySelector('#faceEncodingModal') : null;
+
+            if (!modal) {
+                modal = document.getElementById('faceEncodingModal');
+            }
+
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        };
+
+        window.copyFaceEncoding = function () {
+            var container = document.getElementById('studentProfileContainer');
+            var content = container ? container.querySelector('#encodingContent') : null;
+
+            if (!content) {
+                content = document.getElementById('encodingContent');
+            }
+
+            if (content && content.textContent) {
+                navigator.clipboard.writeText(content.textContent).then(function () {
+                    window.showMessage('Face encoding copied to clipboard!', 'success');
+                }).catch(function () {
+                    window.showMessage('Failed to copy', 'error');
+                });
+            }
+        };
+
+        window.downloadFaceEncoding = function () {
+            var container = document.getElementById('studentProfileContainer');
+            var content = container ? container.querySelector('#encodingContent') : null;
+
+            if (!content) {
+                content = document.getElementById('encodingContent');
+            }
+
+            if (content && content.textContent) {
+                var blob = new Blob([content.textContent], { type: 'application/json' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'face_encoding_' + Date.now() + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                window.showMessage('File downloaded!', 'success');
+            }
+        };
+    </script>
+</body>
+
+</html>

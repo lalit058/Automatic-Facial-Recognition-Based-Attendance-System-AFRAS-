@@ -1,0 +1,3342 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{% if request.user.is_superuser %}Admin{% else %}Staff{% endif %} Dashboard{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* ============================================
+       ROOT VARIABLES
+    ============================================ */
+    :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --primary-light: #818cf8;
+        --success: #16a34a;
+        --danger: #dc2626;
+        --warning: #d97706;
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --surface-light: #f1f5f9;
+        --border: #e2e8f0;
+        --text-main: #0f172a;
+        --text-dim: #64748b;
+        --text-light: #94a3b8;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        --radius: 12px;
+        --transition: 0.3s ease;
+        --stat-staff: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        --stat-students: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+        --stat-attendance: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        --stat-scans: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+        --stat-dept: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        --stat-proxy: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        --sidebar-width: 250px;
+        --sidebar-collapsed: 70px;
+        --transition-speed: 0.3s;
+    }
+
+    /* ============================================
+       BASE LAYOUT
+    ============================================ */
+    .page-container {
+        padding: 0.5rem;
+        max-width: 1600px;
+        margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    main {
+        transition: margin-left var(--transition-speed) ease;
+        width: calc(100% - var(--sidebar-width));
+        padding: 0.5rem;
+        box-sizing: border-box;
+    }
+
+    aside.collapsed~main {
+        margin-left: var(--sidebar-collapsed) !important;
+        width: calc(100% - var(--sidebar-collapsed)) !important;
+    }
+
+    /*  HEADER  */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding: 0.5rem 0 1rem 0;
+        width: 100%;
+    }
+
+    .header-left {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex: 0 1 auto;
+        min-width: 200px;
+    }
+
+    .welcome-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .welcome-text {
+        color: var(--text-dim);
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    .welcome-text strong {
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 1.05rem;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    .admin-badge {
+        background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+        color: #000;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .staff-badge {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+    }
+
+    .quick-stats {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-top: 0.25rem;
+    }
+
+    .stat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        background: var(--surface-light);
+        padding: 0.25rem 0.75rem;
+        border-radius: 30px;
+        border: 1px solid var(--border);
+    }
+
+    .stat-chip i {
+        color: var(--primary);
+        font-size: 0.65rem;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        flex: 0 1 auto;
+        margin-left: auto;
+    }
+
+    .system-status {
+        font-size: 0.7rem;
+        color: var(--success);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+    }
+
+    .system-status::before {
+        content: '●';
+        font-size: 0.75rem;
+        animation: pulse-dot 2s infinite;
+    }
+
+    .datetime-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.2rem;
+        padding-left: 1rem;
+        border-left: 1px solid var(--border);
+    }
+
+    .live-clock {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--primary);
+        letter-spacing: 0.5px;
+    }
+
+    .live-date {
+        font-size: 0.7rem;
+        color: var(--text-light);
+    }
+
+    /* ============================================
+       NOTIFICATION - FIXED DELETE BUTTON
+    ============================================ */
+    .notification-wrapper {
+        position: relative;
+        padding-left: 1rem;
+        border-left: 1px solid var(--border);
+    }
+
+    .notification-btn {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--transition);
+        color: var(--text-dim);
+    }
+
+    .notification-btn:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .notification-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .notification-btn i {
+        font-size: 1.2rem;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: -7px;
+        right: -7px;
+        background: var(--danger);
+        color: white;
+        font-size: 0.6rem;
+        font-weight: 700;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 0 3px;
+        border: 2px solid var(--surface);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .notification-dropdown {
+        position: absolute;
+        top: 50px;
+        right: 0;
+        width: 380px;
+        max-width: 90vw;
+        background: var(--surface);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: none;
+        overflow: hidden;
+        animation: fadeInDown 0.3s ease;
+    }
+
+    .notification-dropdown.show {
+        display: block;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .dropdown-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .dropdown-header h4 {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .dropdown-header h4 i {
+        color: var(--primary);
+    }
+
+    .mark-all-btn {
+        background: transparent;
+        border: none;
+        color: var(--primary);
+        font-size: 0.7rem;
+        cursor: pointer;
+        padding: 4px 10px;
+        border-radius: 20px;
+        transition: all 0.2s;
+    }
+
+    .mark-all-btn:hover {
+        background: rgba(99, 102, 241, 0.1);
+    }
+
+    .dropdown-body {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .dropdown-body::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .dropdown-body::-webkit-scrollbar-track {
+        background: var(--bg);
+    }
+
+    .dropdown-body::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 10px;
+    }
+
+    .notification-item {
+        padding: 0.75rem 1.25rem;
+        padding-right: 40px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        display: flex;
+        gap: 12px;
+    }
+
+    .notification-item:hover {
+        background: rgba(99, 102, 241, 0.04);
+    }
+
+    .notification-item.unread {
+        background: rgba(99, 102, 241, 0.06);
+    }
+
+    .notification-item.unread::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: var(--primary);
+    }
+
+    .notification-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .notification-icon.attendance {
+        background: rgba(22, 163, 74, 0.1);
+        color: var(--success);
+    }
+
+    .notification-icon.session {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary);
+    }
+
+    .notification-icon.proxy {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--danger);
+    }
+
+    .notification-icon.student {
+        background: rgba(217, 119, 6, 0.1);
+        color: var(--warning);
+    }
+
+    .notification-icon.system {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+    }
+
+    .notification-icon.success {
+        background: rgba(22, 163, 74, 0.1);
+        color: var(--success);
+    }
+
+    .notification-icon.warning {
+        background: rgba(217, 119, 6, 0.1);
+        color: var(--warning);
+    }
+
+    .notification-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .notification-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-bottom: 2px;
+        color: var(--text-main);
+    }
+
+    .notification-message {
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        margin-bottom: 2px;
+        line-height: 1.4;
+    }
+
+    .notification-time {
+        font-size: 0.6rem;
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .notification-delete {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: var(--text-dim);
+        cursor: pointer;
+        padding: 6px 8px;
+        border-radius: 6px;
+        opacity: 0;
+        transition: all 0.2s ease;
+        z-index: 5;
+    }
+
+    .notification-item:hover .notification-delete {
+        opacity: 1;
+    }
+
+    .notification-delete:hover {
+        background: transparent;
+        color: var(--danger);
+        transform: translateY(-50%) scale(1.4);
+    }
+
+    .notification-delete:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .empty-notifications {
+        text-align: center;
+        padding: 2.5rem 1.25rem;
+        color: var(--text-dim);
+    }
+
+    .empty-notifications i {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.3;
+    }
+
+    .dropdown-footer {
+        padding: 0.75rem 1.25rem;
+        border-top: 1px solid var(--border);
+        text-align: center;
+    }
+
+    .view-all-btn {
+        background: transparent;
+        border: none;
+        color: var(--primary);
+        font-size: 0.7rem;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: block;
+    }
+
+    .view-all-btn:hover {
+        background: rgba(99, 102, 241, 0.05);
+    }
+
+    /* ============================================
+       STATS ROW
+    ============================================ */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .stat-card {
+        padding: 1rem 1.25rem;
+        border-radius: var(--radius);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        min-height: 130px;
+        display: flex;
+        align-items: center;
+        transition: all var(--transition);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-staff {
+        background: var(--stat-staff);
+    }
+
+    .stat-students {
+        background: var(--stat-students);
+    }
+
+    .stat-attendance {
+        background: var(--stat-attendance);
+    }
+
+    .stat-scans {
+        background: var(--stat-scans);
+    }
+
+    .stat-dept {
+        background: var(--stat-dept);
+    }
+
+    .stat-proxy {
+        background: var(--stat-proxy);
+    }
+
+    .stat-content {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+    }
+
+    .stat-card h4 {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(255, 255, 255, 0.95);
+        font-weight: 600;
+    }
+
+    .stat-card .val {
+        font-size: 2.2rem;
+        font-weight: 800;
+        line-height: 1;
+        margin: 0 0 0.5rem 0;
+        color: white;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .dept-val {
+        color: #ffd966 !important;
+    }
+
+    .attendance-val {
+        color: #a8e6cf !important;
+    }
+
+    .proxy-val {
+        color: #ffb347 !important;
+    }
+
+    .stat-footer {
+        opacity: 0.7;
+        transition: opacity var(--transition);
+    }
+
+    .stat-card:hover .stat-footer {
+        opacity: 1;
+    }
+
+    .view-details-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: white;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 4px 12px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all var(--transition);
+        cursor: pointer;
+        background: none;
+        border: none;
+    }
+
+    .stat-bg-icon {
+        position: absolute;
+        right: -10px;
+        bottom: -10px;
+        font-size: 4.5rem;
+        opacity: 0.15;
+        color: white;
+        transform: rotate(-5deg);
+        transition: all 0.5s ease;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .scan-line {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        animation: scan-line 3s linear infinite;
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    @keyframes scan-line {
+        0% {
+            left: -100%;
+        }
+
+        20% {
+            left: 100%;
+        }
+
+        100% {
+            left: 100%;
+        }
+    }
+
+    @keyframes pulse-dot {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.3;
+        }
+    }
+
+    /* ============================================
+       DASHBOARD GRID
+    ============================================ */
+    .dashboard-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .row-two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    /* ============================================
+       CARDS
+    ============================================ */
+    .card {
+        background: var(--surface);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: all var(--transition);
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .card-header {
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: rgba(99, 102, 241, 0.02);
+    }
+
+    .card-header h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-main);
+        margin: 0;
+    }
+
+    .card-header h3 i {
+        color: var(--primary);
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    .badge-info {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary);
+        padding: 0.2rem 0.8rem;
+        border-radius: 40px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    /* ============================================
+       CAMERA
+    ============================================ */
+    .camera-container {
+        background: #000;
+        border-radius: var(--radius);
+        overflow: hidden;
+        aspect-ratio: 16/9;
+        position: relative;
+    }
+
+    .camera-container video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .camera-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+        padding: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+        font-size: 0.7rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .recognition-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+        animation: pulse-dot 1.5s infinite;
+        display: inline-block;
+        margin-right: 6px;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 0.5rem 1rem;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all var(--transition);
+        min-width: 100px;
+    }
+
+    .btn-primary {
+        background: var(--success);
+        color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-danger:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* ============================================
+       ACTIONS GRID
+    ============================================ */
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .action-card {
+        background: var(--surface-light);
+        padding: 0.75rem 0.5rem;
+        border-radius: var(--radius);
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        transition: all var(--transition);
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        text-align: center;
+        min-height: 70px;
+        justify-content: center;
+    }
+
+    .action-card i {
+        font-size: 1.2rem;
+        color: var(--primary);
+    }
+
+    .action-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        background: var(--surface);
+    }
+
+    /* ============================================
+       STATS MINI GRID
+    ============================================ */
+    .stats-mini-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .stat-mini-card {
+        background: var(--surface-light);
+        border-radius: var(--radius);
+        padding: 1rem;
+        text-align: center;
+        border: 1px solid var(--border);
+        transition: all var(--transition);
+    }
+
+    .stat-mini-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-3px);
+    }
+
+    .stat-mini-value {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--primary);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-mini-label {
+        font-size: 0.65rem;
+        color: var(--text-dim);
+        margin-top: 0.25rem;
+    }
+
+    /* ============================================
+       CHART
+    ============================================ */
+    .chart-container {
+        margin-top: 0.5rem;
+        position: relative;
+        height: 200px;
+    }
+
+    .chart-container canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .chart-period {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .period-btn {
+        background: transparent;
+        border: 1px solid var(--border);
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        cursor: pointer;
+        transition: all var(--transition);
+    }
+
+    .period-btn.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    /* ============================================
+       TABLE
+    ============================================ */
+    .search-bar {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 40px;
+        font-size: 0.8rem;
+        background: var(--surface);
+        min-width: 120px;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .filter-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.5rem 1.2rem;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all var(--transition);
+        white-space: nowrap;
+    }
+
+    .filter-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .refresh-btn {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-dim);
+        padding: 0.5rem 1rem;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all var(--transition);
+        white-space: nowrap;
+    }
+
+    .refresh-btn:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        border-radius: var(--radius);
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+        min-width: 700px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 0.6rem 0.6rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .data-table th {
+        color: var(--text-dim);
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        background: rgba(99, 102, 241, 0.03);
+        white-space: nowrap;
+    }
+
+    .data-table tr:hover {
+        background: rgba(99, 102, 241, 0.03);
+    }
+
+    .data-table td {
+        word-break: break-word;
+    }
+
+    /* ============================================
+       BADGES
+    ============================================ */
+    .badge {
+        padding: 0.2rem 0.7rem;
+        border-radius: 40px;
+        font-size: 0.6rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+    }
+
+    .badge-success {
+        background: rgba(22, 163, 74, 0.12);
+        color: var(--success);
+        border: 1px solid rgba(22, 163, 74, 0.2);
+    }
+
+    .badge-danger {
+        background: rgba(220, 38, 38, 0.12);
+        color: var(--danger);
+        border: 1px solid rgba(220, 38, 38, 0.2);
+    }
+
+    .badge-warning {
+        background: rgba(217, 119, 6, 0.12);
+        color: var(--warning);
+        border: 1px solid rgba(217, 119, 6, 0.2);
+    }
+
+    /* ============================================
+   ACTION BUTTONS - UPDATED
+============================================ */
+    .action-buttons-cell {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .view-details,
+    .view-attendance,
+    .view-face {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all var(--transition);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-dim);
+        flex-shrink: 0;
+    }
+
+    .view-details {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary);
+        border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    .view-details:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .view-attendance {
+        background: rgba(22, 163, 74, 0.1);
+        color: var(--success);
+        border-color: rgba(22, 163, 74, 0.2);
+    }
+
+    .view-attendance:hover {
+        background: var(--success);
+        color: white;
+        border-color: var(--success);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    }
+
+    .view-face {
+        background: rgba(217, 119, 6, 0.1);
+        color: var(--warning);
+        border-color: rgba(217, 119, 6, 0.2);
+    }
+
+    .view-face:hover:not(:disabled) {
+        background: var(--warning);
+        color: white;
+        border-color: var(--warning);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+    }
+
+    .view-face:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        background: var(--bg);
+        border-color: var(--border);
+        color: var(--text-light);
+    }
+
+    /* ============================================
+       STATUS LIST
+    ============================================ */
+    .status-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.8rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .status-item:last-child {
+        border-bottom: none;
+    }
+
+    .status-active {
+        color: var(--success);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .status-value {
+        font-weight: 600;
+        color: var(--text-main);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+    }
+
+    .progress-container {
+        width: 100px;
+        height: 6px;
+        background: var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: var(--success);
+        border-radius: 10px;
+        transition: width 0.3s;
+    }
+
+    /* ============================================
+       ACTIVITY FEED
+    ============================================ */
+    .activity-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 340px;
+        overflow-y: auto;
+    }
+
+    .activity-feed::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .activity-feed::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .activity-feed::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 10px;
+    }
+
+    .activity-feed:hover::-webkit-scrollbar-thumb {
+        background: var(--border);
+    }
+
+    .activity-item {
+        display: flex;
+        gap: 0.75rem;
+        padding: 0.6rem;
+        border-radius: var(--radius);
+        background: var(--surface-light);
+        transition: all var(--transition);
+    }
+
+    .activity-item:hover {
+        background: rgba(99, 102, 241, 0.05);
+    }
+
+    .activity-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .activity-icon i {
+        font-size: 0.9rem;
+    }
+
+    .activity-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .activity-title {
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 0.2rem;
+        color: var(--text-main);
+        word-break: break-word;
+    }
+
+    .activity-time {
+        font-size: 0.6rem;
+        color: var(--text-dim);
+    }
+
+    .view-more {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.7rem;
+        color: var(--primary);
+        text-decoration: none;
+        margin-top: 0.75rem;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        transition: all var(--transition);
+    }
+
+    .view-more:hover {
+        gap: 12px;
+        color: var(--primary-dark);
+    }
+
+    /* ============================================
+       EMPTY STATE
+    ============================================ */
+    .empty-state {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--text-dim);
+    }
+
+    .empty-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.3;
+    }
+
+    /* ============================================
+       MODALS
+    ============================================ */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 100000;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+    }
+
+    .modal-container {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        max-width: 700px;
+        width: 100%;
+        max-height: 85vh;
+        overflow-y: auto;
+        position: relative;
+        border: 1px solid var(--border);
+        animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-30px) scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 1.2rem;
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--text-dim);
+        transition: all var(--transition);
+    }
+
+    .modal-close:hover {
+        color: var(--danger);
+        transform: rotate(90deg);
+    }
+
+    .face-preview-container,
+    .face-full-data {
+        background: var(--bg);
+        border-radius: 8px;
+        padding: 0.75rem;
+        max-height: 150px;
+        overflow-y: auto;
+        margin-top: 0.5rem;
+        border: 1px solid var(--border);
+    }
+
+    .face-full-data {
+        max-height: 200px;
+    }
+
+    /* ============================================
+       FULLY RESPONSIVE BREAKPOINTS
+    ============================================ */
+
+    /* Laptops */
+    @media (max-width: 1200px) {
+        .stats-row {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .row-two-column {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    /* Tablets */
+    @media (max-width: 992px) {
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .row-two-column {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .stats-mini-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .dashboard-header {
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .header-left {
+            flex: 1 1 100%;
+            min-width: unset;
+        }
+
+        .header-right {
+            flex: 0 1 auto;
+            margin-left: 0;
+            width: 100%;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            padding-top: 0.5rem;
+        }
+
+        .datetime-group {
+            align-items: flex-start;
+            padding-left: 0;
+            border-left: none;
+        }
+
+        .notification-wrapper {
+            padding-left: 0;
+            border-left: none;
+        }
+
+        .notification-dropdown {
+            right: -80px;
+            width: 340px;
+        }
+    }
+
+    /* Mobile Large */
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 0.25rem;
+        }
+
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.25rem 0 0.75rem 0;
+        }
+
+        .header-left {
+            flex: 1 1 100%;
+            width: 100%;
+        }
+
+        .header-right {
+            flex: 1 1 100%;
+            width: 100%;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding-top: 0.5rem;
+            margin-left: 0;
+        }
+
+        .welcome-text {
+            font-size: 0.9rem;
+        }
+
+        .welcome-text strong {
+            font-size: 0.95rem;
+        }
+
+        .badge {
+            font-size: 0.6rem;
+            padding: 3px 10px;
+        }
+
+        .quick-stats {
+            gap: 0.5rem;
+        }
+
+        .stat-chip {
+            font-size: 0.6rem;
+            padding: 0.2rem 0.6rem;
+        }
+
+        .live-clock {
+            font-size: 0.95rem;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .stat-card {
+            padding: 0.75rem 1rem;
+            min-height: 100px;
+        }
+
+        .stat-card .val {
+            font-size: 1.6rem;
+        }
+
+        .stat-card h4 {
+            font-size: 0.6rem;
+        }
+
+        .stat-bg-icon {
+            font-size: 3rem;
+        }
+
+        .card-body {
+            padding: 0.75rem 1rem;
+        }
+
+        .card-header {
+            padding: 0.5rem 1rem;
+        }
+
+        .card-header h3 {
+            font-size: 0.85rem;
+        }
+
+        .actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .action-card {
+            padding: 0.5rem 0.3rem;
+            min-height: 60px;
+            font-size: 0.65rem;
+        }
+
+        .action-card i {
+            font-size: 1rem;
+        }
+
+        .stats-mini-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .stat-mini-card {
+            padding: 0.75rem;
+        }
+
+        .stat-mini-value {
+            font-size: 1.2rem;
+        }
+
+        .btn {
+            font-size: 0.7rem;
+            padding: 0.4rem 0.8rem;
+            min-width: 80px;
+        }
+
+        .search-bar {
+            flex-direction: row;
+            gap: 0.5rem;
+        }
+
+        .search-input {
+            font-size: 0.7rem;
+            padding: 0.4rem 0.8rem;
+            min-width: 80px;
+        }
+
+        .filter-btn,
+        .refresh-btn {
+            font-size: 0.65rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .data-table {
+            font-size: 0.7rem;
+            min-width: 600px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.4rem 0.4rem;
+        }
+
+        .data-table th {
+            font-size: 0.55rem;
+        }
+
+        .badge {
+            font-size: 0.5rem;
+            padding: 0.15rem 0.5rem;
+        }
+
+        .view-details,
+        .view-face {
+            width: 26px;
+            height: 26px;
+            font-size: 0.6rem;
+        }
+
+        .notification-dropdown {
+            width: 300px;
+            right: -60px;
+        }
+
+        .dropdown-header {
+            padding: 0.75rem 1rem;
+        }
+
+        .dropdown-header h4 {
+            font-size: 0.8rem;
+        }
+
+        .notification-item {
+            padding: 0.5rem 1rem;
+            padding-right: 35px;
+        }
+
+        .notification-title {
+            font-size: 0.7rem;
+        }
+
+        .notification-message {
+            font-size: 0.6rem;
+        }
+
+        .modal-container {
+            padding: 1rem;
+            max-width: 95%;
+        }
+
+        .chart-container {
+            height: 160px;
+        }
+    }
+
+    /* Mobile Small */
+    @media (max-width: 480px) {
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-card {
+            min-height: 90px;
+        }
+
+        .stat-card .val {
+            font-size: 1.4rem;
+        }
+
+        .actions-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .stats-mini-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .stat-mini-value {
+            font-size: 1rem;
+        }
+
+        .stat-mini-label {
+            font-size: 0.55rem;
+        }
+
+        .header-right {
+            gap: 0.4rem;
+        }
+
+        .system-status {
+            font-size: 0.55rem;
+        }
+
+        .live-clock {
+            font-size: 0.75rem;
+        }
+
+        .live-date {
+            font-size: 0.55rem;
+        }
+
+        .notification-btn {
+            width: 32px;
+            height: 32px;
+        }
+
+        .notification-btn i {
+            font-size: 0.9rem;
+        }
+
+        .notification-dropdown {
+            width: 280px;
+            right: -40px;
+        }
+
+        .search-bar {
+            flex-direction: column;
+        }
+
+        .search-input {
+            width: 100%;
+        }
+
+        .filter-btn,
+        .refresh-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .data-table {
+            font-size: 0.6rem;
+            min-width: 500px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.3rem 0.3rem;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+
+        .modal-container {
+            padding: 0.75rem;
+        }
+
+        .chart-container {
+            height: 140px;
+        }
+
+        .status-item {
+            font-size: 0.7rem;
+        }
+
+        .progress-container {
+            width: 60px;
+        }
+
+        .view-more {
+            font-size: 0.6rem;
+        }
+    }
+
+    /* Extra Small */
+    @media (max-width: 360px) {
+        .actions-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-mini-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .data-table {
+            min-width: 400px;
+        }
+
+        .notification-dropdown {
+            width: 260px;
+            right: -20px;
+        }
+
+        .stat-card .val {
+            font-size: 1.2rem;
+        }
+
+        .stat-card h4 {
+            font-size: 0.55rem;
+        }
+
+        .welcome-text {
+            font-size: 0.75rem;
+        }
+
+        .welcome-text strong {
+            font-size: 0.8rem;
+        }
+    }
+
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+
+        .header-right,
+        .notification-wrapper,
+        .btn-group,
+        .search-bar,
+        .filter-btn,
+        .refresh-btn,
+        .action-buttons-cell {
+            display: none !important;
+        }
+
+        .card {
+            border: 1px solid #e2e8f0;
+            break-inside: avoid;
+        }
+
+        .stat-card {
+            break-inside: avoid;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stats-row {
+            break-inside: avoid;
+        }
+
+        .page-header {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border: 1px solid #e2e8f0;
+        }
+
+        .modal-overlay {
+            display: none !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- ============================================
+    HEADER
+    ============================================ -->
+    <div class="dashboard-header">
+        <div class="header-left">
+            <div class="welcome-section">
+                <div class="welcome-text">
+                    Welcome Back, <strong>
+                        {% if request.user.is_superuser %}
+                        {% if request.user.staffProfile and request.user.staffProfile.full_name %}
+                        {{ request.user.staffProfile.full_name }}
+                        {% elif request.user.get_full_name %}
+                        {{ request.user.get_full_name }}
+                        {% else %}
+                        Administrator
+                        {% endif %}
+                        {% elif request.user.staffProfile and request.user.staffProfile.full_name %}
+                        {{ request.user.staffProfile.full_name }}
+                        {% elif request.user.get_full_name %}
+                        {{ request.user.get_full_name }}
+                        {% else %}
+                        {{ request.user.username|title }}
+                        {% endif %}
+                    </strong>
+                </div>
+                <div class="badge {% if request.user.is_superuser %}admin-badge{% else %}staff-badge{% endif %}">
+                    <i
+                        class="fas {% if request.user.is_superuser %}fa-crown{% else %}fa-chalkboard-teacher{% endif %}"></i>
+                    {% if request.user.is_superuser %}ADMINISTRATOR{% else %}VERIFIED STAFF{% endif %}
+                </div>
+            </div>
+            <div class="quick-stats">
+                <span class="stat-chip"><i class="fas fa-users"></i> {{ total_staff|default:"0" }} Staff</span>
+                <span class="stat-chip"><i class="fas fa-user-graduate"></i> {{ total_students|default:"0" }}
+                    Students</span>
+                {% if not request.user.is_superuser %}
+                <span class="stat-chip"><i class="fas fa-chart-line"></i> {{ attendance_rate|default:"0" }}%
+                    Today</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="system-status">SYSTEM ONLINE</div>
+            <div class="datetime-group">
+                <div id="live-clock" class="live-clock">--:--:-- --</div>
+                <div id="live-date" class="live-date"></div>
+            </div>
+            <div class="notification-wrapper">
+                <div class="notification-btn" id="notificationBell">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationCount">0</span>
+                </div>
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="dropdown-header">
+                        <h4><i class="fas fa-bell"></i> Notifications</h4>
+                        <button class="mark-all-btn" id="markAllReadBtn">Mark all read</button>
+                    </div>
+                    <div class="dropdown-body" id="notificationList">
+                        <div class="loading-notifications">
+                            <div class="loading-spinner"></div>
+                            <p>Loading notifications...</p>
+                        </div>
+                    </div>
+                    <div class="dropdown-footer">
+                        <a href="{% url 'notifications_list' %}" class="view-all-btn">View All Notifications</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    STATS ROW
+    ============================================ -->
+    <div class="stats-row">
+        {% if request.user.is_superuser %}
+        <a href="{% url 'staff-directory' %}" class="stat-link">
+            <div class="stat-card stat-staff">
+                <div class="scan-line"></div>
+                <div class="stat-bg-icon"><i class="fas fa-users-gear"></i></div>
+                <div class="stat-content">
+                    <h4><i class="fas fa-users-gear"></i> Total Staff</h4>
+                    <div class="val" id="totalStaff">{{ total_staff|default:"0" }}</div>
+                    <div class="stat-footer">
+                        <span class="view-details-btn">View Details <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a href="{% url 'student-directory' %}" class="stat-link">
+            <div class="stat-card stat-students">
+                <div class="scan-line"></div>
+                <div class="stat-bg-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="stat-content">
+                    <h4><i class="fas fa-user-graduate"></i> Total Students</h4>
+                    <div class="val" id="totalStudents">{{ total_students|default:"0" }}</div>
+                    <div class="stat-footer">
+                        <span class="view-details-btn">View Details <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% else %}
+        <a href="{% url 'student-directory' %}" class="stat-link">
+            <div class="stat-card stat-dept">
+                <div class="scan-line"></div>
+                <div class="stat-bg-icon"><i class="fas fa-building"></i></div>
+                <div class="stat-content">
+                    <h4><i class="fas fa-building"></i> Department Students</h4>
+                    <div class="val dept-val" id="totalDeptStudents">{{ total_students|default:"0" }}</div>
+                    <div class="stat-footer">
+                        <span class="view-details-btn">View Details <i class="fas fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        <div class="stat-card stat-attendance">
+            <div class="scan-line"></div>
+            <div class="stat-bg-icon"><i class="fas fa-chart-line"></i></div>
+            <div class="stat-content">
+                <h4><i class="fas fa-chart-line"></i> Today's Attendance</h4>
+                <div class="val attendance-val" id="attendanceRate">{{ attendance_rate|default:"0" }}%</div>
+                <div class="stat-footer">
+                    <button class="view-details-btn" onclick="showAttendanceDetails()">View Details <i
+                            class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="stat-card stat-scans">
+            <div class="scan-line"></div>
+            <div class="stat-bg-icon"><i class="fas fa-fingerprint"></i></div>
+            <div class="stat-content">
+                <h4><i class="fas fa-fingerprint"></i> Today's Scans</h4>
+                <div class="val" id="dailyScans">{{ daily_scans|default:"0" }}</div>
+                <div class="stat-footer">
+                    <button class="view-details-btn" onclick="showScanDetails()">View Details <i
+                            class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card stat-proxy">
+            <div class="scan-line"></div>
+            <div class="stat-bg-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="stat-content">
+                <h4><i class="fas fa-shield-alt"></i> Proxy Alerts</h4>
+                <div class="val proxy-val" id="proxyAlerts">{{ proxy_alerts|default:"0" }}</div>
+                <div class="stat-footer">
+                    <button class="view-details-btn" onclick="showProxyDetails()">View Details <i
+                            class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    DASHBOARD GRID
+    ============================================ -->
+    <div class="dashboard-grid">
+
+        <!-- Row 1: Camera + Quick Actions -->
+        <div class="row-two-column">
+            <!-- Live Camera Feed -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-video"></i> Live Recognition Feed</h3>
+                    <span class="badge-info" id="cameraStatus"><i class="fas fa-circle"
+                            style="color: var(--success); font-size: 0.6rem;"></i> Ready</span>
+                </div>
+                <div class="card-body">
+                    <div class="camera-container">
+                        <video id="liveCameraFeed" autoplay muted playsinline></video>
+                        <div class="camera-overlay">
+                            <div><span class="recognition-dot"></span><span id="recognitionStatus">Ready</span></div>
+                            <span id="fpsCounter">0 FPS</span>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button id="startCameraBtn" class="btn btn-primary"><i class="fas fa-play"></i> Start
+                            Recognition</button>
+                        <button id="stopCameraBtn" class="btn btn-danger" disabled><i class="fas fa-stop"></i>
+                            Stop</button>
+                    </div>
+                    <div id="lastRecognized"
+                        style="margin-top: 0.75rem; font-size: 0.7rem; text-align: center; color: var(--text-dim); min-height: 32px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="actions-grid">
+                        {% if request.user.is_superuser %}
+                        <a href="{% url 'register-staff' %}" class="action-card"><i
+                                class="fas fa-user-shield"></i><span>Add Staff</span></a>
+                        <a href="{% url 'register-student' %}" class="action-card"><i
+                                class="fas fa-user-graduate"></i><span>Add Student</span></a>
+                        <a href="{% url 'student-directory' %}" class="action-card"><i
+                                class="fas fa-users"></i><span>Student Directory</span></a>
+                        <a href="{% url 'staff-directory' %}" class="action-card"><i
+                                class="fas fa-users"></i><span>Staff Directory</span></a>
+                        <a href="{% url 'system-logs' %}" class="action-card"><i class="fas fa-history"></i><span>System
+                                Logs</span></a>
+                        <a href="{% url 'system_configuration' %}" class="action-card"><i
+                                class="fas fa-cog"></i><span>Configuration</span></a>
+                        {% else %}
+                        <a href="#" class="action-card" id="launchCameraBtn"><i class="fas fa-video"></i><span>Launch
+                                Camera</span></a>
+                        <a href="{% url 'student-directory' %}" class="action-card"><i
+                                class="fas fa-clipboard-list"></i><span>Student Directory</span></a>
+                        <a href="#" class="action-card" id="generateReportBtn"><i
+                                class="fas fa-file-invoice"></i><span>Generate Report</span></a>
+                        <a href="{% url 'routine_management' %}" class="action-card"><i
+                                class="fas fa-calendar-alt"></i><span>Routine Manager</span></a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Mini Stats & Chart -->
+        <div class="row-two-column">
+            <!-- Stats Mini Cards -->
+            <div class="stats-mini-grid">
+                <div class="stat-mini-card">
+                    <div class="stat-mini-value" id="avgAttendanceToday">{{ attendance_rate|default:"0" }}%</div>
+                    <div class="stat-mini-label">Today's Attendance</div>
+                </div>
+                <div class="stat-mini-card">
+                    <div class="stat-mini-value" id="weekAvgAttendance">0%</div>
+                    <div class="stat-mini-label">Weekly Average</div>
+                </div>
+                <div class="stat-mini-card">
+                    <div class="stat-mini-value" id="faceDataCount">{{ total_students_with_face|default:"0" }}</div>
+                    <div class="stat-mini-label">Face Data Enrolled</div>
+                </div>
+                <div class="stat-mini-card">
+                    <div class="stat-mini-value">{{ face_registration_percentage|default:"0" }}%</div>
+                    <div class="stat-mini-label">Registration Rate</div>
+                </div>
+            </div>
+
+            <!-- Attendance Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-chart-line"></i> Attendance Trends</h3>
+                    <div class="chart-period">
+                        <button class="period-btn active" data-period="week">Week</button>
+                        <button class="period-btn" data-period="month">Month</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="attendanceTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Attendance Table -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-table-list"></i> {% if request.user.is_superuser %}Recent Attendance Logs{% else %}Today's Attendance Feed{% endif %}</h3>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+                    <span class="badge-info"><i class="fas fa-database"></i> <span id="faceDataCount2">{{ total_students_with_face|default:"0" }}</span> with Face Data</span>
+                    <button class="refresh-btn" id="refreshTableBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="search-bar">
+                    <input type="text" id="searchLogs" placeholder="Search by name or roll number..."
+                        class="search-input">
+                    <select id="statusFilter" class="search-input" style="width: auto; min-width: 130px;">
+                        <option value="">All Status</option>
+                        <option value="PRESENT">Present</option>
+                        <option value="ABSENT">Absent</option>
+                        <option value="LATE">Late</option>
+                        <option value="LEAVE">Leave</option>
+                    </select>
+                    <button class="filter-btn" id="filterBtn"><i class="fas fa-filter"></i> Filter</button>
+                    <button class="filter-btn" id="exportAllBtn"><i class="fas fa-download"></i> Export All</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table" id="logsTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 30px;"><input type="checkbox" id="selectAll"></th>
+                                <th>Student</th>
+                                <th>Roll No.</th>
+                                <th>Department</th>
+                                <th>Session</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                                <th>Face Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            {% for item in recent_logs %}
+                            <tr data-student-id="{{ item.student_id }}" data-status="{{ item.log.status }}">
+                                <td><input type="checkbox" class="row-selector" value="{{ item.log.id }}"></td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-user-graduate" style="color: var(--primary);"></i>
+                                        <span>{{ item.student_full_name }}</span>
+                                    </div>
+                                </td>
+                                <td><span class="roll-number">{{ item.student_roll }}</span></td>
+                                <td>{{ item.student_department }}</td>
+                                <td>{{ item.log.session.subject_name|default:"General" }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if item.log.status == 'PRESENT' %}badge-success
+                                        {% elif item.log.status == 'ABSENT' %}badge-danger
+                                        {% else %}badge-warning{% endif %}">
+                                        <i class="fas 
+                                            {% if item.log.status == 'PRESENT' %}fa-check-circle
+                                            {% elif item.log.status == 'ABSENT' %}fa-times-circle
+                                            {% else %}fa-clock{% endif %}"></i>
+                                        {{ item.log.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="time-display">{{ item.log.first_seen|time:"g:i:s A" }}</span>
+                                </td>
+                                <td>
+                                    {% if item.has_face_encoding %}
+                                    <span class="badge badge-success"><i class="fas fa-face-smile"></i> Enrolled</span>
+                                    {% else %}
+                                    <span class="badge badge-danger"><i class="fas fa-face-frown"></i> Missing</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-buttons-cell">
+                                        <button class="view-details" data-student-id="{{ item.student_id }}"
+                                            title="View Profile">
+                                            <i class="fas fa-user"></i>
+                                        </button>
+                                        <button class="view-attendance" data-student-id="{{ item.student_id }}"
+                                            title="View Attendance Records">
+                                            <i class="fas fa-calendar-check"></i>
+                                        </button>
+                                        <button class="view-face" data-student-id="{{ item.student_id }}"
+                                            title="View Face Data" {% if not item.has_face_encoding %}disabled{% endif
+                                            %}>
+                                            <i class="fas fa-face-smile"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td colspan="9" class="empty-state">
+                                    <i class="fas fa-inbox empty-icon"></i>
+                                    <p>No attendance logs found</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div><span id="selectedCount">0</span> items selected <button class="filter-btn"
+                            id="exportSelectedBtn" style="padding: 0.3rem 1rem; font-size: 0.7rem;">Export
+                            Selected</button></div>
+                    <a href="{% url 'student-directory' %}" class="view-more">View All Students <i
+                            class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 4: System Status & Activity -->
+        <div class="row-two-column">
+            <!-- System Status -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-server"></i> System Health</h3>
+                    <button class="refresh-btn" id="refreshMetricsBtn"><i class="fas fa-sync-alt"></i></button>
+                </div>
+                <div class="card-body">
+                    <div class="status-list">
+                        <div class="status-item">
+                            <span>Face Recognition Engine</span>
+                            <span class="status-active health-status">Active</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Database Connection</span>
+                            <span class="status-active"><i class="fas fa-check-circle"></i> Connected</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Recognition Speed</span>
+                            <span class="status-value" id="fpsMetric">{{ fps_rate|default:"15" }} FPS</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Response Time</span>
+                            <span class="status-value" id="responseTimeMetric">{{ response_time|default:"1.8" }}s</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Recognition Accuracy</span>
+                            <span class="status-value">{{ recognition_accuracy|default:"98.5" }}%</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Face Registration</span>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div class="progress-container">
+                                    <div class="progress-fill" id="faceProgressBar"
+                                        style="width: {{ face_registration_percentage|default:0 }}%"></div>
+                                </div>
+                                <span class="status-value">{{ face_registration_percentage|default:0 }}%</span>
+                            </div>
+                        </div>
+                        {% if request.user.is_superuser %}
+                        <div class="status-item"><span>CPU Usage</span><span class="status-value" id="cpuUsage">{{ cpu_usage|default:0 }}%</span></div>
+                        <div class="status-item"><span>Memory Usage</span><span class="status-value" id="memoryUsage">{{ memory_usage|default:0 }}%</span></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Feed -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-bell"></i> Recent Activity</h3>
+                </div>
+                <div class="card-body">
+                    <div class="activity-feed" id="activityFeed">
+                        {% for activity in recent_activities|default:"" %}
+                        <div class="activity-item">
+                            <div class="activity-icon"
+                                style="background: rgba(39, 174, 96, 0.1); color: var(--success);">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">{{ activity.title }}</div>
+                                <div class="activity-time">{{ activity.time_ago }}</div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="activity-item">
+                            <div class="activity-icon"
+                                style="background: rgba(39, 174, 96, 0.1); color: var(--success);">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">System ready and waiting</div>
+                                <div class="activity-time">Just now</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="view-more" id="viewAllActivitiesBtn">View All <i
+                            class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        {% if not request.user.is_superuser and staff_sessions %}
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-clock"></i> Recent Sessions</h3>
+            </div>
+            <div class="card-body">
+                <div class="status-list">
+                    {% for session in staff_sessions %}
+                    <div class="status-item">
+                        <div><strong>{{ session.subject_name }}</strong>
+                            <div style="font-size: 0.6rem; color: var(--text-dim);">{{ session.date|date:"M d, Y" }}
+                            </div>
+                        </div>
+                        <span class="{% if session.is_active %}status-active{% else %}status-value{% endif %}">{{
+                            session.start_time|time:"g:i A" }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ============================================
+MODALS
+============================================ -->
+<div id="studentProfileModal" class="modal-overlay">
+    <div class="modal-container">
+        <span class="modal-close" id="closeProfileModal">&times;</span>
+        <div id="profileModalLoading" style="text-align: center; padding: 2rem;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+            <p>Loading student profile...</p>
+        </div>
+        <div id="profileModalContent" style="display: none;">
+            <div id="studentProfileContainer"></div>
+        </div>
+    </div>
+</div>
+
+<div id="faceEncodingModal" class="modal-overlay">
+    <div class="modal-container">
+        <span class="modal-close" id="closeFaceModal">&times;</span>
+        <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Face Encoding Data</h3>
+        <p id="faceEncodingStudentName" style="color: var(--text-dim); font-size: 0.85rem;"></p>
+        <div style="display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap;">
+            <div
+                style="flex: 1; background: rgba(99,102,241,0.1); padding: 0.8rem; border-radius: 12px; text-align: center; min-width: 100px;">
+                <span style="font-size: 0.65rem;">Vector Length</span>
+                <span id="faceVectorLength"
+                    style="font-size: 1.2rem; font-weight: 800; color: var(--primary); display: block;"></span>
+            </div>
+            <div
+                style="flex: 1; background: rgba(99,102,241,0.1); padding: 0.8rem; border-radius: 12px; text-align: center; min-width: 100px;">
+                <span style="font-size: 0.65rem;">Dimensions</span>
+                <span style="font-size: 1.2rem; font-weight: 800; color: var(--primary); display: block;">128-d</span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 0.75rem; margin: 1rem 0; justify-content: center; flex-wrap: wrap;">
+            <button class="filter-btn" id="copyFaceBtn"><i class="fas fa-copy"></i> Copy</button>
+            <button class="filter-btn" id="downloadFaceBtn"><i class="fas fa-download"></i> Download JSON</button>
+        </div>
+        <h5>Vector Preview (first 10 values)</h5>
+        <div id="facePreview" class="face-preview-container"></div>
+        <h5 style="margin-top: 1rem;">Complete Vector Data</h5>
+        <div id="faceFullData" class="face-full-data"></div>
+    </div>
+</div>
+
+<!-- ============================================
+SCRIPTS
+============================================ -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    console.log('showStudentProfile function:', typeof showStudentProfile);
+    console.log('showFaceEncodingModal function:', typeof showFaceEncodingModal);
+    // Global variables
+    var currentFaceEncodingData = null;
+    var currentStudentName = '';
+    var dropdownOpen = false;
+    var videoStream = null;
+    var recognitionInterval = null;
+    var frameCount = 0;
+    var lastFrameTime = Date.now();
+    var fpsInterval = null;
+    var attendanceChart = null;
+
+    // ========== LIVE CLOCK & DATE ==========
+    function updateLiveClock() {
+        var clock = document.getElementById("live-clock");
+        var dateElem = document.getElementById("live-date");
+        if (clock) {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = String(now.getMinutes()).padStart(2, "0");
+            var seconds = String(now.getSeconds()).padStart(2, "0");
+            var ampm = hours >= 12 ? "PM" : "AM";
+            hours = hours % 12 || 12;
+            clock.textContent = String(hours).padStart(2, "0") + ":" + minutes + ":" + seconds + " " + ampm;
+        }
+        if (dateElem) {
+            var now = new Date();
+            dateElem.textContent = now.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+    }
+    updateLiveClock();
+    setInterval(updateLiveClock, 1000);
+
+    // ========== HELPER FUNCTIONS ==========
+    function getCookie(name) {
+        var value = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    value = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return value;
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showMessage(msg, type) {
+        var container = document.getElementById('django-messages');
+        if (container) {
+            var div = document.createElement('div');
+            div.className = 'msg ' + type;
+            div.innerHTML = '<i class="fas fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i><span>' + msg + '</span>';
+            container.appendChild(div);
+            setTimeout(function () { if (div.parentNode) div.remove(); }, 4000);
+        }
+    }
+
+    function addActivityItem(message, type) {
+        var activityFeed = document.getElementById('activityFeed');
+        if (!activityFeed) return;
+        var activityItem = document.createElement('div');
+        activityItem.className = 'activity-item';
+        activityItem.innerHTML = '<div class="activity-icon" style="background: rgba(39,174,96,0.1); color: var(--success);"><i class="fas fa-check-circle"></i></div><div class="activity-details"><div class="activity-title">' + message + '</div><div class="activity-time">Just now</div></div>';
+        activityFeed.insertBefore(activityItem, activityFeed.firstChild);
+        while (activityFeed.children.length > 15) activityFeed.removeChild(activityFeed.lastChild);
+    }
+
+    // ========== NOTIFICATION SYSTEM - FIXED ==========
+    function loadNotifications() {
+        fetch('/dashboard/api/notifications/')
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    var countBadge = document.getElementById('notificationCount');
+                    if (data.unread_count > 0) {
+                        countBadge.textContent = data.unread_count > 99 ? '99+' : data.unread_count;
+                        countBadge.style.display = 'flex';
+                    } else {
+                        countBadge.style.display = 'none';
+                    }
+                    renderNotifications(data.notifications);
+                }
+            })
+            .catch(function (error) { console.error('Error loading notifications:', error); });
+    }
+
+    function renderNotifications(notifications) {
+        var container = document.getElementById('notificationList');
+        if (!container) return;
+        if (!notifications || notifications.length === 0) {
+            container.innerHTML = '<div class="empty-notifications"><i class="fas fa-bell-slash"></i><p>No notifications</p></div>';
+            return;
+        }
+        var html = '';
+        for (var i = 0; i < Math.min(notifications.length, 10); i++) {
+            var notif = notifications[i];
+            var iconClass = 'system';
+            var icon = 'fa-bell';
+            switch (notif.type) {
+                case 'attendance': iconClass = 'attendance'; icon = 'fa-check-circle'; break;
+                case 'session': iconClass = 'session'; icon = 'fa-chalkboard'; break;
+                case 'proxy': iconClass = 'proxy'; icon = 'fa-exclamation-triangle'; break;
+                case 'student': iconClass = 'student'; icon = 'fa-user-plus'; break;
+                case 'success': iconClass = 'success'; icon = 'fa-check-circle'; break;
+                case 'warning': iconClass = 'warning'; icon = 'fa-exclamation-triangle'; break;
+                default: iconClass = 'system'; icon = 'fa-cog';
+            }
+            var unreadClass = notif.is_read ? '' : 'unread';
+            html += '<div class="notification-item ' + unreadClass + '" data-id="' + notif.id + '" data-link="' + (notif.link || '') + '">' +
+                '<div class="notification-icon ' + iconClass + '"><i class="fas ' + icon + '"></i></div>' +
+                '<div class="notification-content">' +
+                '<div class="notification-title">' + escapeHtml(notif.title) + '</div>' +
+                '<div class="notification-message">' + escapeHtml(notif.message) + '</div>' +
+                '<div class="notification-time"><i class="fas fa-clock"></i> ' + notif.time_ago + ' ago</div>' +
+                '</div>' +
+                '<button class="notification-delete" data-id="' + notif.id + '" title="Delete notification"><i class="fas fa-times"></i></button>' +
+                '</div>';
+        }
+        container.innerHTML = html;
+        attachNotificationEventListeners();
+    }
+
+    // ========== ATTACH NOTIFICATION EVENT LISTENERS ==========
+    function attachNotificationEventListeners() {
+        // Delete button listeners
+        var deleteBtns = document.querySelectorAll('.notification-delete');
+        for (var i = 0; i < deleteBtns.length; i++) {
+            deleteBtns[i].addEventListener('click', function (e) {
+                e.stopPropagation();
+                var notificationId = this.getAttribute('data-id');
+                if (notificationId) {
+                    deleteNotification(notificationId);
+                }
+            });
+        }
+
+        // Notification item click listeners
+        var items = document.querySelectorAll('.notification-item');
+        for (var i = 0; i < items.length; i++) {
+            items[i].addEventListener('click', function (e) {
+                if (e.target.closest('.notification-delete')) return;
+                var notificationId = this.getAttribute('data-id');
+                var link = this.getAttribute('data-link');
+                if (notificationId) {
+                    handleNotificationClick(notificationId, link);
+                }
+            });
+        }
+    }
+
+    // ========== DELETE NOTIFICATION - FIXED ==========
+    function deleteNotification(notificationId) {
+        if (!notificationId) return;
+
+        var btn = document.querySelector('.notification-delete[data-id="' + notificationId + '"]');
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+        }
+
+        fetch('/dashboard/api/notifications/delete/' + notificationId + '/', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    var item = document.querySelector('.notification-item[data-id="' + notificationId + '"]');
+                    if (item) {
+                        item.style.transition = 'all 0.3s ease';
+                        item.style.opacity = '0';
+                        item.style.transform = 'translateX(20px)';
+                        setTimeout(function () {
+                            item.remove();
+                            var remaining = document.querySelectorAll('.notification-item');
+                            if (remaining.length === 0) {
+                                var container = document.getElementById('notificationList');
+                                container.innerHTML = '<div class="empty-notifications"><i class="fas fa-bell-slash"></i><p>No notifications</p></div>';
+                            }
+                            loadNotifications();
+                        }, 300);
+                    }
+                    showMessage('Notification deleted', 'success');
+                } else {
+                    showMessage(data.message || 'Failed to delete notification', 'error');
+                    if (btn) {
+                        btn.innerHTML = '<i class="fas fa-times"></i>';
+                        btn.disabled = false;
+                    }
+                }
+            })
+            .catch(function (error) {
+                console.error('Error deleting notification:', error);
+                showMessage('Error deleting notification', 'error');
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-times"></i>';
+                    btn.disabled = false;
+                }
+            });
+    }
+
+    // ========== HANDLE NOTIFICATION CLICK ==========
+    function handleNotificationClick(notificationId, link) {
+        if (!notificationId) return;
+
+        fetch('/dashboard/api/notifications/mark-read/' + notificationId + '/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    var item = document.querySelector('.notification-item[data-id="' + notificationId + '"]');
+                    if (item) {
+                        item.classList.remove('unread');
+                    }
+                    loadNotifications();
+                    if (link && link !== '#') {
+                        window.location.href = link;
+                    }
+                }
+            })
+            .catch(function (error) {
+                console.error('Error marking notification as read:', error);
+            });
+    }
+
+    // ========== MARK ALL NOTIFICATIONS READ ==========
+    function markAllNotificationsRead() {
+        fetch('/dashboard/api/notifications/mark-all-read/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    var items = document.querySelectorAll('.notification-item');
+                    for (var i = 0; i < items.length; i++) {
+                        items[i].classList.remove('unread');
+                    }
+                    document.getElementById('notificationCount').style.display = 'none';
+                    showMessage('All notifications marked as read', 'success');
+                    loadNotifications();
+                }
+            })
+            .catch(function (error) {
+                console.error('Error marking all as read:', error);
+                showMessage('Error marking all as read', 'error');
+            });
+    }
+
+    // ========== CAMERA FUNCTIONS ==========
+    function startCameraFeed() {
+        var video = document.getElementById('liveCameraFeed');
+        if (!video) return;
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                videoStream = stream;
+                video.srcObject = stream;
+                video.play();
+                document.getElementById('startCameraBtn').disabled = true;
+                document.getElementById('stopCameraBtn').disabled = false;
+                document.getElementById('recognitionStatus').innerHTML = '<span class="recognition-dot"></span> Recognizing...';
+                document.getElementById('cameraStatus').innerHTML = '<i class="fas fa-circle" style="color: var(--success); font-size: 0.6rem;"></i> Active';
+                frameCount = 0;
+                lastFrameTime = Date.now();
+                if (fpsInterval) clearInterval(fpsInterval);
+                fpsInterval = setInterval(updateFPSCounter, 1000);
+                if (recognitionInterval) clearInterval(recognitionInterval);
+                recognitionInterval = setInterval(captureAndRecognize, 2000);
+                addActivityItem('Camera started', 'check');
+            })
+            .catch(function (err) {
+                console.error('Camera error:', err);
+                document.getElementById('recognitionStatus').innerHTML = 'Camera unavailable';
+                showMessage('Camera access denied', 'error');
+            });
+    }
+
+    function stopCameraFeed() {
+        if (videoStream) {
+            videoStream.getTracks().forEach(function (track) { track.stop(); });
+            videoStream = null;
+        }
+        if (recognitionInterval) clearInterval(recognitionInterval);
+        if (fpsInterval) clearInterval(fpsInterval);
+        recognitionInterval = null;
+        fpsInterval = null;
+        document.getElementById('startCameraBtn').disabled = false;
+        document.getElementById('stopCameraBtn').disabled = true;
+        document.getElementById('recognitionStatus').innerHTML = '<span class="recognition-dot"></span> Ready';
+        document.getElementById('cameraStatus').innerHTML = '<i class="fas fa-circle" style="color: var(--success); font-size: 0.6rem;"></i> Ready';
+        document.getElementById('fpsCounter').textContent = '0 FPS';
+        addActivityItem('Camera stopped', 'warning');
+    }
+
+    function updateFPSCounter() {
+        var now = Date.now();
+        var elapsed = (now - lastFrameTime) / 1000;
+        var fps = Math.round(frameCount / elapsed) || 0;
+        document.getElementById('fpsCounter').textContent = fps + ' FPS';
+        document.getElementById('fpsMetric').textContent = fps + ' FPS';
+        frameCount = 0;
+        lastFrameTime = now;
+    }
+
+    function captureAndRecognize() {
+        var video = document.getElementById('liveCameraFeed');
+        if (!video || !video.videoWidth) return;
+        frameCount++;
+        var canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        canvas.toBlob(function (blob) {
+            var formData = new FormData();
+            formData.append('image', blob, 'frame.jpg');
+            fetch('/recognition/recognize-face/', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-CSRFToken': getCookie('csrftoken') }
+            }).then(function (response) { return response.json(); })
+                .then(function (data) {
+                    if (data.success && data.recognized) {
+                        var lastRecognized = document.getElementById('lastRecognized');
+                        lastRecognized.innerHTML = '<i class="fas fa-check-circle" style="color: var(--success);"></i> Recognized: ' + data.student_name + ' at ' + new Date().toLocaleTimeString();
+                        setTimeout(function () { if (lastRecognized.innerHTML) lastRecognized.innerHTML = ''; }, 3000);
+                        addActivityItem(data.student_name + ' recognized', 'check');
+                        refreshDashboardData();
+                    }
+                }).catch(function (err) { console.error('Recognition error:', err); });
+        }, 'image/jpeg');
+    }
+
+    // ========== CHART FUNCTIONS ==========
+    function initAttendanceChart() {
+        var ctx = document.getElementById('attendanceTrendChart') ? document.getElementById('attendanceTrendChart').getContext('2d') : null;
+        if (!ctx) return;
+        attendanceChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'Attendance %', data: [0, 0, 0, 0, 0, 0, 0], borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', tension: 0.4, fill: true }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, color: '#64748b' } } }, scales: { y: { beginAtZero: true, max: 100, grid: { color: '#e2e8f0' } }, x: { ticks: { color: '#64748b', font: { size: 10 } } } } }
+        });
+        loadChartData();
+    }
+
+    function loadChartData() {
+        fetch('/dashboard/api/attendance-summary/')
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.success && data.weekly) {
+                    var labels = data.weekly.map(function (d) { return d.day; });
+                    var values = data.weekly.map(function (d) { return d.percentage; });
+                    if (attendanceChart) {
+                        attendanceChart.data.labels = labels;
+                        attendanceChart.data.datasets[0].data = values;
+                        attendanceChart.update();
+                    }
+                    var sum = 0; for (var i = 0; i < values.length; i++) sum += values[i];
+                    var avg = sum / values.length;
+                    document.getElementById('weekAvgAttendance').textContent = Math.round(avg) + '%';
+                }
+            }).catch(function (err) { console.error('Chart data error:', err); });
+    }
+
+    function changeChartPeriod(period) {
+        var buttons = document.querySelectorAll('.period-btn');
+        for (var i = 0; i < buttons.length; i++) { buttons[i].classList.remove('active'); }
+        if (event && event.target) event.target.classList.add('active');
+        loadChartData();
+    }
+
+    // ========== TABLE FUNCTIONS ==========
+    function filterLogs() {
+        var search = document.getElementById('searchLogs').value.toUpperCase();
+        var statusFilter = document.getElementById('statusFilter').value;
+        var rows = document.querySelectorAll('#logsTableBody tr');
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            if (row.cells.length < 5) continue;
+            var name = (row.cells[1] ? row.cells[1].textContent.toUpperCase() : '');
+            var roll = (row.cells[2] ? row.cells[2].textContent.toUpperCase() : '');
+            var statusCell = (row.cells[5] ? row.cells[5].textContent.toUpperCase() : '');
+            var matchesSearch = name.includes(search) || roll.includes(search);
+            var matchesStatus = !statusFilter || statusCell.includes(statusFilter);
+            row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+        }
+    }
+
+    function toggleSelectAll() {
+        var selectAll = document.getElementById('selectAll');
+        var checkboxes = document.querySelectorAll('.row-selector');
+        for (var i = 0; i < checkboxes.length; i++) { checkboxes[i].checked = selectAll.checked; }
+        updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+        var selected = document.querySelectorAll('.row-selector:checked').length;
+        document.getElementById('selectedCount').textContent = selected;
+    }
+
+    function exportSelected() {
+        var selected = document.querySelectorAll('.row-selector:checked');
+        if (selected.length === 0) return;
+        var attendanceIds = [];
+        for (var i = 0; i < selected.length; i++) { attendanceIds.push(selected[i].value); }
+        fetch('/dashboard/api/export-attendance/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ attendance_ids: attendanceIds })
+        }).then(function (response) { return response.json(); })
+            .then(function (data) { if (data.success && data.data.length) downloadCSV(data.data); })
+            .catch(function (error) { console.error('Export error:', error); });
+    }
+
+    function exportAttendanceData() {
+        fetch('/dashboard/api/export-attendance/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ attendance_ids: [] })
+        }).then(function (response) { return response.json(); })
+            .then(function (data) { if (data.success && data.data.length) downloadCSV(data.data); })
+            .catch(function (error) { console.error('Export error:', error); });
+    }
+
+    function downloadCSV(data) {
+        var headers = Object.keys(data[0]);
+        var csvRows = [headers.join(',')];
+        for (var i = 0; i < data.length; i++) {
+            var row = data[i];
+            var values = headers.map(function (h) { return '"' + String(row[h] || '').replace(/"/g, '""') + '"'; });
+            csvRows.push(values.join(','));
+        }
+        var blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'attendance_' + new Date().toISOString().slice(0, 19).replace(/:/g, '-') + '.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        showMessage('Export complete', 'success');
+    }
+
+    function refreshDashboardData() {
+        fetch('/dashboard/api/dashboard-stats/')
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    if (document.getElementById('dailyScans')) document.getElementById('dailyScans').textContent = data.daily_scans || 0;
+                    if (document.getElementById('faceDataCount')) document.getElementById('faceDataCount').textContent = data.students_with_face || 0;
+                    if (document.getElementById('faceDataCount2')) document.getElementById('faceDataCount2').textContent = data.students_with_face || 0;
+                    if (document.getElementById('faceProgressBar')) document.getElementById('faceProgressBar').style.width = (data.face_completion_percent || 0) + '%';
+                    if (document.getElementById('attendanceRate')) document.getElementById('attendanceRate').textContent = (data.attendance_percent || 0) + '%';
+                    if (document.getElementById('totalStudents')) document.getElementById('totalStudents').textContent = data.total_students || 0;
+                    if (document.getElementById('avgAttendanceToday')) document.getElementById('avgAttendanceToday').textContent = (data.attendance_percent || 0) + '%';
+                    calculateWeeklyAverageFromData();
+                }
+                addActivityItem('Dashboard refreshed', 'check');
+            }).catch(function (error) { console.error('Error refreshing:', error); });
+
+        fetch('/dashboard/api/recent-attendance/')
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.success && data.attendance && data.attendance.length > 0) {
+                    var tbody = document.getElementById('logsTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        for (var i = 0; i < data.attendance.length; i++) {
+                            var att = data.attendance[i];
+                            var row = tbody.insertRow();
+                            row.innerHTML =
+                                '<td><input type="checkbox" class="row-selector" value="' + att.id + '"></td>' +
+                                '<td><div style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-user-graduate" style="color: var(--primary);"></i><span>' + escapeHtml(att.student_name) + '</span></div></td>' +
+                                '<td><span class="roll-number">' + escapeHtml(att.student_roll) + '</span></td>' +
+                                '<td>' + escapeHtml(att.student_dept) + '</td>' +
+                                '<td>' + escapeHtml(att.subject) + '</td>' +
+                                '<td><span class="badge ' + (att.status === 'PRESENT' ? 'badge-success' : (att.status === 'ABSENT' ? 'badge-danger' : 'badge-warning')) + '">' + att.status_display + '</span></td>' +
+                                '<td><span class="time-display">' + att.time + '</span></td>' +
+                                '<td>' + (att.has_face ? '<span class="badge badge-success"><i class="fas fa-face-smile"></i> Enrolled</span>' : '<span class="badge badge-danger"><i class="fas fa-face-frown"></i> Missing</span>') + '</td>' +
+                                '<td><div class="action-buttons-cell">' +
+                                '<button class="view-details" data-student-id="' + att.student_id + '" title="View Profile"><i class="fas fa-user"></i></button>' +
+                                '<button class="view-attendance" data-student-id="' + att.student_id + '" title="View Attendance Records"><i class="fas fa-calendar-check"></i></button>' +
+                                '<button class="view-face" data-student-id="' + att.student_id + '" title="View Face Data"' + (att.has_face ? '' : ' disabled') + '><i class="fas fa-face-smile"></i></button>' +
+                                '</div></td>';
+                        }
+                        attachTableEventListeners();
+                    }
+                }
+            });
+    }
+
+    function calculateWeeklyAverageFromData() {
+        fetch('/dashboard/api/attendance-summary/')
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.success && data.weekly) {
+                    var sum = 0;
+                    for (var i = 0; i < data.weekly.length; i++) sum += data.weekly[i].percentage;
+                    var avg = sum / data.weekly.length;
+                    document.getElementById('weekAvgAttendance').textContent = Math.round(avg) + '%';
+                }
+            }).catch(function () { });
+    }
+
+    function refreshMetrics() {
+        fetch('/dashboard/api/system-status/')
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (data.response_time) document.getElementById('responseTimeMetric').textContent = data.response_time + 's';
+                addActivityItem('Metrics refreshed', 'check');
+            }).catch(function () { });
+    }
+
+    // ========== STUDENT PROFILE FUNCTIONS ==========
+    function showStudentProfile(studentId) {
+        console.log('showStudentProfile called with ID:', studentId);
+
+        if (!studentId) {
+            if (typeof showMessage === 'function') {
+                showMessage('Invalid student ID', 'error');
+            }
+            return;
+        }
+
+        const modal = document.getElementById('studentProfileModal');
+        const loading = document.getElementById('profileModalLoading');
+        const content = document.getElementById('profileModalContent');
+        const container = document.getElementById('studentProfileContainer');
+
+        if (!modal || !loading || !content || !container) {
+            console.error('Modal elements not found!');
+            return;
+        }
+
+        // Show modal with loading state
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        loading.style.display = 'block';
+        content.style.display = 'none';
+        container.innerHTML = '';
+
+        // Fetch student profile
+        const url = `/dashboard/student-profile/${studentId}/`;
+        console.log('Fetching URL:', url);
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(html => {
+                console.log('Response received, length:', html.length);
+
+                if (!html || html.trim().length === 0) {
+                    throw new Error('Empty response from server');
+                }
+
+                // Extract the modal content from the response
+                // The response is the full modal HTML with styles
+                // We need to extract just the content inside the modal-profile-container
+
+                // Try to find the modal container
+                let modalContent = html;
+
+                // If the HTML contains the modal-profile-container class, extract it
+                const containerMatch = html.match(/<div[^>]*class="[^"]*modal-profile-container[^"]*"[^>]*>([\s\S]*?)<\/div>\s*(?:<\/div>\s*)?(?:<\/div>\s*)?(?:<\/div>\s*)?$/i);
+                if (containerMatch) {
+                    modalContent = containerMatch[0];
+                } else {
+                    // Try to find any div with modal class
+                    const divMatch = html.match(/<div[^>]*class="[^"]*modal[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
+                    if (divMatch) {
+                        modalContent = divMatch[0];
+                    }
+                }
+
+                // Set the content
+                container.innerHTML = modalContent;
+
+                // Hide loading, show content
+                loading.style.display = 'none';
+                content.style.display = 'block';
+
+                // Re-initialize any scripts in the modal
+                const scriptTags = container.querySelectorAll('script');
+                scriptTags.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    newScript.textContent = oldScript.textContent;
+                    document.body.appendChild(newScript);
+                });
+
+                console.log('Profile modal displayed successfully');
+            })
+            .catch(error => {
+                console.error('Error loading profile:', error);
+                loading.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: var(--danger);">
+                <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                <p><strong>Error loading student profile</strong></p>
+                <p style="font-size: 0.85rem; color: var(--text-dim);">${error.message}</p>
+                <button onclick="closeStudentProfileModal()" 
+                        style="margin-top: 1rem; padding: 0.5rem 1.5rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    Close
+                </button>
+            </div>
+        `;
+                loading.style.display = 'block';
+                content.style.display = 'none';
+            });
+    }
+
+    function closeStudentProfileModal() {
+        console.log('Closing student profile modal');
+        var modal = document.getElementById('studentProfileModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+
+            // Reset the content
+            var loading = document.getElementById('profileModalLoading');
+            var content = document.getElementById('profileModalContent');
+            var container = document.getElementById('studentProfileContainer');
+            if (loading) loading.style.display = 'block';
+            if (content) content.style.display = 'none';
+            if (container) container.innerHTML = '';
+        }
+    }
+
+
+    // ========== FACE ENCODING FUNCTIONS ==========
+    function showFaceEncodingModal(studentId) {
+        if (!studentId) { showMessage('Invalid student ID', 'error'); return; }
+
+        var modal = document.getElementById('faceEncodingModal');
+        if (!modal) { console.error('Face encoding modal not found'); return; }
+
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        document.getElementById('faceEncodingStudentName').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        document.getElementById('faceVectorLength').textContent = '...';
+        document.getElementById('facePreview').innerHTML = '<div style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Loading face encoding data...</p></div>';
+        document.getElementById('faceFullData').innerHTML = '';
+
+        fetch('/dashboard/student/' + studentId + '/details/', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
+            .then(function (data) {
+                if (data.success && data.face_encoding && data.face_encoding.has_data) {
+                    document.getElementById('faceEncodingStudentName').innerHTML = '<i class="fas fa-user-graduate"></i> ' + data.student.full_name + ' (' + data.student.roll_number + ')';
+                    document.getElementById('faceVectorLength').textContent = data.face_encoding.length || '128';
+                    currentFaceEncodingData = data.face_encoding.full_data || data.face_encoding;
+                    currentStudentName = data.student.full_name;
+
+                    if (data.face_encoding.preview && data.face_encoding.preview.length > 0) {
+                        var previewHtml = '<div style="display: flex; flex-wrap: wrap; gap: 8px;">';
+                        for (var i = 0; i < data.face_encoding.preview.length; i++) {
+                            previewHtml += '<span style="background: rgba(99,102,241,0.1); padding: 4px 8px; border-radius: 6px; font-family: monospace; font-size: 0.7rem;">' + data.face_encoding.preview[i] + '</span>';
+                        }
+                        previewHtml += '</div>';
+                        document.getElementById('facePreview').innerHTML = previewHtml;
+                    }
+                    if (data.face_encoding.full_data && data.face_encoding.full_data.length > 0) {
+                        var fullHtml = '<div style="display: flex; flex-wrap: wrap; gap: 4px; max-height: 200px; overflow-y: auto; padding: 10px; background: var(--bg); border-radius: 8px;">';
+                        var displayCount = Math.min(data.face_encoding.full_data.length, 50);
+                        for (var i = 0; i < displayCount; i++) {
+                            fullHtml += '<span style="background: rgba(99,102,241,0.05); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.65rem;">' + data.face_encoding.full_data[i] + '</span>';
+                        }
+                        if (data.face_encoding.full_data.length > 50) {
+                            fullHtml += '<span style="width: 100%; text-align: center; margin-top: 8px; font-size: 0.7rem; color: var(--text-dim);">... and ' + (data.face_encoding.full_data.length - 50) + ' more values</span>';
+                        }
+                        fullHtml += '</div>';
+                        document.getElementById('faceFullData').innerHTML = fullHtml;
+                    }
+                } else {
+                    document.getElementById('faceEncodingStudentName').innerHTML = '<i class="fas fa-user-graduate"></i> ' + (data.student ? data.student.full_name : 'Student');
+                    document.getElementById('faceVectorLength').textContent = '0';
+                    document.getElementById('facePreview').innerHTML = '<div style="text-align: center; padding: 20px; color: var(--warning);"><i class="fas fa-face-frown"></i><p>No face encoding data registered.</p></div>';
+                    document.getElementById('faceFullData').innerHTML = '';
+                    currentFaceEncodingData = null;
+                }
+            })
+            .catch(function (error) {
+                console.error('Error loading face encoding:', error);
+                document.getElementById('faceEncodingStudentName').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error loading data';
+                document.getElementById('faceVectorLength').textContent = '0';
+                document.getElementById('facePreview').innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger);"><i class="fas fa-exclamation-circle"></i><p>Failed to load face encoding data.</p></div>';
+                document.getElementById('faceFullData').innerHTML = '';
+                currentFaceEncodingData = null;
+            });
+    }
+
+    function closeFaceEncodingModal() {
+        var modal = document.getElementById('faceEncodingModal');
+        if (modal) { modal.style.display = 'none'; document.body.style.overflow = 'auto'; }
+    }
+
+    function copyFaceEncoding() {
+        if (currentFaceEncodingData) {
+            var textToCopy = typeof currentFaceEncodingData === 'string' ? currentFaceEncodingData : JSON.stringify(currentFaceEncodingData, null, 2);
+            navigator.clipboard.writeText(textToCopy).then(function () { showMessage('Face encoding copied to clipboard!', 'success'); }).catch(function () { showMessage('Failed to copy', 'error'); });
+        } else { showMessage('No face data to copy', 'error'); }
+    }
+
+    function downloadFaceEncoding() {
+        if (currentFaceEncodingData && currentStudentName) {
+            var dataToDownload = typeof currentFaceEncodingData === 'string' ? currentFaceEncodingData : JSON.stringify(currentFaceEncodingData, null, 2);
+            var fileName = 'face_encoding_' + currentStudentName.replace(/\s+/g, '_') + '_' + Date.now() + '.json';
+            var blob = new Blob([dataToDownload], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showMessage('Face encoding downloaded!', 'success');
+        } else { showMessage('No face data to download', 'error'); }
+    }
+
+    // ========== GENERIC FUNCTIONS ==========
+    function generateReport() { window.location.href = '/dashboard/attendance-report/'; }
+    function showAttendanceDetails() { showMessage('Attendance details feature coming soon', 'info'); }
+    function showScanDetails() { showMessage('Scan details feature coming soon', 'info'); }
+    function showProxyDetails() { showMessage('Proxy alerts feature coming soon', 'info'); }
+    function viewAllActivities() { window.location.href = '/dashboard/activity-logs/'; }
+
+
+    // ========== ATTACH TABLE EVENT LISTENERS ==========
+    function attachTableEventListeners() {
+        // View Details - Redirect to Student Profile Page
+        document.querySelectorAll('.view-details').forEach(btn => {
+            btn.removeEventListener('click', handleViewDetails);
+            btn.addEventListener('click', handleViewDetails);
+        });
+
+        // View Attendance - Redirect to attendance records
+        document.querySelectorAll('.view-attendance').forEach(btn => {
+            btn.removeEventListener('click', handleViewAttendance);
+            btn.addEventListener('click', handleViewAttendance);
+        });
+
+        // View Face Data - Face Encoding Modal
+        document.querySelectorAll('.view-face').forEach(btn => {
+            btn.removeEventListener('click', handleViewFace);
+            btn.addEventListener('click', handleViewFace);
+        });
+
+        // Row selectors
+        document.querySelectorAll('.row-selector').forEach(btn => {
+            btn.removeEventListener('change', updateSelectedCount);
+            btn.addEventListener('change', updateSelectedCount);
+        });
+    }
+
+    // Handler functions
+    function handleViewDetails(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const studentId = this.getAttribute('data-student-id');
+        if (studentId) {
+            // Redirect to the full student profile page
+            window.location.href = `/dashboard/student-profile/${studentId}/`;
+        }
+    }
+
+    function handleViewAttendance(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const studentId = this.getAttribute('data-student-id');
+        if (studentId) {
+            // Redirect to attendance records page
+            window.location.href = `/attendance/student-attendance/${studentId}/`;
+        }
+    }
+
+    function handleViewFace(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const studentId = this.getAttribute('data-student-id');
+        if (studentId && !this.disabled) {
+            showFaceEncodingModal(studentId);
+        }
+    }
+
+    // ========== INITIALIZATION ==========
+    document.addEventListener('DOMContentLoaded', function () {
+        initAttendanceChart();
+        loadNotifications();
+        refreshDashboardData();
+        attachTableEventListeners();
+
+        setInterval(loadNotifications, 30000);
+        setInterval(refreshDashboardData, 30000);
+
+        // Notification bell click - fixed
+        document.getElementById('notificationBell').addEventListener('click', function (e) {
+            e.stopPropagation();
+            var dropdown = document.getElementById('notificationDropdown');
+            var isOpen = dropdown.classList.contains('show');
+
+            if (isOpen) {
+                dropdown.classList.remove('show');
+                this.classList.remove('active');
+            } else {
+                dropdown.classList.add('show');
+                this.classList.add('active');
+                loadNotifications();
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            var dropdown = document.getElementById('notificationDropdown');
+            var bell = document.getElementById('notificationBell');
+            if (dropdown && bell && !dropdown.contains(e.target) && !bell.contains(e.target)) {
+                dropdown.classList.remove('show');
+                bell.classList.remove('active');
+            }
+        });
+
+        document.getElementById('markAllReadBtn').addEventListener('click', function (e) {
+            e.stopPropagation();
+            markAllNotificationsRead();
+        });
+
+        document.getElementById('startCameraBtn').addEventListener('click', startCameraFeed);
+        document.getElementById('stopCameraBtn').addEventListener('click', stopCameraFeed);
+        document.getElementById('selectAll').addEventListener('change', toggleSelectAll);
+        document.getElementById('filterBtn').addEventListener('click', filterLogs);
+        document.getElementById('exportAllBtn').addEventListener('click', exportAttendanceData);
+        document.getElementById('exportSelectedBtn').addEventListener('click', exportSelected);
+        document.getElementById('refreshTableBtn').addEventListener('click', refreshDashboardData);
+        document.getElementById('refreshMetricsBtn').addEventListener('click', refreshMetrics);
+        document.getElementById('viewAllActivitiesBtn').addEventListener('click', viewAllActivities);
+        document.getElementById('closeProfileModal').addEventListener('click', closeStudentProfileModal);
+        document.getElementById('closeFaceModal').addEventListener('click', closeFaceEncodingModal);
+        document.getElementById('copyFaceBtn').addEventListener('click', copyFaceEncoding);
+        document.getElementById('downloadFaceBtn').addEventListener('click', downloadFaceEncoding);
+
+        var searchInput = document.getElementById('searchLogs');
+        if (searchInput) searchInput.addEventListener('keyup', function (e) { if (e.key === 'Enter') filterLogs(); });
+
+        var statusFilter = document.getElementById('statusFilter');
+        if (statusFilter) statusFilter.addEventListener('change', filterLogs);
+
+        var periodBtns = document.querySelectorAll('.period-btn');
+        for (var i = 0; i < periodBtns.length; i++) {
+            periodBtns[i].addEventListener('click', function () { changeChartPeriod(this.getAttribute('data-period')); });
+        }
+
+        var launchCameraBtn = document.getElementById('launchCameraBtn');
+        if (launchCameraBtn) launchCameraBtn.addEventListener('click', function (e) { e.preventDefault(); startCameraFeed(); });
+
+        var generateReportBtn = document.getElementById('generateReportBtn');
+        if (generateReportBtn) generateReportBtn.addEventListener('click', function (e) { e.preventDefault(); generateReport(); });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay').forEach(function (modal) { modal.style.display = 'none'; });
+                document.getElementById('notificationDropdown').classList.remove('show');
+            }
+        });
+
+        addActivityItem('Dashboard initialized', 'check');
+        console.log('AFRAS Dashboard Fully Initialized');
+    });
+
+</script>
+{% endblock %}

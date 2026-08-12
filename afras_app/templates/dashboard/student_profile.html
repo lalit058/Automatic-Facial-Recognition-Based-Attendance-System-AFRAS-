@@ -1,0 +1,1599 @@
+<!-- templates/dashboard/student_profile.html -->
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ student.full_name }} - Student Profile{% endblock %}
+
+{% block extra_head %}
+<!-- Load Photo Modal CSS -->
+<link rel="stylesheet" href="{% static 'css/photo-modal.css' %}">
+
+<style>
+    /* ============================================
+       PROFESSIONAL STUDENT PROFILE STYLES
+       (Same style as session_details.html - CSS ONLY)
+    ============================================ */
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    .profile-container {
+        max-width: 1400px;
+    }
+
+    /* ============================================
+       PAGE HEADER WITH BREADCRUMB
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .breadcrumb-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.5rem;
+        padding: 0;
+    }
+
+    .breadcrumb-header a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .breadcrumb-header a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .breadcrumb-header .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .breadcrumb-header .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-content .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .header-content .header-left .avatar-wrapper {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .profile-avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .profile-avatar:hover {
+        transform: scale(1.05);
+        border-color: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    .avatar-placeholder {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .avatar-placeholder:hover {
+        transform: scale(1.05);
+        border-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .avatar-placeholder i {
+        font-size: 2.5rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .header-content .header-left .info h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .header-content .header-left .info h1 i {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .header-content .header-left .info .subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .header-content .header-left .info .subtitle .badge-status {
+        padding: 2px 14px;
+        border-radius: 100px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-status.active {
+        background: rgba(16, 185, 129, 0.2);
+        color: #6ee7b7;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .badge-status.inactive {
+        background: rgba(148, 163, 184, 0.15);
+        color: #94a3b8;
+        border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+
+    .header-content .header-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-outline-light {
+        padding: 0.6rem 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    .btn-primary-light {
+        padding: 0.6rem 1.5rem;
+        background: #16a34a;
+        border: none;
+        border-radius: 10px;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-primary-light:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+    }
+
+    /* ============================================
+       BADGES
+    ============================================ */
+    .dept-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #4f46e5;
+    }
+
+    .sem-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #d97706;
+    }
+
+    .year-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #2563eb;
+    }
+
+    .section-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .face-badge {
+        display: inline-block;
+        padding: 2px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .face-badge.available {
+        color: #16a34a;
+        background: #dcfce7;
+    }
+
+    .face-badge.unavailable {
+        color: #dc2626;
+        background: #fee2e2;
+    }
+
+    /* ============================================
+       PROFILE INFO CARDS
+    ============================================ */
+    .profile-info-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-card {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #f1f5f9;
+        text-align: center;
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        border-color: #e2e8f0;
+    }
+
+    .info-card .label {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        display: block;
+        margin-bottom: 7px;
+    }
+
+    .info-card .value {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    /* ============================================
+       PROFILE SECTIONS - Grid Layout
+    ============================================ */
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .profile-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+    }
+
+    .profile-card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        border-color: #e2e8f0;
+    }
+
+    .profile-card .card-header {
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #f8fafc;
+    }
+
+    .profile-card .card-header h3 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .profile-card .card-header h3 i {
+        color: #6366f1;
+    }
+
+    .profile-card .card-body {
+        padding: 1rem 1.25rem;
+    }
+
+    /* Info Items */
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-item .icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: rgba(99, 102, 241, 0.08);
+        color: #6366f1;
+        font-size: 0.8rem;
+    }
+
+    .info-item .content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .info-item .content .label {
+        font-size: 0.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        display: block;
+        margin-bottom: 1px;
+    }
+
+    .info-item .content .value {
+        font-size: 0.85rem;
+        color: #0f172a;
+        font-weight: 500;
+        word-break: break-word;
+    }
+
+    .info-item .content .value a {
+        color: #6366f1;
+        text-decoration: none;
+    }
+
+    .info-item .content .value a:hover {
+        text-decoration: underline;
+    }
+
+    /* ============================================
+       BIOMETRIC SECTION
+    ============================================ */
+    .biometric-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        margin-bottom: 1rem;
+    }
+
+    .biometric-card .card-header {
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #f8fafc;
+    }
+
+    .biometric-card .card-header h3 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .biometric-card .card-header h3 i {
+        color: #6366f1;
+    }
+
+    .face-status {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1rem 1.25rem;
+        flex-wrap: wrap;
+    }
+
+    .face-status .status-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    .face-status .status-icon.available {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+
+    .face-status .status-icon.unavailable {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    .face-status .status-info {
+        flex: 1;
+    }
+
+    .face-status .status-info h4 {
+        margin: 0 0 4px 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .face-status .status-info p {
+        margin: 0;
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+
+    .face-status .status-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-view-encoding {
+        padding: 0.4rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #6366f1;
+        background: transparent;
+        color: #6366f1;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-view-encoding:hover {
+        background: #6366f1;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-view-encoding:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    /* ============================================
+       DOCUMENT SECTION
+    ============================================ */
+    .document-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        margin-bottom: 1rem;
+    }
+
+    .document-card .card-header {
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        background: #f8fafc;
+    }
+
+    .document-card .card-header h3 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .document-card .card-header h3 i {
+        color: #6366f1;
+    }
+
+    .document-content {
+        padding: 1.5rem 1.25rem;
+        text-align: center;
+    }
+
+    .document-content .doc-icon {
+        font-size: 2.5rem;
+        color: #6366f1;
+        margin-bottom: 0.5rem;
+    }
+
+    .document-content .doc-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 0.25rem;
+    }
+
+    .document-content .doc-subtitle {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin-bottom: 1rem;
+    }
+
+    .btn-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.5rem 1.5rem;
+        background: #16a34a;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+
+    .btn-download:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+    }
+
+    /* ============================================
+       ACTION BUTTONS
+    ============================================ */
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        padding: 1rem 0 1rem 0;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-action {
+        padding: 0.6rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-action.back {
+        background: transparent;
+        border: 1.5px solid var(--primary-dark);
+        color: var(--primary-dark);
+    }
+
+    .btn-action.back:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        transform: translateY(-2px);
+    }
+
+    .btn-action.edit {
+        background: #6366f1;
+        color: #ffffff;
+        border: 1.5px solid #6366f1;
+    }
+
+    .btn-action.edit:hover {
+        background: #4f46e5;
+        border-color: #4f46e5;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-action.delete {
+        background: transparent;
+        border: 1.5px solid #dc2626;
+        color: #dc2626;
+    }
+
+    .btn-action.delete:hover {
+        background: #dc2626;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-action.attendance {
+        background: #d97706;
+        color: #ffffff;
+        border: 1.5px solid #d97706;
+    }
+
+    .btn-action.attendance:hover {
+        background: #b45309;
+        border-color: #b45309;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(217, 119, 6, 0.3);
+    }
+
+    /* ============================================
+       EMPTY STATE
+    ============================================ */
+    .empty-state {
+        text-align: center;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 2rem;
+        opacity: 0.3;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state h5 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 0.8rem;
+    }
+
+    /* ============================================
+       FACE ENCODING MODAL - HIDDEN BY DEFAULT
+    ============================================ */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 20px;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    .confirmation-modal {
+        background: var(--surface);
+        border-radius: 20px;
+        width: 100%;
+        max-width: 600px;
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        padding: 1rem 2rem 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 1.2rem;
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 10;
+        background: transparent;
+        border: none;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+    }
+
+    .close-modal:hover {
+        color: var(--text-main);
+        background: var(--surface-light);
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 12px;
+        padding: 0.5rem 16rem 0.5rem;
+    }
+
+    .btn-cancel {
+        flex: 1;
+        padding: 7px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: var(--primary);
+        color: var(--primary-text);
+        border: 1px solid var(--border);
+    }
+
+    .btn-cancel:hover {
+        background: transparent;
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .encoding-actions {
+        display: flex;
+        gap: 10px;
+        margin: 5px 0;
+        justify-content: center;
+    }
+
+    .btn-export {
+        background: transparent;
+        border: 1px solid var(--success);
+        color: var(--success);
+        padding: 5px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-export:hover {
+        background: var(--success);
+        color: white;
+    }
+
+    .encoding-data {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 1rem;
+        background: var(--bg);
+        border-radius: 8px;
+        margin: 1rem 0;
+        border: 1px solid var(--border);
+    }
+
+    .encoding-data pre {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        line-height: 1.5;
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-all;
+        color: var(--text-main);
+    }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 992px) {
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+
+        .page-header {
+            padding: 0.5rem;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-content .header-left {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+        }
+
+        .header-content .header-left .info h1 {
+            font-size: 1.2rem;
+            justify-content: center;
+        }
+
+        .header-content .header-left .info .subtitle {
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .header-content .header-actions {
+            width: 100%;
+        }
+
+        .header-content .header-actions .btn-outline-light,
+        .header-content .header-actions .btn-primary-light {
+            flex: 1;
+            justify-content: center;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .profile-avatar,
+        .avatar-placeholder {
+            width: 80px;
+            height: 80px;
+        }
+
+        .avatar-placeholder i {
+            font-size: 2rem;
+        }
+
+        .profile-info-cards {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .info-card {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .info-card .value {
+            font-size: 0.75rem;
+        }
+
+        .face-status {
+            flex-direction: column;
+            text-align: center;
+            gap: 0.75rem;
+        }
+
+        .face-status .status-actions {
+            justify-content: center;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-buttons .btn-action {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .profile-info-cards {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .info-card {
+            padding: 0.4rem 0.6rem;
+        }
+
+        .info-card .value {
+            font-size: 0.7rem;
+        }
+
+        .info-card .label {
+            font-size: 0.5rem;
+        }
+
+        .profile-card .card-header {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .profile-card .card-header h3 {
+            font-size: 0.8rem;
+        }
+
+        .profile-card .card-body {
+            padding: 0.5rem 0.75rem;
+        }
+
+        .info-item {
+            padding: 6px 0;
+        }
+
+        .info-item .content .value {
+            font-size: 0.75rem;
+        }
+
+        .header-content .header-left .info h1 {
+            font-size: 1rem;
+        }
+    }
+
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+
+        .header-content .header-actions,
+        .btn-outline-light,
+        .btn-primary-light,
+        .btn-action,
+        .photo-controls {
+            display: none !important;
+        }
+
+        .page-header {
+            background: #0f172a !important;
+            border-radius: 0 !important;
+        }
+
+        .header-content .header-left .info h1 {
+            color: #ffffff !important;
+        }
+
+        .header-content .header-left .info .subtitle {
+            color: #94a3b8 !important;
+        }
+
+        .profile-card,
+        .biometric-card,
+        .document-card {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+        }
+
+        .profile-card:hover,
+        .biometric-card:hover,
+        .document-card:hover {
+            transform: none !important;
+        }
+
+        .status-badge {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <!-- ============================================
+    PAGE HEADER WITH BREADCRUMB
+    ============================================ -->
+    <div class="page-header">
+        <div class="breadcrumb-header">
+            <a href="{% url 'dashboard_home' %}">Dashboard</a>
+            <span class="separator">/</span>
+            <a href="{% url 'student-directory' %}">Student Directory</a>
+            <span class="separator">/</span>
+            <span class="current">Student Profile</span>
+        </div>
+
+        <div class="header-content">
+            <div class="header-left">
+                <div class="avatar-wrapper">
+                    {% if student.photo %}
+                    <img src="{{ student.photo.url }}" class="profile-avatar" alt="{{ student.full_name }}"
+                        onclick="window.photoModal.open('{{ student.photo.url }}', '{{ student.full_name }}', 'Roll: {{ student.roll_number }} | Semester {{ student.semester }}')">
+                    {% else %}
+                    <div class="avatar-placeholder"
+                        onclick="window.photoModal.open('https://ui-avatars.com/api/?name={{ student.full_name }}&background=0062ff&color=fff&size=400', '{{ student.full_name }}', 'Roll: {{ student.roll_number }} | Semester {{ student.semester }}')">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="info">
+                    <h1>
+                        <i class="fas fa-user-circle"></i>
+                        {{ student.full_name }}
+                    </h1>
+                    <div class="subtitle">
+                        <span><strong>Roll:</strong> {{ student.roll_number }}</span>
+                        <span><i class="fas fa-building"></i> {{ student.department|default:"N/A" }}</span>
+                        <span><i class="fas fa-graduation-cap"></i> Semester {{ student.semester|default:"N/A" }}</span>
+                        <span class="badge-status {% if student.face_encoding %}active{% else %}inactive{% endif %}">
+                            {% if student.face_encoding %}Face Data Available{% else %}No Face Data{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button onclick="window.print()" class="btn-outline-light">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    PROFILE INFO CARDS
+    ============================================ -->
+    <div class="profile-info-cards">
+        <div class="info-card">
+            <span class="label">Total Attendance</span>
+            <span class="value">
+                <i class="fas fa-clock" style="color: #6366f1;"></i>
+                {{ total_logs|default:0 }}
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Current Semester</span>
+            <span class="value">
+                <i class="fas fa-calendar-alt" style="color: #d97706;"></i>
+                {{ student.semester|default:"N/A" }}
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Section</span>
+            <span class="value">
+                <i class="fas fa-users" style="color: #db2777;"></i>
+                {{ student.section|default:"A" }}
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Face Data</span>
+            <span class="value">
+                {% if student.face_encoding %}
+                <i class="fas fa-check-circle" style="color: #16a34a;"></i> Registered
+                {% else %}
+                <i class="fas fa-times-circle" style="color: #dc2626;"></i> Not Registered
+                {% endif %}
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Documents</span>
+            <span class="value">
+                {% if student.id_proof %}
+                <i class="fas fa-check-circle" style="color: #16a34a;"></i> Uploaded
+                {% else %}
+                <i class="fas fa-times-circle" style="color: #dc2626;"></i> Not Uploaded
+                {% endif %}
+            </span>
+        </div>
+        <div class="info-card">
+            <span class="label">Enrolled On</span>
+            <span class="value">
+                <i class="fas fa-calendar-check" style="color: #3b82f6;"></i>
+                {{ student.registration_date|date:"d M Y" }}
+            </span>
+        </div>
+    </div>
+
+    <!-- ============================================
+    PROFILE GRID
+    ============================================ -->
+    <div class="profile-grid">
+        <!-- Personal Information -->
+        <div class="profile-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-user-circle"></i>
+                    Personal Information
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-id-card"></i></div>
+                    <div class="content">
+                        <span class="label">Full Name</span>
+                        <span class="value">{{ student.full_name }}</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-hashtag"></i></div>
+                    <div class="content">
+                        <span class="label">Roll Number</span>
+                        <span class="value">{{ student.roll_number }}</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-phone"></i></div>
+                    <div class="content">
+                        <span class="label">Phone Number</span>
+                        <span class="value">{{ student.phone_number|default:"Not provided" }}</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-envelope"></i></div>
+                    <div class="content">
+                        <span class="label">Email Address</span>
+                        <span class="value">
+                            {% if student.email %}
+                            <a href="mailto:{{ student.email }}">{{ student.email }}</a>
+                            {% else %}
+                            Not provided
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="content">
+                        <span class="label">Address</span>
+                        <span class="value">{{ student.address|default:"Not provided" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Information -->
+        <div class="profile-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-graduation-cap"></i>
+                    Academic Information
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-university"></i></div>
+                    <div class="content">
+                        <span class="label">Department</span>
+                        <span class="value">
+                            <span class="dept-badge">{{ student.department|default:"Not specified" }}</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="content">
+                        <span class="label">Semester</span>
+                        <span class="value">
+                            <span class="sem-badge">Semester {{ student.semester|default:"N/A" }}</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-users"></i></div>
+                    <div class="content">
+                        <span class="label">Section</span>
+                        <span class="value">
+                            <span class="section-badge">{{ student.section|default:"A" }}</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-calendar-check"></i></div>
+                    <div class="content">
+                        <span class="label">Registration Date</span>
+                        <span class="value">{{ student.registration_date|date:"d M Y, h:i A" }}</span>
+                    </div>
+                </div>
+                {% if student.year %}
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-star"></i></div>
+                    <div class="content">
+                        <span class="label">Year</span>
+                        <span class="value">
+                            <span class="year-badge">Year {{ student.year }}</span>
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Guardian & Additional Info -->
+    <div class="profile-grid">
+        <!-- Guardian Information -->
+        <div class="profile-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-users"></i>
+                    Guardian Information
+                </h3>
+                <span class="count">Contact</span>
+            </div>
+            <div class="card-body">
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-user"></i></div>
+                    <div class="content">
+                        <span class="label">Father's Name</span>
+                        <span class="value">{{ student.father_name|default:"Not provided" }}</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-user"></i></div>
+                    <div class="content">
+                        <span class="label">Mother's Name</span>
+                        <span class="value">{{ student.mother_name|default:"Not provided" }}</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-phone"></i></div>
+                    <div class="content">
+                        <span class="label">Guardian Phone</span>
+                        <span class="value">{{ student.guardian_phone|default:"Not provided" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="profile-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-info-circle"></i>
+                    Additional Information
+                </h3>
+                <span class="count">Details</span>
+            </div>
+            <div class="card-body">
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-file-alt"></i></div>
+                    <div class="content">
+                        <span class="label">ID Proof</span>
+                        <span class="value">
+                            {% if student.id_proof %}
+                            <span style="color: #16a34a;"><i class="fas fa-check-circle"></i> Uploaded</span>
+                            {% else %}
+                            <span style="color: #94a3b8;"><i class="fas fa-times-circle"></i> Not uploaded</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-dna"></i></div>
+                    <div class="content">
+                        <span class="label">Face Data</span>
+                        <span class="value">
+                            {% if student.face_encoding %}
+                            <span style="color: #16a34a;"><i class="fas fa-check-circle"></i> Registered</span>
+                            {% else %}
+                            <span style="color: #94a3b8;"><i class="fas fa-times-circle"></i> Not registered</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="icon"><i class="fas fa-id-card"></i></div>
+                    <div class="content">
+                        <span class="label">Student ID</span>
+                        <span class="value">#{{ student.id }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    BIOMETRIC DATA SECTION - ORIGINAL
+    ============================================ -->
+    <div class="biometric-card">
+        <div class="card-header">
+            <h3>
+                <i class="fas fa-dna"></i>
+                Biometric Data
+            </h3>
+            <span class="count">
+                <span class="face-badge {% if student.face_encoding %}available{% else %}unavailable{% endif %}">
+                    {% if student.face_encoding %}✓ Available{% else %}✗ Not Registered{% endif %}
+                </span>
+            </span>
+        </div>
+        <div class="face-status">
+            <div class="status-icon {% if student.face_encoding %}available{% else %}unavailable{% endif %}">
+                <i class="fas {% if student.face_encoding %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+            </div>
+            <div class="status-info">
+                <h4>Face Encoding Status</h4>
+                <p>
+                    {% if student.face_encoding %}
+                    Face biometric data is available for facial recognition
+                    {% else %}
+                    No face biometric data has been registered yet
+                    {% endif %}
+                </p>
+            </div>
+            <div class="status-actions">
+                {% if student.face_encoding %}
+                <button class="btn-view-encoding" onclick="showFaceEncoding()">
+                    <i class="fas fa-eye"></i> View & Export
+                </button>
+                {% else %}
+                <button class="btn-view-encoding" disabled>
+                    <i class="fas fa-eye-slash"></i> No Data
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    DOCUMENT SECTION - ORIGINAL
+    ============================================ -->
+    <div class="document-card">
+        <div class="card-header">
+            <h3>
+                <i class="fas fa-file-alt"></i>
+                Documents
+            </h3>
+            <span class="count">
+                {% if student.id_proof %}1 Document{% else %}0 Documents{% endif %}
+            </span>
+        </div>
+        <div class="document-content">
+            {% if student.id_proof %}
+            <div class="doc-icon">
+                <i class="fas fa-file-pdf"></i>
+            </div>
+            <div class="doc-title">ID Proof Document</div>
+            <div class="doc-subtitle">Uploaded on {{ student.registration_date|date:"d M Y" }}</div>
+            <a href="{{ student.id_proof.url }}" target="_blank" class="btn-download">
+                <i class="fas fa-download"></i> Download Document
+            </a>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-file-alt"></i>
+                <h5>No Documents Uploaded</h5>
+                <p>No ID proof document has been uploaded for this student.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ============================================
+    ACTION BUTTONS - ORIGINAL
+    ============================================ -->
+    <div class="action-buttons">
+        <a href="javascript:history.back()" class="btn-action back">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <a href="{% url 'edit-student' student.id %}" class="btn-action edit">
+            <i class="fas fa-edit"></i> Edit Profile
+        </a>
+        <a href="/attendance/student-attendance/{{ student.id }}/" class="btn-action attendance">
+            <i class="fas fa-calendar-check"></i> View Attendance
+        </a>
+        {% if request.user.is_superuser %}
+        <a href="{% url 'delete-student' student.id %}" class="btn-action delete"
+            onclick="return confirm('Are you sure you want to delete {{ student.full_name }}? This action cannot be undone.');">
+            <i class="fas fa-trash-alt"></i> Delete Student
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ============================================
+FACE ENCODING MODAL - ORIGINAL (HIDDEN BY DEFAULT)
+============================================ -->
+<div id="faceEncodingModal" class="modal-overlay">
+    <div class="confirmation-modal">
+        <button class="close-modal" onclick="closeFaceEncodingModal()">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="modal-header">
+            <i class="fas fa-dna" style="color: var(--primary); font-size: 2rem;"></i>
+            <div>
+                <h3>Face Encoding Data</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Biometric data for {{ student.full_name }}</p>
+            </div>
+        </div>
+
+        <div style="padding: 0 2rem;">
+            <div class="encoding-actions">
+                <button class="btn-export" onclick="copyFaceEncoding()">
+                    <i class="fas fa-copy"></i> Copy to Clipboard
+                </button>
+                <button class="btn-export" onclick="downloadFaceEncoding()">
+                    <i class="fas fa-download"></i> Download as JSON
+                </button>
+            </div>
+
+            <div class="encoding-data">
+                <pre id="encodingContent">{{ student.face_encoding|default:"No face encoding data available." }}</pre>
+            </div>
+        </div>
+
+        <div class="modal-buttons">
+            <button class="btn-cancel" onclick="closeFaceEncodingModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+SCRIPTS - ORIGINAL (UNCHANGED)
+============================================ -->
+<!-- Load Photo Modal JS -->
+<script src="{% static 'js/photo-model.js' %}"></script>
+
+<script>
+    // Face Encoding Functions - ORIGINAL
+    function showFaceEncoding() {
+        var modal = document.getElementById('faceEncodingModal');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeFaceEncodingModal() {
+        var modal = document.getElementById('faceEncodingModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function copyFaceEncoding() {
+        var encodingText = document.getElementById('encodingContent').textContent;
+        navigator.clipboard.writeText(encodingText)
+            .then(function () {
+                showNotification('Face encoding data copied to clipboard!', 'success');
+            })
+            .catch(function (err) {
+                console.error('Failed to copy: ', err);
+                showNotification('Failed to copy data. Please try again.', 'error');
+            });
+    }
+
+    function downloadFaceEncoding() {
+        var encodingText = document.getElementById('encodingContent').textContent;
+        var studentName = "{{ student.full_name|slugify }}";
+        var rollNumber = "{{ student.roll_number|slugify }}";
+        var fileName = 'face_encoding_' + studentName + '_' + rollNumber + '_' + Date.now() + '.json';
+
+        var blob = new Blob([encodingText], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showNotification('Face encoding data downloaded!', 'success');
+    }
+
+    function showNotification(message, type) {
+        var notification = document.createElement('div');
+        notification.className = 'msg ' + type;
+        notification.innerHTML = '<i class="fas fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i><span>' + message + '</span>';
+
+        var container = document.getElementById('django-messages');
+        if (!container) {
+            var newContainer = document.createElement('div');
+            newContainer.className = 'msg-container';
+            newContainer.id = 'django-messages';
+            newContainer.style.position = 'fixed';
+            newContainer.style.top = '20px';
+            newContainer.style.right = '20px';
+            newContainer.style.zIndex = '10001';
+            newContainer.style.width = '300px';
+            document.body.appendChild(newContainer);
+            newContainer.appendChild(notification);
+        } else {
+            container.appendChild(notification);
+        }
+
+        setTimeout(function () {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 3000);
+    }
+
+    // DOM Event Listeners - ORIGINAL
+    document.addEventListener('DOMContentLoaded', function () {
+        // Close face encoding modal when clicking outside
+        var faceModal = document.getElementById('faceEncodingModal');
+        if (faceModal) {
+            faceModal.addEventListener('click', function (e) {
+                if (e.target === faceModal) {
+                    closeFaceEncodingModal();
+                }
+            });
+        }
+
+        // Close with Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeFaceEncodingModal();
+                if (window.photoModal && typeof window.photoModal.close === 'function') {
+                    window.photoModal.close();
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

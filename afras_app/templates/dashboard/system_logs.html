@@ -1,0 +1,2241 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}System Logs{% endblock %}
+
+{% block content %}
+<style>
+    /* ============================================
+       BASE
+    ============================================ */
+    * {
+        box-sizing: border-box;
+    }
+
+    .page-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* ============================================
+       PAGE HEADER
+    ============================================ */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px 20px 0 0;
+        display: flex;
+        padding: 1rem 1.5rem;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        color: #ffffff;
+        margin-bottom: 1rem;
+    }
+
+    .page-header .header-left {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .page-header .header-left h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.3px;
+        color: #ffffff;
+        word-break: break-word;
+    }
+
+    .page-header .header-left p {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0;
+    }
+
+    .page-header .header-left .breadcrumb {
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .page-header .header-left .breadcrumb a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .page-header .header-left .breadcrumb a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+
+    .page-header .header-left .breadcrumb .separator {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .page-header .header-left .breadcrumb .current {
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    /* ============================================
+       FILTER CONTAINER - FULLY RESPONSIVE
+    ============================================ */
+    .filter-container {
+        background: transparent;
+        border-radius: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .filter-container .search-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--bg);
+        padding: 0.3rem 0.8rem;
+        border-radius: 10px;
+        border: 1.5px solid var(--border);
+        transition: all 0.2s;
+        flex: 1 1 200px;
+        min-width: 150px;
+    }
+
+    .filter-container .search-box:focus-within {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.06);
+        background: #fff;
+    }
+
+    .filter-container .search-box i {
+        color: var(--text-light);
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+    .filter-container .search-box input {
+        border: none;
+        background: transparent;
+        padding: 0.2rem 0;
+        font-size: 0.85rem;
+        color: var(--text-main);
+        width: 100%;
+        outline: none;
+        min-width: 50px;
+    }
+
+    .filter-container .search-box input::placeholder {
+        color: var(--text-light);
+    }
+
+    .filter-container .filter-group {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+        flex: 1 1 auto;
+    }
+
+    .filter-container .filter-group select {
+        padding: 0.4rem 0.8rem;
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.75rem;
+        background: #fafbfc;
+        color: var(--text-main);
+        outline: none;
+        cursor: pointer;
+        min-width: 100px;
+        flex: 1 1 100px;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 30px;
+    }
+
+    .filter-container .filter-group select:focus {
+        border-color: var(--primary);
+    }
+
+    .filter-container .filter-group .clear-btn {
+        padding: 0.3rem 1rem;
+        border: none;
+        background: #f1f5f9;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        flex-shrink: 0;
+        text-decoration: none;
+    }
+
+    .filter-container .filter-group .clear-btn:hover {
+        background: #e2e8f0;
+        color: var(--text-main);
+    }
+
+    /* ============================================
+       FILTER TAGS
+    ============================================ */
+    .filter-tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .filter-tag {
+        background: #f1f5f9;
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .filter-tag:hover {
+        background: #e2e8f0;
+    }
+
+    .filter-tag i {
+        font-size: 0.55rem;
+        color: var(--text-light);
+    }
+
+    .filter-tag:hover i {
+        color: var(--danger);
+    }
+
+    /* ============================================
+       TABLE CARD - FULLY RESPONSIVE
+    ============================================ */
+    .table-card {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        min-width: 800px;
+    }
+
+    thead {
+        background: var(--bg);
+    }
+
+    thead th {
+        padding: 0.75rem 1.25rem;
+        text-align: left;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+    }
+
+    thead th:last-child {
+        text-align: right;
+    }
+
+    tbody td {
+        padding: 0.6rem 1.25rem;
+        color: var(--text-main);
+        vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    tbody tr:hover {
+        background: var(--bg);
+    }
+
+    tbody tr.archived {
+        opacity: 0.6;
+        background: rgba(239, 68, 68, 0.03);
+    }
+
+    tbody tr.archived:hover {
+        background: rgba(239, 68, 68, 0.06);
+    }
+
+    /* ============================================
+       SELECTOR
+    ============================================ */
+    .row-selector {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: var(--primary);
+        flex-shrink: 0;
+    }
+
+    /* ============================================
+       TIMESTAMP
+    ============================================ */
+    .timestamp-col {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+        white-space: nowrap;
+    }
+
+    .timestamp-date {
+        color: var(--text-main);
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+
+    .timestamp-time {
+        color: var(--text-light);
+        font-size: 0.6rem;
+        display: block;
+        margin-top: 1px;
+    }
+
+    /* ============================================
+       USER BADGE
+    ============================================ */
+    .user-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 100px;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #eef2ff;
+        border: 2px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all var(--transition);
+        flex-shrink: 0;
+    }
+
+    .user-avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        border-color: var(--primary);
+    }
+
+    .user-badge .user-name {
+        font-weight: 600;
+        color: var(--text-main);
+        font-size: 0.8rem;
+        word-break: break-word;
+    }
+
+    .user-badge .user-role {
+        font-size: 0.6rem;
+        color: var(--text-light);
+        display: block;
+    }
+
+    .user-badge .user-role i {
+        color: var(--primary);
+    }
+
+    .deleted-user {
+        color: var(--text-light);
+        font-style: italic;
+        font-size: 0.75rem;
+    }
+
+    /* ============================================
+       ACTION BADGE
+    ============================================ */
+    .action-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 100px;
+        font-size: 0.6rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .action-badge.delete {
+        background: #fee2e2;
+        color: var(--danger);
+    }
+
+    .action-badge.create {
+        background: #dcfce7;
+        color: var(--success);
+    }
+
+    .action-badge.update {
+        background: #fef3c7;
+        color: var(--warning);
+    }
+
+    .action-badge.login {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .action-badge.logout {
+        background: #f1f5f9;
+        color: var(--text-dim);
+    }
+
+    .action-badge.default {
+        background: #f1f5f9;
+        color: var(--text-dim);
+    }
+
+    /* ============================================
+       DETAILS
+    ============================================ */
+    .details-text {
+        max-width: 200px;
+        font-size: 0.75rem;
+        line-height: 1.4;
+        color: var(--text-main);
+    }
+
+    /* ============================================
+       IP BADGE
+    ============================================ */
+    .ip-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        color: var(--text-dim);
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .ip-badge i {
+        margin-right: 3px;
+        opacity: 0.7;
+        font-size: 0.55rem;
+    }
+
+    .ip-badge.public {
+        color: var(--warning);
+    }
+
+    .ip-badge.local {
+        color: var(--success);
+    }
+
+    /* ============================================
+       STATUS BADGE
+    ============================================ */
+    .status-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 100px;
+        font-size: 0.55rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .status-badge.active {
+        background: #dcfce7;
+        color: var(--success);
+    }
+
+    .status-badge.archived {
+        background: #fee2e2;
+        color: var(--danger);
+    }
+
+    /* ============================================
+       ACTION BUTTONS
+    ============================================ */
+    .action-buttons {
+        display: flex;
+        gap: 4px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all var(--transition);
+        font-size: 0.75rem;
+        text-decoration: none;
+        flex-shrink: 0;
+    }
+
+    .action-btn.archive {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .action-btn.archive:hover {
+        background: var(--warning);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .action-btn.restore {
+        background: rgba(22, 163, 74, 0.1);
+        color: var(--success);
+        border: 1px solid rgba(22, 163, 74, 0.2);
+    }
+
+    .action-btn.restore:hover {
+        background: var(--success);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    }
+
+    .action-btn.delete-permanent {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(220, 38, 38, 0.2);
+    }
+
+    .action-btn.delete-permanent:hover {
+        background: var(--danger);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    /* ============================================
+       BULK ACTIONS
+    ============================================ */
+    .bulk-actions {
+        display: none;
+        padding: 0.6rem 1.25rem;
+        background: var(--bg);
+        border-top: 1px solid var(--border);
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bulk-actions.show {
+        display: flex;
+    }
+
+    .bulk-actions .selected-count {
+        font-size: 0.8rem;
+        color: var(--text-dim);
+    }
+
+    .bulk-actions .selected-count strong {
+        color: var(--text-main);
+    }
+
+    .bulk-actions .btn-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-left: auto;
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        color: #fff;
+        border: none;
+        padding: 0.35rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: all var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+        background: #b91c1c;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-danger:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-success {
+        background: var(--success);
+        color: #fff;
+        border: none;
+        padding: 0.35rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: all var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+
+    .btn-success:hover:not(:disabled) {
+        background: #15803d;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-success:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: var(--text-dim);
+        border: 1.5px solid var(--border);
+        padding: 0.35rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: all var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+
+    .btn-outline:hover {
+        background: var(--bg);
+        border-color: #cbd5e1;
+    }
+
+    .btn-apply-filter {
+        padding: 0.3rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        background: var(--primary);
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-apply-filter:hover {
+        background: #0d3b6e;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 12px rgba(26, 86, 148, 0.2);
+    }
+
+    /* ============================================
+       PAGINATION
+    ============================================ */
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        border-top: 1px solid var(--border);
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .pagination-container .info {
+        font-size: 0.75rem;
+        color: var(--text-dim);
+    }
+
+    .pagination-container .info strong {
+        color: var(--text-main);
+    }
+
+    .pagination-controls {
+        display: flex;
+        gap: 0.25rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .pagination-controls button {
+        padding: 0.25rem 0.6rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: #fff;
+        color: var(--text-main);
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        min-height: 30px;
+    }
+
+    .pagination-controls button:hover:not(:disabled):not(.active) {
+        background: var(--bg);
+        border-color: #cbd5e1;
+    }
+
+    .pagination-controls button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .pagination-controls button.active {
+        background: var(--text-main);
+        color: #fff;
+        border-color: var(--text-main);
+    }
+
+    .pagination-controls button.active:hover {
+        background: #1e293b;
+    }
+
+    .pagination-controls .page-numbers {
+        display: flex;
+        gap: 0.15rem;
+        flex-wrap: wrap;
+    }
+
+    .pagination-controls .page-numbers button {
+        min-width: 30px;
+        justify-content: center;
+    }
+
+    .pagination-controls .dots {
+        padding: 0 0.2rem;
+        color: var(--text-light);
+        font-size: 0.75rem;
+    }
+
+    /* ============================================
+       EMPTY STATE
+    ============================================ */
+    .empty-state {
+        text-align: center;
+        padding: 2.5rem 1rem;
+        color: var(--text-light);
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        opacity: 0.2;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-main);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+    /* ============================================
+       PHOTO MODAL
+    ============================================ */
+    .photo-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .photo-modal-overlay.active {
+        display: flex;
+    }
+
+    .photo-modal {
+        position: relative;
+        max-width: 90%;
+        max-height: 90%;
+        animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .photo-modal .modal-photo {
+        max-width: 100%;
+        max-height: 80vh;
+        border-radius: 12px;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+        object-fit: contain;
+        background: #000;
+        transition: transform 0.3s ease;
+    }
+
+    .photo-modal .modal-close {
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: all var(--transition);
+    }
+
+    .photo-modal .modal-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: rotate(90deg);
+    }
+
+    .photo-modal .modal-info {
+        text-align: center;
+        margin-top: 0.75rem;
+        color: #fff;
+    }
+
+    .photo-modal .modal-info h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 2px 0;
+    }
+
+    .photo-modal .modal-info p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.8rem;
+        margin: 0;
+        word-break: break-all;
+    }
+
+    /* ============================================
+       FULLY RESPONSIVE BREAKPOINTS
+    ============================================ */
+
+    /* Laptops */
+    @media (max-width: 1200px) {
+        table {
+            min-width: 750px;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1.5rem;
+        }
+
+        .details-text {
+            max-width: 150px;
+        }
+    }
+
+    /* Tablets */
+    @media (max-width: 992px) {
+        .filter-container {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+        }
+
+        .filter-container .search-box {
+            max-width: 100%;
+            flex: 1 1 100%;
+        }
+
+        .filter-container .filter-group {
+            flex: 1 1 100%;
+            justify-content: stretch;
+        }
+
+        .filter-container .filter-group select {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .filter-container .filter-group .clear-btn {
+            flex-shrink: 0;
+        }
+
+        .page-header {
+            padding: 0.75rem 1rem;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1.3rem;
+        }
+
+        .page-header .header-left p {
+            font-size: 0.8rem;
+        }
+
+        .table-scroll {
+            margin: 0 -0.5rem;
+            padding: 0 0.5rem;
+        }
+
+        table {
+            font-size: 0.75rem;
+            min-width: 700px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.4rem 0.8rem;
+        }
+
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            font-size: 0.65rem;
+        }
+
+        .user-badge .user-name {
+            font-size: 0.7rem;
+        }
+
+        .action-btn {
+            width: 28px;
+            height: 28px;
+            font-size: 0.65rem;
+        }
+
+        .action-badge {
+            font-size: 0.55rem;
+            padding: 2px 8px;
+        }
+
+        .timestamp-date {
+            font-size: 0.65rem;
+        }
+
+        .timestamp-time {
+            font-size: 0.55rem;
+        }
+
+        .bulk-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.4rem;
+        }
+
+        .bulk-actions .btn-group {
+            margin-left: 0;
+            justify-content: center;
+        }
+
+        .bulk-actions .btn-group .btn-danger,
+        .bulk-actions .btn-group .btn-success,
+        .bulk-actions .btn-group .btn-outline {
+            flex: 1;
+            justify-content: center;
+            font-size: 0.65rem;
+            padding: 0.3rem 0.8rem;
+        }
+    }
+
+    /* Mobile Large */
+    @media (max-width: 768px) {
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0.6rem 0.8rem;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 1.1rem;
+        }
+
+        .page-header .header-left p {
+            font-size: 0.7rem;
+        }
+
+        .page-header .header-left .breadcrumb {
+            font-size: 0.6rem;
+        }
+
+        .filter-container {
+            padding: 0.5rem 0.75rem;
+            gap: 0.4rem;
+            border-radius: 8px;
+        }
+
+        .filter-container .search-box {
+            padding: 0.2rem 0.6rem;
+            border-radius: 8px;
+        }
+
+        .filter-container .search-box input {
+            font-size: 0.75rem;
+        }
+
+        .filter-container .filter-group {
+            flex-direction: column;
+            width: 100%;
+            gap: 0.4rem;
+        }
+
+        .filter-container .filter-group select {
+            width: 100%;
+            padding: 0.35rem 0.6rem;
+            font-size: 0.7rem;
+            min-width: unset;
+        }
+
+        .filter-container .filter-group .clear-btn {
+            justify-content: center;
+            padding: 0.35rem;
+            background: #c8c328;
+            padding: 0.3rem 0.8rem;
+            white-space: nowrap;
+            color: var(--primary-text);
+            font-size: 0.65rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .filter-tags {
+            gap: 4px;
+        }
+
+        .filter-tag {
+            font-size: 0.6rem;
+            padding: 2px 8px;
+        }
+
+        .table-card {
+            border-radius: 8px;
+        }
+
+        .table-scroll {
+            margin: 0 -0.5rem;
+            padding: 0 0.5rem;
+        }
+
+        table {
+            font-size: 0.65rem;
+            min-width: 600px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.3rem 0.5rem;
+        }
+
+        thead th {
+            font-size: 0.55rem;
+            padding: 0.4rem 0.5rem;
+        }
+
+        .user-badge {
+            min-width: 70px;
+            gap: 5px;
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            font-size: 0.55rem;
+            border-width: 1.5px;
+        }
+
+        .user-badge .user-name {
+            font-size: 0.6rem;
+        }
+
+        .user-badge .user-role {
+            font-size: 0.5rem;
+        }
+
+        .action-badge {
+            font-size: 0.5rem;
+            padding: 2px 6px;
+        }
+
+        .details-text {
+            max-width: 100px;
+            font-size: 0.6rem;
+        }
+
+        .ip-badge {
+            font-size: 0.55rem;
+        }
+
+        .ip-badge i {
+            font-size: 0.5rem;
+        }
+
+        .status-badge {
+            font-size: 0.5rem;
+            padding: 1px 6px;
+        }
+
+        .action-btn {
+            width: 24px;
+            height: 24px;
+            font-size: 0.55rem;
+            border-radius: 6px;
+        }
+
+        .pagination-container {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0.5rem 0.75rem;
+            gap: 0.4rem;
+        }
+
+        .pagination-container .info {
+            font-size: 0.65rem;
+        }
+
+        .pagination-controls {
+            gap: 0.15rem;
+        }
+
+        .pagination-controls button {
+            padding: 0.15rem 0.4rem;
+            font-size: 0.65rem;
+            min-height: 26px;
+        }
+
+        .pagination-controls .page-numbers button {
+            min-width: 26px;
+        }
+
+        .bulk-actions {
+            padding: 0.4rem 0.75rem;
+            gap: 0.4rem;
+        }
+
+        .bulk-actions .selected-count {
+            font-size: 0.7rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        .bulk-actions .btn-group {
+            flex-direction: column;
+            width: 100%;
+            gap: 0.3rem;
+        }
+
+        .bulk-actions .btn-group .btn-danger,
+        .bulk-actions .btn-group .btn-success,
+        .bulk-actions .btn-group .btn-outline {
+            width: 100%;
+            justify-content: center;
+            font-size: 0.6rem;
+            padding: 0.3rem;
+        }
+
+        .photo-modal .modal-close {
+            top: -35px;
+            right: 0;
+            width: 32px;
+            height: 32px;
+            font-size: 1rem;
+        }
+
+        .photo-modal .modal-photo {
+            max-height: 70vh;
+        }
+
+        .photo-modal .modal-info h3 {
+            font-size: 0.9rem;
+        }
+
+        .photo-modal .modal-info p {
+            font-size: 0.7rem;
+        }
+
+        .empty-state {
+            padding: 1.5rem 0.5rem;
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+        }
+
+        .empty-state h3 {
+            font-size: 0.85rem;
+        }
+
+        .empty-state p {
+            font-size: 0.7rem;
+        }
+    }
+
+    /* Mobile Small */
+    @media (max-width: 480px) {
+        .page-header {
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .page-header .header-left h1 {
+            font-size: 0.95rem;
+        }
+
+        .page-header .header-left p {
+            font-size: 0.6rem;
+        }
+
+        .page-header .header-left .breadcrumb {
+            font-size: 0.55rem;
+            gap: 4px;
+        }
+
+        .filter-container {
+            padding: 0.4rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .filter-container .search-box {
+            padding: 0.15rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .filter-container .search-box input {
+            font-size: 0.65rem;
+        }
+
+        .filter-container .search-box i {
+            font-size: 0.65rem;
+        }
+
+        .filter-container .filter-group select {
+            font-size: 0.6rem;
+            padding: 0.3rem 0.5rem;
+            padding-right: 25px;
+            background-size: 10px;
+        }
+
+        .filter-container .filter-group .clear-btn {
+            font-size: 0.6rem;
+            padding: 0.3rem;
+            justify-content: center;
+            display: flex;
+            width: 40%;
+        }
+
+        .filter-tag {
+            font-size: 0.55rem;
+            padding: 2px 6px;
+        }
+
+        .table-scroll {
+            margin: 0 -0.3rem;
+            padding: 0 0.3rem;
+        }
+
+        table {
+            font-size: 0.55rem;
+            min-width: 500px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.2rem 0.35rem;
+        }
+
+        thead th {
+            font-size: 0.5rem;
+            padding: 0.3rem 0.35rem;
+        }
+
+        .user-badge {
+            min-width: 50px;
+            gap: 4px;
+        }
+
+        .user-avatar {
+            width: 20px;
+            height: 20px;
+            font-size: 0.45rem;
+            border-width: 1px;
+        }
+
+        .user-badge .user-name {
+            font-size: 0.5rem;
+        }
+
+        .user-badge .user-role {
+            font-size: 0.45rem;
+        }
+
+        .deleted-user {
+            font-size: 0.5rem;
+        }
+
+        .action-badge {
+            font-size: 0.45rem;
+            padding: 1px 4px;
+        }
+
+        .details-text {
+            max-width: 60px;
+            font-size: 0.5rem;
+        }
+
+        .ip-badge {
+            font-size: 0.45rem;
+        }
+
+        .ip-badge i {
+            font-size: 0.4rem;
+        }
+
+        .status-badge {
+            font-size: 0.4rem;
+            padding: 1px 4px;
+        }
+
+        .action-btn {
+            width: 20px;
+            height: 20px;
+            font-size: 0.45rem;
+            border-radius: 4px;
+        }
+
+        .pagination-container .info {
+            font-size: 0.55rem;
+        }
+
+        .pagination-controls button {
+            padding: 0.1rem 0.3rem;
+            font-size: 0.55rem;
+            min-height: 22px;
+        }
+
+        .pagination-controls .page-numbers button {
+            min-width: 22px;
+        }
+
+        .pagination-controls .dots {
+            font-size: 0.55rem;
+        }
+
+        .bulk-actions .selected-count {
+            font-size: 0.6rem;
+        }
+
+        .bulk-actions .btn-group .btn-danger,
+        .bulk-actions .btn-group .btn-success,
+        .bulk-actions .btn-group .btn-outline {
+            font-size: 0.55rem;
+            padding: 0.25rem;
+        }
+
+        .photo-modal .modal-close {
+            top: -30px;
+            width: 28px;
+            height: 28px;
+            font-size: 0.85rem;
+        }
+
+        .photo-modal .modal-photo {
+            max-height: 60vh;
+        }
+
+        .photo-modal .modal-info h3 {
+            font-size: 0.8rem;
+        }
+
+        .photo-modal .modal-info p {
+            font-size: 0.65rem;
+        }
+    }
+
+    /* Extra Small */
+    @media (max-width: 360px) {
+        table {
+            font-size: 0.5rem;
+            min-width: 400px;
+        }
+
+        thead th,
+        tbody td {
+            padding: 0.15rem 0.25rem;
+        }
+
+        thead th {
+            font-size: 0.45rem;
+            padding: 0.2rem 0.25rem;
+        }
+
+        .user-avatar {
+            width: 16px;
+            height: 16px;
+            font-size: 0.35rem;
+        }
+
+        .user-badge .user-name {
+            font-size: 0.45rem;
+        }
+
+        .details-text {
+            max-width: 40px;
+            font-size: 0.45rem;
+        }
+
+        .action-btn {
+            width: 18px;
+            height: 18px;
+            font-size: 0.4rem;
+            border-radius: 3px;
+        }
+
+        .action-badge {
+            font-size: 0.4rem;
+            padding: 1px 3px;
+        }
+
+        .pagination-controls button {
+            font-size: 0.45rem;
+            min-height: 18px;
+            padding: 0.1rem 0.2rem;
+        }
+
+        .pagination-controls .page-numbers button {
+            min-width: 18px;
+        }
+
+        .status-badge {
+            font-size: 0.35rem;
+            padding: 1px 3px;
+        }
+
+        .ip-badge {
+            font-size: 0.4rem;
+        }
+    }
+
+    /* ============================================
+       PRINT STYLES
+    ============================================ */
+    @media print {
+
+        .filter-container,
+        .filter-tags,
+        .pagination-container,
+        .action-buttons,
+        .bulk-actions,
+        .row-selector {
+            display: none !important;
+        }
+
+        .page-header {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px !important;
+        }
+
+        .page-header .header-left h1 {
+            color: #0f172a !important;
+        }
+
+        .page-header .header-left p {
+            color: #64748b !important;
+        }
+
+        .page-header .header-left .breadcrumb a,
+        .page-header .header-left .breadcrumb .current {
+            color: #0f172a !important;
+        }
+
+        .table-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        thead {
+            background: #f1f5f9 !important;
+        }
+
+        thead th {
+            color: #0f172a !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+
+        tbody td {
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+
+        tbody tr:hover {
+            background: none !important;
+        }
+
+        .user-avatar {
+            border-color: #cbd5e1 !important;
+        }
+    }
+</style>
+
+<div class="page-container">
+    <!-- ============================================
+    PAGE HEADER
+    ============================================ -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="breadcrumb">
+                <a href="{% url 'dashboard_home' %}">Dashboard</a>
+                <span class="separator">/</span>
+                <span class="current">System Logs</span>
+            </div>
+            <h1>System Audit Logs</h1>
+            <p>Track all administrative and system-wide activities</p>
+        </div>
+    </div>
+
+    <!-- ============================================
+FILTER CONTAINER - SERVER-SIDE
+============================================ -->
+    <form method="GET" action="{% url 'system-logs' %}" id="filterForm">
+        <div class="filter-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="q" id="logSearch" placeholder="Search logs..."
+                    value="{{ search_query|default:'' }}">
+            </div>
+            <div class="filter-group">
+                <select name="action" id="actionFilter">
+                    <option value="all">All Actions</option>
+                    <option value="create" {% if action_filter == "create" %}selected{% endif %}>Create</option>
+                    <option value="update" {% if action_filter == "update" %}selected{% endif %}>Update</option>
+                    <option value="delete" {% if action_filter == "delete" %}selected{% endif %}>Delete</option>
+                    <option value="login" {% if action_filter == "login" %}selected{% endif %}>Login</option>
+                    <option value="logout" {% if action_filter == "logout" %}selected{% endif %}>Logout</option>
+                </select>
+                <select name="status" id="statusFilter">
+                    <option value="active" {% if status_filter == "active" %}selected{% endif %}>Active</option>
+                    <option value="archived" {% if status_filter == "archived" %}selected{% endif %}>Archived</option>
+                    {% if request.user.is_superuser %}
+                    <option value="all" {% if status_filter == "all" %}selected{% endif %}>All</option>
+                    {% endif %}
+                </select>
+                <button type="submit" class="btn-apply-filter">
+                    <i class="fas fa-filter"></i> Apply
+                </button>
+                <a href="{% url 'system-logs' %}" class="clear-btn">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <!-- ============================================
+    FILTER TAGS
+    ============================================ -->
+    <div class="filter-tags" id="filterTags"></div>
+
+    <!-- ============================================
+    TABLE CARD
+    ============================================ -->
+    <div class="table-card">
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 36px;">
+                            <input type="checkbox" id="selectAll" class="row-selector" title="Select all">
+                        </th>
+                        <th>Timestamp</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                        <th>IP</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTableBody">
+                    {% for log in page_obj %}
+                    <tr data-log-id="{{ log.id }}" data-log-deleted="{{ log.is_deleted|yesno:'true,false' }}"
+                        data-action="{{ log.action|lower }}" class="{% if log.is_deleted %}archived{% endif %}">
+                        <td>
+                            <input type="checkbox" class="row-selector log-selector" data-log-id="{{ log.id }}" {% if log.is_deleted %}disabled{% endif %}>
+                        </td>
+                        <td class="timestamp-col">
+                            <span class="timestamp-date">{{ log.timestamp|date:"M d, Y" }}</span>
+                            <span class="timestamp-time">{{ log.timestamp|date:"h:i:s A" }}</span>
+                        </td>
+                        <td>
+                            <div class="user-badge">
+                                {% if log.user %}
+                                <div class="user-avatar" style="background: #6366f1; color: #fff; cursor: pointer;"
+                                    onclick="openUserPhotoModal('https://ui-avatars.com/api/?name={{ log.user.username }}&background=6366f1&color=fff&size=128', '{{ log.user.get_full_name|default:log.user.username|title }}', '{{ log.user.email }}')"
+                                    title="Click to view">
+                                    {{ log.user.username|slice:":1"|upper }}
+                                </div>
+                                <div>
+                                    <div class="user-name">{{ log.user.get_full_name|default:log.user.username|title|truncatechars:15 }}</div>
+                                    {% if log.user.is_superuser %}
+                                    <span class="user-role"><i class="fas fa-shield-alt"></i> Admin</span>
+                                    {% endif %}
+                                </div>
+                                {% else %}
+                                <div class="user-avatar" style="background: #f1f5f9; color: #94a3b8;">
+                                    <i class="fas fa-user-slash" style="font-size: 0.6rem;"></i>
+                                </div>
+                                <div>
+                                    <span class="deleted-user">Deleted User</span>
+                                    {% if log.deleted_username %}
+                                    <span class="user-role">({{ log.deleted_username }})</span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if 'Delete' in log.action or 'delete' in log.action|lower %}
+                            <span class="action-badge delete">{{ log.action }}</span>
+                            {% elif 'Create' in log.action or 'Add' in log.action or 'create' in log.action|lower or
+                            'add' in log.action|lower %}
+                            <span class="action-badge create">{{ log.action }}</span>
+                            {% elif 'Update' in log.action or 'Edit' in log.action or 'update' in log.action|lower or
+                            'edit' in log.action|lower %}
+                            <span class="action-badge update">{{ log.action }}</span>
+                            {% elif 'Login' in log.action or 'login' in log.action|lower %}
+                            <span class="action-badge login">{{ log.action }}</span>
+                            {% elif 'Logout' in log.action or 'logout' in log.action|lower %}
+                            <span class="action-badge logout">{{ log.action }}</span>
+                            {% else %}
+                            <span class="action-badge default">{{ log.action }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="details-text" title="{{ log.details }}">{{ log.details|truncatechars:60 }}</div>
+                        </td>
+                        <td>
+                            <span
+                                class="ip-badge {% if '::1' in log.ip_address or '127.0.0.1' in log.ip_address or 'localhost' in log.ip_address|lower %}local{% else %}public{% endif %}">
+                                <i class="fas fa-network-wired"></i> {{ log.ip_address|default:"0.0.0.0" }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge {% if log.is_deleted %}archived{% else %}active{% endif %}">
+                                {% if log.is_deleted %}Archived{% else %}Active{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                {% if not log.is_deleted %}
+                                <button class="action-btn archive" onclick="archiveLog({{ log.id }})" title="Archive">
+                                    <i class="fas fa-archive"></i>
+                                </button>
+                                {% else %}
+                                <button class="action-btn restore" onclick="restoreLog({{ log.id }})" title="Restore">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                                {% endif %}
+                                {% if request.user.is_superuser and log.is_deleted %}
+                                <button class="action-btn delete-permanent" onclick="permanentDeleteLog({{ log.id }})"
+                                    title="Permanently delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-history"></i>
+                                <h3>No logs found</h3>
+                                <p>System activities will appear here as they occur</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div class="bulk-actions" id="bulkActions">
+            <div class="selected-count">
+                <strong id="selectedCount">0</strong> selected
+            </div>
+            <div class="btn-group">
+                <button class="btn-danger" id="deleteSelectedBtn" onclick="bulkArchiveLogs()">
+                    <i class="fas fa-archive"></i> Archive
+                </button>
+                <button class="btn-success" id="restoreSelectedBtn" onclick="bulkRestoreLogs()" style="display:none;">
+                    <i class="fas fa-undo"></i> Restore
+                </button>
+                {% if request.user.is_superuser %}
+                <button class="btn-danger" id="permanentDeleteSelectedBtn" onclick="bulkPermanentDeleteLogs()"
+                    style="display:none;">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+                {% endif %}
+                <button class="btn-outline" onclick="clearSelection()">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <div class="info">
+                Showing <strong>{{ page_obj.start_index }}</strong> – <strong>{{ page_obj.end_index }}</strong> of
+                <strong>{{ total_logs }}</strong>
+            </div>
+            <div class="pagination-controls">
+                {% if page_obj.has_previous %}
+                <button onclick="goToPage({{ page_obj.previous_page_number }})">
+                    <i class="fas fa-chevron-left"></i> Prev
+                </button>
+                {% else %}
+                <button disabled>
+                    <i class="fas fa-chevron-left"></i> Prev
+                </button>
+                {% endif %}
+
+                <div class="page-numbers">
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if num == page_obj.number %}
+                    <button class="active">{{ num }}</button>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <button
+                        onclick="goToPage({{ num }})">{{ num }}</button>
+                        {% elif num == page_obj.number|add:'3' and num < page_obj.paginator.num_pages %} <span
+                            class="dots">…</span>
+                            {% elif num == page_obj.number|add:'-3' and num > 1 %}
+                            <span class="dots">…</span>
+                            {% elif num == page_obj.paginator.num_pages and num > page_obj.number|add:'2' %}
+                            <button onclick="goToPage({{ num }})">{{ num }}</button>
+                            {% elif num == 1 and num < page_obj.number|add:'-2' %} <button onclick="goToPage(1)">
+                                1</button>
+                                {% endif %}
+                                {% endfor %}
+                </div>
+
+                {% if page_obj.has_next %}
+                <button onclick="goToPage({{ page_obj.next_page_number }})">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+                {% else %}
+                <button disabled>
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+PHOTO MODAL
+============================================ -->
+<div id="photoModal" class="photo-modal-overlay" onclick="closePhotoModal(event)">
+    <div class="photo-modal" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closePhotoModal()">
+            <i class="fas fa-times"></i>
+        </button>
+        <img id="modalPhoto" class="modal-photo" alt="User Photo">
+        <div class="modal-info">
+            <h3 id="modalName"></h3>
+            <p id="modalEmail"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================
+    // PERMISSIONS
+    // ============================================
+    const isSuperuser = {{ request.user.is_superuser| lower }};
+
+    // ============================================
+    // GLOBALS
+    // ============================================
+    let currentPage = {{ page_obj.number }};
+    let totalPages = {{ page_obj.paginator.num_pages }};
+
+    // ============================================
+    // PAGINATION
+    // ============================================
+    function goToPage(page) {
+        if (page < 1 || page > totalPages) return;
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', page);
+        // Preserve existing filters
+        const form = document.getElementById('filterForm');
+        const formData = new FormData(form);
+        for (const [key, value] of formData) {
+            if (key !== 'page') {
+                url.searchParams.set(key, value);
+            }
+        }
+        window.location.href = url.toString();
+    }
+
+    // ============================================
+    // MESSAGE SYSTEM
+    // ============================================
+    function showMessage(message, type = 'success') {
+        let container = document.getElementById('django-messages');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'django-messages';
+            container.className = 'msg-container';
+            document.body.appendChild(container);
+        }
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg ${type}`;
+        msgDiv.setAttribute('data-auto-dismiss', 'true');
+
+        let iconClass = 'fa-info-circle';
+        if (type === 'success') iconClass = 'fa-check-circle';
+        else if (type === 'error' || type === 'warning') iconClass = 'fa-exclamation-circle';
+
+        msgDiv.innerHTML = `
+            <i class="fas ${iconClass}"></i>
+            <span>${message}</span>
+        `;
+
+        container.appendChild(msgDiv);
+
+        setTimeout(() => {
+            if (msgDiv.parentNode) {
+                msgDiv.style.animation = 'slideUp 0.4s ease-in forwards';
+                setTimeout(() => {
+                    if (msgDiv.parentNode) {
+                        msgDiv.remove();
+                    }
+                }, 400);
+            }
+        }, 5000);
+    }
+
+    // ============================================
+    // CSRF TOKEN
+    // ============================================
+    function getCookie(name) {
+        let value = null;
+        if (document.cookie) {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    value = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return value;
+    }
+
+    // ============================================
+    // AUTO-SUBMIT FILTER ON CHANGE
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterForm = document.getElementById('filterForm');
+        const actionFilter = document.getElementById('actionFilter');
+        const statusFilter = document.getElementById('statusFilter');
+
+        // Auto-submit on filter change
+        actionFilter.addEventListener('change', function () {
+            filterForm.submit();
+        });
+
+        statusFilter.addEventListener('change', function () {
+            filterForm.submit();
+        });
+
+        // ============================================
+        // SELECT ALL / BULK ACTIONS
+        // ============================================
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const bulkActions = document.getElementById('bulkActions');
+        const selectedCount = document.getElementById('selectedCount');
+
+        function updateSelectAllState() {
+            const visibleCheckboxes = document.querySelectorAll('.log-selector:not(:disabled)');
+            const checkedCheckboxes = document.querySelectorAll('.log-selector:not(:disabled):checked');
+
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = visibleCheckboxes.length > 0 && visibleCheckboxes.length === checkedCheckboxes.length;
+            }
+        }
+
+        function updateBulkActions() {
+            const selected = document.querySelectorAll('.log-selector:checked:not(:disabled)');
+            const count = selected.length;
+            selectedCount.textContent = count;
+
+            const hasArchived = Array.from(selected).some(cb => {
+                const row = cb.closest('tr');
+                return row && row.dataset.logDeleted === 'true';
+            });
+
+            const hasActive = Array.from(selected).some(cb => {
+                const row = cb.closest('tr');
+                return row && row.dataset.logDeleted === 'false';
+            });
+
+            if (count > 0) {
+                bulkActions.classList.add('show');
+                document.getElementById('deleteSelectedBtn').style.display = hasActive ? 'inline-flex' : 'none';
+                document.getElementById('restoreSelectedBtn').style.display = hasArchived ? 'inline-flex' : 'none';
+                if (document.getElementById('permanentDeleteSelectedBtn')) {
+                    document.getElementById('permanentDeleteSelectedBtn').style.display = hasArchived ? 'inline-flex' : 'none';
+                }
+            } else {
+                bulkActions.classList.remove('show');
+            }
+        }
+
+        selectAllCheckbox.addEventListener('change', function () {
+            const isChecked = this.checked;
+            document.querySelectorAll('.log-selector:not(:disabled)').forEach(cb => {
+                cb.checked = isChecked;
+            });
+            updateBulkActions();
+        });
+
+        document.querySelectorAll('.log-selector').forEach(cb => {
+            cb.addEventListener('change', function () {
+                updateBulkActions();
+                updateSelectAllState();
+            });
+        });
+
+        function clearSelection() {
+            document.querySelectorAll('.log-selector').forEach(cb => cb.checked = false);
+            selectAllCheckbox.checked = false;
+            updateBulkActions();
+        }
+        window.clearSelection = clearSelection;
+
+        // ============================================
+        // LOG ACTION FUNCTIONS
+        // ============================================
+        function archiveLog(logId) {
+            if (!confirm('Archive this log? It can be restored later.')) return;
+
+            showMessage('Archiving log...', 'info');
+            fetch(`/dashboard/api/soft-delete-log/${logId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason: 'Archived by admin' })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showMessage(data.error || 'Failed to archive', 'error');
+                    }
+                })
+                .catch(() => {
+                    showMessage('Error archiving log', 'error');
+                });
+        }
+        window.archiveLog = archiveLog;
+
+        function restoreLog(logId) {
+            if (!confirm('Restore this archived log?')) return;
+
+            showMessage('Restoring log...', 'info');
+            fetch(`/dashboard/api/restore-log/${logId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showMessage(data.error || 'Failed to restore', 'error');
+                    }
+                })
+                .catch(() => {
+                    showMessage('Error restoring log', 'error');
+                });
+        }
+        window.restoreLog = restoreLog;
+
+        function permanentDeleteLog(logId) {
+            if (!isSuperuser) {
+                showMessage('Only admins can permanently delete logs', 'error');
+                return;
+            }
+            if (!confirm('⚠️ Permanently delete this log? This cannot be undone!')) return;
+
+            showMessage('Deleting log...', 'info');
+            fetch(`/dashboard/api/permanent-delete-log/${logId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage(data.message, 'warning');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showMessage(data.error || 'Failed to delete', 'error');
+                    }
+                })
+                .catch(() => {
+                    showMessage('Error deleting log', 'error');
+                });
+        }
+        window.permanentDeleteLog = permanentDeleteLog;
+
+        // ============================================
+        // BULK FUNCTIONS
+        // ============================================
+        function bulkArchiveLogs() {
+            const selected = document.querySelectorAll('.log-selector:checked:not(:disabled)');
+            const activeSelected = Array.from(selected).filter(cb => {
+                const row = cb.closest('tr');
+                return row && row.dataset.logDeleted === 'false';
+            });
+
+            if (activeSelected.length === 0) {
+                showMessage('No active logs selected', 'info');
+                return;
+            }
+
+            if (!confirm(`Archive ${activeSelected.length} log(s)?`)) return;
+
+            const logIds = Array.from(activeSelected).map(cb => parseInt(cb.getAttribute('data-log-id')));
+
+            showMessage(`Archiving ${logIds.length} logs...`, 'info');
+            fetch('/dashboard/api/bulk-soft-delete-logs/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ log_ids: logIds })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showMessage(data.error || 'Failed to archive', 'error');
+                    }
+                })
+                .catch(() => {
+                    showMessage('Error archiving logs', 'error');
+                });
+        }
+        window.bulkArchiveLogs = bulkArchiveLogs;
+
+        function bulkRestoreLogs() {
+            const selected = document.querySelectorAll('.log-selector:checked:not(:disabled)');
+            const archivedSelected = Array.from(selected).filter(cb => {
+                const row = cb.closest('tr');
+                return row && row.dataset.logDeleted === 'true';
+            });
+
+            if (archivedSelected.length === 0) {
+                showMessage('No archived logs selected', 'info');
+                return;
+            }
+
+            if (!confirm(`Restore ${archivedSelected.length} archived log(s)?`)) return;
+
+            const logIds = Array.from(archivedSelected).map(cb => parseInt(cb.getAttribute('data-log-id')));
+
+            showMessage(`Restoring ${logIds.length} logs...`, 'info');
+            fetch('/dashboard/api/bulk-restore-logs/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ log_ids: logIds })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage(data.message, 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showMessage(data.error || 'Failed to restore', 'error');
+                    }
+                })
+                .catch(() => {
+                    showMessage('Error restoring logs', 'error');
+                });
+        }
+        window.bulkRestoreLogs = bulkRestoreLogs;
+
+        function bulkPermanentDeleteLogs() {
+            if (!isSuperuser) {
+                showMessage('Only admins can permanently delete logs', 'error');
+                return;
+            }
+
+            const selected = document.querySelectorAll('.log-selector:checked:not(:disabled)');
+            const archivedSelected = Array.from(selected).filter(cb => {
+                const row = cb.closest('tr');
+                return row && row.dataset.logDeleted === 'true';
+            });
+
+            if (archivedSelected.length === 0) {
+                showMessage('No archived logs selected', 'info');
+                return;
+            }
+
+            if (!confirm(`⚠️ Permanently delete ${archivedSelected.length} log(s)? This cannot be undone!`)) return;
+
+            const logIds = Array.from(archivedSelected).map(cb => parseInt(cb.getAttribute('data-log-id')));
+
+            showMessage(`Deleting ${logIds.length} logs...`, 'info');
+            let deleted = 0, failed = 0;
+            const promises = logIds.map(id => {
+                return fetch(`/dashboard/api/permanent-delete-log/${id}/`, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json' }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) deleted++;
+                        else failed++;
+                    });
+            });
+            Promise.all(promises).then(() => {
+                if (deleted > 0) {
+                    showMessage(`${deleted} deleted${failed > 0 ? `, ${failed} failed` : ''}`, 'warning');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showMessage('Failed to delete logs', 'error');
+                }
+            });
+        }
+        window.bulkPermanentDeleteLogs = bulkPermanentDeleteLogs;
+
+        // ============================================
+        // PHOTO MODAL
+        // ============================================
+        function openUserPhotoModal(photoUrl, userName, userEmail) {
+            const modal = document.getElementById('photoModal');
+            document.getElementById('modalPhoto').src = photoUrl;
+            document.getElementById('modalName').textContent = userName;
+            document.getElementById('modalEmail').textContent = userEmail;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        window.openUserPhotoModal = openUserPhotoModal;
+
+        function closePhotoModal(event = null) {
+            if (event && event.target.id !== 'photoModal' && !event.target.classList.contains('modal-close')) {
+                return;
+            }
+            const modal = document.getElementById('photoModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        window.closePhotoModal = closePhotoModal;
+
+        // ============================================
+        // KEYBOARD SHORTCUTS
+        // ============================================
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closePhotoModal();
+            }
+        });
+
+        // Initialize bulk actions
+        updateBulkActions();
+        updateSelectAllState();
+    });
+</script>
+{% endblock %}
