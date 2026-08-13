@@ -84,6 +84,7 @@ WSGI_APPLICATION = 'afras_backend.wsgi.application'
 ASGI_APPLICATION = 'afras_backend.asgi.application'
 
 # 4. DATABASE (Uses DATABASE_URL on Render, local MySQL as fallback)
+IS_RENDER = 'RENDER' in os.environ
 DATABASE_URL = os.environ.get('AFRAS_DB') or os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
