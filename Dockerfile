@@ -44,3 +44,6 @@ RUN python manage.py collectstatic --noinput
 # 8. Expose port & run migrations before starting Gunicorn
 EXPOSE 10000
 CMD sh -c "python manage.py migrate --noinput && gunicorn afras_backend.wsgi:application --bind 0.0.0.0:10000 --timeout 120"
+
+# 9. Create superuser
+CMD sh -c "python manage.py migrate --noinput && python create_superuser.py && gunicorn afras_backend.wsgi:application --bind 0.0.0.0:10000 --timeout 120" 
