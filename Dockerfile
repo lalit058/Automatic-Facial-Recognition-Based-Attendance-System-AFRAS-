@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Pin setuptools < 70 (required for face_recognition_models resource loader)
+# 2. Pin setuptools < 70
 RUN pip install --no-cache-dir "setuptools<70.0.0" wheel
 
 # 3. Build dlib single-threaded
@@ -41,6 +41,6 @@ COPY . /app/
 WORKDIR /app/afras_app
 RUN python manage.py collectstatic --noinput
 
-# 8. Expose port & start Gunicorn
+# 8. Expose port & run migrations before starting Gunicorn
 EXPOSE 10000
-CMD ["gunicorn", "afras_backend.wsgi:application", "--bind", "0.0.0.0:10000", "--timeout", "120"]
+CMD sh -c "python manage.py migrate --noinput && gunicorn afras_backend.wsgi:application --bind 0.0.0.0:10000 --timeout 120"
