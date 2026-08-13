@@ -84,14 +84,18 @@ WSGI_APPLICATION = 'afras_backend.wsgi.application'
 ASGI_APPLICATION = 'afras_backend.asgi.application'
 
 # 4. DATABASE (Uses DATABASE_URL on Render, local MySQL as fallback)
-IS_RENDER = 'RENDER' in os.environ
+DATABASE_URL = os.environ.get('AFRAS_DB') or os.environ.get('DATABASE_URL')
 
-if os.environ.get('DATABASE_URL'):
+if DATABASE_URL:
     DATABASES = {
-        'default': dj_database_url.config(conn_max_age=600)
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
 elif IS_RENDER:
-    # Safe fallback during Render build/deploy
+    # Build-step fallback
     DATABASES = {
         'default': dj_database_url.config(
             default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
