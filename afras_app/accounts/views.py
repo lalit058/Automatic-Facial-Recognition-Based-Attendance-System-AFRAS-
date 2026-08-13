@@ -355,6 +355,12 @@ from django.contrib import messages
 @csrf_protect
 @csrf_exempt
 def login_user(request):
+    # 1. ADD THIS: Redirect if the user is already logged in
+    if request.user.is_authenticated:
+        if request.user.is_student:
+            return redirect("student_dashboard")
+        return redirect("dashboard_home")
+
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")

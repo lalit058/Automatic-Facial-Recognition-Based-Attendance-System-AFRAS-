@@ -19,7 +19,19 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
     'https://*.onrender.com',
+    'https://automatic-facial-recognition-based-nw66.onrender.com',
 ]
+
+# Tell Django it is behind Render's HTTPS reverse proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+# Redirect targets after login/logout
+LOGIN_REDIRECT_URL = '/dashboard/'  # Change to your actual dashboard path/name
+LOGIN_URL = '/'                     # Change to your login URL pattern
 
 # 2. INSTALLED APPS
 INSTALLED_APPS = [
