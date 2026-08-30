@@ -384,9 +384,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 
 @csrf_protect
-@csrf_exempt
 def login_user(request):
-    # 1. ADD THIS: Redirect if the user is already logged in
     if request.user.is_authenticated:
         if request.user.is_student:
             return redirect("student_dashboard")
@@ -396,7 +394,6 @@ def login_user(request):
         username = request.POST.get("username")
         password = request.POST.get("password")
         
-        # Check if username and password are provided
         if not username or not password:
             messages.error(request, "Please enter both username and password.")
             return render(request, "accounts/login.html")
@@ -404,11 +401,10 @@ def login_user(request):
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
+            # Rotate session to prevent session fixation and clear stale cache state
+            request.session.cycle_key()
             login(request, user)
 
-            messages.success(request, "Login successful!")
-
-            # LOGGING: Successful Login
             SystemLog.objects.create(
                 user=user,
                 action="User Login",
@@ -416,7 +412,6 @@ def login_user(request):
                 ip_address=request.META.get("REMOTE_ADDR"),
             )
 
-            # Redirect based on user type
             if user.is_student:
                 return redirect("student_dashboard")
             elif user.is_staff_member or user.is_staff:
@@ -424,7 +419,6 @@ def login_user(request):
             else:
                 return redirect("dashboard_home")
         else:
-            # Log failed attempts
             SystemLog.objects.create(
                 user=None,
                 action="Failed Login Attempt",
@@ -440,7 +434,6 @@ def login_user(request):
 
 @login_required
 def logout_user(request):
-    # LOGGING: Logout
     SystemLog.objects.create(
         user=request.user,
         action="User Logout",
@@ -448,13 +441,14 @@ def logout_user(request):
         ip_address=request.META.get("REMOTE_ADDR"),
     )
 
-    request.session.flush()  # This destroys the session and CSRF token
-
-    # Logout the user
     logout(request)
+    request.session.flush()
+    
+    response = redirect("login")
+    response.delete_cookie(settings.SESSION_COOKIE_NAME)
 
     messages.success(request, "You have been logged out successfully.")
-    return redirect("login")
+    return response
 
 
 # Optional: View to display staff list with staff_id
