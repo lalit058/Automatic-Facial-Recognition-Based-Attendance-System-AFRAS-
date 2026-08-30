@@ -632,7 +632,7 @@
 
         function clearForm() {
             document.getElementById('loginForm').reset();
-            document.querySelectorAll('input').forEach(input => {
+            document.querySelectorAll('input:not([name="csrfmiddlewaretoken"])').forEach(input => {
                 input.value = '';
             });
         }
