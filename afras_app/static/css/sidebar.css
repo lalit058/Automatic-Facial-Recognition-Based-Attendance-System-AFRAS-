@@ -1,13 +1,20 @@
 /* Sidebar Styles - Target only the main sidebar */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+/* Root variables - increased for mobile */
+:root {
+    --sidebar-width: 280px;
+    --sidebar-collapsed: 70px;
+    --transition-speed: 0.3s;
+}
+
 #sidebar {
     width: var(--sidebar-width);
     background: var(--bg);
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    padding: 0.5rem 0 !important;
+    padding: 0.5rem 0;
     position: fixed;
     height: 100vh;
     z-index: 1000;
@@ -17,16 +24,13 @@
     left: 0;
     top: 0;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
 }
 
 #sidebar.collapsed {
     width: var(--sidebar-collapsed);
 }
 
-
 /* Desktop Styles - Sidebar pushes content */
-
 @media (min-width: 769px) {
     #sidebar {
         transform: translateX(0) !important;
@@ -45,9 +49,7 @@
     }
 }
 
-
 /* Toggle Button - Desktop only */
-
 @media (min-width: 769px) {
     .sidebar-toggle {
         position: absolute;
@@ -88,9 +90,7 @@
     }
 }
 
-
 /* Mobile Menu Button */
-
 .mobile-menu-btn {
     display: none;
     position: fixed;
@@ -116,7 +116,6 @@
     transform: scale(1.05);
 }
 
-
 /* Overlay for mobile - covers content when drawer is open */
 .sidebar-overlay {
     display: none;
@@ -139,25 +138,41 @@
     visibility: visible;
 }
 
-
 /* Mobile Styles - Drawer Behavior (sidebar slides OVER content) */
 @media (max-width: 768px) {
     :root {
-        --sidebar-width: 280px;
+        --sidebar-width: 320px; /* Increased width for better content display */
     }
 
     .mobile-menu-btn {
         display: flex;
     }
 
-    /* Sidebar starts hidden off-screen */
+    /* Reset main margin on mobile so it takes full width */
+    main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding-top: 50px !important; /* Space for mobile menu button */
+    }
+
+    /* Sidebar as fixed drawer overlay - full height with scrolling */
     #sidebar {
-        width: var(--sidebar-width);
-        transform: translateX(-100%);
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        height: 100dvh !important;
         width: var(--sidebar-width) !important;
+        max-width: 85vw !important; /* Ensure it doesn't go off screen */
+        max-height: 100dvh !important;
+        transform: translateX(-100%);
         box-shadow: 2px 0 30px rgba(0, 0, 0, 0.3);
         transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 1001;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding: 0.5rem 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
     }
 
     /* When active, slide in OVER the content */
@@ -189,15 +204,53 @@
         width: auto !important;
         display: inline-block !important;
         visibility: visible !important;
+        white-space: nowrap !important;
     }
 
+    /* Brand styling on mobile */
+    #sidebar.active .nav-brand {
+        justify-content: flex-start !important;
+        padding: 0 1.5rem !important;
+        margin: 1rem 0.5rem 1rem 1rem !important;
+        gap: 14px !important;
+        width: 100% !important;
+    }
+
+    #sidebar.active .nav-brand i {
+        font-size: 1.8rem !important;
+        min-width: 30px !important;
+    }
+
+    #sidebar.active .nav-brand span {
+        font-size: 1.4rem !important;
+        letter-spacing: 1px !important;
+    }
+
+    /* Nav links on mobile */
     #sidebar.active .nav-link {
         justify-content: flex-start !important;
         padding: 12px 16px !important;
+        gap: 14px !important;
+        font-size: 1rem !important;
+        width: 100% !important;
     }
 
     #sidebar.active .nav-link .nav-icon {
         margin-right: 12px !important;
+        font-size: 1.2rem !important;
+        min-width: 24px !important;
+        text-align: center !important;
+    }
+
+    #sidebar.active .nav-text {
+        font-size: 0.95rem !important;
+        font-weight: 500 !important;
+    }
+
+    /* Profile section on mobile */
+    #sidebar.active .user-profile {
+        padding: 0 1.5rem 1.5rem !important;
+        width: 100% !important;
     }
 
     #sidebar.active .profile-photo {
@@ -205,9 +258,56 @@
         height: 80px !important;
     }
 
-    #sidebar.active .nav-brand {
+    #sidebar.active .profile-info {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    #sidebar.active .profile-name {
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+    }
+
+    #sidebar.active .profile-role-badge {
+        font-size: 0.75rem !important;
+        padding: 4px 14px !important;
+    }
+
+    /* Logout section on mobile */
+    #sidebar.active .logout-section {
+        padding: 0.5rem 1rem 1.5rem !important;
+        margin-top: auto !important;
+        border-top: 1px solid var(--border) !important;
+        display: block !important;
+        flex-shrink: 0 !important;
+        width: 100% !important;
+    }
+
+    #sidebar.active .logout-btn {
+        display: flex !important;
         justify-content: flex-start !important;
-        padding: 0 3.5rem !important;
+        padding: 12px 16px !important;
+        width: 100% !important;
+        gap: 14px !important;
+        font-size: 1rem !important;
+    }
+
+    #sidebar.active .logout-btn .logout-icon {
+        margin-right: 12px !important;
+        font-size: 1.2rem !important;
+        min-width: 24px !important;
+        text-align: center !important;
+    }
+
+    #sidebar.active .logout-btn span {
+        display: inline-block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        white-space: nowrap !important;
+        font-size: 0.95rem !important;
     }
 
     /* Hide tooltips on mobile */
@@ -231,13 +331,104 @@
         width: auto !important;
     }
 
-    /* When sidebar is open, prevent body scroll */
+    /* Prevent body scrolling when sidebar drawer is open */
     body.sidebar-open {
-        overflow: hidden;
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* Make nav menu scrollable and flex grow */
+    .nav-menu {
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
+        padding: 0 0.5rem !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        width: 100% !important;
+    }
+
+    /* Nav items with proper spacing */
+    .nav-item {
+        margin: 2px 0 !important;
+        width: 100% !important;
+    }
+
+    /* Ensure logout section stays at bottom */
+    .logout-section {
+        margin-top: auto !important;
+        padding: 0.5rem 1rem 1rem !important;
+        border-top: 1px solid var(--border) !important;
+        flex-shrink: 0 !important;
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Make sidebar content use flex column properly */
+    #sidebar {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    #sidebar .nav-brand {
+        flex-shrink: 0 !important;
+    }
+
+    #sidebar .user-profile {
+        flex-shrink: 0 !important;
+    }
+
+    /* Ensure text doesn't get cut off */
+    #sidebar.active .nav-text,
+    #sidebar.active .logout-btn span,
+    #sidebar.active .nav-brand span {
+        overflow: visible !important;
+        text-overflow: clip !important;
+        white-space: nowrap !important;
+    }
+
+    /* Fix for the "Session Management" text wrapping */
+    #sidebar.active .nav-link {
+        white-space: nowrap !important;
+    }
+
+    /* Ensure all text in nav is visible */
+    #sidebar.active .nav-text {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 }
 
+/* Additional fix for very small screens */
+@media (max-width: 400px) {
+    :root {
+        --sidebar-width: 280px !important;
+    }
 
+    #sidebar.active .nav-link {
+        font-size: 0.9rem !important;
+        padding: 10px 14px !important;
+        gap: 12px !important;
+    }
+
+    #sidebar.active .nav-brand span {
+        font-size: 1.2rem !important;
+    }
+
+    #sidebar.active .profile-name {
+        font-size: 0.9rem !important;
+    }
+
+    #sidebar.active .nav-text {
+        font-size: 0.85rem !important;
+    }
+
+    #sidebar.active .logout-btn span {
+        font-size: 0.85rem !important;
+    }
+}
 
 /* Brand Logo */
 .nav-brand {
@@ -251,6 +442,7 @@
     white-space: nowrap;
     padding: 0 1.5rem;
     transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
 }
 
 #sidebar.collapsed .nav-brand {
@@ -275,8 +467,6 @@
     width: 0;
     display: none;
 }
-
-
 
 /* Profile Section */
 .user-profile {
@@ -337,7 +527,6 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-
 /* Profile info */
 .profile-info {
     text-align: center;
@@ -368,22 +557,17 @@
     gap: 4px;
 }
 
-
 /* Navigation Menu - Scrollable section */
 .nav-menu {
     list-style: none;
     flex: 1;
-    /* Takes remaining space */
     padding: 0 1rem;
     margin: 0;
     overflow-y: auto;
-    /* THIS IS CRITICAL - enables scrolling */
     min-height: 0;
-    /* Important for flex children */
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
 }
-
 
 /* Hide scrollbar by default */
 .nav-menu::-webkit-scrollbar {
@@ -402,7 +586,6 @@
     transition: background 0.3s ease;
 }
 
-
 /* Show scrollbar ONLY on hover */
 .nav-menu:hover::-webkit-scrollbar-thumb {
     background: var(--border);
@@ -411,7 +594,6 @@
 .nav-menu:hover::-webkit-scrollbar-thumb:hover {
     background: var(--primary);
 }
-
 
 /* Firefox support */
 .nav-menu {
@@ -454,7 +636,6 @@
     letter-spacing: 0.3px;
 }
 
-
 /* Icon styling */
 .nav-icon {
     font-size: 1.2rem;
@@ -478,7 +659,6 @@
     transform: none;
 }
 
-
 /* Text styling */
 .nav-text {
     transition: opacity var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
@@ -490,7 +670,6 @@
     width: 0;
     display: none;
 }
-
 
 /* Tooltips */
 .nav-tooltip,
@@ -540,11 +719,10 @@
     left: calc(100% + 10px);
 }
 
-
 /* Logout Section */
 .logout-section {
     margin-top: auto;
-    padding: 0 1rem 0;
+    padding: 0 1rem 1.5rem;
     border-top: 1px solid var(--border);
     position: relative;
     background: var(--bg);
@@ -552,7 +730,7 @@
 }
 
 #sidebar.collapsed .logout-section {
-    padding: 0rem 0.5rem 0;
+    padding: 0 0.5rem 1.5rem;
 }
 
 .logout-btn {
@@ -595,9 +773,7 @@
     display: none;
 }
 
-
 /* Responsive Design */
-
 @media (max-width: 1024px) {
     :root {
         --sidebar-width: 220px;
@@ -606,31 +782,24 @@
 }
 
 @media (max-width: 768px) {
-    #sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        width: 280px !important;
-    }
-
-    #sidebar.active {
-        transform: translateX(0);
-    }
-
-    #sidebar.collapsed {
-        transform: translateX(-100%);
-        width: 280px !important;
+    :root {
+        --sidebar-width: 320px !important;
     }
 }
 
 @media (max-width: 480px) {
     :root {
-        --sidebar-width: 260px;
+        --sidebar-width: 300px !important;
     }
 }
 
+@media (max-width: 380px) {
+    :root {
+        --sidebar-width: 270px !important;
+    }
+}
 
 /* Smooth transitions for all interactive elements */
-
 .nav-link,
 .logout-btn,
 .sidebar-toggle,
