@@ -147,7 +147,6 @@
             color: var(--primary);
         }
 
-        /* Documentation Link Style */
         .docs-link {
             display: inline-flex;
             align-items: center;
@@ -204,7 +203,6 @@
             font-size: 1.1rem;
         }
 
-        /* Underline Animation */
         .docs-link-underline {
             position: relative;
         }
@@ -224,38 +222,6 @@
 
         .docs-link-underline:hover::after {
             width: 78%;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .docs-link {
-                padding: 6px 14px;
-                font-size: 0.75rem;
-            }
-
-            .docs-link i {
-                font-size: 0.8rem;
-            }
-
-            .docs-link-lg {
-                padding: 10px 20px;
-                font-size: 0.9rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .docs-link {
-                padding: 5px 10px;
-                font-size: 0.65rem;
-            }
-
-            .docs-link i {
-                font-size: 0.7rem;
-            }
-
-            .docs-link .docs-text {
-                font-size: 0.65rem;
-            }
         }
 
         .hero {
@@ -575,7 +541,7 @@
         }
 
         .collapsible-content.expanded {
-            max-height: 2000px;
+            max-height: 3000px;
             opacity: 1;
             visibility: visible;
             margin: 1rem 0;
@@ -677,6 +643,12 @@
             padding: 1.5rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .table-scroll-wrapper {
+            border-radius: 16px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .tech-stack:hover,
@@ -1232,153 +1204,6 @@
             color: var(--text-dim);
         }
 
-        @media (max-width: 991px) {
-            .hero {
-                grid-template-columns: 1fr;
-                text-align: center;
-                padding: 1.5rem;
-                gap: 2rem;
-            }
-
-            .info-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .tech-top {
-                grid-template-columns: 1fr;
-            }
-
-            .performance-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .workflow-steps {
-                flex-direction: column;
-            }
-
-            .workflow-arrow {
-                transform: rotate(90deg);
-            }
-
-            .hero-buttons {
-                justify-content: center;
-                margin-left: 0;
-            }
-        }
-
-        @media (max-width: 767px) {
-            nav {
-                flex-direction: column;
-                padding: 0.8rem;
-                gap: 0.4rem;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .info-card {
-                display: flex;
-                align-items: center;
-                text-align: left;
-                gap: 1rem;
-                padding: 0.8rem;
-            }
-
-            .info-card i {
-                font-size: 1.5rem;
-                margin-bottom: 0;
-                flex-shrink: 0;
-            }
-
-            .team-member {
-                display: flex !important;
-                align-items: center;
-                text-align: left;
-                gap: 1rem;
-                padding: 0.8rem;
-            }
-
-            .team-member i {
-                margin: 0 !important;
-                flex-shrink: 0;
-                font-size: 2rem;
-                width: 50px;
-                text-align: center;
-            }
-
-            .team-member img {
-                margin: 0 !important;
-                flex-shrink: 0;
-                width: 60px;
-                height: 60px;
-            }
-
-            .team-member>div {
-                flex: 1;
-            }
-
-            .modal-content,
-            .team-modal-content {
-                padding: 1.5rem;
-                width: 95%;
-                max-width: 350px;
-            }
-
-            .hardware-table {
-                min-width: 500px;
-            }
-
-            .hardware-requirement {
-                overflow-x: auto;
-            }
-
-            .workflow-steps {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .workflow-arrow {
-                transform: rotate(90deg);
-                animation: arrowPulseVertical 2s infinite;
-            }
-
-            .workflow-step {
-                width: 100%;
-                max-width: 280px;
-                margin: 0 auto;
-            }
-
-            .hero-badges {
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero-content h1 {
-                font-size: clamp(1.5rem, 5vw, 2rem);
-            }
-
-            .description {
-                font-size: 0.8rem;
-            }
-
-            .face-outline {
-                width: 140px;
-                height: 140px;
-            }
-
-            .btn {
-                padding: 8px 14px;
-                font-size: 0.75rem;
-            }
-
-            .modal-content {
-                padding: 1.2rem;
-            }
-        }
-
-        /* Login Page Button Style */
         .btn-launch {
             background: var(--primary);
             color: white;
@@ -1405,6 +1230,1163 @@
         .btn-launch i {
             font-size: 1.2rem;
         }
+
+        /* ============================================
+   LARGE DESKTOP — 1600px and up
+============================================ */
+        @media (min-width: 1600px) {
+
+            nav,
+            .hero,
+            .info-section,
+            .workflow-card,
+            .footer-container {
+                max-width: 1500px;
+            }
+
+            .hero {
+                gap: 2.5rem;
+                padding: 1.5rem 2rem;
+            }
+
+            .hero-content h1 {
+                font-size: clamp(3rem, 4.5vw, 4.4rem);
+            }
+
+            .description {
+                font-size: 1.1rem;
+                max-width: 900px;
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1.5rem;
+            }
+
+            .workflow-card {
+                padding: 1.5rem 2.5rem;
+            }
+
+            .team-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+
+            .tech-top {
+                gap: 2rem;
+            }
+
+            .face-outline {
+                width: 230px;
+                height: 230px;
+            }
+        }
+
+        /* ============================================
+   TABLET / SMALL DESKTOP — 1200px
+============================================ */
+        @media (max-width: 1200px) {
+            .hero {
+                padding: 1rem 1.5rem;
+                gap: 1.5rem;
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .performance-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .team-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 991px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding: 1.5rem;
+                gap: 1.5rem;
+            }
+
+            .hero-content {
+                order: 1;
+            }
+
+            .viz-container {
+                order: 2;
+            }
+
+            .hero-badges {
+                justify-content: center;
+            }
+
+            .description {
+                text-align: center;
+                margin: 0 auto 1rem;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tech-top {
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+
+            .performance-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .workflow-steps {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .workflow-arrow {
+                transform: rotate(90deg);
+                animation: arrowPulseVertical 2s infinite;
+            }
+
+            .workflow-step {
+                width: 100%;
+                max-width: 320px;
+                margin: 0 auto;
+            }
+
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-top {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .footer-brand {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .footer-divider {
+                display: none;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
+        }
+
+        /* ============================================
+   MOBILE LARGE — 768px
+============================================ */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: row;
+                padding: 0.8rem;
+                gap: 0.6rem;
+                align-items: center;
+            }
+
+            .nav-links {
+                width: fit-content;
+                display: flex;
+                justify-content: center;
+            }
+
+            .hero {
+                padding: 1.25rem 1rem;
+            }
+
+            .hero-content h1 {
+                letter-spacing: -1px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .info-card {
+                display: flex;
+                align-items: center;
+                text-align: left;
+                gap: 1rem;
+                padding: 0.9rem;
+            }
+
+            .info-card i {
+                font-size: 1.5rem;
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+
+            .workflow-card {
+                padding: 1rem 1.25rem;
+            }
+
+            .detail-section {
+                padding: 1rem 0.9rem;
+            }
+
+            .detail-title {
+                font-size: 1.2rem;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .problem-grid,
+            .objectives-grid {
+                grid-template-columns: 1fr;
+                margin: 1rem 0;
+                gap: 0.75rem;
+            }
+
+            .performance-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+                text-align: center;
+            }
+
+            .tech-badges {
+                gap: 0.5rem;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .team-member {
+                display: flex !important;
+                align-items: center;
+                text-align: left;
+                gap: 1rem;
+                padding: 0.8rem;
+            }
+
+            .team-member i {
+                margin: 0 !important;
+                flex-shrink: 0;
+                font-size: 2rem;
+                width: 50px;
+                text-align: center;
+            }
+
+            .team-member img {
+                margin: 0 !important;
+                flex-shrink: 0;
+                width: 60px;
+                height: 60px;
+            }
+
+            .team-member>div,
+            .team-member h4,
+            .team-member h5,
+            .team-member p {
+                flex: 1;
+            }
+
+            .team-footer {
+                display: flex;
+                flex-direction: row;
+                gap: 6px;
+            }
+
+            .team-footer span:last-child {
+                margin-left: 0 !important;
+            }
+
+            .modal-content,
+            .team-modal-content {
+                padding: 1.5rem;
+                width: 92%;
+                max-width: 380px;
+            }
+
+            .table-scroll-wrapper {
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .hardware-table {
+                min-width: 480px;
+            }
+
+            .workflow-steps {
+                gap: 1.25rem;
+            }
+
+            .hero-badges {
+                justify-content: center;
+                gap: 6px;
+            }
+
+            .footer-address {
+                text-align: center;
+            }
+
+            .footer-date {
+                text-align: center;
+            }
+
+            .expand-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 0.65rem 1rem;
+            }
+        }
+
+        /* ============================================
+   MOBILE SMALL — 480px
+============================================ */
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: clamp(1.6rem, 6vw, 2.1rem);
+                letter-spacing: -0.5px;
+                word-break: break-word;
+            }
+
+            .description {
+                font-size: 0.82rem;
+                text-align: left;
+                max-width: 100%;
+            }
+
+            .hero-badges {
+                gap: 6px;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .metrics-badge {
+                font-size: 0.7rem;
+                padding: 3px 8px;
+            }
+
+            .face-outline {
+                width: 130px;
+                height: 130px;
+            }
+
+            .face-outline i {
+                font-size: 42px;
+            }
+
+            .viz-stats {
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .viz-stats span {
+                font-size: 0.62rem;
+            }
+
+            .viz-status {
+                font-size: 0.65rem;
+            }
+
+            .hero-buttons {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+                margin-left: 0;
+                gap: 10px;
+            }
+
+            .btn,
+            .btn-launch {
+                flex: 0 1 auto;
+                width: fit-content;
+                padding: 10px 16px;
+                font-size: 0.8rem;
+                gap: 8px;
+                justify-content: center;
+            }
+
+            .workflow-card h4 {
+                font-size: 0.95rem;
+            }
+
+            .workflow-icon {
+                width: 42px;
+                height: 42px;
+            }
+
+            .workflow-icon i {
+                font-size: 1.05rem;
+            }
+
+            .workflow-step h5 {
+                font-size: 0.78rem;
+            }
+
+            .workflow-step p {
+                font-size: 0.72rem;
+            }
+
+            .expand-btn {
+                width: fit-content;
+                margin: 0 auto;
+                display: inline-flex;
+                justify-content: center;
+                font-size: 0.8rem;
+            }
+
+            .detail-title {
+                font-size: 1.05rem;
+                text-align: center;
+            }
+
+            .problem-card,
+            .objective-card {
+                padding: 0.85rem;
+            }
+
+            .problem-card p,
+            .objective-card p {
+                font-size: 0.78rem;
+            }
+
+            .card-header h3 {
+                font-size: 0.95rem;
+            }
+
+            .methodology-item p {
+                font-size: 0.8rem;
+                margin-left: 0;
+                margin-top: 6px;
+            }
+
+            .methodology-header {
+                flex-wrap: wrap;
+            }
+
+            .performance-grid {
+                grid-template-columns: 1fr 1fr;
+                font-size: 0.78rem;
+                width: 100%;
+            }
+
+            .team-detail-name {
+                font-size: 1.4rem;
+                word-break: break-word;
+            }
+
+            .team-avatar {
+                width: 80px;
+                height: 80px;
+            }
+
+            .team-avatar i {
+                font-size: 2.2rem;
+            }
+
+            .team-detail-info {
+                width: 100%;
+            }
+
+            .team-detail-item {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .team-detail-item span {
+                font-size: 0.78rem;
+                word-break: break-word;
+            }
+
+            .team-detail-bio p {
+                font-size: 0.78rem;
+                margin: 0.75rem 0;
+            }
+
+            .modal-content {
+                padding: 1.2rem;
+                max-width: 92vw;
+            }
+
+            .footer-logo {
+                font-size: 1.2rem;
+            }
+
+            .footer-address p {
+                font-size: 0.72rem;
+            }
+
+            .footer-date p {
+                font-size: 0.65rem;
+            }
+
+            .social-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .social-link {
+                font-size: 1.2rem;
+                min-width: 34px;
+                padding: 6px;
+            }
+
+            .footer-bottom p {
+                font-size: 0.62rem;
+            }
+
+            .table-scroll-wrapper {
+                -webkit-overflow-scrolling: touch;
+                width: 100%;
+            }
+
+            .hardware-table {
+                min-width: 460px;
+            }
+
+            .hardware-table th,
+            .hardware-table td {
+                padding: 0.7rem;
+                font-size: 0.78rem;
+            }
+        }
+
+        /* ============================================
+   EXTRA SMALL — 360px
+============================================ */
+        @media (max-width: 360px) {
+            .hero-content {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .description {
+                font-size: 0.76rem;
+                word-break: break-word;
+                order: 2;
+                margin-bottom: 0px;
+                text-align: justify;
+            }
+
+            .hero-badges {
+                order: 3;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 5px;
+                width: 100%;
+                margin-top: 12px;
+                /* margin-bottom: 1rem; */
+            }
+
+            .team-footer {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                text-align: center;
+            }
+
+            .supervisor {
+                display: none;
+            }
+
+            .team-footer-span {
+                display: block;
+                width: 100%;
+                margin-left: 0 !important;
+                text-align: center;
+            }
+
+            .face-outline {
+                width: 110px;
+                height: 110px;
+            }
+
+            .hero-content h1 {
+                order: 1;
+                font-size: 1.4rem;
+            }
+
+            .hero-content p,
+            .hero-content .hero-description {
+                order: 2;
+            }
+
+            .hero-content .launch-btn,
+            .launch-btn {
+                order: 4;
+            }
+
+            .hero-buttons {
+                order: 4;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                gap: 8px;
+                margin-top: 1rem;
+                /* margin-bottom: 20px; */
+            }
+
+            .btn,
+            .btn-launch {
+                width: fit-content;
+                max-width: 100%;
+                justify-content: center;
+                font-size: 0.75rem;
+            }
+
+            .info-card h3 {
+                font-size: 1rem;
+            }
+
+            .info-card p {
+                font-size: 0.75rem;
+                /* word-break: break-word; */
+            }
+
+            #performance .performance-grid,
+            .performance-container,
+            .metrics-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .performance-grid>div {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+                width: 100%;
+                white-space: nowrap;
+            }
+
+            #performance .metric-item,
+            .performance-card {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .workflow-step {
+                max-width: 100%;
+            }
+
+            .team-modal-content,
+            .modal-content {
+                padding: 1rem;
+                width: 94%;
+                max-width: 94vw;
+            }
+
+            .team-detail-item {
+                gap: 0.6rem;
+                flex-wrap: wrap;
+            }
+
+            .footer-brand {
+                gap: 6px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hardware-table {
+                min-width: 400px;
+            }
+
+            #tech .tech-top {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                width: 100%;
+                margin-top: 1rem;
+            }
+
+            #tech .tech-stack,
+            #tech .methodology,
+            #tech .hardware-requirement {
+                width: 100%;
+                padding: 1rem;
+                box-sizing: border-box;
+            }
+
+            .logo {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            #tech .tech-badges {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 6px;
+            }
+
+            #tech .metrics-badge {
+                font-size: 0.65rem;
+                padding: 3px 6px;
+            }
+
+            #tech .table-scroll-wrapper {
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #tech .hardware-table {
+                min-width: 100%;
+                font-size: 0.75rem;
+            }
+
+            #tech .hardware-table th,
+            #tech .hardware-table td {
+                padding: 0.5rem;
+            }
+
+            #tech .methodology-item {
+                padding: 0.85rem;
+            }
+
+            #tech .methodology-item p {
+                font-size: 0.78rem;
+                margin-left: 0;
+                margin-top: 4px;
+            }
+        }
+
+        /* ============================================
+   GLOBAL SAFETY NET
+============================================ */
+        @media (max-width: 480px) {
+
+            html,
+            body {
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
+            img,
+            svg,
+            table {
+                max-width: 100%;
+            }
+
+            .hero,
+            .info-section,
+            .workflow-card,
+            footer,
+            .footer-container {
+                width: 100%;
+                padding-left: 1rem;
+                padding-right: 1rem;
+                box-sizing: border-box;
+            }
+
+            * {
+                word-wrap: break-word;
+            }
+        }
+
+        /* ============================================
+   LANDSCAPE PHONES
+============================================ */
+        /* ============================================
+   LANDSCAPE PHONES — short viewport height
+============================================ */
+        @media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
+
+            /* ---------- NAV ---------- */
+            nav {
+                flex-direction: row;
+                padding: 0.4rem 1rem;
+                gap: 0.5rem;
+            }
+
+            .logo {
+                font-size: 1.3rem;
+            }
+
+            .docs-link {
+                padding: 4px 12px;
+                font-size: 0.7rem;
+            }
+
+            /* ---------- HERO ---------- */
+            .hero {
+                grid-template-columns: 1.3fr 0.7fr;
+                text-align: left;
+                padding: 0.75rem 1.25rem;
+                gap: 1rem;
+                align-items: center;
+                min-height: auto;
+            }
+
+            .hero-content {
+                order: 1;
+            }
+
+            .viz-container {
+                order: 2;
+            }
+
+            .hero-badges {
+                justify-content: flex-start;
+                gap: 5px;
+                margin-bottom: 8px;
+            }
+
+            .metrics-badge {
+                font-size: 0.62rem;
+                padding: 2px 8px;
+            }
+
+            .hero-buttons {
+                justify-content: flex-start;
+                margin-left: 0;
+                margin-bottom: 0.6rem;
+            }
+
+            .btn-launch {
+                padding: 6px 14px;
+                font-size: 0.85rem;
+                gap: 8px;
+            }
+
+            .hero-content h1 {
+                font-size: clamp(1.3rem, 3.2vw, 1.8rem);
+                letter-spacing: -0.5px;
+                margin-bottom: 0.35rem;
+            }
+
+            .description {
+                text-align: left;
+                font-size: 0.72rem;
+                margin-bottom: 0.5rem;
+                max-width: 100%;
+            }
+
+            .face-outline {
+                width: 90px;
+                height: 90px;
+            }
+
+            .face-outline i {
+                font-size: 26px;
+            }
+
+            .viz-stats {
+                gap: 8px;
+                margin-top: 0.4rem;
+            }
+
+            .viz-stats span {
+                font-size: 0.55rem;
+            }
+
+            .viz-status {
+                font-size: 0.55rem;
+                margin-top: 0.4rem;
+            }
+
+            /* ---------- INFO CARDS ---------- */
+            .info-section {
+                margin: 0.4rem auto;
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.6rem;
+            }
+
+            .info-card {
+                padding: 0.6rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.25rem;
+            }
+
+            .info-card i {
+                font-size: 1.2rem;
+                margin-bottom: 0.2rem;
+            }
+
+            .info-card h3 {
+                font-size: 0.8rem;
+            }
+
+            .info-card p {
+                font-size: 0.65rem;
+                display: none;
+            }
+
+            /* ---------- WORKFLOW ---------- */
+            .workflow-card {
+                padding: 0.75rem 1rem;
+            }
+
+            .workflow-card h4 {
+                font-size: 0.85rem;
+            }
+
+            .workflow-steps {
+                flex-direction: row;
+                gap: 0.5rem;
+                margin-top: 0.6rem;
+            }
+
+            .workflow-arrow {
+                transform: rotate(0deg);
+                animation: arrowPulseHorizontal 2s infinite;
+                font-size: 14px;
+            }
+
+            .workflow-icon {
+                width: 34px;
+                height: 34px;
+                margin-bottom: 0.4rem;
+            }
+
+            .workflow-icon i {
+                font-size: 0.9rem;
+            }
+
+            .workflow-step h5 {
+                font-size: 0.65rem;
+            }
+
+            .workflow-step p {
+                font-size: 0.6rem;
+                display: none;
+            }
+
+            /* ---------- EXPAND BUTTON & DETAIL SECTIONS ---------- */
+            .expand-btn {
+                padding: 0.5rem 0.9rem;
+                font-size: 0.75rem;
+                width: fit-content;
+                max-width: 100%;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .detail-section {
+                padding: 0.75rem;
+            }
+
+            .detail-title {
+                font-size: 1.1rem;
+                gap: 8px;
+            }
+
+            .problem-grid,
+            .objectives-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.6rem;
+                margin: 0.75rem 0;
+            }
+
+            .problem-card,
+            .objective-card {
+                padding: 0.65rem;
+            }
+
+            .problem-card p,
+            .objective-card p {
+                font-size: 0.68rem;
+            }
+
+            .performance-section {
+                padding: 0.75rem;
+            }
+
+            .performance-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.5rem;
+            }
+
+            .tech-top {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.75rem;
+                margin-top: 0.75rem;
+            }
+
+            .tech-stack,
+            .methodology,
+            .hardware-requirement {
+                padding: 0.85rem;
+            }
+
+            .card-header {
+                margin-bottom: 0.75rem;
+                padding-bottom: 0.4rem;
+            }
+
+            .card-header h3 {
+                font-size: 0.85rem;
+            }
+
+            .methodology-item {
+                padding: 0.7rem;
+            }
+
+            .methodology-item p {
+                font-size: 0.72rem;
+                margin-left: 30px;
+            }
+
+            .hardware-requirement {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .hardware-table {
+                min-width: 380px;
+                margin: 0.75rem 0;
+            }
+
+            .hardware-table th,
+            .hardware-table td {
+                padding: 0.5rem 0.6rem;
+                font-size: 0.7rem;
+            }
+
+            /* ---------- TEAM ---------- */
+            .team-grid {
+                display: grid;
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+                gap: 0.4rem;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .team-member {
+                padding: 0.4rem 0.2rem;
+                min-width: 0;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .team-member i {
+                font-size: 1.3rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .team-member img {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 0.25rem;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+
+            .team-member h4 {
+                font-size: 0.6rem;
+                line-height: 1.1;
+                word-break: normal;
+                overflow-wrap: break-word;
+                margin-bottom: 0.15rem;
+            }
+
+            .team-member h5 {
+                font-size: 0.5rem;
+                line-height: 1.1;
+                word-break: normal;
+                overflow-wrap: break-word;
+            }
+
+            /* MODALS */
+            .modal-content,
+            .team-modal-content {
+                max-height: 88vh;
+                overflow-y: auto;
+                padding: 1.25rem;
+            }
+
+            .team-avatar {
+                width: 70px;
+                height: 70px;
+            }
+
+            .team-avatar i {
+                font-size: 2rem;
+            }
+
+            .team-detail-name {
+                font-size: 1.3rem;
+            }
+
+            .team-detail-info {
+                margin: 0.6rem;
+            }
+
+            .team-detail-item span {
+                font-size: 0.7rem;
+            }
+
+            .team-detail-bio p {
+                font-size: 0.72rem;
+                margin: 0.6rem;
+            }
+
+            /* ---------- FOOTER ---------- */
+            footer {
+                padding: 0.6rem 1rem;
+            }
+
+            .footer-top {
+                gap: 10px;
+            }
+
+            .footer-logo {
+                font-size: 1.1rem;
+            }
+
+            .footer-address p,
+            .footer-date p {
+                font-size: 0.6rem;
+            }
+
+            .social-links {
+                gap: 10px;
+            }
+
+            .social-link {
+                font-size: 1rem;
+                padding: 4px;
+            }
+
+            .footer-bottom {
+                padding-top: 10px;
+            }
+
+            .footer-bottom p {
+                font-size: 0.55rem;
+            }
+        }
     </style>
 </head>
 
@@ -1418,7 +2400,8 @@
             <i class="fas fa-shield-cat"></i> AFRAS
         </div>
         <div class="nav-links">
-            <a href="{% static 'documents/Afras final proposal.pdf' %}" target="_blank" class="docs-link docs-link-underline">
+            <a href="{% static 'documents/Afras final proposal.pdf' %}" target="_blank"
+                class="docs-link docs-link-underline">
                 <i class="fas fa-book-open"></i>
                 <span class="docs-text">Documentation</span>
             </a>
@@ -1483,56 +2466,76 @@
                 <h3>Our Solution</h3>
                 <p>Contactless facial recognition with (80 to 90)% accuracy</p>
             </div>
+            <div class="info-card" onclick="scrollToSection('workflow')">
+                <i class="fas fa-project-diagram"></i>
+                <h3>System Cycle</h3>
+                <p>Routine sync, live scan, vector match, audit trail</p>
+            </div>
             <div class="info-card" onclick="scrollToSection('tech')">
                 <i class="fas fa-microchip"></i>
                 <h3>Tech Stack</h3>
                 <p>Python, OpenCV, ResNet-101, Django</p>
             </div>
-            <div class="info-card" onclick="scrollToSection('team')">
-                <i class="fas fa-users"></i>
-                <h3>The Team</h3>
-                <p>5 Computer Engineering students</p>
-            </div>
         </div>
     </div>
 
-    <!-- Workflow Card -->
-    <section class="workflow-card">
-        <div class="hero-grid" style="opacity: 0.05; background-size: 40px 40px;"></div>
+    <!-- Team Section -->
+    <div class="info-section">
+        <div id="team" class="detail-section">
+            <h2 class="detail-title" style="margin-bottom: 1.5rem;">
+                <i class="fas fa-users"></i> Project Team
+            </h2>
+            <div class="team-grid">
+                <div class="team-member" onclick="showTeamMember('Lalit Negi')">
+                    <img src="{% static 'team_member/lalit_negi.jpeg' %}" alt="Lalit Negi"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <i class="fas fa-user-graduate"
+                        style="display:none; font-size:2.5rem; color:var(--primary); margin-bottom:1rem;"></i>
+                    <h4>Lalit Negi</h4>
+                    <h5>Frontend & Backend Developer</h5>
+                </div>
 
-        <h4><i class="fas fa-project-diagram"></i> System Lifecycle</h4>
-        <div class="workflow-steps">
-            <div class="workflow-step">
-                <div class="workflow-icon"><i class="fas fa-calendar-check"></i></div>
-                <h5>Routine Sync</h5>
-                <p>Scheduler activates nodes via timetable.</p>
+                <div class="team-member" onclick="showTeamMember('Dhanesh Badal')">
+                    <img src="{% static 'team_member/dhanesh_badal.jpeg' %}" alt="Dhanesh Badal"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <i class="fas fa-user-graduate"
+                        style="display:none; font-size:2.5rem; color:var(--primary); margin-bottom:1rem;"></i>
+                    <h4>Dhanesh Badal</h4>
+                    <h5>Frontend & Backend Developer</h5>
+                </div>
+
+
+                <div class="team-member" onclick="showTeamMember('Dammara Thagunna')">
+                    <i class="fas fa-user-graduate"
+                        style="font-size:2.5rem; color:var(--primary); margin-bottom:1rem;"></i>
+                    <h4>Dammara Thagunna</h4>
+                    <h5>Lead Researcher</h5>
+                </div>
+
+                <div class="team-member" onclick="showTeamMember('Manish Chataut')">
+                    <i class="fas fa-user-graduate"
+                        style="font-size:2.5rem; color:var(--primary); margin-bottom:1rem;"></i>
+                    <h4>Manish Chataut</h4>
+                    <h5>CV Engineer</h5>
+                </div>
+
+                <div class="team-member" onclick="showTeamMember('Mukul Bhatt')">
+                    <img src="{% static 'team_member/mukul_bhatta.jpeg' %}" alt="Mukul Bhatt"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <i class="fas fa-user-graduate"
+                        style="display:none; font-size:2.5rem; color:var(--primary); margin-bottom:1rem;"></i>
+                    <h4>Mukul Bhatt</h4>
+                    <h5>QA Engineer</h5>
+                </div>
             </div>
 
-            <i class="fas fa-angle-double-right workflow-arrow"></i>
-
-            <div class="workflow-step">
-                <div class="workflow-icon"><i class="fas fa-video"></i></div>
-                <h5>Live Scan</h5>
-                <p>MTCNN detects faces + liveness detection.</p>
-            </div>
-
-            <i class="fas fa-angle-double-right workflow-arrow"></i>
-
-            <div class="workflow-step">
-                <div class="workflow-icon"><i class="fas fa-brain"></i></div>
-                <h5>Vector Match</h5>
-                <p>ResNet-101 generates 128-d embeddings.</p>
-            </div>
-
-            <i class="fas fa-angle-double-right workflow-arrow"></i>
-
-            <div class="workflow-step">
-                <div class="workflow-icon"><i class="fas fa-table-list"></i></div>
-                <h5>Audit Trail</h5>
-                <p>Records secured with AES encryption.</p>
+            <div class="team-footer" style="margin-top: 1.5rem;">
+                <span class="metrics-badge supervisor">Supervisor</span>
+                <span class="team-footer-span" style="margin-left: 1rem; color: var(--text-dim);">Department of Civil
+                    Engineering</span>
             </div>
         </div>
-    </section>
+    </div>
 
     <!-- Collapsible Detailed Content -->
     <div class="info-section">
@@ -1609,6 +2612,44 @@
                 </div>
             </div>
 
+            <!-- System Lifecycle / Workflow -->
+            <div id="workflow" class="workflow-card">
+                <div class="hero-grid" style="opacity: 0.05; background-size: 40px 40px;"></div>
+
+                <h4><i class="fas fa-project-diagram"></i> System Lifecycle</h4>
+                <div class="workflow-steps">
+                    <div class="workflow-step">
+                        <div class="workflow-icon"><i class="fas fa-calendar-check"></i></div>
+                        <h5>Routine Sync</h5>
+                        <p>Scheduler activates nodes via timetable.</p>
+                    </div>
+
+                    <i class="fas fa-angle-double-right workflow-arrow"></i>
+
+                    <div class="workflow-step">
+                        <div class="workflow-icon"><i class="fas fa-video"></i></div>
+                        <h5>Live Scan</h5>
+                        <p>MTCNN detects faces + liveness detection.</p>
+                    </div>
+
+                    <i class="fas fa-angle-double-right workflow-arrow"></i>
+
+                    <div class="workflow-step">
+                        <div class="workflow-icon"><i class="fas fa-brain"></i></div>
+                        <h5>Vector Match</h5>
+                        <p>ResNet-101 generates 128-d embeddings.</p>
+                    </div>
+
+                    <i class="fas fa-angle-double-right workflow-arrow"></i>
+
+                    <div class="workflow-step">
+                        <div class="workflow-icon"><i class="fas fa-table-list"></i></div>
+                        <h5>Audit Trail</h5>
+                        <p>Records secured with AES encryption.</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Tech Stack & Methodology -->
             <div id="tech" class="detail-section">
                 <h2 class="detail-title">
@@ -1659,7 +2700,7 @@
                             <h3>Hardware Requirements</h3>
                         </div>
 
-                        <div style="overflow: hidden; border-radius: 16px;">
+                        <div class="table-scroll-wrapper">
                             <table class="hardware-table">
                                 <thead>
                                     <tr>
@@ -1706,54 +2747,10 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Team Section -->
-            <div id="team" class="detail-section">
-                <h2 class="detail-title">
-                    <i class="fas fa-users"></i> Project Team
-                </h2>
-                <div class="team-grid">
-                    <div class="team-member" onclick="showTeamMember('Dammara Thagunna')">
-                        <i class="fas fa-user-graduate"></i>
-                        <h4>Dammara Thagunna</h4>
-                        <h5>Lead Researcher</h5>
-                    </div>
-
-                    <div class="team-member" onclick="showTeamMember('Dhanesh Badal')">
-                        <img src="{% static 'team_member/dhanesh_badal.jpeg' %}" alt="Dhanesh Badal"
-                            onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML = '<i class=\'fas fa-user-graduate\' style=\'font-size:2.5rem; color:var(--primary); margin-bottom:1rem;\'></i>' + this.parentElement.innerHTML.split('<h4')[1];">
-                        <h4>Dhanesh Badal</h4>
-                        <h5>Frontend & Backend Developer</h5>
-                    </div>
-
-                    <div class="team-member" onclick="showTeamMember('Lalit Negi')">
-                        <img src="{% static 'team_member/lalit_negi.jpeg' %}" alt="Lalit Negi"
-                            onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML = '<i class=\'fas fa-user-graduate\' style=\'font-size:2.5rem; color:var(--primary); margin-bottom:1rem;\'></i>' + this.parentElement.innerHTML.split('<h4')[1];">
-                        <h4>Lalit Negi</h4>
-                        <h5>Frontend & Backend Developer</h5>
-                    </div>
-
-                    <div class="team-member" onclick="showTeamMember('Manish Chataut')">
-                        <i class="fas fa-user-graduate"></i>
-                        <h4>Manish Chataut</h4>
-                        <h5>CV Engineer</h5>
-                    </div>
-
-                    <div class="team-member" onclick="showTeamMember('Mukul Bhatt')">
-                        <img src="{% static 'team_member/mukul_bhatta.jpeg' %}" alt="Mukul Bhatt"
-                            onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML = '<i class=\'fas fa-user-graduate\' style=\'font-size:2.5rem; color:var(--primary); margin-bottom:1rem;\'></i>' + this.parentElement.innerHTML.split('<h4')[1];">
-                        <h4>Mukul Bhatt</h4>
-                        <h5>QA Engineer</h5>
-                    </div>
-                </div>
-
-                <div class="team-footer">
-                    <span class="metrics-badge">Supervisor</span>
-                    <span style="margin-left: 1rem;">Department of Civil Engineering</span>
-                </div>
-            </div>
         </div>
     </div>
+
+
 
     <!-- Footer -->
     <footer>
@@ -1772,7 +2769,8 @@
                 <div class="footer-date">
                     <p>Major Project Proposal | November 2025</p>
                     <div class="social-links">
-                        <a href="https://github.com/lalit058/Automatic-Facial-Recognition-Based-Attendance-System-AFRAS-" class="social-link" title="GitHub"><i class="fab fa-github"></i></a>
+                        <a href="https://github.com/lalit058/Automatic-Facial-Recognition-Based-Attendance-System-AFRAS-"
+                            class="social-link" title="GitHub"><i class="fab fa-github"></i></a>
                         <a href="#" class="social-link" title="Research Paper"><i class="fas fa-scroll"></i></a>
                         <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
                         <a href="#" class="social-link" title="Documentation"><i class="fas fa-book"></i></a>
@@ -1808,7 +2806,7 @@
             },
             'Dhanesh Badal': {
                 name: 'Dhanesh Badal',
-                role: 'Frontend, Backend Developer, Database Architec & UI/UX Designer',
+                role: 'Frontend, Backend Developer, Database Architect & UI/UX Designer',
                 email: 'dhanesh.b@afras.edu.np',
                 studentId: '076BCT002',
                 expertise: 'Django, PostgreSQL, API Design, Security',
@@ -1817,7 +2815,7 @@
             },
             'Lalit Negi': {
                 name: 'Lalit Bahadur Negi',
-                role: 'Frontend, Backend Developer, Database Architec & UI/UX Designer',
+                role: 'Frontend, Backend Developer, Database Architect & UI/UX Designer',
                 email: '56.negilalit@gmail.com',
                 studentId: '076BCT003',
                 expertise: 'React, HTML/CSS, Dashboard Design',
@@ -2044,18 +3042,14 @@
             });
         });
 
-        // Handle any hash parameters for password reset
         window.addEventListener('load', function () {
-            // If there's a hash fragment, handle it
             if (window.location.hash) {
                 const hash = window.location.hash.substring(1);
                 if (hash.includes('uidb64') && hash.includes('token')) {
-                    // Extract parameters from hash
                     const params = new URLSearchParams(hash);
                     const uidb64 = params.get('uidb64');
                     const token = params.get('token');
                     if (uidb64 && token) {
-                        // Redirect to the proper reset URL
                         window.location.href = `/password-reset-confirm/${uidb64}/${token}/`;
                     }
                 }
