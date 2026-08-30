@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 
 <head>
@@ -1719,14 +1720,14 @@
                     </div>
 
                     <div class="team-member" onclick="showTeamMember('Dhanesh Badal')">
-                        <img src="/media/team_member/dhanesh_badal.jpeg" alt="Dhanesh Badal"
+                        <img src="{% static 'team_member/dhanesh_badal.jpeg' %}" alt="Dhanesh Badal"
                             onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML = '<i class=\'fas fa-user-graduate\' style=\'font-size:2.5rem; color:var(--primary); margin-bottom:1rem;\'></i>' + this.parentElement.innerHTML.split('<h4')[1];">
                         <h4>Dhanesh Badal</h4>
                         <h5>Backend Developer</h5>
                     </div>
 
                     <div class="team-member" onclick="showTeamMember('Lalit Negi')">
-                        <img src="/media/team_member/lalit_negi.jpeg" alt="Lalit Negi"
+                        <img src="{% static 'team_member/lalit_negi.jpeg' %}" alt="Lalit Negi"
                             onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML = '<i class=\'fas fa-user-graduate\' style=\'font-size:2.5rem; color:var(--primary); margin-bottom:1rem;\'></i>' + this.parentElement.innerHTML.split('<h4')[1];">
                         <h4>Lalit Negi</h4>
                         <h5>Frontend Developer</h5>
@@ -1739,7 +1740,7 @@
                     </div>
 
                     <div class="team-member" onclick="showTeamMember('Mukul Bhatt')">
-                        <img src="/media/team_member/mukul_bhatta.jpeg" alt="Mukul Bhatt"
+                        <img src="{% static 'team_member/mukul_bhatta.jpeg' %}" alt="Mukul Bhatt"
                             onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML = '<i class=\'fas fa-user-graduate\' style=\'font-size:2.5rem; color:var(--primary); margin-bottom:1rem;\'></i>' + this.parentElement.innerHTML.split('<h4')[1];">
                         <h4>Mukul Bhatt</h4>
                         <h5>QA Engineer</h5>
@@ -1812,7 +1813,7 @@
                 studentId: '076BCT002',
                 expertise: 'Django, PostgreSQL, API Design, Security',
                 bio: 'Designing the system architecture and database schemas.',
-                image: '/media/team_member/dhanesh_badal.jpeg'
+                image: '{% static "team_member/dhanesh_badal.jpeg" %}'
             },
             'Lalit Negi': {
                 name: 'Lalit Bahadur Negi',
@@ -1821,7 +1822,7 @@
                 studentId: '076BCT003',
                 expertise: 'React, HTML/CSS, Dashboard Design',
                 bio: 'Creating intuitive user interfaces and dashboard designs.',
-                image: '/media/team_member/lalit_negi.jpeg',
+                image: '{% static "team_member/lalit_negi.jpeg" %}',
                 github: 'https://github.com/lalit058',
                 linkedin: 'https://www.linkedin.com/in/lalit-negi-73571b338/'
             },
@@ -1840,7 +1841,7 @@
                 studentId: '076BCT005',
                 expertise: 'Testing Automation, Documentation',
                 bio: 'Ensuring system reliability through comprehensive testing.',
-                image: '/media/team_member/mukul_bhatta.jpeg'
+                image: '{% static "team_member/mukul_bhatta.jpeg" %}'
             }
         };
 

@@ -29,9 +29,13 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 1800
+SESSION_SAVE_EVERY_REQUEST = True
+
 # Redirect targets after login/logout
-LOGIN_REDIRECT_URL = '/dashboard/'  # Change to your actual dashboard path/name
-LOGIN_URL = '/'                     # Change to your login URL pattern
+LOGIN_REDIRECT_URL = '/dashboard/'  
+LOGIN_URL = '/'                     
 
 # 2. INSTALLED APPS
 INSTALLED_APPS = [

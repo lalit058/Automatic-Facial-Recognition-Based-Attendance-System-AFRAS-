@@ -7,6 +7,7 @@ from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.cache import never_cache
 from accounts.models import Student, StaffProfile, SystemLog, SystemConfiguration, Notification
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods, require_POST
@@ -641,6 +642,7 @@ def get_student_details(request, student_id):
 
 @login_required
 @user_passes_test(is_staff_user, login_url="login", redirect_field_name=None)
+@never_cache
 def dashboard_home(request):
     today = timezone.now().date()
     
