@@ -19,7 +19,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
     'https://*.onrender.com',
-    'https://automatic-facial-recognition-based-nw66.onrender.com',
+    'https://afras.onrender.com',
 ]
 
 # Tell Django it is behind Render's HTTPS reverse proxy
