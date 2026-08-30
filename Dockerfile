@@ -39,6 +39,7 @@ COPY . /app/
 
 # 7. Collect static files
 WORKDIR /app/afras_app
+RUN ls -la /app/afras_app/static || echo "STATIC FOLDER NOT FOUND"
 RUN python manage.py collectstatic --noinput
 
 # 8. Expose port, run migrations, create superuser, and start Gunicorn
