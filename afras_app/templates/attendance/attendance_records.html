@@ -799,11 +799,13 @@
 
         .table-scroll {
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
         }
 
-        table {
-            font-size: 0.75rem;
-            min-width: 700px;
+        .table-scroll table {
+            width: 100%;
+            min-width: 850px;
         }
 
         thead th,

@@ -815,7 +815,7 @@ def recent_sessions_api(request):
 
 def gen_frames():
     """Basic video feed generator (fallback)"""
-    camera = cv2.VideoCapture('http://192.168.100.14:8080/video')
+    camera = cv2.VideoCapture(0)
     while True:
         success, frame = camera.read()
         if not success:
@@ -943,7 +943,7 @@ def generate_frames_hybrid(session_id):
         return
     
     # Initialize camera
-    camera = cv2.VideoCapture('http://192.168.100.14:8080/video')
+    camera = cv2.VideoCapture(0)
     if not camera.isOpened():
         yield (b"--frame\r\n"
                b"Content-Type: text/plain\r\n\r\n"
@@ -1751,8 +1751,10 @@ def end_session(request, session_id):
 def delete_session(request, session_id):
     """
     API endpoint to delete a session (Admin/Staff only)
+    FIXED: Supports both DELETE and POST methods with better error handling
     """
-    if request.method != 'DELETE':
+    # Allow both DELETE and POST methods
+    if request.method not in ['DELETE', 'POST']:
         return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)
     
     # Check permission
@@ -1768,25 +1770,49 @@ def delete_session(request, session_id):
         
         # Store session info for logging
         session_name = session.subject_name
-        session_id = session.id
+        session_id_val = session.id
+        session_date = session.date.strftime('%Y-%m-%d') if session.date else 'N/A'
         
-        # Delete associated attendance logs first
-        logs_deleted = AttendanceLog.objects.filter(session=session).count()
-        AttendanceLog.objects.filter(session=session).delete()
+        print(f"\n🗑️ DELETING SESSION: {session_name} (ID: {session_id_val})")
+        print(f"   Date: {session_date}")
+        print(f"   Department: {session.department}")
+        print(f"   Semester: {session.semester}")
+        print(f"   User: {request.user.username}")
         
-        # Delete the session
-        session.delete()
+        # ============================================================
+        # STEP 1: Count attendance logs
+        # ============================================================
+        logs_count = AttendanceLog.objects.filter(session=session).count()
+        print(f"   📊 Found {logs_count} attendance logs to delete")
+        
+        # ============================================================
+        # STEP 2: Delete logs using transaction for safety
+        # ============================================================
+        with transaction.atomic():
+            if logs_count > 0:
+                deleted_logs, _ = AttendanceLog.objects.filter(session=session).delete()
+                print(f"   ✅ Deleted {deleted_logs} attendance logs")
+            
+            # ============================================================
+            # STEP 3: Delete the session
+            # ============================================================
+            session.delete()
+            print(f"   ✅ Session deleted successfully")
         
         return JsonResponse({
             'success': True,
-            'message': f'Successfully deleted session "{session_name}" (ID: {session_id}) and {logs_deleted} attendance records.'
+            'message': f'Successfully deleted session "{session_name}" and {logs_count} attendance records.',
+            'logs_deleted': logs_count,
+            'session_id': session_id_val
         })
         
     except AttendanceSession.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Session not found'}, status=404)
     except Exception as e:
+        print(f"❌ Error deleting session: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
-
 
 @login_required
 def student_attendance_record(request, student_id):

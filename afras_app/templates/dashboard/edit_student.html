@@ -339,8 +339,15 @@
     }
 
     @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
     }
 
     .capture-tabs {
@@ -465,7 +472,7 @@
         color: #fff;
         font-weight: 800;
         font-size: 18px;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
     }
 
     .face-status {
@@ -907,6 +914,7 @@
             opacity: 0;
             transform: translateY(-20px) scale(0.95);
         }
+
         to {
             opacity: 1;
             transform: translateY(0) scale(1);
@@ -1138,6 +1146,7 @@
             opacity: 0;
             transform: translateY(-10px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -1312,6 +1321,7 @@
        PRINT STYLES
     ============================================ */
     @media print {
+
         .page-header .header-actions,
         .action-bar .btn-submit,
         .action-bar .btn-discard,
@@ -1349,7 +1359,8 @@
                 <span class="current">Update Student</span>
             </div>
             <h1>Update Student Record</h1>
-            <p>Edit details for <strong style="color: #fff;">{{ student.full_name }}</strong> ({{ student.roll_number }})</p>
+            <p>Edit details for <strong style="color: #fff;">{{ student.full_name }}</strong> ({{ student.roll_number
+                }})</p>
         </div>
         <div class="header-actions">
             <a href="{% url 'student-directory' %}" class="btn-secondary">
@@ -1365,7 +1376,8 @@
     <div class="message-container">
         {% for message in messages %}
         <div class="message {{ message.tags }}">
-            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            <i
+                class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
             {{ message }}
         </div>
         {% endfor %}
@@ -1399,11 +1411,12 @@
                 <video id="video" autoplay playsinline></video>
                 <canvas id="overlay"></canvas>
                 <img id="captured-preview" class="captured-preview">
-                
+
                 <div id="progress-ring">
                     <svg viewBox="0 0 60 60">
-                        <circle cx="30" cy="30" r="25" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/>
-                        <circle cx="30" cy="30" r="25" id="progress-circle" fill="none" stroke="#00ff00" stroke-width="4"/>
+                        <circle cx="30" cy="30" r="25" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4" />
+                        <circle cx="30" cy="30" r="25" id="progress-circle" fill="none" stroke="#00ff00"
+                            stroke-width="4" />
                     </svg>
                     <div id="progress-text">0%</div>
                 </div>
@@ -1449,13 +1462,6 @@
             </div>
         </div>
 
-        <!-- Hidden Inputs for Face Data -->
-        <div class="face-hidden-inputs">
-            <input type="hidden" name="face_encoding" id="face-encoding" 
-                   value='{% if student.face_encoding %}{{ student.face_encoding }}{% endif %}'>
-            <input type="hidden" name="photo_data" id="photo-data">
-            <input type="hidden" name="update_face" id="update-face" value="false">
-        </div>
     </div>
 
     <!-- ============================================
@@ -1466,7 +1472,8 @@
         <div class="profile-preview-section">
             <div>
                 {% if student.photo %}
-                <img src="{{ student.photo.url }}" class="preview-circle" id="preview-target"
+                <!-- FIX: Added cache-busting parameter -->
+                <img src="{{ student.photo.url }}?v={{ student.id }}" class="preview-circle" id="preview-target"
                     onclick="window.photoModal.open('{{ student.photo.url }}', '{{ student.full_name }}', 'Roll: {{ student.roll_number }} | Semester {{ student.semester }}')"
                     title="Click to view full size">
                 {% else %}
@@ -1479,7 +1486,8 @@
             <div class="profile-info-text">
                 <h3>{{ student.full_name }}</h3>
                 <p><i class="fas fa-id-card" style="color: #94a3b8; width: 16px;"></i> {{ student.roll_number }}</p>
-                <p><i class="fas fa-envelope" style="color: #94a3b8; width: 16px;"></i> {{ student.user.email|default:"No email" }}</p>
+                <p><i class="fas fa-envelope" style="color: #94a3b8; width: 16px;"></i> {{
+                    student.user.email|default:"No email" }}</p>
                 {% if student.face_encoding %}
                 <div class="face-encoding-badge">
                     <i class="fas fa-face-smile"></i> Face Encoded
@@ -1494,6 +1502,14 @@
 
         <form method="POST" enctype="multipart/form-data" id="update-student-form">
             {% csrf_token %}
+
+            <!-- Hidden Inputs for Face Data -->
+            <div class="face-hidden-inputs">
+                <input type="hidden" name="face_encoding" id="face-encoding"
+                    value='{% if student.face_encoding %}{{ student.face_encoding }}{% endif %}'>
+                <input type="hidden" name="photo_data" id="photo-data">
+                <input type="hidden" name="update_face" id="update-face" value="false">
+            </div>
 
             <div class="form-grid">
                 <!-- Personal Information -->
@@ -1546,7 +1562,8 @@
 
                 <div class="input-group">
                     <label><i class="fas fa-map-marker-alt"></i> Address</label>
-                    <input type="text" name="address" value="{{ student.address|default:'' }}" placeholder="Enter address">
+                    <input type="text" name="address" value="{{ student.address|default:'' }}"
+                        placeholder="Enter address">
                     {% if form.address.errors %}
                     <div class="error-message">
                         <i class="fas fa-exclamation-circle"></i> {{ form.address.errors.0 }}
@@ -1597,9 +1614,11 @@
 
                 <!-- Face Encoding Display -->
                 <div class="input-group">
-                    <label><i class="fas fa-face-smile"></i> Face Encoding <span style="color: #94a3b8; font-weight: 400;">(128-dimension)</span></label>
+                    <label><i class="fas fa-face-smile"></i> Face Encoding <span
+                            style="color: #94a3b8; font-weight: 400;">(128-dimension)</span></label>
                     <div class="encoding-wrapper" id="enc-wrapper">
-                        <button type="button" class="copy-btn" id="copy-btn" title="Copy Vector" onclick="copyEncoding()">
+                        <button type="button" class="copy-btn" id="copy-btn" title="Copy Vector"
+                            onclick="copyEncoding()">
                             <i class="fas fa-copy"></i>
                         </button>
                         <div class="encoding-box" id="encoding-display">
@@ -1621,23 +1640,24 @@
                                 </div>
                             </div>
                             {% else %}
-                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 8px; padding: 20px 0;">
+                            <div
+                                style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 8px; padding: 20px 0;">
                                 <i class="fas fa-face-smile" style="font-size: 2rem; color: #cbd5e1;"></i>
                                 <p style="color: #94a3b8; font-size: 0.8rem; margin: 0;">No face encoding available</p>
-                                <p style="color: #cbd5e1; font-size: 0.7rem; margin: 0;">Upload a photo to generate encoding</p>
+                                <p style="color: #cbd5e1; font-size: 0.7rem; margin: 0;">Upload a photo to generate
+                                    encoding</p>
                             </div>
                             {% endif %}
                         </div>
                     </div>
-                    <input type="hidden" name="face_encoding" id="face-encoding-input"
-                        value='{% if student.face_encoding %}{{ student.face_encoding }}{% endif %}'>
                 </div>
 
                 <!-- ID Proof Upload -->
                 <div class="input-group full-width">
                     <label><i class="fas fa-file-pdf"></i> ID Proof</label>
                     <div class="file-upload-section">
-                        <div class="file-upload" onclick="document.getElementById('doc-input').click()" id="file-upload-btn">
+                        <div class="file-upload" onclick="document.getElementById('doc-input').click()"
+                            id="file-upload-btn">
                             <i class="fas fa-file-pdf"></i>
                             <p>Click to upload PDF</p>
                         </div>
@@ -1652,7 +1672,8 @@
                                 <i class="fas fa-file-pdf"></i>
                                 <span id="new-file-name"></span>
                                 <span style="color: #94a3b8; font-size: 0.65rem;" id="new-file-size"></span>
-                                <button type="button" onclick="removeNewFile()" style="margin-left: auto; background: none; border: none; color: #dc2626; cursor: pointer;">
+                                <button type="button" onclick="removeNewFile()"
+                                    style="margin-left: auto; background: none; border: none; color: #dc2626; cursor: pointer;">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
@@ -1676,10 +1697,12 @@
                             <span>{{ student.id_proof.name|slice:"13:" }}</span>
                             <span style="color: #94a3b8; font-size: 0.65rem;">Current File</span>
                             <div style="margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap;">
-                                <a href="{{ student.id_proof.url }}" target="_blank" style="color: #6366f1; text-decoration: none;">
+                                <a href="{{ student.id_proof.url }}" target="_blank"
+                                    style="color: #6366f1; text-decoration: none;">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <button type="button" onclick="deleteExistingFile()" style="background: none; border: none; color: #dc2626; cursor: pointer;">
+                                <button type="button" onclick="deleteExistingFile()"
+                                    style="background: none; border: none; color: #dc2626; cursor: pointer;">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -1830,7 +1853,7 @@ SCRIPTS
                     statusBadge.className = 'status-badge success';
                     faceSection.classList.add('success');
                 }
-            } catch(e) {
+            } catch (e) {
                 console.log('No valid face encoding data');
             }
         }
@@ -1865,13 +1888,13 @@ SCRIPTS
     // TAB SWITCHING
     // ============================================
     tabs.forEach(tab => {
-        tab.addEventListener('click', function() {
+        tab.addEventListener('click', function () {
             tabs.forEach(t => t.classList.remove('active'));
             this.classList.add('active');
-            
+
             const tabId = this.dataset.tab;
             Object.values(panels).forEach(p => p.classList.remove('active'));
-            
+
             if (tabId === 'camera-tab') {
                 panels.camera.classList.add('active');
                 isManualMode = false;
@@ -1896,42 +1919,42 @@ SCRIPTS
     // ============================================
     // MANUAL PHOTO UPLOAD
     // ============================================
-    manualUploadArea.addEventListener('click', function(e) {
+    manualUploadArea.addEventListener('click', function (e) {
         if (e.target.closest('.upload-actions')) return;
         manualPhotoInput.click();
     });
 
-    manualPhotoInput.addEventListener('change', function() {
+    manualPhotoInput.addEventListener('change', function () {
         const file = this.files[0];
         if (!file) return;
-        
+
         manualPhotoFile = file;
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             manualPreview.src = e.target.result;
             manualPreview.classList.add('show');
             fileName.textContent = file.name;
             fileName.classList.add('show');
             uploadActions.classList.add('show');
             manualUploadArea.classList.add('has-image');
-            
+
             uploadStatus.className = 'face-status info';
             uploadStatus.innerHTML = '<i class="fas fa-info-circle"></i> Photo uploaded. Click "Process Face" to extract encoding.';
         };
         reader.readAsDataURL(file);
     });
 
-    btnRemovePhoto.addEventListener('click', function() {
+    btnRemovePhoto.addEventListener('click', function () {
         manualPhotoFile = null;
         manualPreview.classList.remove('show');
         fileName.classList.remove('show');
         uploadActions.classList.remove('show');
         manualUploadArea.classList.remove('has-image');
         manualPhotoInput.value = '';
-        
+
         uploadStatus.className = 'face-status';
         uploadStatus.innerHTML = '<i class="fas fa-info-circle"></i> Upload a clear photo of the student\'s face';
-        
+
         // Clear face data
         faceEncoding = null;
         capturedPhotoData = null;
@@ -1947,7 +1970,7 @@ SCRIPTS
         faceSection.classList.remove('success', 'error');
     });
 
-    btnProcessPhoto.addEventListener('click', async function() {
+    btnProcessPhoto.addEventListener('click', async function () {
         if (!manualPhotoFile) {
             uploadStatus.className = 'face-status error';
             uploadStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please upload a photo first.';
@@ -1960,9 +1983,9 @@ SCRIPTS
 
         try {
             const reader = new FileReader();
-            reader.onload = async function(e) {
+            reader.onload = async function (e) {
                 const imageData = e.target.result;
-                
+
                 const formData = new FormData();
                 formData.append('photo_data', imageData);
 
@@ -2012,7 +2035,7 @@ SCRIPTS
                 }
             };
             reader.readAsDataURL(manualPhotoFile);
-            
+
         } catch (error) {
             console.error('Manual processing error:', error);
             uploadStatus.className = 'face-status error';
@@ -2324,11 +2347,11 @@ SCRIPTS
         updateStatus('info', 'Click "Start Camera" to begin face capture', '');
         statusBadge.textContent = 'Not Captured';
         statusBadge.className = 'status-badge';
-        
+
         // Restore original photo if exists
         const previewTarget = document.getElementById('preview-target');
         if (previewTarget && '{{ student.photo.url }}' !== '') {
-            previewTarget.src = '{{ student.photo.url }}';
+            previewTarget.src = '{{ student.photo.url }}?v={{ student.id }}';
         } else {
             const name = "{{ student.full_name|escapejs }}";
             previewTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff&size=128`;
@@ -2355,8 +2378,18 @@ SCRIPTS
             alert('❌ Please capture your face first.');
             return;
         }
-        // Mark that face was updated
+        // ============================================================
+        // FIX: Set all the hidden fields
+        // ============================================================
+        faceEncodingInput.value = JSON.stringify(faceEncoding);
+        photoDataInput.value = capturedPhotoData || '';
         updateFaceInput.value = 'true';
+
+        console.log("✅ Confirming submission with face data");
+        console.log("   update_face:", updateFaceInput.value);
+        console.log("   face_encoding length:", faceEncodingInput.value.length);
+        console.log("   photo_data length:", photoDataInput.value.length);
+
         // Trigger form submission
         form.submit();
     }
@@ -2371,18 +2404,38 @@ SCRIPTS
     // ============================================
     // FORM SUBMISSION HANDLER
     // ============================================
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function (e) {
+        console.log("📝 Form submitting...");
+
+        // ============================================================
+        // CRITICAL FIX: Set ALL hidden fields before submit
+        // ============================================================
+        if (faceEncoding) {
+            // Set the face encoding
+            faceEncodingInput.value = JSON.stringify(faceEncoding);
+            // Set update_face to true
+            updateFaceInput.value = 'true';
+            // Set photo_data if exists
+            if (capturedPhotoData) {
+                photoDataInput.value = capturedPhotoData;
+            }
+            console.log("✅ Face data set for submission");
+            console.log("   update_face:", updateFaceInput.value);
+            console.log("   face_encoding length:", faceEncodingInput.value.length);
+            console.log("   photo_data length:", photoDataInput.value.length);
+        } else {
+            // If no face encoding, don't update face
+            updateFaceInput.value = 'false';
+            console.log("⚠️ No face encoding, skipping face update");
+        }
+
         // If face was updated but no encoding, prevent submission
         if (updateFaceInput.value === 'true' && !faceEncoding) {
             e.preventDefault();
             alert('❌ Please capture your face first before updating.');
             return false;
         }
-        // If face encoding was captured, ensure it's set
-        if (faceEncoding) {
-            faceEncodingInput.value = JSON.stringify(faceEncoding);
-        }
-        
+
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
@@ -2574,69 +2627,69 @@ SCRIPTS
                         'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                     }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.encoding) {
-                        const vector = data.encoding;
-                        fullEncodingArray = vector;
-                        fullVectorData = '[' + vector.map(val => val.toFixed(6)).join(', ') + ']';
-                        faceEncoding = vector;
-                        faceUpdated = true;
-                        updateFaceInput.value = 'true';
-                        faceEncodingInput.value = JSON.stringify(vector);
-                        photoDataInput.value = e.target.result;
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.encoding) {
+                            const vector = data.encoding;
+                            fullEncodingArray = vector;
+                            fullVectorData = '[' + vector.map(val => val.toFixed(6)).join(', ') + ']';
+                            faceEncoding = vector;
+                            faceUpdated = true;
+                            updateFaceInput.value = 'true';
+                            faceEncodingInput.value = JSON.stringify(vector);
+                            photoDataInput.value = e.target.result;
 
-                        let previewHtml = '<div style="display: flex; flex-direction: column; gap: 10px;">';
-                        previewHtml += '<div class="encoding-preview">';
-                        for (let i = 0; i < 8; i++) {
-                            previewHtml += `<span class="encoding-preview-item">${vector[i].toFixed(6)}</span>`;
-                        }
-                        previewHtml += '<span class="encoding-preview-dots">......</span>';
-                        for (let i = 124; i < 128; i++) {
-                            previewHtml += `<span class="encoding-preview-item">${vector[i].toFixed(6)}</span>`;
-                        }
-                        previewHtml += '</div>';
-                        previewHtml += '<div><button type="button" class="show-more-btn" onclick="showFullEncoding()"><i class="fas fa-expand-alt"></i> Show All 128 Values</button></div>';
-                        previewHtml += '</div>';
+                            let previewHtml = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+                            previewHtml += '<div class="encoding-preview">';
+                            for (let i = 0; i < 8; i++) {
+                                previewHtml += `<span class="encoding-preview-item">${vector[i].toFixed(6)}</span>`;
+                            }
+                            previewHtml += '<span class="encoding-preview-dots">......</span>';
+                            for (let i = 124; i < 128; i++) {
+                                previewHtml += `<span class="encoding-preview-item">${vector[i].toFixed(6)}</span>`;
+                            }
+                            previewHtml += '</div>';
+                            previewHtml += '<div><button type="button" class="show-more-btn" onclick="showFullEncoding()"><i class="fas fa-expand-alt"></i> Show All 128 Values</button></div>';
+                            previewHtml += '</div>';
 
-                        display.innerHTML = previewHtml;
-                        wrapper.classList.add('active');
-                        copyBtn.style.display = 'flex';
-                        statusBadge.textContent = 'Updated ✓';
-                        statusBadge.className = 'status-badge success';
-                        faceSection.classList.add('success');
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Student';
+                            display.innerHTML = previewHtml;
+                            wrapper.classList.add('active');
+                            copyBtn.style.display = 'flex';
+                            statusBadge.textContent = 'Updated ✓';
+                            statusBadge.className = 'status-badge success';
+                            faceSection.classList.add('success');
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Student';
 
-                        showMessage('✅ Face encoding updated successfully!', 'success');
-                    } else {
-                        display.innerHTML = `
+                            showMessage('✅ Face encoding updated successfully!', 'success');
+                        } else {
+                            display.innerHTML = `
                             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 8px; padding: 20px 0;">
                                 <i class="fas fa-face-frown" style="font-size: 2rem; color: #dc2626;"></i>
                                 <p style="color: #dc2626; font-size: 0.8rem; margin: 0;">${data.error || 'No face detected'}</p>
                                 <p style="color: #94a3b8; font-size: 0.7rem; margin: 0;">Please upload a clear photo of the student's face</p>
                             </div>
                         `;
-                        wrapper.classList.remove('active');
-                        copyBtn.style.display = 'none';
-                        faceEncodingInput.value = '';
-                        fullVectorData = '';
-                        fullEncodingArray = [];
-                        showMessage('⚠️ ' + (data.error || 'No face detected in the uploaded photo'), 'warning');
-                    }
-                })
-                .catch(error => {
-                    console.error('Face processing error:', error);
-                    display.innerHTML = `
+                            wrapper.classList.remove('active');
+                            copyBtn.style.display = 'none';
+                            faceEncodingInput.value = '';
+                            fullVectorData = '';
+                            fullEncodingArray = [];
+                            showMessage('⚠️ ' + (data.error || 'No face detected in the uploaded photo'), 'warning');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Face processing error:', error);
+                        display.innerHTML = `
                         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 8px; padding: 20px 0;">
                             <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #dc2626;"></i>
                             <p style="color: #dc2626; font-size: 0.8rem; margin: 0;">Error processing image</p>
                             <p style="color: #94a3b8; font-size: 0.7rem; margin: 0;">Please try again</p>
                         </div>
                     `;
-                    wrapper.classList.remove('active');
-                    copyBtn.style.display = 'none';
-                });
+                        wrapper.classList.remove('active');
+                        copyBtn.style.display = 'none';
+                    });
             };
             reader.readAsDataURL(file);
         } else {
@@ -2764,14 +2817,14 @@ SCRIPTS
     // ============================================
     // INITIALIZE PHOTO INPUT LISTENER
     // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const photoInput = document.getElementById('photo-input');
         if (photoInput) {
-            photoInput.addEventListener('change', function(e) {
+            photoInput.addEventListener('change', function (e) {
                 const file = e.target.files[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = function(ev) {
+                    reader.onload = function (ev) {
                         const previewTarget = document.getElementById('preview-target');
                         if (previewTarget) {
                             previewTarget.src = ev.target.result;
@@ -2791,7 +2844,7 @@ SCRIPTS
     // ============================================
     // CLEANUP ON UNLOAD
     // ============================================
-    window.addEventListener('beforeunload', function() {
+    window.addEventListener('beforeunload', function () {
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
         }

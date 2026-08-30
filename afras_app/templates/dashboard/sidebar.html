@@ -1,7 +1,7 @@
 {% load static %}
 <style>
     /* ========== PHOTO MODAL STYLES ========== */
-    
+
     .photo-modal-overlay {
         display: none;
         position: fixed;
@@ -16,16 +16,17 @@
         justify-content: center;
         animation: fadeIn 0.3s ease;
     }
-    
+
     @keyframes fadeIn {
         from {
             opacity: 0;
         }
+
         to {
             opacity: 1;
         }
     }
-    
+
     .photo-modal-container {
         position: relative;
         max-width: 90vw;
@@ -34,7 +35,7 @@
         flex-direction: column;
         align-items: center;
     }
-    
+
     .photo-controls {
         position: absolute;
         top: -50px;
@@ -47,7 +48,7 @@
         border-radius: 12px;
         backdrop-filter: blur(10px);
     }
-    
+
     .photo-control-btn {
         background: rgba(255, 255, 255, 0.15);
         border: 1px solid rgba(255, 255, 255, 0.2);
@@ -63,31 +64,31 @@
         transition: all 0.3s ease;
         font-size: 1.1rem;
     }
-    
+
     .photo-control-btn:hover:not(:disabled) {
         background: rgba(255, 255, 255, 0.3);
         transform: scale(1.1);
     }
-    
+
     .photo-control-btn:disabled {
         opacity: 0.5;
         cursor: not-allowed;
     }
-    
+
     .photo-control-btn.download-btn {
         background: rgba(0, 98, 255, 0.3);
         border-color: rgba(0, 98, 255, 0.5);
     }
-    
+
     .photo-control-btn.download-btn:hover:not(:disabled) {
         background: rgba(0, 98, 255, 0.5);
     }
-    
+
     .photo-control-btn.close-btn:hover:not(:disabled) {
         background: rgba(239, 68, 68, 0.5);
         transform: rotate(90deg);
     }
-    
+
     .photo-modal-image-container {
         flex: 1;
         display: flex;
@@ -98,7 +99,7 @@
         min-height: 300px;
         max-height: 80vh;
     }
-    
+
     .photo-modal-image {
         max-width: 100%;
         max-height: 70vh;
@@ -112,11 +113,11 @@
         user-select: none;
         -webkit-user-drag: none;
     }
-    
+
     .photo-modal-image:active {
         cursor: grabbing;
     }
-    
+
     .photo-modal-caption {
         color: white;
         text-align: center;
@@ -127,18 +128,18 @@
         width: 100%;
         backdrop-filter: blur(5px);
     }
-    
+
     .photo-modal-caption h3 {
         font-size: 1.2rem;
         margin-bottom: 5px;
         color: white;
     }
-    
+
     .photo-modal-caption p {
         color: #ccc;
         font-size: 0.9rem;
     }
-    
+
     .photo-info {
         margin-top: 10px;
         font-size: 0.8rem;
@@ -148,29 +149,33 @@
         justify-content: center;
         flex-wrap: wrap;
     }
-    
+
     .photo-info .separator {
         color: #666;
     }
-    
+
     @media (max-width: 768px) {
         .photo-controls {
             top: -45px;
             right: 50%;
             transform: translateX(50%);
         }
+
         .photo-control-btn {
             width: 35px;
             height: 35px;
             font-size: 0.9rem;
         }
+
         .photo-modal-caption {
             padding: 15px;
         }
+
         .photo-info {
             flex-direction: column;
             gap: 5px;
         }
+
         .photo-info .separator {
             display: none;
         }
@@ -190,10 +195,14 @@
     <div class="user-profile">
         <div class="profile-photo-container">
             {% if request.user.is_superuser %} {% if request.user.staff_profile.photo %}
-            <img src="{{ request.user.staff_profile.photo.url }}" class="profile-photo" alt="{{ request.user.username }}" id="profilePhoto" style="cursor: pointer;"> {% else %}
-            <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=1a5694&color=fff&size=128" class="profile-photo" alt="{{ request.user.username }}" id="profilePhoto" style="cursor: pointer;"> {% endif %} {% else %} {% if request.user.staff_profile.photo %}
-            <img src="{{ request.user.staff_profile.photo.url }}" class="profile-photo" alt="{{ request.user.staff_profile.full_name }}" id="profilePhoto" style="cursor: pointer;"> {% else %}
-            <img src="https://ui-avatars.com/api/?name={{ request.user.staff_profile.full_name|default:request.user.username }}&background=1a5694&color=fff&size=128" class="profile-photo" alt="{{ request.user.staff_profile.full_name|default:request.user.username }}"
+            <img src="{{ request.user.staff_profile.photo.url }}" class="profile-photo"
+                alt="{{ request.user.username }}" id="profilePhoto" style="cursor: pointer;"> {% else %}
+            <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=1a5694&color=fff&size=128"
+                class="profile-photo" alt="{{ request.user.username }}" id="profilePhoto" style="cursor: pointer;"> {% endif %} {% else %} {% if request.user.staff_profile.photo %}
+            <img src="{{ request.user.staff_profile.photo.url }}" class="profile-photo"
+                alt="{{ request.user.staff_profile.full_name }}" id="profilePhoto" style="cursor: pointer;"> {% else %}
+            <img src="https://ui-avatars.com/api/?name={{ request.user.staff_profile.full_name|default:request.user.username }}&background=1a5694&color=fff&size=128"
+                class="profile-photo" alt="{{ request.user.staff_profile.full_name|default:request.user.username }}"
                 id="profilePhoto" style="cursor: pointer;"> {% endif %} {% endif %}
             <div class="status-indicator"></div>
         </div>
@@ -215,10 +224,8 @@
                 {% if request.user.is_superuser %} {{ request.user.username|title }} {% else %} {{ request.user.staff_profile.full_name|default:request.user.username }} {% endif %}
             </div>
             <div style="font-size: 0.75rem; color: var(--text-dim); display: flex; flex-direction: column; gap: 2px;">
-                <span><i class="fas fa-badge"></i> {% if request.user.is_superuser %}Administrator{% else %}{{
-                    request.user.staff_profile.designation|default:"Staff Member" }}{% endif %}</span>
-                <span><i class="fas fa-building"></i> {{ request.user.staff_profile.department|default:"System"
-                    }}</span>
+                <span><i class="fas fa-badge"></i> {% if request.user.is_superuser %}Administrator{% else %}{{ request.user.staff_profile.designation|default:"Staff Member" }}{% endif %}</span>
+                <span><i class="fas fa-building"></i> {{ request.user.staff_profile.department|default:"System" }}</span>
                 <span><i class="fas fa-envelope"></i> {{ request.user.email|truncatechars:20 }}</span>
             </div>
         </div>
@@ -227,7 +234,8 @@
     <ul class="nav-menu">
         <!-- Dashboard -->
         <li class="nav-item">
-            <a href="{% url 'dashboard_home' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}">
+            <a href="{% url 'dashboard_home' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}">
                 <i class="fas fa-th-large nav-icon" style="color: #3b82f6;"></i>
                 <span class="nav-text">Dashboard</span>
                 <div class="nav-tooltip">
@@ -242,7 +250,8 @@
         SESSION MANAGEMENT - Unified (NEW LINK)
         ============================================ -->
         <li class="nav-item">
-            <a href="{% url 'attendance:unified_sessions' %}" class="nav-link {% if request.resolver_match.url_name == 'unified_sessions' or request.resolver_match.url_name == 'all_sessions' %}active{% endif %}">
+            <a href="{% url 'attendance:unified_sessions' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'unified_sessions' or request.resolver_match.url_name == 'all_sessions' %}active{% endif %}">
                 <i class="fas fa-calendar-alt nav-icon" style="color: #8b5cf6;"></i>
                 <span class="nav-text">Session Management</span>
                 <div class="nav-tooltip">
@@ -258,7 +267,8 @@
         ============================================ -->
         <!-- In your sidebar -->
         <li class="nav-item">
-            <a href="{% url 'attendance:attendance_records' %}" class="nav-link {% if request.resolver_match.url_name == 'attendance_records' %}active{% endif %}">
+            <a href="{% url 'attendance:attendance_records' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'attendance_records' %}active{% endif %}">
                 <i class="fas fa-clipboard-list nav-icon" style="color: #14b8a6;"></i>
                 <span class="nav-text">Attendance Records</span>
                 <div class="nav-tooltip">
@@ -272,7 +282,8 @@
         <!-- Admin Section -->
         {% if request.user.is_superuser %}
         <li class="nav-item">
-            <a href="{% url 'staff-directory' %}" class="nav-link {% if request.resolver_match.url_name == 'staff-directory' %}active{% endif %}">
+            <a href="{% url 'staff-directory' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'staff-directory' %}active{% endif %}">
                 <i class="fas fa-user-shield nav-icon" style="color: #ef4444;"></i>
                 <span class="nav-text">Staff Directory</span>
                 <div class="nav-tooltip">
@@ -283,7 +294,8 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'student-directory' %}" class="nav-link {% if request.resolver_match.url_name == 'student-directory' %}active{% endif %}">
+            <a href="{% url 'student-directory' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'student-directory' %}active{% endif %}">
                 <i class="fas fa-address-book nav-icon" style="color: #06b6d4;"></i>
                 <span class="nav-text">Student Directory</span>
                 <div class="nav-tooltip">
@@ -294,7 +306,8 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'system-logs' %}" class="nav-link {% if request.resolver_match.url_name == 'system-logs' %}active{% endif %}">
+            <a href="{% url 'system-logs' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'system-logs' %}active{% endif %}">
                 <i class="fas fa-database nav-icon" style="color: #f97316;"></i>
                 <span class="nav-text">System Logs</span>
                 <div class="nav-tooltip">
@@ -304,7 +317,8 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'system_configuration' %}" class="nav-link {% if request.resolver_match.url_name == 'system_configuration' %}active{% endif %}">
+            <a href="{% url 'system_configuration' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'system_configuration' %}active{% endif %}">
                 <i class="fas fa-cog nav-icon" style="color: #6b7280;"></i>
                 <span class="nav-text">Configuration</span>
                 <div class="nav-tooltip">
@@ -318,7 +332,8 @@
         <!-- Staff Section -->
         {% else %}
         <li class="nav-item">
-            <a href="{% url 'student-directory' %}" class="nav-link {% if request.resolver_match.url_name == 'student-directory' %}active{% endif %}">
+            <a href="{% url 'student-directory' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'student-directory' %}active{% endif %}">
                 <i class="fas fa-address-book nav-icon" style="color: #06b6d4;"></i>
                 <span class="nav-text">My Students</span>
                 <div class="nav-tooltip">
@@ -360,7 +375,7 @@
 </aside>
 
 <script>
-    (function() {
+    (function () {
         'use strict';
 
         let currentZoom = 1;
@@ -422,7 +437,7 @@
 
             if (!modal) return;
 
-            modal.addEventListener('click', function(e) {
+            modal.addEventListener('click', function (e) {
                 if (e.target === modal) closeModal();
             });
 
@@ -433,7 +448,7 @@
             if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
             if (modalImg) {
-                modalImg.addEventListener('wheel', function(e) {
+                modalImg.addEventListener('wheel', function (e) {
                     e.preventDefault();
                     if (e.deltaY < 0) zoomIn();
                     else zoomOut();
@@ -445,7 +460,7 @@
                 modalImg.addEventListener('mouseleave', stopDrag);
             }
 
-            document.addEventListener('keydown', function(e) {
+            document.addEventListener('keydown', function (e) {
                 if (modal.style.display !== 'flex') return;
                 if (e.key === 'Escape') closeModal();
                 if (e.key === '+' || e.key === '=') {
@@ -554,7 +569,7 @@
         }
 
         window.photoModal = {
-            open: function(imageSrc, title = '', subtitle = '') {
+            open: function (imageSrc, title = '', subtitle = '') {
                 let modal = document.getElementById('photoModal');
                 if (!modal) {
                     createModal();
@@ -588,20 +603,17 @@
         function initProfileClick() {
             const profileImg = document.getElementById('profilePhoto');
             if (profileImg) {
-                profileImg.addEventListener('click', function(e) {
+                profileImg.addEventListener('click', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    let name = '',
-                        role = ''; { %
-                        if request.user.is_superuser %
-                    }
+                    let name = '', role = '';
+                    {% if request.user.is_superuser %}
                     name = '{{ request.user.username|escapejs }}';
-                    role = 'Administrator'; { %
-                        else %
-                    }
+                    role = 'Administrator';
+                    {% else %}
                     name = '{{ request.user.staff_profile.full_name|default:request.user.username|escapejs }}';
-                    role = '{{ request.user.staff_profile.designation|default:"Staff Member"|escapejs }}'; { % endif %
-                    }
+                    role = '{{ request.user.staff_profile.designation|default:"Staff Member"|escapejs }}';
+                    {% endif %}
                     window.photoModal.open(this.src, name, role);
                 });
             }
@@ -609,7 +621,7 @@
 
         // Initialize modal on load
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 createModal();
                 initProfileClick();
             });

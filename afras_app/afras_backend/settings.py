@@ -13,7 +13,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-local-fallback-key')
 # Set DEBUG=False on Render, keeps True locally if DEBUG env var is set
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['192.168.100.18', '127.0.0.1', 'localhost', '.onrender.com']
+ALLOWED_HOSTS = ['192.168.1.79', '192.168.100.18', '127.0.0.1', 'localhost', '.onrender.com']
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',

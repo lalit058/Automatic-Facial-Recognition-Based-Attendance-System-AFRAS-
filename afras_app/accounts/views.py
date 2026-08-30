@@ -75,14 +75,29 @@ def process_face_api(request):
         image = image.convert("RGB")
         image_array = np.array(image)
         
-        # Detect faces using face_recognition
+        # ============================================================
+        # FIX: Better face detection with false positive filtering
+        # ============================================================
+        
+        # First try with HOG model
         face_locations = face_recognition.face_locations(
             image_array, 
-            number_of_times_to_upsample=2, 
-            model="hog"  # Faster detection
+            number_of_times_to_upsample=1,  # Reduced from 2 to avoid false positives
+            model="hog"
         )
         
-        # If no face found, try CNN model
+        # Filter out small faces (likely false positives)
+        MIN_FACE_SIZE = 80  # Minimum pixels for a valid face
+        filtered_locations = []
+        for (top, right, bottom, left) in face_locations:
+            width = right - left
+            height = bottom - top
+            if width >= MIN_FACE_SIZE and height >= MIN_FACE_SIZE:
+                filtered_locations.append((top, right, bottom, left))
+        
+        face_locations = filtered_locations
+        
+        # If no face found with HOG, try CNN
         if not face_locations:
             print("Trying CNN model for auto-capture...")
             face_locations = face_recognition.face_locations(
@@ -97,12 +112,26 @@ def process_face_api(request):
                 'error': 'No face detected. Please ensure your face is clearly visible and well-lit.'
             })
         
-        # If multiple faces detected
+        # ============================================================
+        # FIX: If multiple faces, take the LARGEST one (likely the real face)
+        # ============================================================
         if len(face_locations) > 1:
-            return JsonResponse({
-                'success': False, 
-                'error': f'Multiple faces ({len(face_locations)}) detected. Please ensure only one face is visible.'
-            })
+            # Find the largest face by area
+            largest_area = 0
+            largest_face = None
+            for (top, right, bottom, left) in face_locations:
+                area = (right - left) * (bottom - top)
+                if area > largest_area:
+                    largest_area = area
+                    largest_face = (top, right, bottom, left)
+            
+            if largest_face:
+                face_locations = [largest_face]
+                print(f"✅ Selected largest face (area: {largest_area} pixels)")
+            else:
+                # If something went wrong, take the first one
+                face_locations = [face_locations[0]]
+                print("⚠️ Using first face as fallback")
         
         # Get face encoding
         encodings = face_recognition.face_encodings(image_array, face_locations)
@@ -125,6 +154,8 @@ def process_face_api(request):
         
     except Exception as e:
         print(f"Face processing error: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({
             'success': False, 
             'error': f'Face processing failed: {str(e)}'

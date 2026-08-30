@@ -38,10 +38,14 @@ class Student(models.Model):
     section = models.CharField(max_length=10, blank=True)
     address = models.CharField(max_length=50, blank=True)
 
-    photo = models.ImageField(upload_to="student_photos/")
+    # FIX: Add blank=True, null=True
+    photo = models.ImageField(upload_to="student_photos/", blank=True, null=True)
     id_proof = models.FileField(upload_to="student_docs/", blank=True, null=True)
     registration_date = models.DateTimeField(auto_now_add=True)
     face_encoding = models.JSONField(blank=True, null=True)
+    
+    # Add updated_at for cache busting
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.roll_number} - {self.full_name}"

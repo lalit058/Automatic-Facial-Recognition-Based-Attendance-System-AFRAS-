@@ -15,7 +15,6 @@
     <link rel="stylesheet" href="{% static 'css/sidebar.css' %}?v={% now 'U' %}">
     <link rel="stylesheet" href="{% static 'css/footer.css' %}?v={% now 'U' %}">
 
-    <script src="{% static 'js/photo-model.js' %}"></script>
     {% block extra_head %}{% endblock %}
 
     {% block extra_css %}{% endblock %}
@@ -229,6 +228,7 @@
 
     <!-- JavaScript files loaded at the bottom -->
     <script src="{% static 'js/sidebar.js' %}?v={% now 'U' %}"></script>
+    <script src="{% static 'js/photo-model.js' %}"></script>
     {% block extra_scripts %}{% endblock %}
 
 

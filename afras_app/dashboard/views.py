@@ -1404,60 +1404,20 @@ def edit_student(request, student_id):
     """Edit student profile"""
     student = get_object_or_404(Student, id=student_id)
 
-    # Permission check
-    if not request.user.is_superuser:
-        if not hasattr(request.user, "staff_profile"):
-            messages.error(request, "You don't have permission to edit students.")
-            return redirect("student-directory")
-
-        staff_profile = request.user.staff_profile
-        if staff_profile.department != student.department:
-            messages.error(request, "You can only edit students from your department.")
-            return redirect("student-directory")
-
     if request.method == "POST":
-        form = StudentEditForm(request.POST, request.FILES, instance=student)
+        # ============================================================
+        # Create form with instance
+        # ============================================================
+        form = StudentEditForm(request.POST, request.FILES, instance=student, user=request.user)
         
-        # Handle face update
-        update_face = request.POST.get('update_face') == 'true'
-        face_encoding_data = request.POST.get('face_encoding')
-        photo_data = request.POST.get('photo_data')
-        
-        if update_face and face_encoding_data:
-            try:
-                import base64
-                
-                # Parse the face encoding
-                encoding = json.loads(face_encoding_data)
-                student.face_encoding = encoding
-                
-                # If photo data is available, save it too
-                if photo_data and photo_data.startswith('data:image'):
-                    try:
-                        format, imgstr = photo_data.split(';base64,')
-                        ext = format.split('/')[-1]
-                        data = ContentFile(
-                            base64.b64decode(imgstr), 
-                            name=f'face_{student.roll_number}_{timezone.now().strftime("%Y%m%d%H%M%S")}.{ext}'
-                        )
-                        student.photo = data
-                    except Exception as e:
-                        print(f"Error saving photo: {e}")
-                
-                messages.success(request, "Face data updated successfully!")
-            except Exception as e:
-                messages.error(request, f"Error updating face data: {str(e)}")
-        
+        # ============================================================
+        # The form's save() method will handle the face encoding and photo
+        # ============================================================
         if form.is_valid():
             try:
-                delete_id_proof = request.POST.get("delete_existing_file") == "true"
-
-                if delete_id_proof and student.id_proof:
-                    student.id_proof.delete(save=False)
-                    student.id_proof = None
-                    student.save()
-                
+                # Save the form - this will handle face_encoding and photo_data
                 form.save()
+                
                 messages.success(
                     request, f"Student {student.full_name} updated successfully!"
                 )

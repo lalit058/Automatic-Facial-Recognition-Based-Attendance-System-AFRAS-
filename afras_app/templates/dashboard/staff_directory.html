@@ -262,6 +262,7 @@
     }
 
     .table-scroll {
+        width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
@@ -599,6 +600,7 @@
             opacity: 0;
             transform: translateY(-30px) scale(0.95);
         }
+
         to {
             opacity: 1;
             transform: translateY(0) scale(1);
@@ -772,7 +774,7 @@
     }
 
     /* Mobile devices */
-    @media (max-width: 768px) {
+    @media screen and (max-width: 768px) {
 
         .page-header {
             flex-direction: column;
@@ -844,19 +846,24 @@
             border-radius: 8px;
         }
 
+        /* Keep table horizontal scrolling intact */
         .table-scroll {
-            margin: 0 -0.75rem;
-            padding: 0 0.75rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
         }
 
         table {
             font-size: 0.7rem;
-            min-width: 600px;
+            min-width: 750px;
+            /* Forces horizontal scrolling so columns don't compress awkwardly */
         }
 
         thead th,
         tbody td {
-            padding: 0.4rem 0.6rem;
+            padding: 0.5rem 0.6rem;
+            white-space: nowrap;
+            /* Ensures content stays on a single line */
         }
 
         thead th {
@@ -864,7 +871,7 @@
         }
 
         .staff-profile {
-            min-width: 100px;
+            min-width: 140px;
             gap: 8px;
         }
 
@@ -1136,6 +1143,7 @@
 
     /* Print Styles */
     @media print {
+
         .filter-container,
         .filter-tags,
         .pagination-container,
@@ -1231,7 +1239,8 @@
             </button>
         </div>
         <div class="results-count">
-            Showing <strong id="visibleCount">{{ page_obj|length }}</strong> of <strong>{{ total_staff }}</strong> staff members
+            Showing <strong id="visibleCount">{{ page_obj|length }}</strong> of <strong>{{ total_staff }}</strong> staff
+            members
         </div>
     </div>
 
@@ -1297,18 +1306,22 @@
                         <td><span class="id-badge">{{ staff.user.username }}</span></td>
                         <td><span class="dept-tag">{{ staff.department|default:"Not Assigned" }}</span></td>
                         <td>
-                            <div style="font-weight: 500; font-size: 0.8rem;">{{ staff.designation|default:"Staff" }}</div>
+                            <div style="font-weight: 500; font-size: 0.8rem;">{{ staff.designation|default:"Staff" }}
+                            </div>
                             <div style="font-size: 0.7rem; color: #94a3b8;">{{ staff.degree|default:"" }}</div>
                         </td>
                         <td>
                             <div style="font-size: 0.75rem; line-height: 1.6;">
-                                <div><i class="fas fa-phone" style="color: #6366f1; width: 16px;"></i> {{ staff.phone_number|default:"-" }}</div>
-                                <div><i class="fas fa-envelope" style="color: #6366f1; width: 16px;"></i> {{ staff.user.email|truncatechars:20 }}</div>
+                                <div><i class="fas fa-phone" style="color: #6366f1; width: 16px;"></i> {{
+                                    staff.phone_number|default:"-" }}</div>
+                                <div><i class="fas fa-envelope" style="color: #6366f1; width: 16px;"></i> {{
+                                    staff.user.email|truncatechars:20 }}</div>
                             </div>
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <a href="{% url 'staff-profile' staff.id %}" class="action-btn view" title="View Profile">
+                                <a href="{% url 'staff-profile' staff.id %}" class="action-btn view"
+                                    title="View Profile">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 {% if request.user.is_superuser %}
@@ -1316,7 +1329,7 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <button class="action-btn delete" title="Delete Staff"
-                                    onclick="showDeleteConfirmation('{{ staff.id }}', '{{ staff.full_name }}', '{{ staff.user.email }}', '{{ staff.department|default:"Not Assigned" }}')">
+                                    onclick="showDeleteConfirmation('{{ staff.id }}', '{{ staff.full_name }}', '{{ staff.user.email }}', '{{ staff.department|default:'Not Assigned' }}')">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                                 {% endif %}
@@ -1341,7 +1354,8 @@
         <!-- Pagination -->
         <div class="pagination-container">
             <div class="info">
-                Showing <strong>{{ page_obj.start_index }}</strong> to <strong>{{ page_obj.end_index }}</strong> of <strong>{{ total_staff }}</strong> entries
+                Showing <strong>{{ page_obj.start_index }}</strong> to <strong>{{ page_obj.end_index }}</strong> of
+                <strong>{{ total_staff }}</strong> entries
             </div>
             <div class="pagination-controls">
                 {% if page_obj.has_previous %}
@@ -1356,20 +1370,20 @@
 
                 <div class="page-numbers">
                     {% for num in page_obj.paginator.page_range %}
-                        {% if num == page_obj.number %}
-                        <button class="active">{{ num }}</button>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <button onclick="goToPage({{ num }})">{{ num }}</button>
-                        {% elif num == page_obj.number|add:'3' and num < page_obj.paginator.num_pages %}
-                        <span class="dots">…</span>
-                        {% elif num == page_obj.number|add:'-3' and num > 1 %}
-                        <span class="dots">…</span>
-                        {% elif num == page_obj.paginator.num_pages and num > page_obj.number|add:'2' %}
-                        <button onclick="goToPage({{ num }})">{{ num }}</button>
-                        {% elif num == 1 and num < page_obj.number|add:'-2' %}
-                        <button onclick="goToPage(1)">1</button>
-                        {% endif %}
-                    {% endfor %}
+                    {% if num == page_obj.number %}
+                    <button class="active">{{ num }}</button>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <button
+                        onclick="goToPage({{ num }})">{{ num }}</button>
+                        {% elif num == page_obj.number|add:'3' and num < page_obj.paginator.num_pages %} <span
+                            class="dots">…</span>
+                            {% elif num == page_obj.number|add:'-3' and num > 1 %}
+                            <span class="dots">…</span>
+                            {% elif num == page_obj.paginator.num_pages and num > page_obj.number|add:'2' %}
+                            <button onclick="goToPage({{ num }})">{{ num }}</button>
+                            {% elif num == 1 and num < page_obj.number|add:'-2' %} <button onclick="goToPage(1)">
+                                1</button>
+                                {% endif %}
+                                {% endfor %}
                 </div>
 
                 {% if page_obj.has_next %}
@@ -1506,7 +1520,7 @@ DELETE CONFIRMATION MODAL
             .then(data => {
                 if (data.success) {
                     showMessage(data.message || 'Staff member deleted successfully', 'success');
-                    
+
                     // Remove row from table
                     const row = document.querySelector(`tr[data-staff-id="${deleteStaffId}"]`);
                     if (row) {
@@ -1517,7 +1531,7 @@ DELETE CONFIRMATION MODAL
                             updateCounts();
                         }, 300);
                     }
-                    
+
                     closeDeleteModal();
                 } else {
                     showMessage(data.message || 'Failed to delete staff member', 'error');
@@ -1538,7 +1552,7 @@ DELETE CONFIRMATION MODAL
         if (visibleCount) {
             visibleCount.textContent = visibleRows;
         }
-        
+
         // Update total count
         const totalSpan = document.querySelector('.results-count strong:last-child');
         if (totalSpan) {
@@ -1552,11 +1566,11 @@ DELETE CONFIRMATION MODAL
     // ============================================
     function goToPage(page) {
         const totalPages = {{ page_obj.paginator.num_pages }};
-        if (page < 1 || page > totalPages) return;
-        const url = new URL(window.location.href);
-        url.searchParams.set('page', page);
-        window.location.href = url.toString();
-    }
+    if (page < 1 || page > totalPages) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page);
+    window.location.href = url.toString();
+}
 
     // ============================================
     // SEARCH & FILTER
@@ -1647,7 +1661,7 @@ DELETE CONFIRMATION MODAL
     // EVENT LISTENERS
     // ============================================
     let searchTimeout;
-    searchInput.addEventListener('input', function() {
+    searchInput.addEventListener('input', function () {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             filterState.search = this.value.trim().toLowerCase();
@@ -1655,12 +1669,12 @@ DELETE CONFIRMATION MODAL
         }, 300);
     });
 
-    roleFilter.addEventListener('change', function() {
+    roleFilter.addEventListener('change', function () {
         filterState.role = this.value;
         applyFilters();
     });
 
-    clearFiltersBtn.addEventListener('click', function() {
+    clearFiltersBtn.addEventListener('click', function () {
         searchInput.value = '';
         roleFilter.value = 'all';
         filterState.search = '';
@@ -1694,7 +1708,7 @@ DELETE CONFIRMATION MODAL
     // ============================================
     // KEYBOARD SHORTCUTS
     // ============================================
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             closeDeleteModal();
             if (window.photoModal && typeof window.photoModal.close === 'function') {
@@ -1706,7 +1720,7 @@ DELETE CONFIRMATION MODAL
     // ============================================
     // CLOSE MODAL ON CLICK OUTSIDE
     // ============================================
-    document.getElementById('deleteModal').addEventListener('click', function(e) {
+    document.getElementById('deleteModal').addEventListener('click', function (e) {
         if (e.target === this) {
             closeDeleteModal();
         }
@@ -1715,13 +1729,13 @@ DELETE CONFIRMATION MODAL
     // ============================================
     // INITIALIZATION
     // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         applyFilters();
     });
 
     // Handle resize events for better responsiveness
     let resizeTimeout;
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', function () {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             // Any resize-specific logic if needed

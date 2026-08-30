@@ -2,9 +2,9 @@
 {% load static %}
 
 {% block extra_head %}
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Directory</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Directory</title>
 {% endblock %}
 
 {% block title %}Student Directory{% endblock %}
@@ -609,6 +609,7 @@
             opacity: 0;
             transform: translateY(-30px) scale(0.95);
         }
+
         to {
             opacity: 1;
             transform: translateY(0) scale(1);
@@ -734,13 +735,18 @@
         }
 
         .filter-container .filter-group {
-            justify-content: stretch;
+            justify-content: flex-start;
+            flex-wrap: wrap;
             gap: 0.5rem;
         }
 
         .filter-container .filter-group select {
-            flex: 1;
+            flex: 1 1 140px;
             min-width: 0;
+        }
+
+        .filter-container .filter-group .clear-btn {
+            flex: 0 1 auto;
         }
 
         .filter-container .results-count {
@@ -754,16 +760,15 @@
 
         .page-header .header-actions {
             width: 100%;
-        }
-
-        .page-header .header-actions .btn-primary {
-            flex: 1;
             justify-content: center;
         }
 
         .table-scroll {
             margin: 0 -0.5rem;
             padding: 0 0.5rem;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-x;
         }
 
         table {
@@ -790,6 +795,10 @@
             height: 30px;
             font-size: 0.75rem;
         }
+
+        .pagination-controls {
+            justify-content: center;
+        }
     }
 
     /* Mobile devices */
@@ -814,11 +823,16 @@
             font-size: 0.65rem;
         }
 
-        .page-header .header-actions .btn-primary {
-            font-size: 0.75rem;
-            padding: 0.4rem 0.8rem;
+        .page-header .header-actions {
             width: 100%;
             justify-content: center;
+        }
+
+        .page-header .header-actions .btn-primary {
+            flex: 0 1 auto;
+            width: fit-content;
+            font-size: 0.75rem;
+            padding: 0.5rem 1rem;
         }
 
         .filter-container {
@@ -842,6 +856,7 @@
 
         .filter-container .filter-group select {
             width: 100%;
+            flex: none;
             padding: 0.4rem 0.6rem;
             font-size: 0.7rem;
         }
@@ -860,6 +875,7 @@
 
         .filter-tags {
             gap: 4px;
+            justify-content: center;
         }
 
         .filter-tag {
@@ -874,16 +890,31 @@
         .table-scroll {
             margin: 0 -0.75rem;
             padding: 0 0.75rem;
+            position: relative;
+        }
+
+        /* Fade hint that more columns exist off-screen */
+        .table-scroll::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0.75rem;
+            bottom: 0;
+            width: 20px;
+            background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
+            pointer-events: none;
         }
 
         table {
             font-size: 0.7rem;
             min-width: 600px;
+            table-layout: auto;
         }
 
         thead th,
         tbody td {
             padding: 0.4rem 0.6rem;
+            white-space: nowrap;
         }
 
         thead th {
@@ -893,6 +924,7 @@
         .student-profile {
             min-width: 100px;
             gap: 8px;
+            white-space: normal;
         }
 
         .student-avatar {
@@ -903,6 +935,7 @@
 
         .student-info .student-name {
             font-size: 0.75rem;
+            white-space: normal;
         }
 
         .student-info .student-meta {
@@ -920,15 +953,21 @@
 
         .semester-info {
             font-size: 0.65rem;
+            white-space: normal;
         }
 
         .contact-info {
             font-size: 0.65rem;
             min-width: 80px;
+            white-space: normal;
         }
 
         .contact-info i {
             width: 12px;
+        }
+
+        .action-buttons {
+            gap: 4px;
         }
 
         .action-btn {
@@ -952,11 +991,17 @@
 
         .pagination-controls {
             gap: 0.2rem;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .pagination-controls button {
             padding: 0.2rem 0.6rem;
             font-size: 0.7rem;
+        }
+
+        .pagination-controls .page-numbers {
+            justify-content: center;
         }
 
         .pagination-controls .page-numbers button {
@@ -982,10 +1027,16 @@
             font-size: 0.8rem;
         }
 
+        .delete-modal .modal-actions {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
         .delete-modal .modal-actions button {
+            flex: 1 1 auto;
             padding: 0.5rem 1rem;
             font-size: 0.8rem;
-            min-width: 80px;
+            min-width: 100px;
         }
     }
 
@@ -1005,7 +1056,7 @@
 
         .page-header .header-actions .btn-primary {
             font-size: 0.65rem;
-            padding: 0.3rem 0.6rem;
+            padding: 0.4rem 0.7rem;
         }
 
         .filter-container {
@@ -1020,9 +1071,18 @@
             font-size: 0.65rem;
         }
 
+        .filter-tags {
+            justify-content: center;
+        }
+
         .table-scroll {
             margin: 0 -0.5rem;
             padding: 0 0.5rem;
+        }
+
+        .table-scroll::after {
+            right: 0.5rem;
+            width: 16px;
         }
 
         table {
@@ -1079,6 +1139,10 @@
             font-size: 0.5rem;
         }
 
+        .action-buttons {
+            gap: 3px;
+        }
+
         .action-btn {
             width: 22px;
             height: 22px;
@@ -1088,6 +1152,10 @@
 
         .pagination-container .info {
             font-size: 0.6rem;
+        }
+
+        .pagination-controls {
+            gap: 0.15rem;
         }
 
         .pagination-controls button {
@@ -1127,6 +1195,7 @@
 
         .delete-modal .modal-actions button {
             width: 100%;
+            flex: none;
             justify-content: center;
         }
 
@@ -1149,6 +1218,19 @@
 
     /* Extra small devices */
     @media (max-width: 360px) {
+        .page-header .header-left h1 {
+            font-size: 0.92rem;
+        }
+
+        .page-header .header-actions .btn-primary {
+            font-size: 0.6rem;
+            padding: 0.35rem 0.6rem;
+        }
+
+        .filter-container .filter-group select {
+            font-size: 0.65rem;
+        }
+
         table {
             min-width: 400px;
         }
@@ -1182,10 +1264,35 @@
             min-width: 20px;
             font-size: 0.5rem;
         }
+
+        .delete-modal .modal-actions button {
+            font-size: 0.7rem;
+            padding: 0.5rem 0.7rem;
+        }
+    }
+
+    /* Landscape phones — short viewport height */
+    @media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
+        .page-header {
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 0.5rem 1rem;
+        }
+
+        .page-header .header-actions {
+            width: auto;
+        }
+
+        .delete-modal {
+            max-height: 95vh;
+            overflow-y: auto;
+        }
     }
 
     /* Print Styles */
     @media print {
+
         .filter-container,
         .filter-tags,
         .pagination-container,
@@ -1290,7 +1397,8 @@
             </button>
         </div>
         <div class="results-count">
-            Showing <strong id="visibleCount">{{ page_obj|length }}</strong> of <strong>{{ total_students }}</strong> students
+            Showing <strong id="visibleCount">{{ page_obj|length }}</strong> of <strong>{{ total_students }}</strong>
+            students
         </div>
     </div>
 
@@ -1352,7 +1460,7 @@
                         <td>
                             <div class="contact-info">
                                 <div><i class="fas fa-phone"></i> {{ student.phone_number|default:"-" }}</div>
-                                <div><i class="fas fa-envelope"></i> 
+                                <div><i class="fas fa-envelope"></i>
                                     {% if student.email %}
                                     <a href="mailto:{{ student.email }}">{{ student.email|truncatechars:20 }}</a>
                                     {% else %}
@@ -1366,20 +1474,23 @@
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <a href="{% url 'student-profile' student.id %}" class="action-btn view" title="View Profile">
+                                <a href="{% url 'student-profile' student.id %}" class="action-btn view"
+                                    title="View Profile">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{% url 'edit-student' student.id %}" class="action-btn edit" title="Edit Student">
+                                <a href="{% url 'edit-student' student.id %}" class="action-btn edit"
+                                    title="Edit Student">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 {% if student.id_proof %}
-                                <a href="{{ student.id_proof.url }}" target="_blank" class="action-btn document" title="View Document">
+                                <a href="{{ student.id_proof.url }}" target="_blank" class="action-btn document"
+                                    title="View Document">
                                     <i class="fas fa-file-pdf"></i>
                                 </a>
                                 {% endif %}
                                 {% if request.user.is_superuser %}
                                 <button class="action-btn delete" title="Delete Student"
-                                    onclick="showDeleteConfirmation('{{ student.id }}', '{{ student.full_name }}', '{{ student.roll_number }}', '{{ student.email|default:"N/A" }}', '{{ student.department }}')">
+                                    onclick="showDeleteConfirmation('{{ student.id }}', '{{ student.full_name }}', '{{ student.roll_number }}', '{{ student.email|default:'N/A' }}', '{{ student.department }}')">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                                 {% endif %}
@@ -1405,7 +1516,8 @@
         <!-- Pagination -->
         <div class="pagination-container">
             <div class="info">
-                Showing <strong>{{ page_obj.start_index }}</strong> to <strong>{{ page_obj.end_index }}</strong> of <strong>{{ total_students }}</strong> entries
+                Showing <strong>{{ page_obj.start_index }}</strong> to <strong>{{ page_obj.end_index }}</strong> of
+                <strong>{{ total_students }}</strong> entries
             </div>
             <div class="pagination-controls">
                 {% if page_obj.has_previous %}
@@ -1420,20 +1532,20 @@
 
                 <div class="page-numbers">
                     {% for num in page_obj.paginator.page_range %}
-                        {% if num == page_obj.number %}
-                        <button class="active">{{ num }}</button>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <button onclick="goToPage({{ num }})">{{ num }}</button>
-                        {% elif num == page_obj.number|add:'3' and num < page_obj.paginator.num_pages %}
-                        <span class="dots">…</span>
-                        {% elif num == page_obj.number|add:'-3' and num > 1 %}
-                        <span class="dots">…</span>
-                        {% elif num == page_obj.paginator.num_pages and num > page_obj.number|add:'2' %}
-                        <button onclick="goToPage({{ num }})">{{ num }}</button>
-                        {% elif num == 1 and num < page_obj.number|add:'-2' %}
-                        <button onclick="goToPage(1)">1</button>
-                        {% endif %}
-                    {% endfor %}
+                    {% if num == page_obj.number %}
+                    <button class="active">{{ num }}</button>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <button
+                        onclick="goToPage({{ num }})">{{ num }}</button>
+                        {% elif num == page_obj.number|add:'3' and num < page_obj.paginator.num_pages %} <span
+                            class="dots">…</span>
+                            {% elif num == page_obj.number|add:'-3' and num > 1 %}
+                            <span class="dots">…</span>
+                            {% elif num == page_obj.paginator.num_pages and num > page_obj.number|add:'2' %}
+                            <button onclick="goToPage({{ num }})">{{ num }}</button>
+                            {% elif num == 1 and num < page_obj.number|add:'-2' %} <button onclick="goToPage(1)">
+                                1</button>
+                                {% endif %}
+                                {% endfor %}
                 </div>
 
                 {% if page_obj.has_next %}
@@ -1571,7 +1683,7 @@ DELETE CONFIRMATION MODAL
             .then(data => {
                 if (data.success) {
                     showMessage(data.message || 'Student deleted successfully', 'success');
-                    
+
                     // Remove row from table
                     const row = document.querySelector(`tr[data-student-id="${deleteStudentId}"]`);
                     if (row) {
@@ -1582,7 +1694,7 @@ DELETE CONFIRMATION MODAL
                             updateCounts();
                         }, 300);
                     }
-                    
+
                     closeDeleteModal();
                 } else {
                     showMessage(data.message || 'Failed to delete student', 'error');
@@ -1603,7 +1715,7 @@ DELETE CONFIRMATION MODAL
         if (visibleCount) {
             visibleCount.textContent = visibleRows;
         }
-        
+
         // Update total count
         const totalSpan = document.querySelector('.results-count strong:last-child');
         if (totalSpan) {
@@ -1616,11 +1728,11 @@ DELETE CONFIRMATION MODAL
     // PAGINATION
     // ============================================
     function goToPage(page) {
-        const totalPages = {{ page_obj.paginator.num_pages }};
-        if (page < 1 || page > totalPages) return;
-        const url = new URL(window.location.href);
-        url.searchParams.set('page', page);
-        window.location.href = url.toString();
+    const totalPages = {{ page_obj.paginator.num_pages }};
+    if (page < 1 || page > totalPages) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page);
+    window.location.href = url.toString();
     }
 
     // ============================================
@@ -1773,7 +1885,7 @@ DELETE CONFIRMATION MODAL
     // EVENT LISTENERS
     // ============================================
     let searchTimeout;
-    searchInput.addEventListener('input', function() {
+    searchInput.addEventListener('input', function () {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             filterState.search = this.value.trim().toLowerCase();
@@ -1781,18 +1893,18 @@ DELETE CONFIRMATION MODAL
         }, 300);
     });
 
-    semesterFilter.addEventListener('change', function() {
+    semesterFilter.addEventListener('change', function () {
         filterState.semester = this.value;
         updateSectionDropdown();
         applyFilters();
     });
 
-    sectionFilter.addEventListener('change', function() {
+    sectionFilter.addEventListener('change', function () {
         filterState.section = this.value;
         applyFilters();
     });
 
-    clearFiltersBtn.addEventListener('click', function() {
+    clearFiltersBtn.addEventListener('click', function () {
         searchInput.value = '';
         semesterFilter.value = 'all';
         sectionFilter.value = 'all';
@@ -1806,7 +1918,7 @@ DELETE CONFIRMATION MODAL
     // ============================================
     // KEYBOARD SHORTCUTS
     // ============================================
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             closeDeleteModal();
             if (window.photoModal && typeof window.photoModal.close === 'function') {
@@ -1818,7 +1930,7 @@ DELETE CONFIRMATION MODAL
     // ============================================
     // CLOSE MODAL ON CLICK OUTSIDE
     // ============================================
-    document.getElementById('deleteModal').addEventListener('click', function(e) {
+    document.getElementById('deleteModal').addEventListener('click', function (e) {
         if (e.target === this) {
             closeDeleteModal();
         }
@@ -1827,14 +1939,14 @@ DELETE CONFIRMATION MODAL
     // ============================================
     // INITIALIZATION
     // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         updateSectionDropdown();
         applyFilters();
     });
 
     // Handle resize events for better responsiveness
     let resizeTimeout;
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', function () {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             // Any resize-specific logic if needed

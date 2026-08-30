@@ -755,23 +755,21 @@
     }
 
     .btn-submit {
-        width: 30%;
         padding: 0.6rem;
         background: var(--primary);
         border: none;
         border-radius: 8px;
         color: #ffffff;
         font-weight: 600;
-        font-size: 0.8rem;
+        font-size: 0.9rem;
         cursor: pointer;
         transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
         margin-top: 0.25rem;
         font-family: 'Inter', sans-serif;
-        margin-left: 8rem;
+        display: block;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .btn-submit:hover {
@@ -1970,9 +1968,7 @@
 
 {% block content %}
 <div class="page-container">
-    <!-- ============================================
-    PAGE HEADER
-    ============================================ -->
+    <!-- PAGE HEADER -->
     <div class="page-header">
         <div class="header-left">
             <div class="breadcrumb">
@@ -2026,9 +2022,7 @@
         </div>
     </div>
 
-    <!-- ============================================
-    AUTO-SESSION STATUS DASHBOARD
-    ============================================ -->
+    <!-- AUTO-SESSION STATUS DASHBOARD -->
     <div class="status-dashboard">
         <div class="status-dashboard-header">
             <h4><i class="fas fa-robot"></i> Automatic Session Manager Status</h4>
@@ -2101,9 +2095,7 @@
         </div>
     </div>
 
-    <!-- ============================================
-    STATS ROW
-    ============================================ -->
+    <!-- STATS ROW -->
     <div class="stats-row">
         <div class="stat-item">
             <div class="icon blue"><i class="fas fa-calendar-alt"></i></div>
@@ -2142,9 +2134,7 @@
         </div>
     </div>
 
-    <!-- ============================================
-    MAIN GRID - Two Columns
-    ============================================ -->
+    <!-- MAIN GRID - Two Columns -->
     <div class="main-grid">
         <!-- Left: Start Session Form -->
         <div class="viz-container">
@@ -2597,9 +2587,9 @@ JAVASCRIPT
         notification.innerHTML = '<i class="fas ' + icon + '"></i><span>' + message + '</span>';
         container.appendChild(notification);
 
-        setTimeout(function() {
+        setTimeout(function () {
             notification.style.animation = 'slideUp 0.4s ease-in forwards';
-            setTimeout(function() {
+            setTimeout(function () {
                 if (notification.parentNode) {
                     notification.remove();
                 }
@@ -2665,7 +2655,7 @@ JAVASCRIPT
     // ============================================
     // START SESSION FORM - EVENT LISTENERS
     // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         var yearSelect = document.getElementById('year');
         var semesterSelect = document.getElementById('semester');
         var sectionSelect = document.getElementById('section');
@@ -2685,7 +2675,7 @@ JAVASCRIPT
 
             if (year && yearSemesterMap[year]) {
                 var semesters = yearSemesterMap[year];
-                semesters.forEach(function(sem) {
+                semesters.forEach(function (sem) {
                     var option = document.createElement('option');
                     option.value = sem;
                     var suffix = sem === 1 ? 'st' : sem === 2 ? 'nd' : sem === 3 ? 'rd' : 'th';
@@ -2706,7 +2696,7 @@ JAVASCRIPT
 
             if (year && yearSectionMap[year]) {
                 var sections = yearSectionMap[year];
-                sections.forEach(function(sec) {
+                sections.forEach(function (sec) {
                     var option = document.createElement('option');
                     option.value = sec;
                     option.textContent = sec;
@@ -2728,14 +2718,14 @@ JAVASCRIPT
             var section = sectionSelect?.value || 'N/A';
             var duration = durationInput?.value || '60';
 
-            var yearNames = {1: '1st', 2: '2nd', 3: '3rd', 4: '4th'};
+            var yearNames = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th' };
             var yearText = yearNames[year] || year;
 
             preview.textContent = subject + ' | ' + dept + ' | ' + yearText + ' Year, ' + sem + 'th Sem | Section ' + section + ' | ' + duration + ' min';
         }
 
         if (yearSelect) {
-            yearSelect.addEventListener('change', function() {
+            yearSelect.addEventListener('change', function () {
                 updateSemesters();
                 updateSections();
                 checkDuplicateSession();
@@ -2743,9 +2733,9 @@ JAVASCRIPT
         }
 
         var fields = [departmentSelect, subjectInput, durationInput, semesterSelect, sectionSelect, datetimeInput];
-        fields.forEach(function(el) {
+        fields.forEach(function (el) {
             if (el) {
-                el.addEventListener('change', function() {
+                el.addEventListener('change', function () {
                     updatePreview();
                     if (el.id !== 'duration' && el.id !== 'subject') {
                         checkDuplicateSession();
@@ -2783,7 +2773,7 @@ JAVASCRIPT
 
         var form = document.getElementById('startSessionForm');
         if (form) {
-            form.addEventListener('submit', async function(e) {
+            form.addEventListener('submit', async function (e) {
                 e.preventDefault();
 
                 var isValid = await checkDuplicateSession();
@@ -2808,13 +2798,13 @@ JAVASCRIPT
             clearInterval(autoRefreshInterval);
         }
 
-        autoRefreshInterval = setInterval(function() {
+        autoRefreshInterval = setInterval(function () {
             fetch('/attendance/api/recent/')
-                .then(function(response) { return response.json(); })
-                .then(function(data) {
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
                     if (data.sessions && data.sessions.length > 0) {
-                        var oldActive = allSessions.filter(function(s) { return s.is_active; }).length;
-                        var newActive = data.sessions.filter(function(s) { return s.is_active; }).length;
+                        var oldActive = allSessions.filter(function (s) { return s.is_active; }).length;
+                        var newActive = data.sessions.filter(function (s) { return s.is_active; }).length;
 
                         allSessions = data.sessions;
                         updateStats();
@@ -2826,14 +2816,14 @@ JAVASCRIPT
                         document.getElementById('autoRefreshStatus').style.color = '#16a34a';
 
                         if (newActive > oldActive) {
-                            var started = data.sessions.filter(function(s) { return s.is_active; });
-                            started.forEach(function(s) {
+                            var started = data.sessions.filter(function (s) { return s.is_active; });
+                            started.forEach(function (s) {
                                 showNotification('🚀 Session "' + s.subject + '" is now LIVE!', 'success');
                             });
                         }
                     }
                 })
-                .catch(function() {
+                .catch(function () {
                     document.getElementById('autoRefreshStatus').textContent = '10s ⚠️';
                     document.getElementById('autoRefreshStatus').style.color = '#dc2626';
                 });
@@ -2845,12 +2835,12 @@ JAVASCRIPT
     // ============================================
     function loadActiveRoutines() {
         fetch('/dashboard/api/active-routines/')
-            .then(function(response) { return response.json(); })
-            .then(function(data) {
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
                 var container = document.getElementById('activeRoutinesList');
                 if (data.routines && data.routines.length > 0) {
                     var html = '';
-                    data.routines.forEach(function(r) {
+                    data.routines.forEach(function (r) {
                         html += '<div style="display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0; border-bottom: 1px solid #f1f5f9; font-size: 0.7rem;">';
                         html += '<span><strong>' + r.subject + '</strong> - ' + r.day_of_week + ' ' + r.start_time + '</span>';
                         html += '<span class="badge badge-info">' + r.duration + 'min</span>';
@@ -2861,7 +2851,7 @@ JAVASCRIPT
                     container.innerHTML = '<p style="font-size: 0.7rem; color: #94a3b8;">No active routines found. Create one to auto-schedule sessions.</p>';
                 }
             })
-            .catch(function() {
+            .catch(function () {
                 document.getElementById('activeRoutinesList').innerHTML = '<p style="font-size: 0.7rem; color: #94a3b8;">Could not load routines</p>';
             });
     }
@@ -2871,8 +2861,8 @@ JAVASCRIPT
     // ============================================
     function checkSchedulerStatus() {
         fetch('/attendance/api/scheduler/status/')
-            .then(function(response) { return response.json(); })
-            .then(function(data) {
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
                 var statusEl = document.getElementById('schedulerStatus');
                 var textEl = document.getElementById('schedulerStatusText');
                 if (data.running) {
@@ -2883,7 +2873,7 @@ JAVASCRIPT
                     textEl.textContent = 'Stopped';
                 }
             })
-            .catch(function() {
+            .catch(function () {
                 document.getElementById('schedulerStatusText').textContent = 'Unknown';
             });
     }
@@ -2898,7 +2888,7 @@ JAVASCRIPT
         checkSchedulerStatus();
         updateStatusDashboard();
         checkForActivity();
-        setTimeout(function() {
+        setTimeout(function () {
             showNotification('Status updated!', 'success');
         }, 1000);
     }
@@ -2932,7 +2922,7 @@ JAVASCRIPT
         loadSessions();
         updateStatusDashboard();
         checkForActivity();
-        setTimeout(function() {
+        setTimeout(function () {
             showNotification('Sessions refreshed!', 'success');
         }, 1000);
     }
@@ -2944,8 +2934,8 @@ JAVASCRIPT
         var container = document.getElementById('sessionsTableBody');
 
         fetch('/attendance/api/recent/')
-            .then(function(response) { return response.json(); })
-            .then(function(data) {
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
                 if (data.sessions && data.sessions.length > 0) {
                     allSessions = data.sessions;
                     updateStats();
@@ -2958,7 +2948,7 @@ JAVASCRIPT
                     showEmptyState('No sessions found', 'Start your first session or upload a routine');
                 }
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 console.error('Error loading sessions:', error);
                 showEmptyState('Could not load sessions', 'Please refresh the page or try again later');
             });
@@ -2969,14 +2959,14 @@ JAVASCRIPT
     // ============================================
     function updateStats() {
         var total = allSessions.length;
-        var active = allSessions.filter(function(s) { return s.is_active; }).length;
-        var scheduled = allSessions.filter(function(s) { return s.status === 'Scheduled'; }).length;
-        var ended = allSessions.filter(function(s) { return s.status === 'Ended' && !s.is_active; }).length;
-        var auto = allSessions.filter(function(s) { return s.is_auto_scheduled; }).length;
+        var active = allSessions.filter(function (s) { return s.is_active; }).length;
+        var scheduled = allSessions.filter(function (s) { return s.status === 'Scheduled'; }).length;
+        var ended = allSessions.filter(function (s) { return s.status === 'Ended' && !s.is_active; }).length;
+        var auto = allSessions.filter(function (s) { return s.is_auto_scheduled; }).length;
 
         document.getElementById('totalSessions').textContent = total;
         document.getElementById('activeSessions').textContent = active;
-        document.getElementById('todaySessions').textContent = allSessions.filter(function(s) { return new Date(s.date).toDateString() === new Date().toDateString(); }).length;
+        document.getElementById('todaySessions').textContent = allSessions.filter(function (s) { return new Date(s.date).toDateString() === new Date().toDateString(); }).length;
         document.getElementById('endedSessions').textContent = ended;
         document.getElementById('autoSessions').textContent = auto;
         document.getElementById('autoSessionsCount').textContent = auto + ' Auto';
@@ -2987,8 +2977,8 @@ JAVASCRIPT
     // ============================================
     function updateStatusDashboard() {
         fetch('/attendance/api/scheduler/status/')
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
                 var statusBadge = document.getElementById('liveStatusBadge');
                 var statusDisplay = document.getElementById('schedulerStatusDisplay');
                 var schedulerIcon = document.getElementById('schedulerIcon');
@@ -3010,13 +3000,13 @@ JAVASCRIPT
                 }
                 document.getElementById('lastCheckTime').textContent = new Date().toLocaleTimeString();
             })
-            .catch(function() {
+            .catch(function () {
                 document.getElementById('schedulerStatusDisplay').textContent = '⚠️ Unknown';
             });
 
         fetch('/attendance/api/stats/')
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
                 document.getElementById('activeSessionsDisplay').textContent = data.active || 0;
                 var activeIcon = document.getElementById('activeIcon');
                 if (data.active > 0) {
@@ -3027,19 +3017,19 @@ JAVASCRIPT
                     activeIcon.innerHTML = '<i class="fas fa-users"></i>';
                 }
             })
-            .catch(function() {
+            .catch(function () {
                 document.getElementById('activeSessionsDisplay').textContent = '?';
             });
 
         fetch('/attendance/api/recent/')
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
                 if (data.sessions) {
                     var today = new Date().toDateString();
                     var startedToday = 0;
                     var endedToday = 0;
 
-                    data.sessions.forEach(function(s) {
+                    data.sessions.forEach(function (s) {
                         var sessionDate = new Date(s.date).toDateString();
                         if (sessionDate === today) {
                             if (s.is_active) startedToday++;
@@ -3071,7 +3061,7 @@ JAVASCRIPT
         if (countEl) countEl.textContent = activityLog.length + ' events';
 
         var html = '';
-        activityLog.forEach(function(item) {
+        activityLog.forEach(function (item) {
             var dotClass = item.type === 'start' ? 'start' : item.type === 'end' ? 'end' : 'info';
             var timeStr = item.time ? new Date(item.time).toLocaleTimeString() : '--:--:--';
             var messageText = item.message || (item.type === 'start' ? 'Auto-started' : 'Auto-ended');
@@ -3087,8 +3077,8 @@ JAVASCRIPT
 
     function checkForActivity() {
         fetch('/attendance/api/recent/')
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
                 if (data.sessions && data.sessions.length > 0) {
                     if (!window._sessionHistory) {
                         window._sessionHistory = {};
@@ -3099,7 +3089,7 @@ JAVASCRIPT
                     var newActivities = [];
                     var foundActive = false;
 
-                    data.sessions.forEach(function(s) {
+                    data.sessions.forEach(function (s) {
                         var key = s.id;
                         var prev = prevStates[key];
                         var isActive = s.is_active || false;
@@ -3164,14 +3154,14 @@ JAVASCRIPT
                         activityLog = newActivities.concat(activityLog).slice(0, MAX_ACTIVITY);
                         renderActivityLog();
 
-                        newActivities.forEach(function(a) {
+                        newActivities.forEach(function (a) {
                             var emoji = a.type === 'start' ? '🚀' : '⏹️';
                             showNotification(emoji + ' ' + a.subject + ' ' + a.message, a.type === 'start' ? 'success' : 'warning');
                         });
                     }
                 }
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 console.error('Activity check error:', err);
             });
     }
@@ -3185,7 +3175,7 @@ JAVASCRIPT
         var date = document.getElementById('dateFilter').value;
         var dept = document.getElementById('departmentFilter').value;
 
-        filteredSessions = allSessions.filter(function(s) {
+        filteredSessions = allSessions.filter(function (s) {
             var matchSearch = s.subject.toLowerCase().includes(search) || s.id.toString().includes(search);
 
             var matchStatus = true;
@@ -3265,7 +3255,7 @@ JAVASCRIPT
         }
 
         var html = '';
-        pageSessions.forEach(function(s) {
+        pageSessions.forEach(function (s) {
             var duration = s.duration || 'N/A';
             var statusClass = 'ended';
             var statusText = s.status || 'Ended';
@@ -3442,8 +3432,9 @@ JAVASCRIPT
     }
 
     // ============================================
-    // DELETE MODAL FUNCTIONS
+    // DELETE MODAL FUNCTIONS - FIXED
     // ============================================
+
     function openDeleteModal(sessionId, sessionName) {
         deleteSessionId = sessionId;
         deleteSessionName = sessionName;
@@ -3458,49 +3449,192 @@ JAVASCRIPT
         deleteSessionId = null;
     }
 
-    function confirmDelete() {
-        if (!deleteSessionId) return;
+    async function confirmDelete() {
+        if (!deleteSessionId) {
+            showNotification('No session selected for deletion', 'error');
+            return;
+        }
 
-        var btn = document.getElementById('confirmDeleteBtn');
+        const btn = document.getElementById('confirmDeleteBtn');
+        const originalText = btn.innerHTML;
+
+        // Disable button and show loading
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
 
-        var csrfToken = getCsrfToken();
+        try {
+            const csrfToken = getCsrfToken();
 
-        fetch('/attendance/delete-session/' + deleteSessionId + '/', {
-            method: 'DELETE',
-            headers: {
-                'X-CSRFToken': csrfToken,
-                'Content-Type': 'application/json'
+            if (!csrfToken) {
+                throw new Error('CSRF token not found. Please refresh the page.');
             }
-        })
-            .then(function(response) {
-                if (!response.ok) {
-                    return response.json().then(function(data) {
-                        throw new Error(data.message || 'HTTP ' + response.status);
-                    });
+
+            console.log(`🗑️ Attempting to delete session ID: ${deleteSessionId}`);
+
+            // Try DELETE method
+            let response;
+            try {
+                response = await fetch(`/attendance/delete-session/${deleteSessionId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+            } catch (fetchError) {
+                console.log('DELETE method failed, trying POST...');
+                // Fallback to POST
+                response = await fetch(`/attendance/delete-session/${deleteSessionId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        action: 'delete',
+                        session_id: deleteSessionId
+                    })
+                });
+            }
+
+            // Parse response
+            let data;
+            const responseText = await response.text();
+            try {
+                data = JSON.parse(responseText);
+            } catch (e) {
+                console.error('Failed to parse response:', responseText);
+                throw new Error('Invalid server response. Please check the server logs.');
+            }
+
+            if (!response.ok) {
+                throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            if (data.success) {
+                // Remove session from local array
+                const index = allSessions.findIndex(s => s.id === deleteSessionId);
+                if (index !== -1) {
+                    allSessions.splice(index, 1);
                 }
-                return response.json();
-            })
-            .then(function(data) {
-                if (data.success) {
-                    showNotification(data.message || 'Session deleted successfully', 'success');
-                    allSessions = allSessions.filter(function(s) { return s.id !== deleteSessionId; });
-                    updateStats();
-                    applyFilters();
-                    closeDeleteModal();
-                } else {
-                    showNotification(data.message || 'Failed to delete session', 'error');
+
+                // Remove from filtered sessions too
+                const filterIndex = filteredSessions.findIndex(s => s.id === deleteSessionId);
+                if (filterIndex !== -1) {
+                    filteredSessions.splice(filterIndex, 1);
                 }
-            })
-            .catch(function(err) {
-                console.error('Delete error:', err);
-                showNotification('Error: ' + err.message, 'error');
-            })
-            .finally(function() {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-trash"></i> Delete Permanently';
+
+                // Update UI
+                updateStats();
+                renderTable();
+                updateStatusDashboard();
+
+                showNotification(data.message || 'Session deleted successfully', 'success');
+                closeDeleteModal();
+
+                // Refresh from server to ensure consistency
+                setTimeout(() => {
+                    loadSessions();
+                }, 500);
+            } else {
+                showNotification(data.message || 'Failed to delete session', 'error');
+            }
+
+        } catch (error) {
+            console.error('❌ Delete error:', error);
+            showNotification(`Error: ${error.message}`, 'error');
+
+            // If it's a server error, try reloading the page
+            if (error.message.includes('500') || error.message.includes('Server') || error.message.includes('CSRF')) {
+                showNotification('Server error occurred. Refreshing page...', 'warning');
+                setTimeout(() => location.reload(), 2000);
+            }
+        } finally {
+            // Restore button
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
+
+    // Alternative delete method using POST (for testing)
+    async function deleteSessionViaPost(sessionId) {
+        if (!confirm('Are you sure you want to delete this session?')) return;
+
+        try {
+            const csrfToken = getCsrfToken();
+
+            if (!csrfToken) {
+                throw new Error('CSRF token not found');
+            }
+
+            const response = await fetch(`/attendance/delete-session/${sessionId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ action: 'delete' })
             });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showNotification(data.message, 'success');
+                loadSessions();
+            } else {
+                showNotification(data.message || 'Failed to delete session', 'error');
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            showNotification(`Error: ${error.message}`, 'error');
+        }
+    }
+
+    // ============================================
+    // TEST DELETE ENDPOINT (for debugging)
+    // ============================================
+    async function testDeleteEndpoint() {
+        const testId = prompt('Enter session ID to test delete:');
+        if (!testId) return;
+
+        try {
+            const csrfToken = getCsrfToken();
+
+            if (!csrfToken) {
+                alert('CSRF token not found!');
+                return;
+            }
+
+            console.log(`🧪 Testing delete for session ID: ${testId}`);
+
+            const response = await fetch(`/attendance/delete-session/${testId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            console.log('Response status:', response.status);
+
+            const text = await response.text();
+            console.log('Response body:', text);
+
+            try {
+                const data = JSON.parse(text);
+                console.log('Parsed data:', data);
+                alert(`✅ Response: ${data.success ? 'SUCCESS' : 'FAILED'}\n${data.message || data.error || 'No message'}`);
+            } catch (e) {
+                alert(`⚠️ Raw response: ${text}`);
+            }
+        } catch (error) {
+            console.error('Test failed:', error);
+            alert(`❌ Error: ${error.message}`);
+        }
     }
 
     // ============================================
@@ -3513,7 +3647,7 @@ JAVASCRIPT
         }
 
         var csv = 'Session ID,Subject,Department,Year,Semester,Section,Date,Time Range,Duration,Status,Type\n';
-        filteredSessions.forEach(function(s) {
+        filteredSessions.forEach(function (s) {
             var status = s.is_active ? 'Live' : (s.status || 'Ended');
             var type = s.is_auto_scheduled ? 'Auto-Scheduled' : 'Manual';
             csv += s.id + ',"' + s.subject + '","' + (s.department || 'N/A') + '",' + (s.year || 'N/A') + ',' + (s.semester || 'N/A') + ',"' + (s.section || 'N/A') + '",' + s.date + ',"' + s.time_range + '",' + (s.duration || 'N/A') + ' min,' + status + ',' + type + '\n';
@@ -3534,7 +3668,7 @@ JAVASCRIPT
     // ============================================
     // FILE UPLOAD HANDLERS
     // ============================================
-    window.updateFileLabel = function(input) {
+    window.updateFileLabel = function (input) {
         if (input.files && input.files[0]) {
             document.getElementById('file-name').innerText = '📎 ' + input.files[0].name;
             document.getElementById('extraction-actions').style.display = 'block';
@@ -3545,7 +3679,7 @@ JAVASCRIPT
     // ============================================
     // EXTRACTION SUBMISSION
     // ============================================
-    window.handleExtractionSubmit = function() {
+    window.handleExtractionSubmit = function () {
         var form = document.getElementById('extraction-form');
         var submitBtn = document.querySelector('button[onclick="handleExtractionSubmit()"]');
         var formData = new FormData(form);
@@ -3577,7 +3711,7 @@ JAVASCRIPT
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-            .then(async function(response) {
+            .then(async function (response) {
                 var text = await response.text();
                 try {
                     var data = JSON.parse(text);
@@ -3587,7 +3721,7 @@ JAVASCRIPT
                     throw new Error('Invalid response from server (Status: ' + response.status + ')');
                 }
             })
-            .then(function(result) {
+            .then(function (result) {
                 var response = result.response;
                 var data = result.data;
                 if (response.ok && data.success) {
@@ -3605,11 +3739,11 @@ JAVASCRIPT
                     showNotification('❌ Extraction Failed: ' + errorMsg, 'error');
                 }
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 console.error('❌ Error:', err);
                 showNotification('❌ Error: ' + err.message, 'error');
             })
-            .finally(function() {
+            .finally(function () {
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalText;
@@ -3631,8 +3765,8 @@ JAVASCRIPT
                 'Content-Type': 'application/json'
             }
         })
-            .then(function(response) { return response.json(); })
-            .then(function(data) {
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
                 if (data.success) {
                     showNotification('Extracted routines cleared', 'success');
                     var section = document.getElementById('extracted-routines-section');
@@ -3641,7 +3775,7 @@ JAVASCRIPT
                     showNotification('Error clearing routines', 'error');
                 }
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 console.error('Error:', err);
                 showNotification('Error clearing routines', 'error');
             });
@@ -3663,8 +3797,8 @@ JAVASCRIPT
                 'Content-Type': 'application/json'
             }
         })
-            .then(function(response) { return response.json(); })
-            .then(function(data) {
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
                 if (data.success) {
                     showNotification(data.message || 'Sessions synced successfully!', 'success');
                     loadSessions();
@@ -3672,11 +3806,11 @@ JAVASCRIPT
                     showNotification(data.error || 'Failed to sync sessions', 'error');
                 }
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 console.error('Sync error:', err);
                 showNotification('Error syncing sessions', 'error');
             })
-            .finally(function() {
+            .finally(function () {
                 if (btn) {
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-sync-alt"></i> Sync Schedule';
@@ -3702,8 +3836,8 @@ JAVASCRIPT
                 'Content-Type': 'application/json'
             }
         })
-            .then(function(response) { return response.json(); })
-            .then(function(data) {
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
                 if (data.success) {
                     showNotification(data.created + ' sessions created successfully!', 'success');
                     loadSessions();
@@ -3713,11 +3847,11 @@ JAVASCRIPT
                     showNotification(data.message || 'Error applying routines', 'error');
                 }
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 console.error('Error:', err);
                 showNotification('Error applying routines', 'error');
             })
-            .finally(function() {
+            .finally(function () {
                 if (btn) {
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-play"></i> Apply All Sessions';
@@ -3728,7 +3862,7 @@ JAVASCRIPT
     // ============================================
     // KEYBOARD SHORTCUTS
     // ============================================
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             closeDeleteModal();
         }
@@ -3742,7 +3876,7 @@ JAVASCRIPT
     // ============================================
     // CLOSE MODAL ON CLICK OUTSIDE
     // ============================================
-    document.getElementById('deleteModal').addEventListener('click', function(e) {
+    document.getElementById('deleteModal').addEventListener('click', function (e) {
         if (e.target === this) {
             closeDeleteModal();
         }
@@ -3751,7 +3885,7 @@ JAVASCRIPT
     // ============================================
     // AUTO-REFRESH - Keep checking
     // ============================================
-    setInterval(function() {
+    setInterval(function () {
         loadSessions();
         checkActiveSession();
         checkSchedulerStatus();
@@ -3764,21 +3898,21 @@ JAVASCRIPT
     // ============================================
     // DRAG & DROP SETUP
     // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         var uploadZone = document.getElementById('upload-zone');
         var fileInput = document.getElementById('routine-file');
 
         if (uploadZone) {
-            uploadZone.addEventListener('dragover', function(e) {
+            uploadZone.addEventListener('dragover', function (e) {
                 e.preventDefault();
                 uploadZone.classList.add('dragover');
             });
 
-            uploadZone.addEventListener('dragleave', function() {
+            uploadZone.addEventListener('dragleave', function () {
                 uploadZone.classList.remove('dragover');
             });
 
-            uploadZone.addEventListener('drop', function(e) {
+            uploadZone.addEventListener('drop', function (e) {
                 e.preventDefault();
                 uploadZone.classList.remove('dragover');
 
@@ -3805,7 +3939,7 @@ JAVASCRIPT
     {% for message in messages %}
     console.log('📢 Message from server: {{ message }}');
     {% endfor %}
-    setTimeout(function() {
+    setTimeout(function () {
         location.reload();
     }, 2000);
     {% endif %}

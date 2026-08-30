@@ -1,6 +1,9 @@
 from django import forms
 from accounts.models import StaffProfile, Student, CustomUser
 import json
+import base64
+from django.core.files.base import ContentFile
+from django.utils import timezone
 
 
 class StudentEditForm(forms.ModelForm):
@@ -9,6 +12,24 @@ class StudentEditForm(forms.ModelForm):
         widget=forms.EmailInput(
             attrs={"class": "form-control", "placeholder": "john@gmail.com"}
         ),
+    )
+
+    # ============================================================
+    # ADD THESE HIDDEN FIELDS FOR FACE DATA
+    # ============================================================
+    face_encoding = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False
+    )
+    
+    photo_data = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False
+    )
+    
+    update_face = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False
     )
 
     face_encoding_file = forms.FileField(
@@ -42,7 +63,6 @@ class StudentEditForm(forms.ModelForm):
             "section",
             "address",
             "photo",
-            "face_encoding",
             "id_proof",
         ]
         widgets = {
@@ -84,9 +104,6 @@ class StudentEditForm(forms.ModelForm):
             "photo": forms.FileInput(
                 attrs={"class": "form-control", "accept": "image/*"}
             ),
-            "face_encoding": forms.HiddenInput(
-                attrs={"class": "form-control", "accept": "application/json"}
-            ),
             "id_proof": forms.FileInput(
                 attrs={"class": "form-control", "accept": ".pdf,.jpg,.jpeg,.png"}
             ),
@@ -101,15 +118,12 @@ class StudentEditForm(forms.ModelForm):
             (d, d) for d in departments if d
         ]
 
-        # If instance exists, pre-fill email
         if self.instance and self.instance.user:
             user = self.instance.user
             self.fields["email"].initial = user.email
 
-        # Set roll number field properties based on user permissions
         if self.user:
             if not self.user.is_superuser:
-                # Non-admin users: make roll number read-only
                 self.fields["roll_number"].widget.attrs["readonly"] = True
                 self.fields["roll_number"].widget.attrs[
                     "class"
@@ -118,23 +132,18 @@ class StudentEditForm(forms.ModelForm):
                     "Only administrators can modify roll numbers"
                 )
             else:
-                # Admin users: allow editing
                 self.fields["roll_number"].widget.attrs["readonly"] = False
                 self.fields["roll_number"].help_text = ""
 
     def clean_roll_number(self):
-        """Validate roll number changes based on user permissions"""
         roll_number = self.cleaned_data.get("roll_number")
 
         if self.user and not self.user.is_superuser:
-            # Non-admin users cannot change roll number
             if self.instance and self.instance.pk:
                 original_roll = Student.objects.get(pk=self.instance.pk).roll_number
                 if roll_number != original_roll:
-                    # Silently revert to original roll number
                     roll_number = original_roll
 
-        # Check if roll number is unique (except for current student)
         if roll_number:
             qs = Student.objects.filter(roll_number=roll_number)
             if self.instance and self.instance.pk:
@@ -145,18 +154,15 @@ class StudentEditForm(forms.ModelForm):
         return roll_number
 
     def clean_face_encoding_file(self):
-        """Validate face encoding file upload"""
         file = self.cleaned_data.get("face_encoding_file")
         if file:
             if not file.name.endswith(".json"):
                 raise forms.ValidationError("Only JSON files are allowed.")
             try:
-                # Try to parse the JSON
                 content = file.read().decode("utf-8")
                 data = json.loads(content)
                 if not isinstance(data, list):
                     raise forms.ValidationError("JSON must contain a list of numbers.")
-                # Validate it's a list of numbers
                 for i, item in enumerate(data):
                     try:
                         float(item)
@@ -171,8 +177,54 @@ class StudentEditForm(forms.ModelForm):
         return file
 
     def save(self, commit=True):
-        """Save student with roll number protection and handle file deletion"""
+        """Save student with face encoding from hidden input"""
         student = super().save(commit=False)
+
+        # ============================================================
+        # HANDLE FACE ENCODING FROM HIDDEN INPUT
+        # ============================================================
+        update_face = self.cleaned_data.get('update_face') == 'true'
+        face_encoding_data = self.cleaned_data.get('face_encoding')
+        photo_data = self.cleaned_data.get('photo_data')
+        
+        if update_face and face_encoding_data:
+            try:
+                if isinstance(face_encoding_data, str):
+                    face_encoding = json.loads(face_encoding_data)
+                else:
+                    face_encoding = face_encoding_data
+                
+                if isinstance(face_encoding, list) and len(face_encoding) > 0:
+                    student.face_encoding = face_encoding
+                    print(f"✅ Face encoding saved for {student.full_name}")
+                    
+                    if photo_data and photo_data.startswith('data:image'):
+                        try:
+                            format, imgstr = photo_data.split(';base64,')
+                            ext = format.split('/')[-1]
+                            
+                            # Delete any existing photo first
+                            if student.photo and student.photo.name:
+                                try:
+                                    if student.photo.storage.exists(student.photo.name):
+                                        student.photo.storage.delete(student.photo.name)
+                                        print(f"🗑️ Deleted old file: {student.photo.name}")
+                                except Exception as e:
+                                    print(f"Error deleting old file: {e}")
+                            
+                            # ============================================================
+                            # FIX: Just use filename WITHOUT student_photos/
+                            # The model's upload_to="student_photos/" will add it
+                            # ============================================================
+                            filename = f'{student.roll_number}_photo.jpg'
+                            data = ContentFile(base64.b64decode(imgstr), name=filename)
+                            student.photo = data
+                            print(f"✅ Photo saved at: {student.photo.name}")
+                            
+                        except Exception as e:
+                            print(f"Error saving photo: {e}")
+            except Exception as e:
+                print(f"Error processing face data: {e}")
 
         # Handle face encoding file if uploaded
         face_encoding_file = self.cleaned_data.get("face_encoding_file")
@@ -183,7 +235,6 @@ class StudentEditForm(forms.ModelForm):
         # Handle ID proof deletion
         delete_id_proof = self.cleaned_data.get("delete_id_proof")
         if delete_id_proof and student.id_proof:
-            # Delete the file from storage
             student.id_proof.delete(save=False)
             student.id_proof = None
 
@@ -222,7 +273,6 @@ class StudentDeleteForm(forms.Form):
 
 
 class StaffProfileEditForm(forms.ModelForm):
-    # Field for the User model email
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(
@@ -267,7 +317,6 @@ class StaffProfileEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Load departments dynamically
         departments = StaffProfile.objects.values_list(
             "department", flat=True
         ).distinct()
@@ -275,7 +324,6 @@ class StaffProfileEditForm(forms.ModelForm):
             (d, d) for d in departments if d
         ]
 
-        # Fix the AttributeError: Check User fields correctly
         if self.instance and self.instance.user:
             user = self.instance.user
             self.fields["email"].initial = user.email
@@ -288,7 +336,6 @@ class StaffProfileEditForm(forms.ModelForm):
             user = staff_profile.user
             full_name = self.cleaned_data["full_name"]
 
-            # Logic to split Full Name into First and Last for the User model
             name_parts = full_name.split(" ", 1)
             user.first_name = name_parts[0]
             user.last_name = name_parts[1] if len(name_parts) > 1 else ""
