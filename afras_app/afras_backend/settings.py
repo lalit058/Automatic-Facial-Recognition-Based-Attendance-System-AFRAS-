@@ -41,7 +41,6 @@ LOGIN_URL = '/'
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
-    'django_browser_reload',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -53,11 +52,13 @@ INSTALLED_APPS = [
     'recognition',
 ]
 
+if DEBUG:
+    INSTALLED_APPS.append('django_browser_reload')
+
 # 3. MIDDLEWARE (WhiteNoise added for static files)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # REQUIRED for Render static files
-    'django_browser_reload.middleware.BrowserReloadMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -65,6 +66,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if DEBUG:
+    MIDDLEWARE.insert(2, 'django_browser_reload.middleware.BrowserReloadMiddleware')
 
 ROOT_URLCONF = 'afras_backend.urls'
 
