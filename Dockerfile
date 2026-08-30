@@ -39,7 +39,8 @@ COPY . /app/
 
 # 7. Collect static files
 WORKDIR /app/afras_app
-RUN python manage.py collectstatic --noinput --verbosity 3
+RUN python -c "import django, os; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'afras_backend.settings'); django.setup(); from django.contrib.staticfiles.finders import get_finders; [print(f.__class__.__name__, ':', list(f.list(None))) for f in get_finders()]"
+RUN python manage.py collectstatic --noinput
 
 # 8. Expose port, run migrations, create superuser, and start Gunicorn
 EXPOSE 10000
