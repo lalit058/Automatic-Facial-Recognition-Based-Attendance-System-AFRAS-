@@ -39,7 +39,6 @@ COPY . /app/
 
 # 7. Collect static files
 WORKDIR /app/afras_app
-RUN python -c "import django, os; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'afras_backend.settings'); django.setup(); from django.conf import settings; print('BASE_DIR:', settings.BASE_DIR); print('STATICFILES_DIRS:', settings.STATICFILES_DIRS); print('STATIC_ROOT:', settings.STATIC_ROOT)"
 RUN python manage.py collectstatic --noinput
 
 # 8. Expose port, run migrations, create superuser, and start Gunicorn

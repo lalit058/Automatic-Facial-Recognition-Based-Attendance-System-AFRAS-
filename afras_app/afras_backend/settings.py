@@ -158,3 +158,10 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+
+print("=== STATIC DEBUG ===")
+print("STATICFILES_DIRS:", STATICFILES_DIRS)
+print("STATIC_ROOT:", STATIC_ROOT)
+print("BASE_DIR:", BASE_DIR)
+print("====================")
