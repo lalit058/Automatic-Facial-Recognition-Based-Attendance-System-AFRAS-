@@ -39,7 +39,7 @@ COPY . /app/
 
 # 7. Collect static files
 WORKDIR /app/afras_app
-RUN python manage.py collectstatic --noinput
+RUN python manage.py collectstatic --noinput --upload-unhashed-files
 
 # 8. Expose port, run migrations, create superuser, and start Gunicorn
 EXPOSE 10000
