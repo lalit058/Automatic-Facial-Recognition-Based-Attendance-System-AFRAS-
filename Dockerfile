@@ -39,7 +39,7 @@ COPY . /app/
 
 # 7. Collect static files
 WORKDIR /app/afras_app
-RUN python -c "import django, os; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'afras_backend.settings'); django.setup(); from django.contrib.staticfiles.finders import get_finders; [print(f.__class__.__name__, ':', list(f.list(None))) for f in get_finders()]"
+RUN python manage.py shell -c "from django.contrib.staticfiles.management.commands.collectstatic import Command; c = Command(); c.set_options(interactive=False, verbosity=3, ignore_patterns=[], dry_run=True, clear=False, link=False, post_process=False, use_default_ignore_patterns=True); result = c.collect(); print('MODIFIED:', result.get('modified')); print('UNMODIFIED:', result.get('unmodified')); print('POST_PROCESSED:', result.get('post_processed'))"
 RUN python manage.py collectstatic --noinput
 
 # 8. Expose port, run migrations, create superuser, and start Gunicorn
