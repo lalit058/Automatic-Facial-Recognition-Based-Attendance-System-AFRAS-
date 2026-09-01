@@ -39,20 +39,7 @@ COPY . /app/
 
 # 7. Collect static files
 WORKDIR /app/afras_app
-RUN python manage.py shell -c "
-import traceback
-from django.contrib.staticfiles.management.commands.collectstatic import Command
-c = Command()
-c.set_options(interactive=False, verbosity=3, ignore_patterns=[], dry_run=False, clear=False, link=False, post_process=True, use_default_ignore_patterns=True)
-try:
-    result = c.collect()
-    print('MODIFIED:', len(result.get('modified', [])))
-    print('UNMODIFIED:', len(result.get('unmodified', [])))
-    print('POST_PROCESSED:', len(result.get('post_processed', [])))
-except Exception as e:
-    print('EXCEPTION CAUGHT:', repr(e))
-    traceback.print_exc()
-"
+RUN python manage.py shell < debug_static.py
 RUN python manage.py collectstatic --noinput
 
 # 8. Expose port, run migrations, create superuser, and start Gunicorn
